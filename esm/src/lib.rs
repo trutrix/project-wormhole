@@ -1,3 +1,4 @@
+pub mod traits;
 pub mod structs;
 pub mod esm;
 mod tests;
