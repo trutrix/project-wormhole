@@ -6,13 +6,13 @@ pub struct Field<T> {
     pub data: T,
 }
 
-#[derive(Debug, NomLE)]
+#[derive(Debug, NomLE, Clone, Copy)]
 pub struct FieldHeader16 {
     pub iden: FourCC,
     pub size: u16, // World groups contain different field headers
 }
 
-#[derive(Debug, NomLE)]
+#[derive(Debug, NomLE, Clone, Copy)]
 pub struct FieldHeader32 {
     _size_iden: FourCC,  // Should be 'XXXX'
     _skipped_size: u16,  // Should be 4,
@@ -21,10 +21,26 @@ pub struct FieldHeader32 {
     _skipped_size2: u16, // Should be 0
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub enum FieldHeader {
     Normal(FieldHeader16),
     Large(FieldHeader32),
+}
+
+impl FieldHeader {
+    pub fn size(&self) -> usize {
+        match self {
+            FieldHeader::Normal(h) => h.size as usize,
+            FieldHeader::Large(h) => h.size as usize,
+        }
+    }
+
+    pub fn iden(&self) -> &FourCC {
+        match self {
+            FieldHeader::Normal(h) => &h.iden,
+            FieldHeader::Large(h) => &h.iden,
+        }
+    }
 }
 
 
