@@ -15,3 +15,9 @@ impl std::fmt::Display for FourCC {
         write!(f, "{}", String::from_utf8_lossy(&self.0))
     }
 }
+
+impl PartialEq<&[u8;4]> for FourCC {
+    fn eq(&self, other: &&[u8;4]) -> bool {
+        self.0 == **other
+    }
+}
