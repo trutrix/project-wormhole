@@ -1,18 +1,19 @@
 use crate::dev::*;
 
 
-#[derive(Debug)]
+#[derive(Debug, NomLE)]
 pub struct RecordHeader {
     pub iden: FourCC,
-    pub size: u32,
+    pub size: u32, // Size NOT INCLUDING header, unlike GroupHeader
     pub flags: RecordFlags,
     pub form_id: u32,
     pub version_control: VersionControl
 }
 
-
-#[derive(Debug)]
+// The information contained in the version control structure appears to be used by a custom Perforce VCM
+#[derive(Debug, NomLE)]
 pub struct VersionControl {
+    // TODO: figure out how to display timestamp
     pub timestamp: u16,
     pub users: [u8;2],
     pub form: u16,
