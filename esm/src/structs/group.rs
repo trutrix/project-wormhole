@@ -1,3 +1,5 @@
+use std::fmt::Debug;
+
 use crate::dev::*;
 
 use super::record::VersionControl;
@@ -71,9 +73,30 @@ impl Parse<&[u8]> for GroupLabel {
                 Ok((i, GroupLabel::Unknown(data)))
             }
         }
+    }
+}
 
 
+pub fn alloc_group(i: &[u8]) -> IResult<&[u8], (GroupHeader, &[u8])> {
+    let (i, header) = GroupHeader::parse(i)?;
+    let (i, raw) = take(header.size as usize - 24)(i)?;
+    Ok((i, (header, raw)))
+}
 
+pub struct RawGroup<'esm> {
+    pub header: GroupHeader,
+    pub data: &'esm [u8]
+}
 
+impl<'esm, 'nom> Parse<&'nom[u8]> for RawGroup<'esm> where 'nom: 'esm {
+    fn parse(i: &'nom[u8]) -> IResult<&'nom[u8], Self, nom::error::Error<&'nom[u8]>> {
+        let (i, (header, data)) = alloc_group(i)?;
+        Ok((i, RawGroup { header, data }))
+    }
+}
+
+impl Debug for RawGroup<'_> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "RawGroup {{ header: {:?}, data: [{} bytes] }}", self.header, self.data.len())
     }
 }
