@@ -1,4 +1,6 @@
 
+use proc_macro2::TokenStream;
+use quote::{ToTokens, quote};
 use syn::{punctuated::Punctuated, *};
 
 pub struct RecordDefinition {
@@ -17,6 +19,61 @@ impl syn::parse::Parse for RecordDefinition {
         bracketed!(inner in input);
         let fields: Punctuated<FieldDefinition, Token![;]> = inner.parse_terminated(FieldDefinition::parse, Token![;])?;
         Ok(RecordDefinition { iden, name, fields })
+    }
+}
+
+impl ToTokens for RecordDefinition {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        let iden = &self.iden;
+        let name = &self.name;
+        let name_field = Ident::new(format!("{}Field", name.clone().to_string().as_str()).as_str(), name.span());
+        let fields = &self.fields;
+        let field_idens: Vec<_> = fields.iter().map(|f| &f.iden).collect();
+        let field_names: Vec<_> = fields.iter().map(|f| &f.name).collect();
+        let field_types: Vec<_> = fields.iter().map(|f| &f.field_type).collect();
+        tokens.extend(quote! {
+            #[derive(Debug)]
+            pub struct #name {
+                pub header: RecordHeader,
+                pub fields: Vec<#name_field>
+            }
+
+            impl Parse<&[u8]> for #name {
+                fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
+                    let (i, (header, data)) = alloc_record(i)?;
+                    let (_, fields) = many0(complete(#name_field::parse))(data)?;
+                    Ok((i, Self { header, fields }))
+                }
+            }
+            
+
+            #[derive(Debug)] 
+            pub enum #name_field {
+                Unknown(FourCC),
+                #(#field_names(#field_types)),*
+            }
+
+
+            impl Parse<&[u8]> for #name_field {
+                fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
+                    let (i, (header, data)) = alloc_field(i)?;
+                    match &header.iden().0 {
+                        #(
+                            #field_idens => {
+                                let (_, out) = <#field_types>::parse(data)?;
+                                Ok((i, Self::#field_names(out)))
+                            }
+                        )*
+                        _ => {
+                            Ok((i, #name_field::Unknown(header.iden().clone())))
+                        }
+                    }
+
+                    
+                }
+            }
+
+        });
     }
 }
 

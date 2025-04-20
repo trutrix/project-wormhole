@@ -1,3 +1,5 @@
+use std::fmt::write;
+
 use nom_derive::nom::combinator::complete;
 use proc::define_record;
 
@@ -47,9 +49,10 @@ define_record! {
         b"INCC", InteriorCellCount, u32;
         b"INTV", AvailableTags, u32;
         b"HEDR", Metadata, FileHeaderMetadata;
-        b"CNAM", Author, String;
-        b"SNAM", Description, String; // TODO: Check if current
+        b"CNAM", Author, ESMString;
+        b"SNAM", Description, ESMString; // TODO: Check if current
         b"ONAM", OverriddenForms, Vec<FormId>;
+        b"TNAM", TransientItems, FileHeaderTransientItems;
     ]
 }
 
@@ -59,4 +62,16 @@ pub struct FileHeaderMetadata {
     pub version: f32,
     pub object_count: u32,
     pub next_object_id: u32
+}
+
+#[derive(NomLE)]
+pub struct FileHeaderTransientItems {
+    pub type_: u32,
+    pub ids: Vec<FormId>
+}
+
+impl std::fmt::Debug for FileHeaderTransientItems {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "FileHeaderTransientItems {{ type_: {}, ids: {} items }}", self.type_, self.ids.len())
+    }
 }
