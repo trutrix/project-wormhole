@@ -1,3 +1,5 @@
+pub mod types;
+pub mod records;
 pub mod traits;
 pub mod structs;
 pub mod esm;
@@ -13,5 +15,8 @@ mod dev {
 
 
     pub use super::structs::fourcc::FourCC;
-
+    pub use super::structs::record::*;
+    pub use super::structs::field::*;
+    pub use super::structs::group::*;
+    pub use super::types::*;
 }

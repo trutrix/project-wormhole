@@ -1,4 +1,6 @@
-use std::{fmt::Debug, path::Display};
+use std::{fmt::Debug, io::Read, path::Display};
+
+use nom_derive::{nom::combinator::complete, InputSlice};
 
 use crate::dev::*;
 
@@ -333,4 +335,55 @@ impl std::fmt::Display for RawRecord<'_> {
             self.data.len()
         )
     }
+}
+
+
+#[derive(Debug)]
+pub struct Record<T> {
+    pub header: RecordHeader,
+    pub fields: Vec<T>
+}
+
+
+impl<T: for<'nom> Parse<&'nom[u8]>> Parse<&[u8]> for Record<T> {
+    fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
+        let (i, (header, raw)) = alloc_record(i)?;
+
+        if header.flags.is_compressed() {
+            if let Ok(dec) = decompress_record(raw) {
+                
+                if let Ok((_, fields)) = many0(complete(T::parse))(&dec) {
+                    return Ok((i, Self { header, fields }));
+                } else {
+                    return Err(nom::Err::Error(nom::error::Error::new(i, nom::error::ErrorKind::Complete)));
+                }
+                
+            } else {
+                return Err(nom::Err::Error(nom::error::Error::new(i, nom::error::ErrorKind::Complete)));
+            }
+            
+        } else {
+            if let Ok((_, fields)) = many0(complete(T::parse))(&raw) {
+                return Ok((i, Self { header, fields }));
+            } else {
+                return Err(nom::Err::Error(nom::error::Error::new(i, nom::error::ErrorKind::Complete)));
+            }
+            
+        }       
+    }
+}
+
+/// Parse the u32 for the real size, then decompress the zlib
+pub fn decompress_record(i: &[u8]) -> Result<Vec<u8>, std::io::Error> {
+    
+    if let Ok((i, real_size)) = le_u32::<&[u8], nom::error::Error<&[u8]>>(i) {
+        let mut buf = Vec::with_capacity(real_size as usize);
+        let mut dec = flate2::bufread::ZlibDecoder::new(i);
+        dec.read_to_end(&mut buf)?;
+
+        Ok(buf)
+    } else {
+        Err(std::io::Error::new(std::io::ErrorKind::InvalidData, "decompress_record(): could not get real size"))
+    }
+
 }

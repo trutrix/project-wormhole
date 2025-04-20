@@ -1,11 +1,13 @@
-use std::io::{Seek, Read};
+use std::{fs::File, io::{Read, Seek}};
 
-use crate::{dev::*, structs::record::{RawRecord, RecordHeader}};
+use crate::{dev::*, records::TES4_FileHeader::FileHeader, structs::record::{RawRecord, RecordHeader}};
 
 
 pub struct ESM1<'esm> {
     file: std::fs::File,
-    pub header: RawRecord<'esm>,
+    junk: Option<RawRecord<'esm>>,
+    pub header: FileHeader,
+    
 }
 
 impl<'esm> ESM1<'esm> {
@@ -26,9 +28,10 @@ impl<'esm> ESM1<'esm> {
         file.seek(std::io::SeekFrom::Start(0))?;
         file.read_exact(dbuf)?;
 
+        
 
-        if let Ok((_, record)) = RawRecord::parse(dbuf) {
-            Ok(ESM1 { file, header: record })
+        if let Ok((_, record)) = FileHeader::parse(dbuf) {
+            Ok(ESM1 { file, junk: None, header: record.try_into().unwrap() })
         } else {
             Err(ESMError::InvalidFile)
         }
