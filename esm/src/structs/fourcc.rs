@@ -6,7 +6,7 @@ pub struct FourCC(pub [u8;4]);
 
 impl std::fmt::Debug for FourCC {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?} {}", self.0, String::from_utf8_lossy(&self.0))
+        write!(f, "{}", String::from_utf8_lossy(&self.0))
     }
 }
 
