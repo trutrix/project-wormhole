@@ -16,6 +16,8 @@ fn test1() {
     let (_,esm) = RawESM::parse(&buf).unwrap();
     println!("Time to load: {:?}", start.elapsed());
 
-    println!("Header: {:#?}", esm.header);
+    for b in esm.data {
+        println!("{:?}", b.header.label);
+    }
 
 }
