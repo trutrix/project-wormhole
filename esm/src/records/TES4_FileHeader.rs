@@ -1,10 +1,5 @@
-use std::fmt::write;
-
-use nom_derive::nom::combinator::complete;
+use crate::dev::*;
 use proc::define_record;
-
-use crate::{dev::*, esm::ESMError, structs::{field::{Field, FieldHeader}, record::{RawRecord, Record}}, traits::FieldParser};
-
 
 // pub type FileHeader = Record<Field<FileHeaderField>>;
 

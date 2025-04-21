@@ -1,4 +1,4 @@
-use std::{fs::File, io::{Read, Seek}};
+use std::io::{Read, Seek};
 
 use crate::{dev::*, records::TES4_FileHeader::FileHeader, structs::record::{RawRecord, RecordHeader}};
 
