@@ -1,6 +1,6 @@
 use std::io::{Read, Seek};
 
-use crate::{dev::*, records::TES4_FileHeader::FileHeader, structs::record::{RawRecord, RecordHeader}};
+use crate::{dev::*, records::file_header::FileHeader, structs::record::{RawRecord, RecordHeader}};
 
 
 pub struct ESM1<'esm> {

@@ -1,6 +1,6 @@
 #![allow(non_snake_case)]
 
 
-pub mod GMST_GameSetting;
-pub mod TES4_FileHeader;
-pub mod KYWD_Keyword;
+pub mod game_setting;
+pub mod file_header;
+pub mod keyword;
