@@ -11,6 +11,7 @@ mod dev {
     pub use nom::number::complete::*;
     pub use nom::multi::many0;
     pub use nom::bytes::complete::take;
+    pub use nom::combinator::complete;
     pub use nom_derive::nom;
 
 
