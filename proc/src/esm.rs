@@ -50,6 +50,7 @@ impl ToTokens for RecordDefinition {
             #[derive(Debug)] 
             pub enum #name_field {
                 Unknown(FourCC),
+                EditorId(ESMString),
                 #(#field_names(#field_types)),*
             }
 
@@ -64,6 +65,10 @@ impl ToTokens for RecordDefinition {
                                 Ok((i, Self::#field_names(out)))
                             }
                         )*
+                        b"EDID" => {
+                            let (i, out) = ESMString::parse(data)?;
+                            Ok((i, Self::EditorId(out)))
+                        }
                         _ => {
                             Ok((i, #name_field::Unknown(header.iden().clone())))
                         }
