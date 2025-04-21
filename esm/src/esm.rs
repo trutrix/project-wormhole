@@ -7,6 +7,7 @@ pub struct ESM1<'esm> {
     file: std::fs::File,
     junk: Option<RawRecord<'esm>>,
     pub header: FileHeader,
+    pub groups: Vec<RawGroup<'esm>>,
     
 }
 
@@ -31,7 +32,7 @@ impl<'esm> ESM1<'esm> {
         
 
         if let Ok((_, record)) = FileHeader::parse(dbuf) {
-            Ok(ESM1 { file, junk: None, header: record.try_into().unwrap() })
+            Ok(ESM1 { file, junk: None, header: record.try_into().unwrap(), groups: Vec::new() })
         } else {
             Err(ESMError::InvalidFile)
         }
@@ -42,6 +43,12 @@ impl<'esm> ESM1<'esm> {
         let dbuf:  Vec<u8> = Vec::new();
         (hbuf, dbuf)
     }
+}
+
+#[derive(Debug, NomLE)]
+pub struct RawESM<'esm> {
+    pub header: FileHeader,
+    pub data: Vec<RawGroup<'esm>>,
 }
 
 #[derive(Debug)]
