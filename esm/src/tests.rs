@@ -13,11 +13,9 @@ fn test1() {
     // let (mut hbuf, mut dbuf) = ESM1::create_buffers();
     let start = std::time::Instant::now();
     // let mut esm = ESM1::new(ESM_PATH, &mut hbuf, &mut dbuf).unwrap();
-    let (_,esm) = RawESM::parse(&buf).unwrap();
+    let esm = SmartESM::parse_complete(&buf).unwrap();
     println!("Time to load: {:?}", start.elapsed());
 
-    for b in esm.data {
-        println!("{:?}", b.header.label);
-    }
+    println!("Parsed ESM: {:?}", esm.header);
 
 }

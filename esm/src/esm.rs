@@ -69,3 +69,18 @@ impl From<std::io::Error> for ESMError {
         ESMError::IO(err)
     }
 }
+
+
+pub struct SmartESM {
+    pub header: FileHeader
+}
+
+impl SmartESM {
+    pub fn parse_complete(i: &[u8]) -> Result<Self, ESMError> {
+        if let Ok((i, header)) = FileHeader::parse(i) {
+            Ok(SmartESM { header })
+        } else {
+            Err(ESMError::InvalidHeader)
+        }
+    }
+}
