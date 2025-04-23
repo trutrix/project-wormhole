@@ -1,0 +1,8 @@
+[package]
+name = "gen"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+esm ={ path = "../esm"}
+nom-derive = "0.10.1"

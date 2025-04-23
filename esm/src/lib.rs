@@ -13,6 +13,7 @@ mod dev {
     pub use nom::bytes::complete::take;
     pub use nom::combinator::complete;
     pub use nom_derive::nom;
+    pub use proc::define_record;
 
 
     pub use super::structs::fourcc::FourCC;

@@ -1,6 +1,6 @@
 use std::io::{Read, Seek};
 
-use crate::{dev::*, records::file_header::FileHeader, structs::record::{RawRecord, RecordHeader}};
+use crate::{dev::*, records::TES4::FileHeader, structs::record::{RawRecord, RecordHeader}};
 
 
 pub struct ESM1<'esm> {
@@ -61,6 +61,7 @@ pub enum ESMError {
     InvalidGroup,
     InvalidVersionControl,
     InvalidData,
+    GameSetting(String)
 }
 
 impl From<std::io::Error> for ESMError {
