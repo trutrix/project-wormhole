@@ -2,6 +2,7 @@ use crate::dev::*;
 
 define_record! {
     b"ALCH",
-    ALCH, [
+    Alchemy, [
+        b"EDID", EditorId, ESMString;
     ]
 }

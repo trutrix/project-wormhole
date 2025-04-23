@@ -1,7 +1,9 @@
-use crate::dev::*;
+use crate::{dev::*, structs::geometry::ObjectBounds};
 
 define_record! {
     b"AMMO",
-    AMMO, [
+    Ammo, [
+        b"EDID", EditorId, ESMString;
+        b"OBND", ObjectBounds, ObjectBounds;
     ]
 }

@@ -5,3 +5,4 @@ pub mod field;
 pub mod group;
 pub mod record;
 pub mod vectors;
+pub mod geometry;
