@@ -1,6 +1,6 @@
 use crate::dev::*;
 
-#[derive(Clone, Copy, PartialEq, Eq, Hash, NomLE)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, NomLE, PartialOrd, Ord)]
 pub struct FourCC(pub [u8;4]);
 
 
