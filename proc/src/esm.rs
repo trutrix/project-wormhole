@@ -41,7 +41,7 @@ impl ToTokens for RecordDefinition {
             impl Parse<&[u8]> for #name {
                 fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
                     let (i, (header, data)) = alloc_record(i)?;
-                    let (_, fields) = many0(complete(#name_field::parse))(data)?;
+                    let (_, fields) = many0(complete(#name_field::parse_le))(data)?;
                     Ok((i, Self { header, fields }))
                 }
             }
@@ -60,7 +60,7 @@ impl ToTokens for RecordDefinition {
                     match &header.iden().0 {
                         #(
                             #field_idens => {
-                                let (_, out) = <#field_types>::parse(data)?;
+                                let (_, out) = <#field_types>::parse_le(data)?;
                                 Ok((i, Self::#field_names(out)))
                             }
                         )*
