@@ -27,15 +27,34 @@ impl ToTokens for RecordDefinition {
         let iden = &self.iden;
         let name = &self.name;
         let name_field = Ident::new(format!("{}Field", name.clone().to_string().as_str()).as_str(), name.span());
+        let name_test1 = Ident::new(format!("{}Test", name.clone().to_string().as_str()).as_str(), name.span());
         let fields = &self.fields;
         let field_idens: Vec<_> = fields.iter().map(|f| &f.iden).collect();
         let field_names: Vec<_> = fields.iter().map(|f| &f.name).collect();
-        let field_types: Vec<_> = fields.iter().map(|f| &f.field_type).collect();
+        let field_sname: Vec<_> = fields.iter().map(|f| &f.name.to_string().to_lowercase()).collect();
+        let field_types: Vec<_> = fields.iter().map(|f| {
+            if f.required.is_some() { 
+                
+                let ft = f.field_type.clone();
+                quote! { #ft}
+            } else {
+                let ft = f.field_type.clone();
+                
+                quote! { Option<#ft> }
+            }
+        }).collect();
         tokens.extend(quote! {
             #[derive(Debug)]
             pub struct #name {
                 pub header: RecordHeader,
                 pub fields: Vec<#name_field>
+            }
+
+            pub struct #name_test1 {
+                pub header: RecordHeader,
+                #(
+                    pub #field_names: #field_types // TODO: make this a Vec if required = true
+                ),*
             }
 
             impl Parse<&[u8]> for #name {
@@ -79,6 +98,7 @@ impl ToTokens for RecordDefinition {
 
 #[derive(syn_derive::Parse)]
 pub struct FieldDefinition {
+    pub required: Option<Token![+]>,
     pub iden: LitByteStr,
     pub comma1: Token![,],
     pub name: Ident,
