@@ -31,8 +31,8 @@ impl ToTokens for RecordDefinition {
         let fields = &self.fields;
         let field_idens: Vec<_> = fields.iter().map(|f| &f.iden).collect();
         let field_names: Vec<_> = fields.iter().map(|f| &f.name).collect();
-        let field_sname: Vec<_> = fields.iter().map(|f| &f.name.to_string().to_lowercase()).collect();
-        let field_types: Vec<_> = fields.iter().map(|f| {
+        let field_types: Vec<_> = fields.iter().map(|f| &f.field_type).collect();
+        let field_otypes: Vec<_> = fields.iter().map(|f| {
             if f.required.is_some() { 
                 
                 let ft = f.field_type.clone();
@@ -48,13 +48,6 @@ impl ToTokens for RecordDefinition {
             pub struct #name {
                 pub header: RecordHeader,
                 pub fields: Vec<#name_field>
-            }
-
-            pub struct #name_test1 {
-                pub header: RecordHeader,
-                #(
-                    pub #field_names: #field_types // TODO: make this a Vec if required = true
-                ),*
             }
 
             impl Parse<&[u8]> for #name {

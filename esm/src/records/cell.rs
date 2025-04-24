@@ -1,5 +1,4 @@
 use crate::dev::*;
-use proc::define_record;
 
 
 define_record! {
