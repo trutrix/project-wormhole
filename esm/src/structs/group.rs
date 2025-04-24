@@ -85,13 +85,14 @@ pub fn alloc_group(i: &[u8]) -> IResult<&[u8], (GroupHeader, &[u8])> {
 
 pub struct RawGroup<'esm> {
     pub header: GroupHeader,
-    pub data: &'esm [u8]
+    pub data: Vec<RawRecord<'esm>>
 }
 
 impl<'esm, 'nom> Parse<&'nom[u8]> for RawGroup<'esm> where 'nom: 'esm {
     fn parse(i: &'nom[u8]) -> IResult<&'nom[u8], Self, nom::error::Error<&'nom[u8]>> {
         let (i, (header, data)) = alloc_group(i)?;
-        Ok((i, RawGroup { header, data }))
+        let (i, records) = many0(complete(RawRecord::parse))(data)?;
+        Ok((i, RawGroup { header, data: records }))
     }
 }
 
