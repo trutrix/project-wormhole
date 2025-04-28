@@ -22,5 +22,4 @@ mod dev {
     pub use super::structs::group::*;
     pub use super::types::*;
     pub use super::structs::strings::*;
-    pub use super::records::*;
 }
