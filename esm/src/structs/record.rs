@@ -1,7 +1,7 @@
 use std::{fmt::Debug, io::Read};
 
 
-use crate::dev::*;
+use crate::{dev::*, records::all::RawCellChildren};
 
 #[derive(Debug, NomLE)]
 pub struct RecordHeader {
@@ -385,4 +385,60 @@ pub fn decompress_record(i: &[u8]) -> Result<Vec<u8>, std::io::Error> {
         Err(std::io::Error::new(std::io::ErrorKind::InvalidData, "decompress_record(): could not get real size"))
     }
 
+}
+
+
+// ====================================================================================================
+
+#[derive(Debug)]
+pub struct RawCellRecord<'esm> {
+    pub cell: RawRecord<'esm>,
+    pub cell_children: Option<RawCellChildren<'esm>>
+}
+
+impl <'esm, 'nom> Parse<&'nom[u8]> for RawCellRecord<'esm> where 'nom:'esm {
+    fn parse(i: &'nom[u8]) -> IResult<&'nom[u8], Self, nom::error::Error<&'nom[u8]>> {
+        let (i, cell) = RawRecord::parse(i)?;
+
+        let (_, ghead) = GroupHeader::parse(i)?;
+
+        match ghead.label {
+            GroupLabel::CellChildren(_) => {
+                let (i, cell_children) = RawCellChildren::parse(i)?;
+                return Ok((i, Self { cell, cell_children: Some(cell_children) }));
+            }
+            _ => {
+                return Ok((i, Self { cell, cell_children: None }))
+            }
+        }
+
+    }
+}
+
+// ====================================================================================================
+
+#[derive(Debug)]
+pub struct RawWorldRecord<'esm> {
+    pub world: RawRecord<'esm>,
+    pub world_children: Option<RawWorldChildren<'esm>>
+}
+
+
+impl <'esm, 'nom> Parse<&'nom[u8]> for RawWorldRecord<'esm> where 'nom:'esm {
+    fn parse(i: &'nom[u8]) -> IResult<&'nom[u8], Self, nom::error::Error<&'nom[u8]>> {
+        let (i, world) = RawRecord::parse(i)?;
+
+        let (_, ghead) = GroupHeader::parse(i)?;
+
+        match ghead.label {
+            GroupLabel::WorldChildren(_) => {
+                let (i, world_children) = RawWorldChildren::parse(i)?;
+                return Ok((i, Self { world, world_children: Some(world_children) }));
+            }
+            _ => {
+                return Ok((i, Self { world, world_children: None }))
+            }
+        }
+
+    }
 }

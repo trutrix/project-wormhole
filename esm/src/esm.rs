@@ -45,11 +45,67 @@ impl<'esm> ESM1<'esm> {
     }
 }
 
-#[derive(Debug, NomLE)]
+
+// ====================================================================================================
+
+#[derive(Debug)]
 pub struct RawESM<'esm> {
     pub header: FileHeader,
     pub data: Vec<RawGroup<'esm>>,
+    pub cells: Vec<RawCellGroup<'esm>>,
+    pub worlds: Vec<RawWorldGroup<'esm>>
 }
+
+impl<'esm> RawESM<'esm> {
+    pub fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self> {
+        let mut data = Vec::new();
+        let mut cells = Vec::new();
+        let mut worlds = Vec::new();
+
+
+        let (i, header) = FileHeader::parse(i)?;
+        let mut raw = i;
+
+        while raw.len() > 0 {
+
+            let (_, gh) = GroupHeader::parse(i)?;
+
+            match gh.label {
+                GroupLabel::Top(iden) => {
+                    match &iden.0 {
+                        b"CELL" => {
+                            let (i, gc) = RawCellGroup::parse(raw)?;
+                            raw = i;
+                            cells.push(gc);
+                        }
+                        b"WRLD" => {
+                            let (i, gc) = RawWorldGroup::parse(raw)?;
+                            raw = i;
+                            worlds.push(gc);
+                        }
+                        _ => {
+                            let (i, rg) = RawGroup::parse(raw)?;
+                            raw = i;
+                            data.push(rg);
+                        }
+                    }
+
+
+                }
+                _ => {
+                    panic!("Encountered non-top group in RawESM")
+                }
+            }
+
+
+        }
+
+
+        Ok((i, Self { header, data, cells, worlds }))
+    }
+}
+
+// ====================================================================================================
 
 #[derive(Debug)]
 pub enum ESMError {

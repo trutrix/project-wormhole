@@ -1,7 +1,5 @@
 use std::fmt::Debug;
 
-use proc::collect_and_define_groups;
-
 use crate::records::all::*;
 use crate::dev::*;
 use super::record::VersionControl;
@@ -114,6 +112,184 @@ impl<T: for<'nom> Parse<&'nom[u8]>> Parse<&[u8]> for Group<T> {
 
 // ====================================================================================================
 
+#[derive(Debug)]
+pub struct RawWorldChildren<'esm> {
+    pub header: GroupHeader,
+    pub data: &'esm [u8]
+}
+
+impl<'esm, 'nom> Parse<&'nom[u8]> for RawWorldChildren<'esm> where 'nom: 'esm {
+    fn parse(i: &'nom[u8]) -> IResult<&'nom[u8], Self, nom::error::Error<&'nom[u8]>> {
+        let (i, (header, data)) = alloc_group(i)?;
+        Ok((i, Self { header, data }))
+    }
+}
+
+
+// ====================================================================================================
+
+
+#[derive(Debug)]
+pub struct RawInteriorCellBlock<'esm> {
+    pub header: GroupHeader,
+    pub data: &'esm [u8]
+}
+
+impl<'esm, 'nom> Parse<&'nom[u8]> for RawInteriorCellBlock<'esm> where 'nom: 'esm {
+    fn parse(i: &'nom[u8]) -> IResult<&'nom[u8], Self, nom::error::Error<&'nom[u8]>> {
+        let (i, (header, data)) = alloc_group(i)?;
+        Ok((i, Self { header, data }))
+    }
+}
+
+
+// ====================================================================================================
+
+
+#[derive(Debug)]
+pub struct RawInteriorCellSubBlock<'esm> {
+    pub header: GroupHeader,
+    pub data: &'esm [u8]
+}
+
+impl<'esm, 'nom> Parse<&'nom[u8]> for RawInteriorCellSubBlock<'esm> where 'nom: 'esm {
+    fn parse(i: &'nom[u8]) -> IResult<&'nom[u8], Self, nom::error::Error<&'nom[u8]>> {
+        let (i, (header, data)) = alloc_group(i)?;
+        Ok((i, Self { header, data }))
+    }
+}
+
+
+// ====================================================================================================
+
+
+#[derive(Debug)]
+pub struct RawExteriorCellBlock<'esm> {
+    pub header: GroupHeader,
+    pub data: &'esm [u8]
+}
+
+impl<'esm, 'nom> Parse<&'nom[u8]> for RawExteriorCellBlock<'esm> where 'nom: 'esm {
+    fn parse(i: &'nom[u8]) -> IResult<&'nom[u8], Self, nom::error::Error<&'nom[u8]>> {
+        let (i, (header, data)) = alloc_group(i)?;
+        Ok((i, Self { header, data }))
+    }
+}
+
+
+// ====================================================================================================
+
+#[derive(Debug)]
+pub struct RawExteriorCellSubBlock<'esm> {
+    pub header: GroupHeader,
+    pub data: &'esm [u8]
+}
+
+impl<'esm, 'nom> Parse<&'nom[u8]> for RawExteriorCellSubBlock<'esm> where 'nom: 'esm {
+    fn parse(i: &'nom[u8]) -> IResult<&'nom[u8], Self, nom::error::Error<&'nom[u8]>> {
+        let (i, (header, data)) = alloc_group(i)?;
+        Ok((i, Self { header, data }))
+    }
+}
+
+
+// ====================================================================================================
+
+#[derive(Debug)]
+pub struct RawTopicChildren<'esm> {
+    pub header: GroupHeader,
+    pub data: &'esm [u8]
+}
+
+impl<'esm, 'nom> Parse<&'nom[u8]> for RawTopicChildren<'esm> where 'nom: 'esm {
+    fn parse(i: &'nom[u8]) -> IResult<&'nom[u8], Self, nom::error::Error<&'nom[u8]>> {
+        let (i, (header, data)) = alloc_group(i)?;
+        Ok((i, Self { header, data }))
+    }
+}
+
+// ====================================================================================================
+
+#[derive(Debug)]
+pub struct RawCellPersistantChildren<'esm> {
+    pub header: GroupHeader,
+    pub data: &'esm [u8]
+}
+
+impl<'esm, 'nom> Parse<&'nom[u8]> for RawCellPersistantChildren<'esm> where 'nom: 'esm {
+    fn parse(i: &'nom[u8]) -> IResult<&'nom[u8], Self, nom::error::Error<&'nom[u8]>> {
+        let (i, (header, data)) = alloc_group(i)?;
+        Ok((i, Self { header, data }))
+    }
+}
+
+
+// ====================================================================================================
+
+
+#[derive(Debug)]
+pub struct RawCellTemporaryChildren<'esm> {
+    pub header: GroupHeader,
+    pub data: &'esm [u8]
+}
+
+impl<'esm, 'nom> Parse<&'nom[u8]> for RawCellTemporaryChildren<'esm> where 'nom: 'esm {
+    fn parse(i: &'nom[u8]) -> IResult<&'nom[u8], Self, nom::error::Error<&'nom[u8]>> {
+        let (i, (header, data)) = alloc_group(i)?;
+        Ok((i, Self { header, data }))
+    }
+}
+
+
+// ====================================================================================================
+
+#[derive(Debug)]
+pub struct RawCellVisibleDistantChildren<'esm> {
+    pub header: GroupHeader,
+    pub data: &'esm [u8]
+}
+
+impl<'esm, 'nom> Parse<&'nom[u8]> for RawCellVisibleDistantChildren<'esm> where 'nom: 'esm {
+    fn parse(i: &'nom[u8]) -> IResult<&'nom[u8], Self, nom::error::Error<&'nom[u8]>> {
+        let (i, (header, data)) = alloc_group(i)?;
+        Ok((i, Self { header, data }))
+    }
+}
+
+
+// ====================================================================================================
+
+#[derive(Debug)]
+pub struct RawCellGroup<'esm> {
+    pub header: GroupHeader,
+    pub cells: Vec<RawCellRecord<'esm>>
+}
+
+impl<'esm, 'nom> Parse<&'nom[u8]> for RawCellGroup<'esm> where 'nom: 'esm {
+    fn parse(i: &'nom[u8]) -> IResult<&'nom[u8], Self, nom::error::Error<&'nom[u8]>> {
+        let (i, (header, data)) = alloc_group(i)?;
+        let (_, cells) = many0(complete(RawCellRecord::parse))(data)?;
+        Ok((i, Self { header, cells }))
+    }
+}
+
+// ====================================================================================================
+
+#[derive(Debug)]
+pub struct RawWorldGroup<'esm> {
+    pub header: GroupHeader,
+    pub cells: Vec<RawWorldRecord<'esm>>
+}
+
+impl<'esm, 'nom> Parse<&'nom[u8]> for RawWorldGroup<'esm> where 'nom: 'esm {
+    fn parse(i: &'nom[u8]) -> IResult<&'nom[u8], Self, nom::error::Error<&'nom[u8]>> {
+        let (i, (header, data)) = alloc_group(i)?;
+        let (_, cells) = many0(complete(RawWorldRecord::parse))(data)?;
+        Ok((i, Self { header, cells }))
+    }
+}
+
+// ====================================================================================================
 
 #[derive(Debug)]
 pub enum TopGroup {

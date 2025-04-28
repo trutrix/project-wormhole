@@ -13,7 +13,20 @@ fn test1() {
     // let (mut hbuf, mut dbuf) = ESM1::create_buffers();
     let start = std::time::Instant::now();
     // let mut esm = ESM1::new(ESM_PATH, &mut hbuf, &mut dbuf).unwrap();
-    let esm = SmartESM::parse_complete(&buf).unwrap();
+    let (i, esm) = RawESM::parse(&buf).unwrap();
+
+    for g in esm.data {
+        match &g.header.label {
+            GroupLabel::Top(four_cc) => {
+                if &four_cc.0 == b"CELL" {
+                    println!("{:#?}", g.data)
+                }
+            }
+
+            _ => { }
+        }
+    }
+
     println!("Time to load: {:?}", start.elapsed());
 
     println!("Parsed ESM: {:?}", esm.header);
