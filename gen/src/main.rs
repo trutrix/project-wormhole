@@ -5,6 +5,7 @@ use nom_derive::*;
 fn main() {
     
     let mut file = std::fs::File::open("C:\\Program Files (x86)\\Steam\\steamapps\\common\\Fallout 4\\Data\\Fallout4.esm").unwrap();
+    
     let mut buf = Vec::new();
     file.read_to_end(&mut buf).unwrap();
 
@@ -12,6 +13,7 @@ fn main() {
     //std::fs::create_dir("./out").unwrap();
 
     let mut mod_file = std::fs::File::create("./out/mod.rs").unwrap();
+    let mut gfile = std::fs::File::create("./out/group.rs").unwrap();
 
     for g in esm.data {
         match g.header.label {
@@ -23,6 +25,8 @@ fn main() {
                 out_file.write_all(format!("define_record! {{\n    b\"{}\",\n    {}, [\n    ]\n}}", label, label).as_bytes()).unwrap();
 
                 mod_file.write_all(format!("pub mod {};\n", label).as_bytes()).unwrap();
+
+                gfile.write_all(format!("{}({}),\n", label, label).as_bytes()).unwrap();
             }
             _ => {
 
