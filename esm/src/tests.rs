@@ -15,20 +15,12 @@ fn test1() {
     // let mut esm = ESM1::new(ESM_PATH, &mut hbuf, &mut dbuf).unwrap();
     let (i, esm) = RawESM::parse(&buf).unwrap();
 
-    for g in esm.data {
-        match &g.header.label {
-            GroupLabel::Top(four_cc) => {
-                if &four_cc.0 == b"CELL" {
-                    println!("{:#?}", g.data)
-                }
-            }
+    // for g in esm.data {
+    //     println!("{:?}", g.header.label)
+    // }
 
-            _ => { }
-        }
-    }
+    println!("{:?}", esm.cells[0].cells[0].cell);
 
     println!("Time to load: {:?}", start.elapsed());
-
-    println!("Parsed ESM: {:?}", esm.header);
 
 }

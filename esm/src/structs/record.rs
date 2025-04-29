@@ -1,7 +1,8 @@
+use core::panic;
 use std::{fmt::Debug, io::Read};
 
 
-use crate::{dev::*, records::all::RawCellChildren};
+use crate::{dev::*, records::all::{Cell, RawCellChildren}};
 
 #[derive(Debug, NomLE)]
 pub struct RecordHeader {
@@ -292,26 +293,36 @@ impl RecordFlags {
     }
 }
 
+
+// ====================================================================================================
+
 pub struct RawRecord<'esm> {
     pub header: RecordHeader,
-    pub data: &'esm [u8],
+    pub data: Vec<RawField<'esm>>,
 }
 
-impl<'esm, 'nom> Parse<&'nom [u8]> for RawRecord<'esm>
-where
-    'nom: 'esm,
-{
-    fn parse(i: &'nom [u8]) -> IResult<&'nom [u8], Self, nom::error::Error<&'nom [u8]>> {
+impl<'esm, 'nom> Parse<&'nom [u8]> for RawRecord<'esm> where 'nom: 'esm {
+    fn parse(i: &'nom [u8]) -> IResult<&'nom [u8], Self> {
         let (i, (header, data)) = alloc_record(i)?;
-        Ok((i, RawRecord { header, data }))
-    }
-}
 
-pub fn alloc_record(i: &[u8]) -> IResult<&[u8], (RecordHeader, &[u8]), nom::error::Error<&[u8]>> {
-    let (i, header) = RecordHeader::parse(i)?;
-    let size = header.size as usize;
-    let (i, data) = take(size)(i)?;
-    Ok((i, (header, data)))
+        if header.flags.is_compressed() {
+
+            if let Ok(de) = decompress_record(data) {
+                if let Ok((_, fields)) = many0(complete(RawField::parse))(&de) {
+                    Ok((i, RawRecord { header, data: fields }))
+                } else {
+                    panic!("Could not parse raw fields in record.")
+                } 
+            } else {
+                panic!("Could not decompress record.");
+            }
+        } else {
+
+            let (_, fields) = many0(complete(RawField::parse))(i)?;
+
+            Ok((i, RawRecord { header, data: fields }))
+        }
+    }
 }
 
 
@@ -335,6 +346,53 @@ impl std::fmt::Display for RawRecord<'_> {
         )
     }
 }
+
+
+
+// ====================================================================================================
+
+pub fn alloc_record(i: &[u8]) -> IResult<&[u8], (RecordHeader, &[u8]), nom::error::Error<&[u8]>> {
+    let (i, header) = RecordHeader::parse(i)?;
+    let (i, raw) = take(header.size)(i)?;
+
+    Ok((i, (header, raw)))
+}
+
+// ====================================================================================================
+
+pub fn alloc_record_c(i: &[u8]) -> IResult<&[u8], (RecordHeader, &[u8])> {
+    let (i, header) = RecordHeader::parse(i)?;
+    let (i, raw) = take(header.size)(i)?;
+
+    if header.flags.is_compressed() {
+        if let Ok(de) = decompress_record(raw) {
+            Ok((i, (header, de.as_slice())))
+        } else {
+            panic!("Could not decompress record.")
+        }
+    } else {
+        Ok((i, (header, raw)))
+    }
+}
+
+// ====================================================================================================
+
+#[derive(Debug)]
+pub enum RawData<'esm> {
+    Borrowed(&'esm[u8]),
+    New(Vec<u8>)
+}
+
+impl RawData<'_> {
+    pub fn len(&self) -> usize {
+        match self {
+            RawData::Borrowed(items) => items.len(),
+            RawData::New(items) => items.len(),
+        }
+    }
+}
+
+// ====================================================================================================
 
 
 #[derive(Debug)]
