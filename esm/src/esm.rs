@@ -68,7 +68,8 @@ impl<'esm> RawESM<'esm> {
 
         while raw.len() > 0 {
 
-            let (_, gh) = GroupHeader::parse(i)?;
+            let (_, gh) = GroupHeader::parse(raw)?;
+            
 
             match gh.label {
                 GroupLabel::Top(iden) => {
@@ -79,9 +80,9 @@ impl<'esm> RawESM<'esm> {
                             cells.push(gc);
                         }
                         b"WRLD" => {
-                            let (i, gc) = RawWorldGroup::parse(raw)?;
+                            let (i, gw) = RawWorldGroup::parse(raw)?;
                             raw = i;
-                            worlds.push(gc);
+                            worlds.push(gw);
                         }
                         _ => {
                             let (i, rg) = RawGroup::parse(raw)?;
