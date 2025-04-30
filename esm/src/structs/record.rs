@@ -298,30 +298,13 @@ impl RecordFlags {
 
 pub struct RawRecord<'esm> {
     pub header: RecordHeader,
-    pub data: Vec<RawField<'esm>>,
+    pub data: &'esm[u8],
 }
 
 impl<'esm, 'nom> Parse<&'nom [u8]> for RawRecord<'esm> where 'nom: 'esm {
     fn parse(i: &'nom [u8]) -> IResult<&'nom [u8], Self> {
         let (i, (header, data)) = alloc_record(i)?;
-
-        if header.flags.is_compressed() {
-
-            if let Ok(de) = decompress_record(data) {
-                if let Ok((_, fields)) = many0(complete(RawField::parse))(&de) {
-                    Ok((i, RawRecord { header, data: fields }))
-                } else {
-                    panic!("Could not parse raw fields in record.")
-                } 
-            } else {
-                panic!("Could not decompress record.");
-            }
-        } else {
-
-            let (_, fields) = many0(complete(RawField::parse))(i)?;
-
-            Ok((i, RawRecord { header, data: fields }))
-        }
+        Ok((i, Self{ header, data }))
     }
 }
 
@@ -352,28 +335,35 @@ impl std::fmt::Display for RawRecord<'_> {
 // ====================================================================================================
 
 pub fn alloc_record(i: &[u8]) -> IResult<&[u8], (RecordHeader, &[u8]), nom::error::Error<&[u8]>> {
+    let orig = i;
     let (i, header) = RecordHeader::parse(i)?;
     let (i, raw) = take(header.size)(i)?;
-
-    Ok((i, (header, raw)))
+    if &header.iden.0 == b"GRUP" {
+        let (_, gheader) = GroupHeader::parse(orig)?;
+        panic!("Allocate record function encountered a group: {:?}", gheader);
+    } else {
+        Ok((i, (header, raw)))
+    }
+    
 }
 
 // ====================================================================================================
 
-pub fn alloc_record_c(i: &[u8]) -> IResult<&[u8], (RecordHeader, &[u8])> {
+pub fn alloc_record_c(i: &[u8]) -> IResult<&[u8], (RecordHeader, Vec<u8>)> {
     let (i, header) = RecordHeader::parse(i)?;
     let (i, raw) = take(header.size)(i)?;
 
     if header.flags.is_compressed() {
         if let Ok(de) = decompress_record(raw) {
-            Ok((i, (header, de.as_slice())))
+            Ok((i, (header, de)))
         } else {
             panic!("Could not decompress record.")
         }
     } else {
-        Ok((i, (header, raw)))
+        Ok((i, (header, raw.to_vec())))
     }
 }
+
 
 // ====================================================================================================
 
@@ -457,7 +447,7 @@ pub struct RawCellRecord<'esm> {
 impl <'esm, 'nom> Parse<&'nom[u8]> for RawCellRecord<'esm> where 'nom:'esm {
     fn parse(i: &'nom[u8]) -> IResult<&'nom[u8], Self, nom::error::Error<&'nom[u8]>> {
         let (i, cell) = RawRecord::parse(i)?;
-
+        println!("{:?}", cell);
         let (_, ghead) = GroupHeader::parse(i)?;
 
         match ghead.label {

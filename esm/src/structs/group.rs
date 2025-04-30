@@ -112,7 +112,6 @@ impl<T: for<'nom> Parse<&'nom[u8]>> Parse<&[u8]> for Group<T> {
 
 // ====================================================================================================
 
-#[derive(Debug)]
 pub struct RawWorldChildren<'esm> {
     pub header: GroupHeader,
     pub data: &'esm [u8]
@@ -126,10 +125,15 @@ impl<'esm, 'nom> Parse<&'nom[u8]> for RawWorldChildren<'esm> where 'nom: 'esm {
 }
 
 
+impl Debug for RawWorldChildren<'_> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "RawWorldChildren {{ header: {:?}, data: [{} bytes] }}", self.header, self.data.len())
+    }
+}
+
 // ====================================================================================================
 
 
-#[derive(Debug)]
 pub struct RawInteriorCellBlock<'esm> {
     pub header: GroupHeader,
     pub data: &'esm [u8]
@@ -139,6 +143,12 @@ impl<'esm, 'nom> Parse<&'nom[u8]> for RawInteriorCellBlock<'esm> where 'nom: 'es
     fn parse(i: &'nom[u8]) -> IResult<&'nom[u8], Self, nom::error::Error<&'nom[u8]>> {
         let (i, (header, data)) = alloc_group(i)?;
         Ok((i, Self { header, data }))
+    }
+}
+
+impl std::fmt::Debug for RawInteriorCellBlock<'_> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:?} {} bytes", self.header, self.data.len())
     }
 }
 
@@ -278,14 +288,14 @@ impl<'esm, 'nom> Parse<&'nom[u8]> for RawCellGroup<'esm> where 'nom: 'esm {
 #[derive(Debug)]
 pub struct RawWorldGroup<'esm> {
     pub header: GroupHeader,
-    pub cells: Vec<RawWorldRecord<'esm>>
+    pub worlds: Vec<RawWorldRecord<'esm>>
 }
 
 impl<'esm, 'nom> Parse<&'nom[u8]> for RawWorldGroup<'esm> where 'nom: 'esm {
     fn parse(i: &'nom[u8]) -> IResult<&'nom[u8], Self, nom::error::Error<&'nom[u8]>> {
         let (i, (header, data)) = alloc_group(i)?;
-        let (_, cells) = many0(complete(RawWorldRecord::parse))(data)?;
-        Ok((i, Self { header, cells }))
+        let (_, worlds) = many0(complete(RawWorldRecord::parse))(data)?;
+        Ok((i, Self { header, worlds }))
     }
 }
 

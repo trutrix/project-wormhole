@@ -19,7 +19,7 @@ fn test1() {
     //     println!("{:?}", g.header.label)
     // }
 
-    println!("{:?}", esm.cells[0].cells[0].cell);
+    println!("{:#?}", esm.worlds);
 
     println!("Time to load: {:?}", start.elapsed());
 

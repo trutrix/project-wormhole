@@ -52,7 +52,7 @@ impl<'esm> ESM1<'esm> {
 pub struct RawESM<'esm> {
     pub header: FileHeader,
     pub data: Vec<RawGroup<'esm>>,
-    pub cells: Vec<RawCellGroup<'esm>>,
+    pub cells: Vec<RawInteriorCellBlock<'esm>>,
     pub worlds: Vec<RawWorldGroup<'esm>>
 }
 
@@ -75,16 +75,25 @@ impl<'esm> RawESM<'esm> {
                 GroupLabel::Top(iden) => {
                     match &iden.0 {
                         b"CELL" => {
-                            let (i, gc) = RawCellGroup::parse(raw)?;
+                            let (i, (ghead, graw)) = alloc_group(raw)?;
+                            println!("{:?}", ghead);
                             raw = i;
-                            cells.push(gc);
+                            let (_, icb) = many0(complete(RawInteriorCellBlock::parse))(graw)?;
+                            cells = icb;
                         }
                         b"WRLD" => {
+                            println!("Parsing {:?}", gh.label);
                             let (i, gw) = RawWorldGroup::parse(raw)?;
                             raw = i;
                             worlds.push(gw);
                         }
+                        b"QUST" => {
+                            println!("Skipping: {:?}", gh.label);
+                            let (i, _) = alloc_group(raw)?;
+                            raw = i;
+                        }
                         _ => {
+                            println!("Parsing {:?}", gh.label);
                             let (i, rg) = RawGroup::parse(raw)?;
                             raw = i;
                             data.push(rg);
