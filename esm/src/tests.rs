@@ -1,4 +1,4 @@
-use crate::{dev::*};
+use crate::{dev::*, traits::EditorId};
 use std::io::Read;
 const ESM_PATH: &str = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Fallout 4\\Data\\Fallout4.esm";
 
@@ -19,7 +19,13 @@ fn test1() {
     //     println!("{:?}", g.header.label)
     // }
 
-    println!("{:#?}", esm.worlds);
+    // println!("{:#?}", esm.worlds);
+
+    for wg in esm.worlds {
+        for world in wg.worlds {
+            println!("{:?}", world.edid());
+        }
+    }
 
     println!("Time to load: {:?}", start.elapsed());
 

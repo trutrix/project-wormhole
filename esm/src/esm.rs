@@ -76,24 +76,24 @@ impl<'esm> RawESM<'esm> {
                     match &iden.0 {
                         b"CELL" => {
                             let (i, (ghead, graw)) = alloc_group(raw)?;
-                            println!("{:?}", ghead);
+                            // println!("{:?}", ghead);
                             raw = i;
                             let (_, icb) = many0(complete(RawInteriorCellBlock::parse))(graw)?;
                             cells = icb;
                         }
                         b"WRLD" => {
-                            println!("Parsing {:?}", gh.label);
+                            // println!("Parsing {:?}", gh.label);
                             let (i, gw) = RawWorldGroup::parse(raw)?;
                             raw = i;
                             worlds.push(gw);
                         }
                         b"QUST" => {
-                            println!("Skipping: {:?}", gh.label);
+                            // println!("Skipping: {:?}", gh.label);
                             let (i, _) = alloc_group(raw)?;
                             raw = i;
                         }
                         _ => {
-                            println!("Parsing {:?}", gh.label);
+                            // println!("Parsing {:?}", gh.label);
                             let (i, rg) = RawGroup::parse(raw)?;
                             raw = i;
                             data.push(rg);
