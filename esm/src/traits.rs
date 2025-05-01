@@ -12,3 +12,8 @@ pub trait FieldParser<T> {
 
     fn parse_field_body(i: &[u8], header: FieldHeader) -> IResult<&[u8], T, nom::error::Error<&[u8]>>;
 }
+
+
+pub trait EditorId {
+    fn edid(&self) -> Option<ESMString>;
+}
