@@ -2,7 +2,7 @@ use core::panic;
 use std::{fmt::Debug, io::Read};
 
 
-use crate::{dev::*, records::all::{Cell, RawCellChildren}};
+use crate::{dev::*, records::all::{Cell, RawCellChildren}, traits::EditorId};
 
 #[derive(Debug, NomLE)]
 pub struct RecordHeader {
@@ -488,5 +488,22 @@ impl <'esm, 'nom> Parse<&'nom[u8]> for RawWorldRecord<'esm> where 'nom:'esm {
             }
         }
 
+    }
+}
+
+impl EditorId for RawWorldRecord<'_> {
+    fn edid(&self) -> Option<ESMString> {
+        let mut edid = None;
+        let (_, fields) = many0(complete(RawField::parse))(self.world.data).expect("Could not parse fields from world record.");
+        for field in fields {
+            match &field.header.iden().0 {
+                b"EDID" => {
+                    let (_, s) = ESMString::parse(field.data).unwrap();
+                    edid = Some(s);
+                }
+                _ => {}
+            }
+        }
+        edid
     }
 }
