@@ -4,6 +4,8 @@ use std::{fmt::Debug, io::Read};
 
 use crate::{dev::*, records::all::{Cell, RawCellChildren}, traits::EditorId};
 
+// ====================================================================================================
+
 #[derive(Debug, NomLE)]
 pub struct RecordHeader {
     pub iden: FourCC,
@@ -12,6 +14,8 @@ pub struct RecordHeader {
     pub form_id: u32,
     pub version_control: VersionControl,
 }
+
+// ====================================================================================================
 
 // The information contained in the version control structure appears to be used by a custom Perforce VCM
 #[derive(Debug, NomLE)]
@@ -22,6 +26,8 @@ pub struct VersionControl {
     pub form: u16,
     pub revision: u16,
 }
+
+// ====================================================================================================
 
 // Flag positions
 
@@ -313,7 +319,7 @@ impl Debug for RawRecord<'_> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            "RawRecord {{ header: {:?}, data: [{} bytes]",
+            "RawRecord {{ header: {:?}, data: [{} bytes]}}",
             self.header,
             self.data.len()
         )
@@ -323,7 +329,7 @@ impl std::fmt::Display for RawRecord<'_> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            "RawRecord {{ header: {:?}, data: [{} bytes]",
+            "RawRecord {{ header: {:?}, data: [{} bytes]}}",
             self.header,
             self.data.len()
         )
@@ -367,23 +373,6 @@ pub fn alloc_record_c(i: &[u8]) -> IResult<&[u8], (RecordHeader, Vec<u8>)> {
 
 // ====================================================================================================
 
-#[derive(Debug)]
-pub enum RawData<'esm> {
-    Borrowed(&'esm[u8]),
-    New(Vec<u8>)
-}
-
-impl RawData<'_> {
-    pub fn len(&self) -> usize {
-        match self {
-            RawData::Borrowed(items) => items.len(),
-            RawData::New(items) => items.len(),
-        }
-    }
-}
-
-// ====================================================================================================
-
 
 #[derive(Debug)]
 pub struct Record<T> {
@@ -419,6 +408,9 @@ impl<T: for<'nom> Parse<&'nom[u8]>> Parse<&[u8]> for Record<T> {
         }       
     }
 }
+
+
+// ====================================================================================================
 
 /// Parse the u32 for the real size, then decompress the zlib
 pub fn decompress_record(i: &[u8]) -> Result<Vec<u8>, std::io::Error> {
@@ -513,3 +505,5 @@ impl EditorId for RawWorldRecord<'_> {
         edid
     }
 }
+
+// ====================================================================================================
