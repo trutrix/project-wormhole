@@ -21,12 +21,15 @@ fn test1() {
 
     // println!("{:#?}", esm.worlds);
 
+    println!("Time to load: {:?}", start.elapsed());
+
     for wg in esm.worlds {
         for world in wg.worlds {
             println!("{:?}", world.edid());
         }
     }
 
-    println!("Time to load: {:?}", start.elapsed());
+    
+    println!("Parsed {} records", esm.records.len());
 
 }
