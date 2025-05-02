@@ -1,4 +1,4 @@
-use std::io::{Read, Seek};
+use std::{collections::HashMap, io::{Read, Seek}};
 
 use crate::{dev::*, records::TES4::FileHeader, structs::record::{RawRecord, RecordHeader}};
 
@@ -10,7 +10,7 @@ pub struct ESM1<'esm> {
     file: std::fs::File,
     junk: Option<RawRecord<'esm>>,
     pub header: FileHeader,
-    pub groups: Vec<RawGroup<'esm>>,
+    pub groups: Vec<RawDataGroup<'esm>>,
     
 }
 
@@ -54,16 +54,16 @@ impl<'esm> ESM1<'esm> {
 #[derive(Debug)]
 pub struct RawESM<'esm> {
     pub header: FileHeader,
-    pub data: Vec<RawGroup<'esm>>,
     pub cells: Vec<RawInteriorCellBlock<'esm>>,
-    pub worlds: Vec<RawWorldGroup<'esm>>
+    pub worlds: Vec<RawWorldGroup<'esm>>,
+    pub records: HashMap<u32, RawRecord<'esm>>
 }
 
 impl<'esm> RawESM<'esm> {
     pub fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self> {
-        let mut data = Vec::new();
         let mut cells = Vec::new();
         let mut worlds = Vec::new();
+        let mut records = HashMap::new();
 
 
         let (i, header) = FileHeader::parse(i)?;
@@ -97,9 +97,11 @@ impl<'esm> RawESM<'esm> {
                         }
                         _ => {
                             // println!("Parsing {:?}", gh.label);
-                            let (i, rg) = RawGroup::parse(raw)?;
+                            let (i, rg) = RawDataGroup::parse(raw)?;
                             raw = i;
-                            data.push(rg);
+                            for r in rg.data {
+                                records.insert(r.header.form_id, r);
+                            }
                         }
                     }
 
@@ -113,8 +115,7 @@ impl<'esm> RawESM<'esm> {
 
         }
 
-
-        Ok((i, Self { header, data, cells, worlds }))
+        Ok((i, Self { header, cells, worlds, records }))
     }
 }
 
