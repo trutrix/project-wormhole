@@ -471,6 +471,12 @@ pub struct RawWorldRecord<'esm> {
     pub world_children: Option<RawWorldChildren<'esm>>
 }
 
+impl RawWorldRecord<'_> {
+    pub fn has_children(&self) -> bool {
+        self.world_children.is_some()
+    }
+}
+
 
 impl <'esm, 'nom> Parse<&'nom[u8]> for RawWorldRecord<'esm> where 'nom:'esm {
     fn parse(i: &'nom[u8]) -> IResult<&'nom[u8], Self, nom::error::Error<&'nom[u8]>> {
