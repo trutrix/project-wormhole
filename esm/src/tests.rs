@@ -25,7 +25,7 @@ fn test1() {
 
     for wg in esm.worlds {
         for world in wg.worlds {
-            println!("{:?}", world.edid());
+            println!("{:?}", world.try_get_editor_id());
         }
     }
 

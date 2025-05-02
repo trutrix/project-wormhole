@@ -490,7 +490,7 @@ impl <'esm, 'nom> Parse<&'nom[u8]> for RawWorldRecord<'esm> where 'nom:'esm {
 }
 
 impl EditorId for RawWorldRecord<'_> {
-    fn edid(&self) -> Option<ESMString> {
+    fn try_get_editor_id(&self) -> Option<ESMString> {
         let mut edid = None;
         let (_, fields) = many0(complete(RawField::parse))(self.world.data).expect("Could not parse fields from world record.");
         for field in fields {

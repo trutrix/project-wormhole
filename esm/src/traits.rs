@@ -15,5 +15,5 @@ pub trait FieldParser<T> {
 
 
 pub trait EditorId {
-    fn edid(&self) -> Option<ESMString>;
+    fn try_get_editor_id(&self) -> Option<ESMString>;
 }
