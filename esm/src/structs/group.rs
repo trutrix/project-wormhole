@@ -8,12 +8,28 @@ use super::record::VersionControl;
 // ====================================================================================================
 
 
-#[derive(Debug, NomLE)]
+#[derive(Debug)]
 pub struct GroupHeader {
     pub iden: FourCC, // Always 'GRUP'
     pub size: u32, // Size INCLUDING header, unlike RecordHeader,
     pub label: GroupLabel, // 8 bytes, reversed process
     pub version_control: VersionControl // TODO: Unsure if records and groups share the same version information
+}
+
+impl Parse<&[u8]> for GroupHeader {
+    fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
+        let (i, iden) = FourCC::parse(i)?;
+
+        if &iden.0 != b"GRUP" {
+            panic!("Invalid group header: {:?}", iden);
+        }
+
+        let (i, size) = le_u32(i)?;
+        let (i, label) = GroupLabel::parse(i)?;
+        let (i, version_control) = VersionControl::parse(i)?;
+
+        Ok((i, GroupHeader { iden, size, label, version_control }))
+    }
 }
 
 
@@ -72,20 +88,20 @@ pub fn alloc_group(i: &[u8]) -> IResult<&[u8], (GroupHeader, &[u8])> {
 // ====================================================================================================
 
 
-pub struct RawGroup<'esm> {
+pub struct RawDataGroup<'esm> {
     pub header: GroupHeader,
     pub data: Vec<RawRecord<'esm>>
 }
 
-impl<'esm, 'nom> Parse<&'nom[u8]> for RawGroup<'esm> where 'nom: 'esm {
+impl<'esm, 'nom> Parse<&'nom[u8]> for RawDataGroup<'esm> where 'nom: 'esm {
     fn parse(i: &'nom[u8]) -> IResult<&'nom[u8], Self, nom::error::Error<&'nom[u8]>> {
         let (i, (header, data)) = alloc_group(i)?;
         let (_, records) = many0(complete(RawRecord::parse))(data)?;
-        Ok((i, RawGroup { header, data: records }))
+        Ok((i, RawDataGroup { header, data: records }))
     }
 }
 
-impl Debug for RawGroup<'_> {
+impl Debug for RawDataGroup<'_> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "RawGroup {{ header: {:?}, data: [{} bytes] }}", self.header, self.data.len())
     }
