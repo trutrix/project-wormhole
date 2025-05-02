@@ -3,6 +3,9 @@ use std::io::{Read, Seek};
 use crate::{dev::*, records::TES4::FileHeader, structs::record::{RawRecord, RecordHeader}};
 
 
+// ====================================================================================================
+
+
 pub struct ESM1<'esm> {
     file: std::fs::File,
     junk: Option<RawRecord<'esm>>,
@@ -117,6 +120,24 @@ impl<'esm> RawESM<'esm> {
 
 // ====================================================================================================
 
+pub struct SmartESM {
+    pub header: FileHeader
+}
+
+impl SmartESM {
+    pub fn parse_complete(i: &[u8]) -> Result<Self, ESMError> {
+        if let Ok((i, header)) = FileHeader::parse(i) {
+            Ok(SmartESM { header })
+        } else {
+            Err(ESMError::InvalidHeader)
+        }
+    }
+}
+
+
+// ====================================================================================================
+
+
 #[derive(Debug)]
 pub enum ESMError {
     IO(std::io::Error),
@@ -133,20 +154,5 @@ pub enum ESMError {
 impl From<std::io::Error> for ESMError {
     fn from(err: std::io::Error) -> Self {
         ESMError::IO(err)
-    }
-}
-
-
-pub struct SmartESM {
-    pub header: FileHeader
-}
-
-impl SmartESM {
-    pub fn parse_complete(i: &[u8]) -> Result<Self, ESMError> {
-        if let Ok((i, header)) = FileHeader::parse(i) {
-            Ok(SmartESM { header })
-        } else {
-            Err(ESMError::InvalidHeader)
-        }
     }
 }
