@@ -6,7 +6,7 @@ use crate::{dev::*, esm::ESMError};
 define_record! {
     b"GMST",
     GameSetting, [
-        +b"EDID", EditorId, ESMString;
+        b"EDID", EditorId, ESMString;
         b"DATA", Value, Vec<u8>;
     ]
 }

@@ -1,3 +1,4 @@
+
 #![allow(non_snake_case)]
 
 pub mod TES4;
@@ -127,6 +128,8 @@ pub mod NOCM;
 pub mod LENS;
 pub mod GDRY;
 pub mod OVIS;
+pub mod REFR;
+pub mod LAND;
 
 
 pub mod all {
@@ -257,4 +260,6 @@ pub mod all {
     pub use super::LENS::*;
     pub use super::GDRY::*;
     pub use super::OVIS::*;
+    pub use super::REFR::*;
+    pub use super::LAND::*;
 }

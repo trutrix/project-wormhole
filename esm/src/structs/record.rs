@@ -11,7 +11,7 @@ pub struct RecordHeader {
     pub iden: FourCC,
     pub size: u32, // Size NOT INCLUDING header, unlike GroupHeader
     pub flags: RecordFlags,
-    pub form_id: u32,
+    pub form_id: FormId,
     pub version_control: VersionControl,
 }
 

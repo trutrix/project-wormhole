@@ -1,6 +1,6 @@
 use proc::define_record;
 
-use crate::{dev::*, structs::vectors::Vec2};
+use crate::{dev::*, structs::{geometry::CellLoc, vectors::Vec2}};
 
 
 define_record! {
@@ -104,11 +104,4 @@ pub struct MapData {
     pub height: i32, 
     pub top_left: Vec2<i16>, 
     pub bottom_right: Vec2<i16>
-}
-
-/// Location in world grid for cell
-#[derive(Debug, Clone, NomLE)]
-pub struct CellLoc {
-    pub y: i16,
-    pub x: i16
 }
