@@ -1,6 +1,6 @@
 use proc::define_record;
 
-use crate::{dev::*, esm::ESMError};
+use crate::{dev::*, esm::ESMError, traits::{GroupParser, RecordParser}};
 
 
 define_record! {
@@ -11,8 +11,8 @@ define_record! {
     ]
 }
 
-
-
+impl RecordParser<GameSettingField> for GameSetting {}
+impl GroupParser<GameSetting> for Group<Record<GameSettingField>> {}
 
 // impl GameSetting {
 //     fn get_value(&self) -> Result<GameSettingValue, ESMError> {

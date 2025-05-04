@@ -1,6 +1,6 @@
 use std::{collections::HashMap, io::{Read, Seek}};
 
-use crate::{dev::*, records::TES4::FileHeader, structs::record::{RawRecord, RecordHeader}};
+use crate::{dev::*, records::{all::{FileHeaderField, GameSetting, GameSettingField}, TES4::FileHeader}, structs::record::{RawRecord, RecordHeader}, traits::{RecordParser, GroupParser}};
 
 
 // ====================================================================================================
@@ -104,8 +104,6 @@ impl<'esm> RawESM<'esm> {
                             }
                         }
                     }
-
-
                 }
                 _ => {
                     panic!("Encountered non-top group in RawESM")
@@ -122,17 +120,30 @@ impl<'esm> RawESM<'esm> {
 // ====================================================================================================
 
 pub struct SmartESM {
-    pub header: FileHeader
+    pub header: Record<FileHeaderField>
 }
 
 impl SmartESM {
     pub fn parse_complete(i: &[u8]) -> Result<Self, ESMError> {
-        if let Ok((i, header)) = FileHeader::parse(i) {
-            Ok(SmartESM { header })
+        if let Ok((i, header)) = FileHeader::parse_record(i) {
+
+            
+            if let Ok((i, gmst)) = <Group<Record<GameSettingField>>>::parse_group(i) {
+                println!("yay");
+                Ok(Self { header })
+            } else {
+                println!("nay");
+                Ok(Self { header })
+            }
+
+
         } else {
             Err(ESMError::InvalidHeader)
         }
+        
     }
+
+    
 }
 
 

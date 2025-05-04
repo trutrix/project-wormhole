@@ -1,4 +1,4 @@
-use crate::dev::*;
+use crate::{dev::*, traits::RecordParser};
 use proc::define_record;
 
 // pub type FileHeader = Record<Field<FileHeaderField>>;
@@ -51,6 +51,8 @@ define_record! {
     ]
 }
 
+
+impl RecordParser<FileHeaderField> for FileHeader {}
 
 #[derive(Debug, NomLE)]
 pub struct FileHeaderMetadata {

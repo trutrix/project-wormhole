@@ -1,9 +1,17 @@
 use crate::dev::*;
 
-#[derive(Debug, NomLE)]
+#[derive(Debug)]
 pub struct Field<T> {
     pub header: FieldHeader,
     pub data: T,
+}
+
+impl<T> Parse<&[u8]> for Field<T> where T: for<'esm> Parse<&'esm [u8]> {
+    fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
+        let (i, (header, raw)) = alloc_field(i)?;
+        let (_, data) = T::parse(raw)?;
+        Ok((i, Field { header, data }))
+    }
 }
 
 #[derive(Debug, NomLE, Clone, Copy)]
@@ -116,5 +124,6 @@ pub fn alloc_field(i: &[u8]) -> IResult<&[u8], (FieldHeader, &[u8]), nom::error:
         FieldHeader::Large(h) => h.size as usize,
     };
     let (i, data) = take(size)(i)?;
+    
     Ok((i, (header, data)))
 }

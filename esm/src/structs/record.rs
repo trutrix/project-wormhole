@@ -470,8 +470,8 @@ impl RawWorldRecord<'_> {
 }
 
 
-impl <'esm, 'nom> Parse<&'nom[u8]> for RawWorldRecord<'esm> where 'nom:'esm {
-    fn parse(i: &'nom[u8]) -> IResult<&'nom[u8], Self, nom::error::Error<&'nom[u8]>> {
+impl <'esm> Parse<&'esm[u8]> for RawWorldRecord<'esm>  {
+    fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self> {
         let (i, world) = RawRecord::parse(i)?;
 
         let (_, ghead) = GroupHeader::parse(i)?;

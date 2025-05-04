@@ -17,3 +17,38 @@ pub trait FieldParser<T> {
 pub trait EditorId {
     fn try_get_editor_id(&self) -> Option<ESMString>;
 }
+
+pub trait RecordParser<T> where T: for<'esm> Parse<&'esm[u8]> {
+    fn parse_body(i: &[u8]) -> IResult<&[u8], Vec<T>, nom::error::Error<&[u8]>> {
+        let (i, fields) = many0(complete(T::parse_le))(i)?;
+        Ok((i, fields))
+    }
+    fn parse_record(i: &[u8]) -> IResult<&[u8], Record<T>, nom::error::Error<&[u8]>> {
+        let (i, (header, raw)) = alloc_record(i)?;
+
+        if header.flags.is_compressed() {
+            if let Ok(dec) = decompress_record(raw) {
+                if let Ok((_, fields)) = Self::parse_body(&dec) {
+                    Ok((i, Record { header, fields }))
+                } else {
+                    println!("Failed to parse decompressed record: {:?}", header);
+                    Ok((i, Record { header, fields: Vec::new() }))
+                }
+            } else {
+                println!("Failed to decompress record: {:?}", header);
+                Ok((i, Record { header, fields: Vec::new() }))
+            }
+        } else {
+            let (_, fields) = Self::parse_body(raw)?;
+            Ok((i, Record { header, fields }))
+        }
+    }
+}
+
+pub trait GroupParser<T> where T: for<'esm> Parse<&'esm[u8]> {
+    fn parse_group(i: &[u8]) -> IResult<&[u8], Group<T>> {
+        let (i, (header, raw)) = alloc_group(i)?;
+        let (_, items) = many0(complete(T::parse_le))(raw)?;
+        Ok((i, Group { header, data: items} ))
+    }
+}

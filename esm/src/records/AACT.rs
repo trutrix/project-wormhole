@@ -5,5 +5,7 @@ define_record! {
     Action, [
         b"EDID", EditorId, ESMString;
         b"CNAM", Color, Color4;
+        b"TNAM", Type, u32;
+        b"DNAM", Notes, ESMString;
     ]
 }
