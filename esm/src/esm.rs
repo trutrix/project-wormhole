@@ -129,7 +129,7 @@ impl SmartESM {
 
             
             if let Ok((i, gmst)) = <Group<Record<GameSettingField>>>::parse_group(i) {
-                println!("yay");
+                println!("{:?}", gmst.data[0].header);
                 Ok(Self { header })
             } else {
                 println!("nay");

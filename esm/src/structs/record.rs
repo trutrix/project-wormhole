@@ -21,10 +21,35 @@ pub struct RecordHeader {
 #[derive(Debug, NomLE)]
 pub struct VersionControl {
     // TODO: figure out how to display timestamp
-    pub timestamp: u16,
+    pub timestamp: ESMTimestamp,
     pub users: [u8; 2],
     pub form: u16,
     pub revision: u16,
+}
+
+#[derive(NomLE)]
+pub struct ESMTimestamp(pub u16);
+
+
+// Timestamp
+// Skyrim: The low byte is the day of the month and the high byte is a combined value representing 
+// the month number and last digit of the year times 12. That value is offset, however, so the range 
+// is nominally 13-132, representing dates from January 20x4 through December 20x3. Lower values can 
+// be seen in Skyrim.esm, likely corresponding to older records held over from Oblivion where values of 
+// 1-12 represented 2003 (see the Oblivion version of this page for specifics).
+
+// To derive the correct values, use the following formulae, where Y is the single-digit year, 
+// M is the month number, and HB is the high byte of the value:
+// Y = ((HB - 1) / 12 + 3) MOD 10
+// M = ((HB - 1) MOD 12) + 1
+// HB = (((Y - 4) MOD 10) + 1) * 12 + M
+
+
+impl std::fmt::Debug for ESMTimestamp {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        // Bits are used to represent each part, with a two-digit year: 0bYYYYYYYMMMMDDDDD
+        let year = (self.0 >> 11) & 0b1111111;
+    }
 }
 
 // ====================================================================================================
@@ -307,7 +332,7 @@ pub struct RawRecord<'esm> {
     pub data: &'esm[u8],
 }
 
-impl<'esm, 'nom> Parse<&'nom [u8]> for RawRecord<'esm> where 'nom: 'esm {
+impl<'nom> Parse<&'nom [u8]> for RawRecord<'nom> {
     fn parse(i: &'nom [u8]) -> IResult<&'nom [u8], Self> {
         let (i, (header, data)) = alloc_record(i)?;
         Ok((i, Self{ header, data }))
@@ -316,16 +341,6 @@ impl<'esm, 'nom> Parse<&'nom [u8]> for RawRecord<'esm> where 'nom: 'esm {
 
 
 impl Debug for RawRecord<'_> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "RawRecord {{ header: {:?}, data: [{} bytes]}}",
-            self.header,
-            self.data.len()
-        )
-    }
-}
-impl std::fmt::Display for RawRecord<'_> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
@@ -346,28 +361,11 @@ pub fn alloc_record(i: &[u8]) -> IResult<&[u8], (RecordHeader, &[u8]), nom::erro
     let (i, raw) = take(header.size)(i)?;
     if &header.iden.0 == b"GRUP" {
         let (_, gheader) = GroupHeader::parse(orig)?;
-        panic!("Allocate record function encountered a group: {:?}", gheader);
+        panic!("alloc_record(): function encountered a group: {:?}", gheader);
     } else {
         Ok((i, (header, raw)))
     }
     
-}
-
-// ====================================================================================================
-
-pub fn alloc_record_c(i: &[u8]) -> IResult<&[u8], (RecordHeader, Vec<u8>)> {
-    let (i, header) = RecordHeader::parse(i)?;
-    let (i, raw) = take(header.size)(i)?;
-
-    if header.flags.is_compressed() {
-        if let Ok(de) = decompress_record(raw) {
-            Ok((i, (header, de)))
-        } else {
-            panic!("Could not decompress record.")
-        }
-    } else {
-        Ok((i, (header, raw.to_vec())))
-    }
 }
 
 
@@ -404,7 +402,6 @@ impl<T: for<'nom> Parse<&'nom[u8]>> Parse<&[u8]> for Record<T> {
             } else {
                 return Err(nom::Err::Error(nom::error::Error::new(i, nom::error::ErrorKind::Complete)));
             }
-            
         }       
     }
 }

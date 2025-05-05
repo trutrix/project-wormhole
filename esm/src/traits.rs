@@ -52,3 +52,17 @@ pub trait GroupParser<T> where T: for<'esm> Parse<&'esm[u8]> {
         Ok((i, Group { header, data: items} ))
     }
 }
+
+
+pub trait ESMParser<T> where T: for<'esm> Parse<&'esm[u8]> {
+    fn parse_as_group(i: &[u8]) -> IResult<&[u8], Group<T>> {
+        let (i, (header, raw)) = alloc_group(i)?;
+        let (_, items) = many0(complete(T::parse_le))(raw)?;
+        Ok((i, Group { header, data: items} ))
+    }
+    fn parse_as_record(i: &[u8]) -> IResult<&[u8], Record<T>> {
+        let (i, (header, raw)) = alloc_record(i)?;
+        let (_, fields) = many0(complete(T::parse_le))(raw)?;
+        Ok((i, Record { header, fields }))
+    }
+}

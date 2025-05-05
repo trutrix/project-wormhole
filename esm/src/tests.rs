@@ -18,8 +18,9 @@ fn test1() {
 
     let start = std::time::Instant::now();
     let esm = SmartESM::parse_complete(&buf).unwrap();
-    println!("Parsed esm in: {:?}", start.elapsed());
-    println!("{:?}", esm.header);
+    //println!("Parsed esm in: {:?}", start.elapsed());
+    //println!("{:?}", esm.header);
+    
     //println!("Parsed {} raw records", esm.records.len());
 
     // for (form_id, r) in esm.records {
