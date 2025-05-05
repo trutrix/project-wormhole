@@ -48,7 +48,10 @@ pub struct ESMTimestamp(pub u16);
 impl std::fmt::Debug for ESMTimestamp {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         // Bits are used to represent each part, with a two-digit year: 0bYYYYYYYMMMMDDDDD
-        let year = (self.0 >> 11) & 0b1111111;
+        let year = self.0   >>   9;
+        let month = self.0  >> 5 & 0b00000001111;
+        let day = self.0    &   0b0000000000011111;
+        write!(f, "{:04}/{:02}/{:02}", year + 2000, month, day)
     }
 }
 
