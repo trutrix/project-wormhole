@@ -3,6 +3,8 @@ use nom_derive::nom::IResult;
 use crate::{dev::*, structs::field::{Field, FieldHeader}};
 
 
+// ====================================================================================================
+
 pub trait FieldParser<T> {
     fn parse_field(i: &[u8]) -> IResult<&[u8], Field<T>, nom::error::Error<&[u8]>> {
         let (i, header) = FieldHeader::parse(i)?;
@@ -13,10 +15,14 @@ pub trait FieldParser<T> {
     fn parse_field_body(i: &[u8], header: FieldHeader) -> IResult<&[u8], T, nom::error::Error<&[u8]>>;
 }
 
+// ====================================================================================================
 
 pub trait EditorId {
     fn try_get_editor_id(&self) -> Option<ESMString>;
 }
+
+
+// ====================================================================================================
 
 pub trait RecordParser<T> where T: for<'esm> Parse<&'esm[u8]> {
     fn parse_body(i: &[u8]) -> IResult<&[u8], Vec<T>, nom::error::Error<&[u8]>> {
@@ -45,6 +51,8 @@ pub trait RecordParser<T> where T: for<'esm> Parse<&'esm[u8]> {
     }
 }
 
+// ====================================================================================================
+
 pub trait GroupParser<T> where T: for<'esm> Parse<&'esm[u8]> {
     fn parse_group(i: &[u8]) -> IResult<&[u8], Group<T>> {
         let (i, (header, raw)) = alloc_group(i)?;
@@ -53,6 +61,8 @@ pub trait GroupParser<T> where T: for<'esm> Parse<&'esm[u8]> {
     }
 }
 
+
+// ====================================================================================================
 
 pub trait ESMParser<T> where T: for<'esm> Parse<&'esm[u8]> {
     fn parse_as_group(i: &[u8]) -> IResult<&[u8], Group<T>> {
@@ -65,4 +75,11 @@ pub trait ESMParser<T> where T: for<'esm> Parse<&'esm[u8]> {
         let (_, fields) = many0(complete(T::parse_le))(raw)?;
         Ok((i, Record { header, fields }))
     }
+}
+
+// ====================================================================================================
+
+pub trait Children {
+    fn has_children(&self) -> bool;
+    fn get_children<T>(&self) -> Option<T>;
 }
