@@ -27,30 +27,27 @@ pub struct VersionControl {
     pub revision: u16,
 }
 
+
+// ====================================================================================================
+
+
+
+// Assuming the timestamp is the same in Fallout 4 as SkyrimSE
 #[derive(NomLE)]
 pub struct ESMTimestamp(pub u16);
 
-
-// Timestamp
-// Skyrim: The low byte is the day of the month and the high byte is a combined value representing 
-// the month number and last digit of the year times 12. That value is offset, however, so the range 
-// is nominally 13-132, representing dates from January 20x4 through December 20x3. Lower values can 
-// be seen in Skyrim.esm, likely corresponding to older records held over from Oblivion where values of 
-// 1-12 represented 2003 (see the Oblivion version of this page for specifics).
-
-// To derive the correct values, use the following formulae, where Y is the single-digit year, 
-// M is the month number, and HB is the high byte of the value:
-// Y = ((HB - 1) / 12 + 3) MOD 10
-// M = ((HB - 1) MOD 12) + 1
-// HB = (((Y - 4) MOD 10) + 1) * 12 + M
-
-
 impl std::fmt::Debug for ESMTimestamp {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        // Bits are used to represent each part, with a two-digit year: 0bYYYYYYYMMMMDDDDD
+
+        // Shift over to keep only the year
         let year = self.0   >>   9;
+
+        // Shift over to keep only the month
         let month = self.0  >> 5 & 0b00000001111;
+
+        // Mask to keep only the day
         let day = self.0    &   0b0000000000011111;
+
         write!(f, "{:04}/{:02}/{:02}", year + 2000, month, day)
     }
 }
