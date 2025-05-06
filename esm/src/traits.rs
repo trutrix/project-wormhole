@@ -79,7 +79,3 @@ pub trait ESMParser<T> where T: for<'esm> Parse<&'esm[u8]> {
 
 // ====================================================================================================
 
-pub trait Children {
-    fn has_children(&self) -> bool;
-    fn get_children<T>(&self) -> Option<T>;
-}

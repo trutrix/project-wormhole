@@ -460,11 +460,7 @@ pub struct RawWorldRecord<'esm> {
     pub world_children: Option<RawWorldChildren<'esm>>
 }
 
-impl RawWorldRecord<'_> {
-    pub fn has_children(&self) -> bool {
-        self.world_children.is_some()
-    }
-}
+
 
 
 impl <'esm> Parse<&'esm[u8]> for RawWorldRecord<'esm>  {
