@@ -2,7 +2,7 @@ use core::panic;
 use std::{fmt::Debug, io::Read};
 
 
-use crate::{dev::*, records::all::{Cell, RawCellChildren}, traits::EditorId};
+use crate::{dev::*, records::all::*, traits::EditorId};
 
 // ====================================================================================================
 
@@ -20,7 +20,6 @@ pub struct RecordHeader {
 // The information contained in the version control structure appears to be used by a custom Perforce VCM
 #[derive(Debug, NomLE)]
 pub struct VersionControl {
-    // TODO: figure out how to display timestamp
     pub timestamp: ESMTimestamp,
     pub users: [u8; 2],
     pub form: u16,
@@ -333,7 +332,7 @@ pub struct RawRecord<'esm> {
 }
 
 impl<'nom> Parse<&'nom [u8]> for RawRecord<'nom> {
-    fn parse(i: &'nom [u8]) -> IResult<&'nom [u8], Self> {
+    fn parse(i: &'nom[u8]) -> IResult<&'nom[u8], Self> {
         let (i, (header, data)) = alloc_record(i)?;
         Ok((i, Self{ header, data }))
     }
@@ -393,7 +392,7 @@ impl<T: for<'nom> Parse<&'nom[u8]>> Parse<&[u8]> for Record<T> {
                 }
                 
             } else {
-                return Err(nom::Err::Error(nom::error::Error::new(i, nom::error::ErrorKind::Complete)));
+                panic!("Could not decompress record: {:?}", header);
             }
             
         } else {
@@ -433,6 +432,12 @@ pub struct RawCellRecord<'esm> {
     pub cell_children: Option<RawCellChildren<'esm>>
 }
 
+impl RawCellRecord<'_> {
+    pub fn has_children(&self) -> bool {
+        self.cell_children.is_some()
+    }
+}
+
 impl <'esm, 'nom> Parse<&'nom[u8]> for RawCellRecord<'esm> where 'nom:'esm {
     fn parse(i: &'nom[u8]) -> IResult<&'nom[u8], Self, nom::error::Error<&'nom[u8]>> {
         let (i, cell) = RawRecord::parse(i)?;
@@ -460,7 +465,11 @@ pub struct RawWorldRecord<'esm> {
     pub world_children: Option<RawWorldChildren<'esm>>
 }
 
-
+impl RawWorldRecord<'_> {
+    pub fn has_children(&self) -> bool {
+        self.world_children.is_some()
+    }
+}
 
 
 impl <'esm> Parse<&'esm[u8]> for RawWorldRecord<'esm>  {
@@ -498,5 +507,36 @@ impl EditorId for RawWorldRecord<'_> {
         edid
     }
 }
+
+// ====================================================================================================
+
+
+#[derive(Debug)]
+pub struct RawQuestRecord<'esm> {
+    pub quest: RawRecord<'esm>,
+    pub quest_children: Option<RawCellVisibleDistantChildren<'esm>>
+}
+impl RawQuestRecord<'_> {
+    pub fn has_children(&self) -> bool {
+        self.quest_children.is_some()
+    }
+}
+
+impl <'esm> Parse<&'esm[u8]> for RawQuestRecord<'esm>  {
+    fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self> {
+        let (i, quest) = RawRecord::parse(i)?;
+        let (_, ghead) = GroupHeader::parse(i)?;
+        match ghead.label {
+            GroupLabel::CellVisibleDistantChildren(_) => {
+                let (i, quest_children) = RawCellVisibleDistantChildren::parse(i)?;
+                return Ok((i, Self { quest, quest_children: Some(quest_children) }));
+            }
+            _ => {
+                return Ok((i, Self { quest, quest_children: None }))
+            }
+        }
+    }
+}
+
 
 // ====================================================================================================
