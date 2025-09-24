@@ -17,7 +17,12 @@ fn test1() {
 
 
     let start = std::time::Instant::now();
-    let esm = SmartESM::parse_complete(&buf).unwrap();
+    //let esm = SmartESM::parse_complete(&buf).unwrap();
+    let (_, esm) = RawESM::parse(&buf).unwrap();
+    println!("Parsed esm in: {:?}", start.elapsed());
+
+    println!("{:?}", esm.quests[0].quests[0].quest);
+
     //println!("Parsed esm in: {:?}", start.elapsed());
     //println!("{:?}", esm.header);
     

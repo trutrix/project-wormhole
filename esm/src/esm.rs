@@ -56,7 +56,8 @@ pub struct RawESM<'esm> {
     pub header: FileHeader,
     pub cells: Vec<RawInteriorCellBlock<'esm>>,
     pub worlds: Vec<RawWorldGroup<'esm>>,
-    pub records: HashMap<u32, RawRecord<'esm>>
+    pub records: HashMap<u32, RawRecord<'esm>>,
+    pub quests: Vec<RawQuestGroup<'esm>>,
 }
 
 impl<'esm> RawESM<'esm> {
@@ -64,6 +65,7 @@ impl<'esm> RawESM<'esm> {
         let mut cells = Vec::new();
         let mut worlds = Vec::new();
         let mut records = HashMap::new();
+        let mut quests = Vec::new();
 
 
         let (i, header) = FileHeader::parse(i)?;
@@ -92,8 +94,9 @@ impl<'esm> RawESM<'esm> {
                         }
                         b"QUST" => {
                             // println!("Skipping: {:?}", gh.label);
-                            let (i, _) = alloc_group(raw)?;
+                            let (i, gq) = RawQuestGroup::parse(raw)?;
                             raw = i;
+                            quests.push(gq);
                         }
                         _ => {
                             // println!("Parsing {:?}", gh.label);
@@ -113,7 +116,7 @@ impl<'esm> RawESM<'esm> {
 
         }
 
-        Ok((i, Self { header, cells, worlds, records }))
+        Ok((i, Self { header, cells, worlds, records, quests }))
     }
 }
 
