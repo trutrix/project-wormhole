@@ -21,7 +21,7 @@ impl Parse<&[u8]> for GroupHeader {
         let (i, iden) = FourCC::parse(i)?;
 
         if &iden.0 != b"GRUP" {
-            panic!("Invalid group header: {:?}", iden);
+             panic!("Invalid group header: {:?}", iden);
         }
 
         let (i, size) = le_u32(i)?;
@@ -312,6 +312,22 @@ impl<'esm, 'nom> Parse<&'nom[u8]> for RawWorldGroup<'esm> where 'nom: 'esm {
         let (i, (header, data)) = alloc_group(i)?;
         let (_, worlds) = many0(complete(RawWorldRecord::parse))(data)?;
         Ok((i, Self { header, worlds }))
+    }
+}
+
+// ====================================================================================================
+
+#[derive(Debug)]
+pub struct RawQuestGroup<'esm> {
+    pub header: GroupHeader,
+    pub quests: Vec<RawQuestRecord<'esm>>
+}
+
+impl<'esm, 'nom> Parse<&'nom[u8]> for RawQuestGroup<'esm> where 'nom: 'esm {
+    fn parse(i: &'nom[u8]) -> IResult<&'nom[u8], Self, nom::error::Error<&'nom[u8]>> {
+        let (i, (header, data)) = alloc_group(i)?;
+        let (_, quests) = many0(complete(RawQuestRecord::parse))(data)?;
+        Ok((i, Self { header, quests }))
     }
 }
 
