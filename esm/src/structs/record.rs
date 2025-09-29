@@ -525,6 +525,13 @@ impl RawQuestRecord<'_> {
 impl <'esm> Parse<&'esm[u8]> for RawQuestRecord<'esm>  {
     fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self> {
         let (i, quest) = RawRecord::parse(i)?;
+        
+        let (_, next_id) = FourCC::parse(i)?;
+        if &next_id.0 != b"GRUP" {
+            return Ok((i, Self { quest, quest_children: None }));
+        }
+
+
         let (_, ghead) = GroupHeader::parse(i)?;
         match ghead.label {
             GroupLabel::CellVisibleDistantChildren(_) => {

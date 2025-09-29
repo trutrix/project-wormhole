@@ -21,7 +21,7 @@ fn test1() {
     let (_, esm) = RawESM::parse(&buf).unwrap();
     println!("Parsed esm in: {:?}", start.elapsed());
 
-    println!("{:?}", esm.quests[0].quests[0].quest);
+    println!("{:?}", esm.quests[0]);
 
     //println!("Parsed esm in: {:?}", start.elapsed());
     //println!("{:?}", esm.header);
