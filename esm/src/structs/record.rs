@@ -525,14 +525,19 @@ impl RawQuestRecord<'_> {
 
 impl <'esm> Parse<&'esm[u8]> for RawQuestRecord<'esm>  {
     fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self> {
+        
+        // Parse the quest record first
         let (i, quest) = RawRecord::parse(i)?;
         
+
+
+        // If the next thing isn't a group, return immediately
         let (_, next_id) = FourCC::parse(i)?;
         if &next_id.0 != b"GRUP" {
             return Ok((i, Self { quest, quest_children: None }));
         }
 
-
+        // Treat next as a group and check if it belongs to this quest record
         let (_, ghead) = GroupHeader::parse(i)?;
         match ghead.label {
             GroupLabel::CellVisibleDistantChildren(_) => {
