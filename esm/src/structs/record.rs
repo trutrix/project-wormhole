@@ -42,6 +42,7 @@ impl std::fmt::Debug for ESMTimestamp {
         let year = self.0   >>   9;
 
         // Shift over to keep only the month
+        // Not working properly, some months are showing as 0
         let month = self.0  >> 5 & 0b00000001111;
 
         // Mask to keep only the day
