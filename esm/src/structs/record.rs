@@ -332,8 +332,8 @@ pub struct RawRecord<'esm> {
     pub data: &'esm[u8],
 }
 
-impl<'nom> Parse<&'nom [u8]> for RawRecord<'nom> {
-    fn parse(i: &'nom[u8]) -> IResult<&'nom[u8], Self> {
+impl<'esm> Parse<&'esm [u8]> for RawRecord<'esm> {
+    fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self> {
         let (i, (header, data)) = alloc_record(i)?;
         Ok((i, Self{ header, data }))
     }
@@ -379,7 +379,7 @@ pub struct Record<T> {
 }
 
 
-impl<T: for<'nom> Parse<&'nom[u8]>> Parse<&[u8]> for Record<T> {
+impl<T: for<'esm> Parse<&'esm[u8]>> Parse<&[u8]> for Record<T> {
     fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
         let (i, (header, raw)) = alloc_record(i)?;
 
@@ -439,8 +439,8 @@ impl RawCellRecord<'_> {
     }
 }
 
-impl <'esm, 'nom> Parse<&'nom[u8]> for RawCellRecord<'esm> where 'nom:'esm {
-    fn parse(i: &'nom[u8]) -> IResult<&'nom[u8], Self, nom::error::Error<&'nom[u8]>> {
+impl <'esm> Parse<&'esm[u8]> for RawCellRecord<'esm> where 'esm:'esm {
+    fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
         let (i, cell) = RawRecord::parse(i)?;
         println!("{:?}", cell);
         let (_, ghead) = GroupHeader::parse(i)?;
@@ -525,7 +525,7 @@ impl RawQuestRecord<'_> {
 
 impl <'esm> Parse<&'esm[u8]> for RawQuestRecord<'esm>  {
     fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self> {
-        
+
         // Parse the quest record first
         let (i, quest) = RawRecord::parse(i)?;
         

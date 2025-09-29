@@ -68,8 +68,8 @@ pub struct RawCellChildren<'esm> {
     pub data: &'esm[u8]
 }
 
-impl<'esm, 'nom> Parse<&'nom[u8]> for RawCellChildren<'esm> where 'nom: 'esm {
-    fn parse(i: &'nom[u8]) -> IResult<&'nom[u8], Self, nom::error::Error<&'nom[u8]>> {
+impl<'esm> Parse<&'esm[u8]> for RawCellChildren<'esm> {
+    fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
         let (i, (header, data)) = alloc_group(i)?;
         Ok((i, RawCellChildren { header, data }))
     }

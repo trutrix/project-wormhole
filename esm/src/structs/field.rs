@@ -96,11 +96,11 @@ pub struct RawField<'esm> {
 }
 
 // Implement nom_derive::Parse for FieldHeader
-impl<'esm, 'nom> Parse<&'nom [u8]> for RawField<'esm>
+impl<'esm> Parse<&'esm [u8]> for RawField<'esm>
 where
-    'nom: 'esm,
+    'esm: 'esm,
 {
-    fn parse(i: &'nom [u8]) -> IResult<&'nom [u8], Self, nom::error::Error<&'nom [u8]>> {
+    fn parse(i: &'esm [u8]) -> IResult<&'esm [u8], Self, nom::error::Error<&'esm [u8]>> {
         let (i, (header, data)) = alloc_field(i)?;
         Ok((i, RawField { header, data }))
     }
