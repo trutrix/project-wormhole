@@ -93,8 +93,8 @@ pub struct RawDataGroup<'esm> {
     pub data: Vec<RawRecord<'esm>>
 }
 
-impl<'esm, 'nom> Parse<&'nom[u8]> for RawDataGroup<'esm> where 'nom: 'esm {
-    fn parse(i: &'nom[u8]) -> IResult<&'nom[u8], Self, nom::error::Error<&'nom[u8]>> {
+impl<'esm> Parse<&'esm[u8]> for RawDataGroup<'esm> {
+    fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
         let (i, (header, data)) = alloc_group(i)?;
         let (_, records) = many0(complete(RawRecord::parse))(data)?;
         Ok((i, RawDataGroup { header, data: records }))
@@ -117,7 +117,7 @@ pub struct Group<T> {
     pub data: Vec<T>
 }
 
-impl<T: for<'nom> Parse<&'nom[u8]>> Parse<&[u8]> for Group<T> {
+impl<T: for<'esm> Parse<&'esm[u8]>> Parse<&[u8]> for Group<T> {
     fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
         let (i, (header, data)) = alloc_group(i)?;
         let (_, records) = many0(complete(T::parse))(data)?;
@@ -133,8 +133,8 @@ pub struct RawWorldChildren<'esm> {
     pub data: &'esm [u8]
 }
 
-impl<'esm, 'nom> Parse<&'nom[u8]> for RawWorldChildren<'esm> where 'nom: 'esm {
-    fn parse(i: &'nom[u8]) -> IResult<&'nom[u8], Self, nom::error::Error<&'nom[u8]>> {
+impl<'esm> Parse<&'esm[u8]> for RawWorldChildren<'esm> {
+    fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
         let (i, (header, data)) = alloc_group(i)?;
         Ok((i, Self { header, data }))
     }
@@ -155,8 +155,8 @@ pub struct RawInteriorCellBlock<'esm> {
     pub data: &'esm [u8]
 }
 
-impl<'esm, 'nom> Parse<&'nom[u8]> for RawInteriorCellBlock<'esm> where 'nom: 'esm {
-    fn parse(i: &'nom[u8]) -> IResult<&'nom[u8], Self, nom::error::Error<&'nom[u8]>> {
+impl<'esm> Parse<&'esm[u8]> for RawInteriorCellBlock<'esm> {
+    fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
         let (i, (header, data)) = alloc_group(i)?;
         Ok((i, Self { header, data }))
     }
@@ -178,8 +178,8 @@ pub struct RawInteriorCellSubBlock<'esm> {
     pub data: &'esm [u8]
 }
 
-impl<'esm, 'nom> Parse<&'nom[u8]> for RawInteriorCellSubBlock<'esm> where 'nom: 'esm {
-    fn parse(i: &'nom[u8]) -> IResult<&'nom[u8], Self, nom::error::Error<&'nom[u8]>> {
+impl<'esm> Parse<&'esm[u8]> for RawInteriorCellSubBlock<'esm> {
+    fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
         let (i, (header, data)) = alloc_group(i)?;
         Ok((i, Self { header, data }))
     }
@@ -195,8 +195,8 @@ pub struct RawExteriorCellBlock<'esm> {
     pub data: &'esm [u8]
 }
 
-impl<'esm, 'nom> Parse<&'nom[u8]> for RawExteriorCellBlock<'esm> where 'nom: 'esm {
-    fn parse(i: &'nom[u8]) -> IResult<&'nom[u8], Self, nom::error::Error<&'nom[u8]>> {
+impl<'esm> Parse<&'esm[u8]> for RawExteriorCellBlock<'esm> {
+    fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
         let (i, (header, data)) = alloc_group(i)?;
         Ok((i, Self { header, data }))
     }
@@ -211,8 +211,8 @@ pub struct RawExteriorCellSubBlock<'esm> {
     pub data: &'esm [u8]
 }
 
-impl<'esm, 'nom> Parse<&'nom[u8]> for RawExteriorCellSubBlock<'esm> where 'nom: 'esm {
-    fn parse(i: &'nom[u8]) -> IResult<&'nom[u8], Self, nom::error::Error<&'nom[u8]>> {
+impl<'esm> Parse<&'esm[u8]> for RawExteriorCellSubBlock<'esm> {
+    fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
         let (i, (header, data)) = alloc_group(i)?;
         Ok((i, Self { header, data }))
     }
@@ -227,8 +227,8 @@ pub struct RawTopicChildren<'esm> {
     pub data: &'esm [u8]
 }
 
-impl<'esm, 'nom> Parse<&'nom[u8]> for RawTopicChildren<'esm> where 'nom: 'esm {
-    fn parse(i: &'nom[u8]) -> IResult<&'nom[u8], Self, nom::error::Error<&'nom[u8]>> {
+impl<'esm> Parse<&'esm[u8]> for RawTopicChildren<'esm> {
+    fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
         let (i, (header, data)) = alloc_group(i)?;
         Ok((i, Self { header, data }))
     }
@@ -242,8 +242,8 @@ pub struct RawCellPersistantChildren<'esm> {
     pub data: &'esm [u8]
 }
 
-impl<'esm, 'nom> Parse<&'nom[u8]> for RawCellPersistantChildren<'esm> where 'nom: 'esm {
-    fn parse(i: &'nom[u8]) -> IResult<&'nom[u8], Self, nom::error::Error<&'nom[u8]>> {
+impl<'esm> Parse<&'esm[u8]> for RawCellPersistantChildren<'esm> {
+    fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
         let (i, (header, data)) = alloc_group(i)?;
         Ok((i, Self { header, data }))
     }
@@ -259,8 +259,8 @@ pub struct RawCellTemporaryChildren<'esm> {
     pub data: &'esm [u8]
 }
 
-impl<'esm, 'nom> Parse<&'nom[u8]> for RawCellTemporaryChildren<'esm> where 'nom: 'esm {
-    fn parse(i: &'nom[u8]) -> IResult<&'nom[u8], Self, nom::error::Error<&'nom[u8]>> {
+impl<'esm> Parse<&'esm[u8]> for RawCellTemporaryChildren<'esm> {
+    fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
         let (i, (header, data)) = alloc_group(i)?;
         Ok((i, Self { header, data }))
     }
@@ -275,8 +275,8 @@ pub struct RawCellVisibleDistantChildren<'esm> {
     pub data: &'esm [u8]
 }
 
-impl<'esm, 'nom> Parse<&'nom[u8]> for RawCellVisibleDistantChildren<'esm> where 'nom: 'esm {
-    fn parse(i: &'nom[u8]) -> IResult<&'nom[u8], Self, nom::error::Error<&'nom[u8]>> {
+impl<'esm> Parse<&'esm[u8]> for RawCellVisibleDistantChildren<'esm> {
+    fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
         let (i, (header, data)) = alloc_group(i)?;
         Ok((i, Self { header, data }))
     }
@@ -291,8 +291,8 @@ pub struct RawCellGroup<'esm> {
     pub cells: Vec<RawCellRecord<'esm>>
 }
 
-impl<'esm, 'nom> Parse<&'nom[u8]> for RawCellGroup<'esm> where 'nom: 'esm {
-    fn parse(i: &'nom[u8]) -> IResult<&'nom[u8], Self, nom::error::Error<&'nom[u8]>> {
+impl<'esm> Parse<&'esm[u8]> for RawCellGroup<'esm> {
+    fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
         let (i, (header, data)) = alloc_group(i)?;
         let (_, cells) = many0(complete(RawCellRecord::parse))(data)?;
         Ok((i, Self { header, cells }))
@@ -307,8 +307,8 @@ pub struct RawWorldGroup<'esm> {
     pub worlds: Vec<RawWorldRecord<'esm>>
 }
 
-impl<'esm, 'nom> Parse<&'nom[u8]> for RawWorldGroup<'esm> where 'nom: 'esm {
-    fn parse(i: &'nom[u8]) -> IResult<&'nom[u8], Self, nom::error::Error<&'nom[u8]>> {
+impl<'esm> Parse<&'esm[u8]> for RawWorldGroup<'esm> {
+    fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
         let (i, (header, data)) = alloc_group(i)?;
         let (_, worlds) = many0(complete(RawWorldRecord::parse))(data)?;
         Ok((i, Self { header, worlds }))
@@ -323,8 +323,8 @@ pub struct RawQuestGroup<'esm> {
     pub quests: Vec<RawQuestRecord<'esm>>
 }
 
-impl<'esm, 'nom> Parse<&'nom[u8]> for RawQuestGroup<'esm> where 'nom: 'esm {
-    fn parse(i: &'nom[u8]) -> IResult<&'nom[u8], Self, nom::error::Error<&'nom[u8]>> {
+impl<'esm> Parse<&'esm[u8]> for RawQuestGroup<'esm> {
+    fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
         let (i, (header, data)) = alloc_group(i)?;
         let (_, quests) = many0(complete(RawQuestRecord::parse))(data)?;
         Ok((i, Self { header, quests }))
