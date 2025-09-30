@@ -339,7 +339,7 @@ pub enum TopGroup {
     AACT(Group<Action>),
     ACTI(Group<Activator>),
     ADDN(Group<Addon>),
-    AECH(AECH),
+    AECH(AudioEffectChain),
     ALCH(Group<Alchemy>),
     AMDL(AMDL),
     AMMO(Group<Ammo>),

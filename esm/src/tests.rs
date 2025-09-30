@@ -6,7 +6,7 @@ const ESM_PATH: &str = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Fallo
 #[test]
 fn test1() {
     use crate::esm::*;
-    use crate::{dev::*, records::all::GameSetting};
+    use crate::dev::*;
     use std::io::Read;
 
 
@@ -28,11 +28,20 @@ fn test1() {
 
     for (id, rr) in esm.records {
         match rr.header.iden.0.as_ref() {
-            b"ALCH" => {
+            b"AECH" => {
                 acount += 1;
                 
-                let alch = crate::records::ALCH::Alchemy::try_from(rr).unwrap();
-                println!("ALCH: {:#?}", alch);
+                let aech = crate::records::AECH::AudioEffectChain::try_from(rr).unwrap();
+                
+                for f in aech.fields {
+                    match f {
+                        crate::records::all::AudioEffectChainField::Unknown(four_cc) => {  
+                            field_ids.insert(four_cc);
+                        }
+
+                        _ => {}
+                    }
+                }
                 
 
             }
