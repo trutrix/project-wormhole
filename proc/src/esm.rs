@@ -87,7 +87,7 @@ impl ToTokens for RecordDefinition {
                             }
                         )*
                         _ => {
-                            unimplemented!("Field {} not implemented", header.iden());
+                            //unimplemented!("Field {} not implemented", header.iden());
                             Ok((i, #name_field::Unknown(header.iden().clone())))
                         }
                     }
