@@ -1,6 +1,12 @@
 use crate::dev::*;
 
 
+pub type ModelPath = ESMString;
+pub type ModelTexture = ESMString;
+
+pub type LocalizedString = u32;
+
+
 // ====================================================================================================
 
 // Basically a CString

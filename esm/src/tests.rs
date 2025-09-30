@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 
 const ESM_PATH: &str = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Fallout 4\\Data\\Fallout4.esm";
 
@@ -21,7 +23,24 @@ fn test1() {
     let (_, esm) = RawESM::parse(&buf).unwrap();
     println!("Parsed esm in: {:?}", start.elapsed());
 
-    println!("{:?}", esm.quests[0]);
+    let mut acount = 0;
+    let mut field_ids: HashSet<FourCC> = HashSet::new();
+
+    for (id, rr) in esm.records {
+        match rr.header.iden.0.as_ref() {
+            b"ALCH" => {
+                acount += 1;
+                
+                let alch = crate::records::ALCH::Alchemy::try_from(rr).unwrap();
+                println!("ALCH: {:#?}", alch);
+                
+
+            }
+            _ => {}
+        }
+    }
+
+    println!("{:?}",field_ids);
 
     //println!("Parsed esm in: {:?}", start.elapsed());
     //println!("{:?}", esm.header);
