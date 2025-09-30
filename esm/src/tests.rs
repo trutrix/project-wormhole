@@ -28,12 +28,12 @@ fn test1() {
 
     for (id, rr) in esm.records {
         match rr.header.iden.0.as_ref() {
-            b"AECH" => {
+            b"AVIF" => {
                 acount += 1;
                 
-                let aech = crate::records::AECH::AudioEffectChain::try_from(rr).unwrap();
+                let rt = crate::records::AECH::AudioEffectChain::try_from(rr).unwrap();
                 
-                for f in aech.fields {
+                for f in rt.fields {
                     match f {
                         crate::records::all::AudioEffectChainField::Unknown(four_cc) => {  
                             field_ids.insert(four_cc);

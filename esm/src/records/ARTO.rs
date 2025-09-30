@@ -5,3 +5,5 @@ define_record! {
     ARTO, [
     ]
 }
+
+// Field dump - {MODL, MODC, PTRN, KWDA, MODS, MODT, KSIZ, OBND}

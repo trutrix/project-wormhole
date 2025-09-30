@@ -7,3 +7,6 @@ define_record! {
         b"OBND", ObjectBounds, ObjectBounds;
     ]
 }
+
+
+// Field dump - {MODT, ZNAM, DESC, NAM1, MODL, KWDA, NAM2, OBND, PTRN, FULL, YNAM, ONAM, KSIZ, DATA}

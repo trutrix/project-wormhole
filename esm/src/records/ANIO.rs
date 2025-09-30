@@ -9,3 +9,5 @@ define_record! {
         
     ]
 }
+
+// Field dump - {BNAM, MODC, MODS, MODL, MODT}

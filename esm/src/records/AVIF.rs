@@ -5,3 +5,5 @@ define_record! {
     AVIF, [
     ]
 }
+
+// Field dump - {AVFL, DESC, NAM0, NAM1, FULL, ANAM}

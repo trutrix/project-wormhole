@@ -5,3 +5,5 @@ define_record! {
     ASPC, [
     ]
 }
+
+// Field dump - {OBND, XTRI, WNAM, RDAT, BNAM, SNAM}

@@ -5,3 +5,5 @@ define_record! {
     ASTP, [
     ]
 }
+
+// Field dump - {FPRT, FCHT, MPRT, MCHT, DATA}
