@@ -21,3 +21,12 @@ impl PartialEq<&[u8;4]> for FourCC {
         self.0 == **other
     }
 }
+
+impl serde::Serialize for FourCC {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+        where
+            S: serde::Serializer {
+        let s = String::from_utf8_lossy(&self.0);
+        serializer.serialize_str(&s)
+    }
+}

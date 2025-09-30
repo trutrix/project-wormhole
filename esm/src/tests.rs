@@ -1,4 +1,6 @@
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
+
+use crate::records::all::AORU;
 
 
 const ESM_PATH: &str = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Fallout 4\\Data\\Fallout4.esm";
@@ -23,33 +25,30 @@ fn test1() {
     let (_, esm) = RawESM::parse(&buf).unwrap();
     println!("Parsed esm in: {:?}", start.elapsed());
 
-    let mut acount = 0;
-    let mut field_ids: HashSet<FourCC> = HashSet::new();
+    
+    let mut field_ids: HashMap<FourCC, HashSet<FourCC>> = HashMap::new();
 
     for (id, rr) in esm.records {
-        match rr.header.iden.0.as_ref() {
-            b"AVIF" => {
-                acount += 1;
-                
-                let rt = crate::records::AECH::AudioEffectChain::try_from(rr).unwrap();
-                
-                for f in rt.fields {
-                    match f {
-                        crate::records::all::AudioEffectChainField::Unknown(four_cc) => {  
-                            field_ids.insert(four_cc);
-                        }
+        let set = field_ids.entry(rr.header.iden).or_insert(HashSet::new());
 
-                        _ => {}
-                    }
+        let tr = AORU::try_from(rr).unwrap();
+
+        for f in tr.fields {
+            match f {
+                crate::records::all::AORUField::Unknown(four_cc) => {
+                    set.insert(four_cc);
                 }
-                
-
             }
-            _ => {}
         }
     }
 
     println!("{:?}",field_ids);
+
+    let out_all = "out_all.json";
+
+    let json = serde_json::to_string_pretty(&field_ids).unwrap();
+
+    std::fs::write(out_all, json).unwrap();
 
     //println!("Parsed esm in: {:?}", start.elapsed());
     //println!("{:?}", esm.header);
