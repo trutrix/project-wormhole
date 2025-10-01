@@ -422,7 +422,7 @@ pub enum TopGroup {
     NAVI(NAVI),
     NOCM(NOCM),
     NOTE(NOTE),
-    NPC_(NPC_),
+    NPC_(NonPlayerCharacter),
     OMOD(OMOD),
     OTFT(OTFT),
     OVIS(OVIS),
