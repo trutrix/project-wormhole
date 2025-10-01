@@ -1,6 +1,6 @@
 use proc::define_record;
 
-use crate::{dev::*, esm::ESMError, traits::{GroupParser, RecordParser}};
+use crate::{dev::*, traits::{GroupParser, RecordParser}};
 
 
 define_record! {
