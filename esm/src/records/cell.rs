@@ -74,16 +74,3 @@ impl<'esm> Parse<&'esm[u8]> for RawCellChildren<'esm> {
         Ok((i, RawCellChildren { header, data }))
     }
 }
-
-
-#[derive(Debug)]
-pub enum Fallout4Subrecord {
-    Unhandled
-}
-
-impl Parse<&[u8]> for Fallout4Subrecord {
-    fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
-        let (i, (header, raw)) = alloc_record(i)?;
-        Ok((i, Self::Unhandled))
-    }
-}
