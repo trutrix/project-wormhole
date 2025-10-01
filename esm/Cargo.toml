@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-flate2 = "1.1.1"
+flate2 = { version = "1.1.1", features = ["cloudflare_zlib"] }
 nom-derive = "0.10.1"
 proc = { path = "../proc" }
 serde = { version = "1.0.228", features = ["derive"] }
