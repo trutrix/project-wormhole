@@ -104,9 +104,9 @@ impl ToTokens for RecordDefinition {
 pub struct FieldDefinition {
     pub required: Option<Token![+]>,
     pub iden: LitByteStr,
-    pub comma1: Token![,],
+    pub _c1: Token![,],
     pub name: Ident,
-    pub comma2: Token![,],
+    pub _c2: Token![,],
     pub field_type: Type,
 }
 
