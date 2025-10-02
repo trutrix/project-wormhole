@@ -5,6 +5,10 @@ use crate::{dev::*, records::{all::{FileHeaderField, GameSetting, GameSettingFie
 
 // ====================================================================================================
 
+pub const SPECIAL_GROUPS: [&[u8;4];3] = [b"WRLD", b"CELL", b"QUST"];
+
+// ====================================================================================================
+
 
 pub struct ESM1<'esm> {
     file: std::fs::File,
@@ -50,6 +54,13 @@ impl<'esm> ESM1<'esm> {
 
 
 // ====================================================================================================
+
+
+/// This is a barebones parsing of an ESM file
+/// It does not attempt to interpret any records or fields
+/// It simply breaks the file into its constituent groups and records
+/// This is useful for debugging and for understanding the structure of the file
+/// More advanced parsing can be built on top of this
 
 #[derive(Debug)]
 pub struct RawESM<'esm> {
@@ -122,6 +133,9 @@ impl<'esm> RawESM<'esm> {
 
 // ====================================================================================================
 
+
+/// A more fully-featured ESM parser that attempts to interpret records and fields
+/// This is still a work in progress and is not yet complete
 pub struct SmartESM {
     pub header: Record<FileHeaderField>
 }
