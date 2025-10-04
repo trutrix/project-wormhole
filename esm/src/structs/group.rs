@@ -338,7 +338,7 @@ pub enum TopGroup {
     Unhandled(Group<RawRecord<'static>>),
     AACT(Group<Action>),
     ACTI(Group<Activator>),
-    ADDN(Group<Addon>),
+    ADDN(Group<AddonNode>),
     AECH(AudioEffectChain),
     ALCH(Group<Alchemy>),
     AMDL(AMDL),
