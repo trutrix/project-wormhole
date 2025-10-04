@@ -341,7 +341,7 @@ pub enum TopGroup {
     ADDN(Group<AddonNode>),
     AECH(AudioEffectChain),
     ALCH(Group<Alchemy>),
-    AMDL(AMDL),
+    AMDL(Group<AimModel>),
     AMMO(Group<Ammo>),
     ANIO(Group<AnimatedObject>),
     AORU(AORU),
