@@ -1,11 +1,11 @@
 use crate::dev::*;
 
-
+/// TODO: Combine into a single Model struct
 pub type ModelPath = ESMString;
-pub type ModelTexture = u8; // TODO: Define data structure
-pub type ModelColorMap = u8; // TODO: Define data structure
-pub type ModelMaterialSwap = u8; // TODO: Define data structure
-pub type ModelFlags = u32; // TODO: Define flags
+pub type ModelTexture = u8;
+pub type ModelColorMap = u8;
+pub type ModelMaterialSwap = u8;
+pub type ModelFlags = u32;
 
 
 
