@@ -63,8 +63,17 @@ impl ToTokens for RecordDefinition {
                 type Error = crate::esm::ESMError;
 
                 fn try_from(value: RawRecord<'_>) -> Result<Self, Self::Error> {
-                    let (_, fields) = many0(complete(#name_field::parse))(value.data).expect("Failed to convert RawRecord to #name");
-                    Ok(Self { header: value.header, fields })
+
+                    match value.data {
+                        RawRecordData::Pointer(items) => {
+                            let (_, fields) = many0(complete(#name_field::parse))(items).expect("Failed to convert RawRecord to #name");
+                            Ok(Self { header: value.header, fields })
+                        },
+                        RawRecordData::Decompressed(items) => {
+                            let (_, fields) = many0(complete(#name_field::parse))(items.as_ref()).expect("Failed to convert RawRecord to #name");
+                            Ok(Self { header: value.header, fields })
+                        }
+                    }
                 }
             }
             

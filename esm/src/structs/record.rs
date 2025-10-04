@@ -329,13 +329,23 @@ impl RecordFlags {
 
 pub struct RawRecord<'esm> {
     pub header: RecordHeader,
-    pub data: &'esm[u8],
+    pub data: RawRecordData<'esm>,
 }
 
 impl<'esm> Parse<&'esm [u8]> for RawRecord<'esm> {
     fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self> {
         let (i, (header, data)) = alloc_record(i)?;
-        Ok((i, Self{ header, data }))
+
+        if header.flags.is_compressed() {
+            if let Ok(dec) = decompress_record(data) {
+                Ok((i, Self{ header, data: RawRecordData::Decompressed(dec) }))
+            } else {
+                panic!("Could not decompress record: {:?}", header);
+            }
+            
+        } else {
+            Ok((i, Self{ header, data: RawRecordData::Pointer(data) }))
+        }
     }
 }
 
@@ -351,7 +361,20 @@ impl Debug for RawRecord<'_> {
     }
 }
 
+#[derive(Debug)]
+pub enum RawRecordData<'esm> {
+    Pointer(&'esm[u8]),
+    Decompressed(Vec<u8>)
+}
 
+impl RawRecordData<'_> {
+    pub fn len(&self) -> usize {
+        match self {
+            RawRecordData::Pointer(items) => items.len(),
+            RawRecordData::Decompressed(items) => items.len(),
+        }
+    }
+}
 
 // ====================================================================================================
 
@@ -492,7 +515,7 @@ impl <'esm> Parse<&'esm[u8]> for RawWorldRecord<'esm>  {
     }
 }
 
-impl EditorId for RawWorldRecord<'_> {
+/*impl EditorId for RawWorldRecord<'_> {
     fn try_get_editor_id(&self) -> Option<ESMString> {
         let mut edid = None;
         let (_, fields) = many0(complete(RawField::parse))(self.world.data).expect("Could not parse fields from world record.");
@@ -507,7 +530,7 @@ impl EditorId for RawWorldRecord<'_> {
         }
         edid
     }
-}
+}*/
 
 // ====================================================================================================
 
