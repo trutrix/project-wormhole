@@ -26,29 +26,29 @@ fn test1() {
     println!("Parsed esm in: {:?}", start.elapsed());
 
     
-    let mut field_ids: HashMap<FourCC, HashSet<FourCC>> = HashMap::new();
+    // let mut field_ids: HashMap<FourCC, HashSet<FourCC>> = HashMap::new();
 
-    for (id, rr) in esm.records {
-        let set = field_ids.entry(rr.header.iden).or_insert(HashSet::new());
+    // for (id, rr) in esm.records {
+    //     let set = field_ids.entry(rr.header.iden).or_insert(HashSet::new());
 
-        let tr = AORU::try_from(rr).unwrap();
+    //     let tr = AORU::try_from(rr).unwrap();
 
-        for f in tr.fields {
-            match f {
-                crate::records::all::AORUField::Unknown(four_cc) => {
-                    set.insert(four_cc);
-                }
-            }
-        }
-    }
+    //     for f in tr.fields {
+    //         match f {
+    //             crate::records::all::AORUField::Unknown(four_cc) => {
+    //                 set.insert(four_cc);
+    //             }
+    //         }
+    //     }
+    // }
 
-    println!("{:?}",field_ids);
+    //println!("{:?}",field_ids);
 
-    let out_all = "out_all.json";
+    // let out_all = "out_all.json";
 
-    let json = serde_json::to_string_pretty(&field_ids).unwrap();
+    // let json = serde_json::to_string_pretty(&field_ids).unwrap();
 
-    std::fs::write(out_all, json).unwrap();
+    // std::fs::write(out_all, json).unwrap();
 
     //println!("Parsed esm in: {:?}", start.elapsed());
     //println!("{:?}", esm.header);
