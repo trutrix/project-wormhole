@@ -1,11 +1,7 @@
 use crate::dev::*;
 
 
-pub type ModelPath = ESMString;
-pub type ModelTexture = u8; // TODO: Define data structure
-pub type ModelColorMap = u8; // TODO: Define data structure
-pub type ModelMaterialSwap = u8; // TODO: Define data structure
-pub type ModelFlags = u32; // TODO: Define flags
+
 
 pub type LocalizedString = u32;
 
