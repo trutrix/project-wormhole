@@ -31,8 +31,10 @@ define_record! {
 
         // Model data
         ModelPath;
-        b"MODS", MaterialSwap, u8; // TODO: Find type
-        b"MODT", ModelTextureData, u8; // TODO: Find type
+        ModelTexture;
+        ModelMaterialSwap;
+        ModelColorMap;
+        ModelFlags;
 
 
         b"NTRM", NativeTerminal, u8; // TODO: Find type

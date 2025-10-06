@@ -184,6 +184,8 @@ impl FieldDefinition {
 
 
 
+
+/// TODO: This is a temporary solution. We should have a better way to define common fields.
 pub fn common_field(input: &Ident) -> FieldDefinitionCustom {
 
 
@@ -200,6 +202,26 @@ pub fn common_field(input: &Ident) -> FieldDefinitionCustom {
         }
         "ModelPath" => {
             let t = quote! { b"MODL", ModelPath, ModelPath };
+            let fd = syn::parse2(t).unwrap();
+            fd
+        }
+        "ModelTexture" => {
+            let t = quote! { b"MODT", ModelTexture, ModelTexture };
+            let fd = syn::parse2(t).unwrap();
+            fd
+        }
+        "ModelColorMap" => {
+            let t = quote! { b"MODC", ModelColorMap, ModelColorMap };
+            let fd = syn::parse2(t).unwrap();
+            fd
+        }
+        "ModelMaterialSwap" => {
+            let t = quote! { b"MODS", ModelMaterialSwap, ModelMaterialSwap };
+            let fd = syn::parse2(t).unwrap();
+            fd
+        }
+        "ModelFlags" => {
+            let t = quote! { b"MODF", ModelFlags, ModelFlags };
             let fd = syn::parse2(t).unwrap();
             fd
         }
