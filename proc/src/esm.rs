@@ -1,13 +1,12 @@
 
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
-use syn::{punctuated::Punctuated, *};
+use syn::{parse::Parse, punctuated::Punctuated, token::{Comma, Plus}, *};
 
 pub struct RecordDefinition {
     pub iden: LitByteStr,
     pub name: Ident,
-    pub fields: Punctuated<FieldDefinition, Token![;]>,
-    pub common: Punctuated<LitByteStr, Token![,]>,
+    pub fields: Punctuated<FieldDefinition, Token![;]>
 }
 
 impl syn::parse::Parse for RecordDefinition {
@@ -18,19 +17,9 @@ impl syn::parse::Parse for RecordDefinition {
         input.parse::<Token![,]>()?;
         let inner;
         bracketed!(inner in input);
-        let fields: Punctuated<FieldDefinition, Token![;]> = inner.parse_terminated(FieldDefinition::parse, Token![;])?;
+        let fields = inner.parse_terminated(FieldDefinition::parse, Token![;])?;
 
-        let common = if input.peek(Token![,]) {
-            input.parse::<Token![,]>()?;
-            let inner;
-            bracketed!(inner in input);
-            inner.parse_terminated(LitByteStr::parse, Token![,])?
-        } else {
-            Punctuated::new()
-        };
-
-
-        Ok(RecordDefinition { iden, name, fields, common })
+        Ok(RecordDefinition { iden, name, fields })
     }
 }
 
@@ -41,16 +30,18 @@ impl ToTokens for RecordDefinition {
         let name_field = Ident::new(format!("{}Field", name.clone().to_string().as_str()).as_str(), name.span());
         let name_test1 = Ident::new(format!("{}Test", name.clone().to_string().as_str()).as_str(), name.span());
         let fields = &self.fields;
-        let field_idens: Vec<_> = fields.iter().map(|f| &f.iden).collect();
-        let field_names: Vec<_> = fields.iter().map(|f| &f.name).collect();
-        let field_types: Vec<_> = fields.iter().map(|f| &f.field_type).collect();
+
+        let field_idens: Vec<_> = fields.iter().map(|f| f.get_iden()).collect();
+        let field_names: Vec<_> = fields.iter().map(|f| f.get_name()).collect();
+        let field_types: Vec<_> = fields.iter().map(|f| f.get_type()).collect();
+
         let field_otypes: Vec<_> = fields.iter().map(|f| {
-            if f.required.is_some() { 
+            if f.is_required().is_some() { 
                 
-                let ft = f.field_type.clone();
+                let ft = f.get_type();
                 quote! { #ft}
             } else {
-                let ft = f.field_type.clone();
+                let ft = f.get_type();
                 
                 quote! { Option<#ft> }
             }
@@ -94,6 +85,7 @@ impl ToTokens for RecordDefinition {
             pub enum #name_field {
                 Unknown(FourCC),
                 #(#field_names(#field_types)),*
+                
             }
 
 
@@ -121,8 +113,8 @@ impl ToTokens for RecordDefinition {
     }
 }
 
-#[derive(syn_derive::Parse)]
-pub struct FieldDefinition {
+#[derive(syn_derive::Parse, Clone)]
+pub struct FieldDefinitionCustom {
     pub required: Option<Token![+]>,
     pub iden: LitByteStr,
     pub _c1: Token![,],
@@ -132,17 +124,85 @@ pub struct FieldDefinition {
 }
 
 
-// impl syn::parse::Parse for RecordDefinition {
-//     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
-//         Ok(RecordDefinition {})
-//     }
-// }
+#[derive(Clone)]
+pub enum FieldDefinition {
+    Common(Ident),
+    Custom(FieldDefinitionCustom),
+}
+
+impl Parse for FieldDefinition {
+    fn parse(input: parse::ParseStream) -> Result<Self> {
+        if input.peek(syn::LitByteStr) {
+            let out = input.parse::<FieldDefinitionCustom>()?;
+            Ok(FieldDefinition::Custom(out))
+        } else {
+            if let Ok(out) = input.parse::<Ident>() {
+                Ok(FieldDefinition::Common(out))
+            } else {
+                panic!("Ident could not be parsed.")
+            }
+            
+        }
+    }
+}
+
+impl FieldDefinition {
+    fn get_iden(&self) -> LitByteStr {
+        match self {
+            FieldDefinition::Common(custom) => {
+                common_field(custom).iden.clone()
+            },
+            FieldDefinition::Custom(f) => f.iden.clone(),
+        }
+    }
+
+    fn get_name(&self) -> Ident {
+        match self {
+            FieldDefinition::Common(custom) => {
+                common_field(custom).name.clone()
+            },
+            FieldDefinition::Custom(f) => f.name.clone(),
+        }
+    }
+
+    fn get_type(&self) -> Type {
+        match self {
+            FieldDefinition::Common(custom) => {
+                common_field(custom).field_type.clone()
+            },
+            FieldDefinition::Custom(f) => f.field_type.clone(),
+        }
+    }
+
+    fn is_required(&self) -> Option<Plus> {
+        match self {
+            FieldDefinition::Common(_) => None,
+            FieldDefinition::Custom(f) => f.required,
+        }
+    }
+}
 
 
 
-pub fn common_field(input: LitByteStr) -> TokenStream {
-    match input.value().as_slice() {
-        b"EDID" => quote! { b"EDID", EditorId, EditorId; },
-        _ => unimplemented!("Common field {:?} not implemented", input.value()),
+pub fn common_field(input: &Ident) -> FieldDefinitionCustom {
+
+
+    match input.to_string().as_str() {
+        "EditorId" => {
+            let t = quote! { b"EDID", EditorId, ESMString };
+            let fd = syn::parse2(t).unwrap();
+            fd
+        }
+        "ObjectBounds" => {
+            let t = quote! { b"OBND", ObjectBounds, ObjectBounds };
+            let fd = syn::parse2(t).unwrap();
+            fd
+        }
+        "ModelPath" => {
+            let t = quote! { b"MODL", ModelPath, ModelPath };
+            let fd = syn::parse2(t).unwrap();
+            fd
+        }
+        _ => unimplemented!("Common field {:?} not implemented", input),
     }
 }

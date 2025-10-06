@@ -20,7 +20,7 @@ define_record! {
         b"DSTF", DestructionFlags, u8; // TODO: Find type
 
 
-        b"EDID", EditorId, ESMString;
+        EditorId;
         b"FNAM", Flags, u8; // TODO: Find type
         b"FTYP", ForcedLocRefType, u8; // TODO: Find type
         b"FULL", Name, u32; // TODO: Find type
@@ -30,13 +30,13 @@ define_record! {
         b"KWDA", Keywords, u8; // TODO: Find type
 
         // Model data
-        b"MODL", ModelPath, ESMString;
+        ModelPath;
         b"MODS", MaterialSwap, u8; // TODO: Find type
         b"MODT", ModelTextureData, u8; // TODO: Find type
 
 
         b"NTRM", NativeTerminal, u8; // TODO: Find type
-        b"OBND", ObjectBounds, ObjectBounds;
+        ObjectBounds;
         b"PNAM", MarkerColor, u8; // TODO: Find type
         b"PRPS", Properties, u8; // TODO: Find type
         b"PTRN", PreviewTransform, u8; // TODO: Find type
