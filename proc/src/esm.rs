@@ -6,7 +6,8 @@ use syn::{punctuated::Punctuated, *};
 pub struct RecordDefinition {
     pub iden: LitByteStr,
     pub name: Ident,
-    pub fields: Punctuated<FieldDefinition, Token![;]>, 
+    pub fields: Punctuated<FieldDefinition, Token![;]>,
+    pub common: Punctuated<LitByteStr, Token![,]>,
 }
 
 impl syn::parse::Parse for RecordDefinition {
@@ -18,7 +19,18 @@ impl syn::parse::Parse for RecordDefinition {
         let inner;
         bracketed!(inner in input);
         let fields: Punctuated<FieldDefinition, Token![;]> = inner.parse_terminated(FieldDefinition::parse, Token![;])?;
-        Ok(RecordDefinition { iden, name, fields })
+
+        let common = if input.peek(Token![,]) {
+            input.parse::<Token![,]>()?;
+            let inner;
+            bracketed!(inner in input);
+            inner.parse_terminated(LitByteStr::parse, Token![,])?
+        } else {
+            Punctuated::new()
+        };
+
+
+        Ok(RecordDefinition { iden, name, fields, common })
     }
 }
 
@@ -125,3 +137,12 @@ pub struct FieldDefinition {
 //         Ok(RecordDefinition {})
 //     }
 // }
+
+
+
+pub fn common_field(input: LitByteStr) -> TokenStream {
+    match input.value().as_slice() {
+        b"EDID" => quote! { b"EDID", EditorId, EditorId; },
+        _ => unimplemented!("Common field {:?} not implemented", input.value()),
+    }
+}
