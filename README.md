@@ -8,10 +8,7 @@
 
 ## ESM
 - Working on data driven code generation for each record type
-- `RawESM` - 
-- ```diff 
-  - WIP
-  ```  
+- `RawESM` - `WIP`
   - On demand data for editing
   - Indexes all top records in less than 300ms
   - Data is only converted to actual record structure on request
