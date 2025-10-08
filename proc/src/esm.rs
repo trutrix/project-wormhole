@@ -1,7 +1,9 @@
 
+use std::collections::HashMap;
+
 use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
-use syn::{parse::Parse, punctuated::Punctuated, token::{Comma, Plus}, *};
+use syn::{parse::{Parse, ParseBuffer}, punctuated::Punctuated, token::{Comma, Plus, Semi}, *};
 
 pub struct RecordDefinition {
     pub iden: LitByteStr,
@@ -29,23 +31,13 @@ impl ToTokens for RecordDefinition {
         let name = &self.name;
         let name_field = Ident::new(format!("{}Field", name.clone().to_string().as_str()).as_str(), name.span());
         let name_test1 = Ident::new(format!("{}Test", name.clone().to_string().as_str()).as_str(), name.span());
+        
         let fields = &self.fields;
 
-        let field_idens: Vec<_> = fields.iter().map(|f| f.get_iden()).collect();
-        let field_names: Vec<_> = fields.iter().map(|f| f.get_name()).collect();
-        let field_types: Vec<_> = fields.iter().map(|f| f.get_type()).collect();
+        let field_idens: Vec<LitByteStr> = fields.iter().flat_map(|f| f.idens).collect();
+        let field_names: Vec<Ident> = fields.iter().flat_map(|f| f.get_names()).collect();
+        let field_types: Vec<Type> = fields.iter().flat_map(|f| f.get_types()).collect();
 
-        let field_otypes: Vec<_> = fields.iter().map(|f| {
-            if f.is_required().is_some() { 
-                
-                let ft = f.get_type();
-                quote! { #ft}
-            } else {
-                let ft = f.get_type();
-                
-                quote! { Option<#ft> }
-            }
-        }).collect();
         tokens.extend(quote! {
             #[derive(Debug)]
             pub struct #name {
@@ -113,118 +105,90 @@ impl ToTokens for RecordDefinition {
     }
 }
 
-#[derive(syn_derive::Parse, Clone)]
-pub struct FieldDefinitionCustom {
-    pub required: Option<Token![+]>,
-    pub iden: LitByteStr,
-    pub _c1: Token![,],
-    pub name: Ident,
-    pub _c2: Token![,],
-    pub field_type: Type,
+
+pub struct FieldDefinition {
+    pub required: bool,
+    pub idens: Vec<LitByteStr>,
+    pub names: Vec<Ident>,
+    pub field_types: Vec<Type>,
 }
 
-
-#[derive(Clone)]
-pub enum FieldDefinition {
-    Common(Ident),
-    Custom(FieldDefinitionCustom),
-}
-
-impl Parse for FieldDefinition {
+impl parse::Parse for FieldDefinition {
     fn parse(input: parse::ParseStream) -> Result<Self> {
-        if input.peek(syn::LitByteStr) {
-            let out = input.parse::<FieldDefinitionCustom>()?;
-            Ok(FieldDefinition::Custom(out))
+        let required: bool = if input.peek(Token![+]) {
+            let required: Token![+] = input.parse()?;
+            true
         } else {
-            if let Ok(out) = input.parse::<Ident>() {
-                Ok(FieldDefinition::Common(out))
-            } else {
-                panic!("Ident could not be parsed.")
+            false
+        };
+
+        // Check if the field is a common field
+        let mut idens: Vec<LitByteStr> = Vec::new();
+        let mut names: Vec<Ident> = Vec::new();
+        let mut field_types: Vec<Type> = Vec::new();
+        if input.peek(LitByteStr) {
+            let ident: LitByteStr = input.parse()?;
+            input.parse::<Token![,]>()?;
+            let name: Ident = input.parse()?;
+            input.parse::<Token![,]>()?;
+            let field_type: Type = input.parse()?;
+            idens.push(ident);
+            names.push(name);
+            field_types.push(field_type);
+        } else {
+            let map = common_map();
+            let name: Ident = input.parse()?;
+            let mut common = common_field(&name, &map);
+            let fd = syn::parse2::<Vec<FieldDefinition>>(common.clone()).unwrap();
+
+            //println!("Parsed common field {}: {:?}", name, parsed);
+            for field in fd {
+                idens.push(field.idens[0].clone());
+                names.push(field.names[0].clone());
+                field_types.push(field.field_types[0].clone());
             }
-            
         }
-    }
-}
 
-impl FieldDefinition {
-    fn get_iden(&self) -> LitByteStr {
-        match self {
-            FieldDefinition::Common(custom) => {
-                common_field(custom).iden.clone()
-            },
-            FieldDefinition::Custom(f) => f.iden.clone(),
-        }
-    }
 
-    fn get_name(&self) -> Ident {
-        match self {
-            FieldDefinition::Common(custom) => {
-                common_field(custom).name.clone()
-            },
-            FieldDefinition::Custom(f) => f.name.clone(),
-        }
-    }
-
-    fn get_type(&self) -> Type {
-        match self {
-            FieldDefinition::Common(custom) => {
-                common_field(custom).field_type.clone()
-            },
-            FieldDefinition::Custom(f) => f.field_type.clone(),
-        }
-    }
-
-    fn is_required(&self) -> Option<Plus> {
-        match self {
-            FieldDefinition::Common(_) => None,
-            FieldDefinition::Custom(f) => f.required,
-        }
+        Ok(FieldDefinition { required, idens, names, field_types })
     }
 }
 
 
+pub fn common_map() -> HashMap<[u8; 4], TokenStream> {
+    let mut map = HashMap::new();
+    map.insert(*b"EDID", quote! { b"EDID", EditorId, EditorId });
+    map.insert(*b"OBND", quote! { b"OBND", ObjectBounds, ObjectBounds });
+    map.insert(*b"MODL", quote! { b"MODL", ModelPath, ModelPath });
+    map.insert(*b"MODT", quote! { b"MODT", ModelTexture, ModelTexture });
+    map.insert(*b"MODC", quote! { b"MODC", ModelColorMap, ModelColorMap });
+    map.insert(*b"MODS", quote! { b"MODS", ModelMaterialSwap, ModelMaterialSwap });
+    map.insert(*b"MODF", quote! { b"MODF", ModelFlags, ModelFlags });
+    map
+}
 
 
-/// TODO: This is a temporary solution. We should have a better way to define common fields.
-pub fn common_field(input: &Ident) -> FieldDefinitionCustom {
-
-
-    match input.to_string().as_str() {
-        "EditorId" => {
-            let t = quote! { b"EDID", EditorId, ESMString };
-            let fd = syn::parse2(t).unwrap();
-            fd
+pub fn common_field(iden: &Ident, map: &HashMap<[u8; 4], TokenStream>) -> TokenStream {
+    match iden.to_string().as_str() {
+        "EditorId" =>           map.get(b"EDID").unwrap().clone(),
+        "ObjectBounds" =>       map.get(b"OBND").unwrap().clone(),
+        "ModelPath" =>          map.get(b"MODL").unwrap().clone(),
+        "ModelTexture" =>       map.get(b"MODT").unwrap().clone(),
+        "ModelMaterialSwap" =>  map.get(b"MODS").unwrap().clone(),
+        "ModelColorMap" =>      map.get(b"MODC").unwrap().clone(),
+        "ModelFlags" =>         map.get(b"MODF").unwrap().clone(),
+        "AllModelData" => {
+            let mut all = TokenStream::new();
+            all.extend(map.get(b"MODL").unwrap().clone());
+            all.extend(map.get(b"MODT").unwrap().clone());
+            all.extend(map.get(b"MODC").unwrap().clone());
+            all.extend(map.get(b"MODS").unwrap().clone());
+            all.extend(map.get(b"MODF").unwrap().clone());
+            all = quote! { [#all] };
+            all
+        },
+        _ => {
+            unimplemented!("Common field {} not implemented", iden);
         }
-        "ObjectBounds" => {
-            let t = quote! { b"OBND", ObjectBounds, ObjectBounds };
-            let fd = syn::parse2(t).unwrap();
-            fd
-        }
-        "ModelPath" => {
-            let t = quote! { b"MODL", ModelPath, ModelPath };
-            let fd = syn::parse2(t).unwrap();
-            fd
-        }
-        "ModelTexture" => {
-            let t = quote! { b"MODT", ModelTexture, ModelTexture };
-            let fd = syn::parse2(t).unwrap();
-            fd
-        }
-        "ModelColorMap" => {
-            let t = quote! { b"MODC", ModelColorMap, ModelColorMap };
-            let fd = syn::parse2(t).unwrap();
-            fd
-        }
-        "ModelMaterialSwap" => {
-            let t = quote! { b"MODS", ModelMaterialSwap, ModelMaterialSwap };
-            let fd = syn::parse2(t).unwrap();
-            fd
-        }
-        "ModelFlags" => {
-            let t = quote! { b"MODF", ModelFlags, ModelFlags };
-            let fd = syn::parse2(t).unwrap();
-            fd
-        }
-        _ => unimplemented!("Common field {:?} not implemented", input),
     }
 }

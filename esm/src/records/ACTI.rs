@@ -30,11 +30,7 @@ define_record! {
         b"KWDA", Keywords, u8; // TODO: Find type
 
         // Model data
-        ModelPath;
-        ModelTexture;
-        ModelMaterialSwap;
-        ModelColorMap;
-        ModelFlags;
+        AllModelData;
 
 
         b"NTRM", NativeTerminal, u8; // TODO: Find type
