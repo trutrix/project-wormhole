@@ -11,7 +11,7 @@ pub struct RecordDefinition {
     pub fields: Punctuated<FieldDefinition, Token![;]>
 }
 
-impl syn::parse::Parse for RecordDefinition {
+impl Parse for RecordDefinition {
     fn parse(input: parse::ParseStream) -> Result<Self> {
         let iden: LitByteStr = input.parse()?;
         input.parse::<Token![,]>()?;
@@ -34,9 +34,9 @@ impl ToTokens for RecordDefinition {
         
         let fields = &self.fields;
 
-        let field_idens: Vec<LitByteStr> = fields.iter().flat_map(|f| f.idens).collect();
-        let field_names: Vec<Ident> = fields.iter().flat_map(|f| f.get_names()).collect();
-        let field_types: Vec<Type> = fields.iter().flat_map(|f| f.get_types()).collect();
+        let field_idens: Vec<LitByteStr> = fields.iter().flat_map(|f| f.idens.clone()).collect();
+        let field_names: Vec<Ident> = fields.iter().flat_map(|f| f.names.clone()).collect();
+        let field_types: Vec<Type> = fields.iter().flat_map(|f| f.field_types.clone()).collect();
 
         tokens.extend(quote! {
             #[derive(Debug)]
@@ -107,7 +107,6 @@ impl ToTokens for RecordDefinition {
 
 
 pub struct FieldDefinition {
-    pub required: bool,
     pub idens: Vec<LitByteStr>,
     pub names: Vec<Ident>,
     pub field_types: Vec<Type>,
@@ -115,12 +114,6 @@ pub struct FieldDefinition {
 
 impl parse::Parse for FieldDefinition {
     fn parse(input: parse::ParseStream) -> Result<Self> {
-        let required: bool = if input.peek(Token![+]) {
-            let required: Token![+] = input.parse()?;
-            true
-        } else {
-            false
-        };
 
         // Check if the field is a common field
         let mut idens: Vec<LitByteStr> = Vec::new();
@@ -136,59 +129,105 @@ impl parse::Parse for FieldDefinition {
             names.push(name);
             field_types.push(field_type);
         } else {
-            let map = common_map();
+            let common = common_map();
             let name: Ident = input.parse()?;
-            let mut common = common_field(&name, &map);
-            let fd = syn::parse2::<Vec<FieldDefinition>>(common.clone()).unwrap();
-
-            //println!("Parsed common field {}: {:?}", name, parsed);
-            for field in fd {
-                idens.push(field.idens[0].clone());
-                names.push(field.names[0].clone());
-                field_types.push(field.field_types[0].clone());
+            
+            if let Some(fd) = common.get(&name.to_string()) {
+                idens.extend(fd.idens.clone());
+                names.extend(fd.names.clone());
+                field_types.extend(fd.field_types.clone());
             }
+
         }
 
 
-        Ok(FieldDefinition { required, idens, names, field_types })
+        Ok(FieldDefinition { idens, names, field_types })
     }
 }
 
-
-pub fn common_map() -> HashMap<[u8; 4], TokenStream> {
+pub fn common_map() -> HashMap<String, FieldDefinition> {
     let mut map = HashMap::new();
-    map.insert(*b"EDID", quote! { b"EDID", EditorId, EditorId });
-    map.insert(*b"OBND", quote! { b"OBND", ObjectBounds, ObjectBounds });
-    map.insert(*b"MODL", quote! { b"MODL", ModelPath, ModelPath });
-    map.insert(*b"MODT", quote! { b"MODT", ModelTexture, ModelTexture });
-    map.insert(*b"MODC", quote! { b"MODC", ModelColorMap, ModelColorMap });
-    map.insert(*b"MODS", quote! { b"MODS", ModelMaterialSwap, ModelMaterialSwap });
-    map.insert(*b"MODF", quote! { b"MODF", ModelFlags, ModelFlags });
-    map
-}
-
-
-pub fn common_field(iden: &Ident, map: &HashMap<[u8; 4], TokenStream>) -> TokenStream {
-    match iden.to_string().as_str() {
-        "EditorId" =>           map.get(b"EDID").unwrap().clone(),
-        "ObjectBounds" =>       map.get(b"OBND").unwrap().clone(),
-        "ModelPath" =>          map.get(b"MODL").unwrap().clone(),
-        "ModelTexture" =>       map.get(b"MODT").unwrap().clone(),
-        "ModelMaterialSwap" =>  map.get(b"MODS").unwrap().clone(),
-        "ModelColorMap" =>      map.get(b"MODC").unwrap().clone(),
-        "ModelFlags" =>         map.get(b"MODF").unwrap().clone(),
-        "AllModelData" => {
-            let mut all = TokenStream::new();
-            all.extend(map.get(b"MODL").unwrap().clone());
-            all.extend(map.get(b"MODT").unwrap().clone());
-            all.extend(map.get(b"MODC").unwrap().clone());
-            all.extend(map.get(b"MODS").unwrap().clone());
-            all.extend(map.get(b"MODF").unwrap().clone());
-            all = quote! { [#all] };
-            all
-        },
-        _ => {
-            unimplemented!("Common field {} not implemented", iden);
+    map.insert("EditorId".to_string(), {
+        FieldDefinition {
+            idens: vec![LitByteStr::new(b"EDID", proc_macro2::Span::call_site())],
+            names: vec![Ident::new("EditorId", proc_macro2::Span::call_site())],
+            field_types: vec![syn::parse_str("EditorId").unwrap()],
         }
-    }
+    });
+    
+    map.insert("ObjectBounds".to_string(), 
+        FieldDefinition {
+            idens: vec![LitByteStr::new(b"OBND", proc_macro2::Span::call_site())],
+            names: vec![Ident::new("ObjectBounds", proc_macro2::Span::call_site())],
+            field_types: vec![syn::parse_str("ObjectBounds").unwrap()],
+        }
+    );
+
+    map.insert("ModelPath".to_string(), 
+        FieldDefinition {
+            idens: vec![LitByteStr::new(b"MODL", proc_macro2::Span::call_site())],
+            names: vec![Ident::new("ModelPath", proc_macro2::Span::call_site())],
+            field_types: vec![syn::parse_str("ModelPath").unwrap()],
+        }
+    );
+
+    map.insert("ModelTexture".to_string(), 
+        FieldDefinition {
+            idens: vec![LitByteStr::new(b"MODT", proc_macro2::Span::call_site())],
+            names: vec![Ident::new("ModelTexture", proc_macro2::Span::call_site())],
+            field_types: vec![syn::parse_str("ModelTexture").unwrap()],
+        }
+    );
+
+    map.insert("ModelMaterialSwap".to_string(), 
+        FieldDefinition {
+            idens: vec![LitByteStr::new(b"MODS", proc_macro2::Span::call_site())],
+            names: vec![Ident::new("ModelMaterialSwap", proc_macro2::Span::call_site())],
+            field_types: vec![syn::parse_str("ModelMaterialSwap").unwrap()],
+        }
+    );
+
+    map.insert("ModelColorMap".to_string(), 
+        FieldDefinition {
+            idens: vec![LitByteStr::new(b"MODC", proc_macro2::Span::call_site())],
+            names: vec![Ident::new("ModelColorMap", proc_macro2::Span::call_site())],
+            field_types: vec![syn::parse_str("ModelColorMap").unwrap()],
+        }
+    );
+
+    map.insert("ModelFlags".to_string(), 
+        FieldDefinition {
+            idens: vec![LitByteStr::new(b"MODF", proc_macro2::Span::call_site())],
+            names: vec![Ident::new("ModelFlags", proc_macro2::Span::call_site())],
+            field_types: vec![syn::parse_str("ModelFlags").unwrap()],
+        }
+    );
+
+    map.insert("AllModelData".to_string(), 
+        FieldDefinition {
+            idens: vec![
+                LitByteStr::new(b"MODL", proc_macro2::Span::call_site()),
+                LitByteStr::new(b"MODT", proc_macro2::Span::call_site()),
+                LitByteStr::new(b"MODC", proc_macro2::Span::call_site()),
+                LitByteStr::new(b"MODS", proc_macro2::Span::call_site()),
+                LitByteStr::new(b"MODF", proc_macro2::Span::call_site()),
+            ],
+            names: vec![
+                Ident::new("ModelPath", proc_macro2::Span::call_site()),
+                Ident::new("ModelTexture", proc_macro2::Span::call_site()),
+                Ident::new("ModelColorMap", proc_macro2::Span::call_site()),
+                Ident::new("ModelMaterialSwap", proc_macro2::Span::call_site()),
+                Ident::new("ModelFlags", proc_macro2::Span::call_site()),
+            ],
+            field_types: vec![
+                syn::parse_str("ModelPath").unwrap(),
+                syn::parse_str("ModelTexture").unwrap(),
+                syn::parse_str("ModelColorMap").unwrap(),
+                syn::parse_str("ModelMaterialSwap").unwrap(),
+                syn::parse_str("ModelFlags").unwrap(),
+            ],
+        }
+    );
+
+    map
 }
