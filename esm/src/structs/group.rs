@@ -348,7 +348,7 @@ pub enum TopGroup {
     ARMA(ARMA),
     ARMO(ARMO),
     ARTO(ARTO),
-    ASPC(ASPC),
+    ASPC(Group<AcousticSpace>),
     ASTP(ASTP),
     AVIF(AVIF),
     BNDS(BNDS),
