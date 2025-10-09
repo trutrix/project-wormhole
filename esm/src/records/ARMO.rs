@@ -2,7 +2,9 @@ use crate::dev::*;
 
 define_record! {
     b"ARMO",
-    ARMO, [
+    Armor, [
+        EditorId;
+        AllModelData;
     ]
 }
 
