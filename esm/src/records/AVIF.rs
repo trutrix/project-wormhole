@@ -2,7 +2,14 @@ use crate::dev::*;
 
 define_record! {
     b"AVIF",
-    AVIF, [
+    ActorValueInformation, [
+        EditorId;
+        b"FULL", FullName, u32; // String ref?
+        b"DESC", Description, ESMString; // String?
+        b"ANAM", Abbreviation, ESMString; // String?
+        b"NAM0", DefaultValue, f32; // TODO: Verify type
+        b"NAM1", Type, u8; // TODO: Verify type
+        b"AVFL", Flags, u32; // Bitfield?
     ]
 }
 

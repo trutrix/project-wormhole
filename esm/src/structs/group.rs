@@ -350,7 +350,7 @@ pub enum TopGroup {
     ARTO(ARTO),
     ASPC(Group<AcousticSpace>),
     ASTP(ASTP),
-    AVIF(AVIF),
+    AVIF(Group<ActorValueInformation>),
     BNDS(BNDS),
     BOOK(BOOK),
     BPTD(BPTD),
