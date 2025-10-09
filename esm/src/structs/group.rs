@@ -339,7 +339,7 @@ pub enum TopGroup {
     AACT(Group<Action>),
     ACTI(Group<Activator>),
     ADDN(Group<AddonNode>),
-    AECH(AudioEffectChain),
+    AECH(Group<AudioEffectChain>),
     ALCH(Group<Alchemy>),
     AMDL(Group<AimModel>),
     AMMO(Group<Ammo>),
@@ -382,7 +382,7 @@ pub enum TopGroup {
     FSTP(FSTP),
     FSTS(FSTS),
     FURN(FURN),
-    GameSettings(Group<GameSetting>),
+    GMST(Group<GameSetting>),
     GDRY(GDRY),
     GLOB(GLOB),
     GRAS(GRAS),
@@ -397,7 +397,7 @@ pub enum TopGroup {
     IPCT(IPCT),
     IPDS(IPDS),
     KEYM(KEYM),
-    Keywords(Group<Keyword>),
+    KYWD(Group<Keyword>),
     KSSM(KSSM),
     LAYR(LAYR),
     LCRT(LCRT),
@@ -422,7 +422,7 @@ pub enum TopGroup {
     NAVI(NAVI),
     NOCM(NOCM),
     NOTE(NOTE),
-    NPC_(NonPlayerCharacter),
+    NPC_(Group<NonPlayerCharacter>),
     OMOD(OMOD),
     OTFT(OTFT),
     OVIS(OVIS),
@@ -473,11 +473,11 @@ impl Parse<&[u8]> for TopGroup {
                 match &label.0 {
                     b"GMST" => {
                         let (_, records) = many0(complete(GameSetting::parse))(data)?;
-                        Ok((i, TopGroup::GameSettings(Group { header, data: records })))
+                        Ok((i, TopGroup::GMST(Group { header, data: records })))
                     }
                     b"KYWD" => {
                         let (_, records) = many0(complete(Keyword::parse))(data)?;
-                        Ok((i, TopGroup::Keywords(Group { header, data: records })))
+                        Ok((i, TopGroup::KYWD(Group { header, data: records })))
                     }
                     _ => {
                         unimplemented!("Top group {} not implemented", label);
