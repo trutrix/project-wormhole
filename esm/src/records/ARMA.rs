@@ -38,6 +38,10 @@ define_record! {
         b"SNDD", SoundData, FormId; // Ref
         b"ONAM", ArtObject, FormId; // Ref
 
+        b"BSMP", Unknown1, u8; // Unknown
+        b"BSMS", Unknown2, u8; // Unknown
+        b"BSMB", Unknown3, u8; // Unknown
+
     ]
 }
 

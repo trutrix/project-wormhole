@@ -1,6 +1,6 @@
 use std::collections::{HashMap, HashSet};
 
-use crate::records::all::AttractionRule;
+use crate::records::all::{ArmorAddon, AttractionRule};
 
 
 const ESM_PATH: &str = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Fallout 4\\Data\\Fallout4.esm";
@@ -26,23 +26,31 @@ fn test1() {
     println!("Parsed esm in: {:?}", start.elapsed());
 
     
-    // let mut field_ids: HashMap<FourCC, HashSet<FourCC>> = HashMap::new();
+    let mut field_ids: HashMap<FourCC, HashSet<FourCC>> = HashMap::new();
 
-    // for (id, rr) in esm.records {
-    //     let set = field_ids.entry(rr.header.iden).or_insert(HashSet::new());
+    for (id, rr) in esm.records {
+        
 
-    //     let tr = AORU::try_from(rr).unwrap();
+        if rr.header.iden.0 != *b"ARMA" {
+            continue;
+        } else {
+            let set = field_ids.entry(rr.header.iden).or_insert(HashSet::new());
+            let tr = ArmorAddon::try_from(rr).unwrap();
 
-    //     for f in tr.fields {
-    //         match f {
-    //             crate::records::all::AORUField::Unknown(four_cc) => {
-    //                 set.insert(four_cc);
-    //             }
-    //         }
-    //     }
-    // }
+            for f in tr.fields {
+                match f {
+                    crate::records::all::ArmorAddonField::Unknown(four_cc) => {
+                        set.insert(four_cc);
+                    }
+                    _ => { /* Ignore known fields */ }
+                }
+            }
+        }
 
-    //println!("{:?}",field_ids);
+        
+    }
+
+    println!("{:?}",field_ids);
 
     // let out_all = "out_all.json";
 
