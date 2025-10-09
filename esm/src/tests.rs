@@ -1,6 +1,6 @@
 use std::collections::{HashMap, HashSet};
 
-use crate::records::all::AORU;
+use crate::records::all::AttractionRule;
 
 
 const ESM_PATH: &str = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Fallout 4\\Data\\Fallout4.esm";

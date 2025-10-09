@@ -344,7 +344,7 @@ pub enum TopGroup {
     AMDL(Group<AimModel>),
     AMMO(Group<Ammo>),
     ANIO(Group<AnimatedObject>),
-    AORU(AORU),
+    AORU(AttractionRule),
     ARMA(ARMA),
     ARMO(ARMO),
     ARTO(ARTO),

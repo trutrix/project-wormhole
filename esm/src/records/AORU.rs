@@ -2,8 +2,14 @@ use crate::dev::*;
 
 define_record! {
     b"AORU",
-    AORU, [
+    AttractionRule, [
+        EditorId;
+        b"AOR2", AttractionRuleData, AttractionRuleData;
     ]
 }
 
-// Field dump - {AOR2}
+
+#[derive(Debug, NomLE)]
+pub struct AttractionRuleData {
+
+}
