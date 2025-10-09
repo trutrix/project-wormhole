@@ -345,7 +345,7 @@ pub enum TopGroup {
     AMMO(Group<Ammo>),
     ANIO(Group<AnimatedObject>),
     AORU(AttractionRule),
-    ARMA(ARMA),
+    ARMA(ArmorAddon),
     ARMO(ARMO),
     ARTO(ARTO),
     ASPC(Group<AcousticSpace>),
