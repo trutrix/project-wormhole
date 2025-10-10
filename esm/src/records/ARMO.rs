@@ -43,8 +43,21 @@ define_record! {
         b"TNAM", TemplateArmor, FormId; // Ref
         b"INRD", InstancedNaming, u8; // Unknown
 
+        b"EITM", ObjectEffect, u8; // Unknown
+        b"INDX", Unknown2, u8; // Unknown
+        b"DESC", Description, ESMString; // LocalizedString?
+        b"STOP", Unknown3, u8; // Unknown
+        b"OBTS", ObjectTemplate, u8; // Unknown
+        b"APPR", AttachParentSlots, u8; // Unknown
+        b"BAMT", AlternateBlockMaterial, u8; // Unknown
+        b"OBTE", ObjectTemplateExtra, u8; // Unknown
+        b"OBTF", ObjectTemplateFlags, u8; // Unknown
+
+        b"FULL", FullName, LocalizedString;
+        b"ETYP", EquipmentType, u8; // Unknown struct
+        b"BOD2", BipedBodyTemplate, u8; // Unknown struct
+        b"RNAM", Race, FormId; // Ref
     ]
 }
 
 // Field dump - {ETYP, EITM, APPR, MO2S, ZNAM, BAMT, OBTS, MO2T, OBTF, RNAM, MO4S, FNAM, DATA, FULL, BOD2, INDX, VMAD, MOD2, MODL, KWDA, OBTE, KSIZ, OBND, MOD4, PTRN, DAMA, DESC, YNAM, STOP, MO4T, INRD}
-// ARMO: {BAMT, STOP, FULL, RNAM, OBTF, OBTS, DESC, ETYP, PTRN, INDX, BOD2, INRD,  OBTE, EITM, APPR}}
