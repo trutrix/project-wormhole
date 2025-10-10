@@ -2,7 +2,13 @@ use crate::dev::*;
 
 define_record! {
     b"ARTO",
-    ARTO, [
+    ArtObject, [
+        EditorId;
+        AllModelData;
+        ObjectBounds;
+        PreviewTransform;
+        Keywords;
+        b"DNAM", ArtType, u32;
     ]
 }
 

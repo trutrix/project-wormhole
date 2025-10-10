@@ -171,6 +171,14 @@ pub fn common_map() -> HashMap<String, FieldDefinition> {
         }
     );
 
+    map.insert("Keywords".to_string(), 
+        FieldDefinition {
+            idens: vec![LitByteStr::new(b"KWDA", proc_macro2::Span::call_site()), LitByteStr::new(b"KSIZ", proc_macro2::Span::call_site())],
+            names: vec![Ident::new("Keywords", proc_macro2::Span::call_site()), Ident::new("KeywordCount", proc_macro2::Span::call_site())],
+            field_types: vec![syn::parse_str("Vec<FormId>").unwrap(), syn::parse_str("u32").unwrap()],
+        }
+    );
+
     map.insert("ModelPath".to_string(), 
         FieldDefinition {
             idens: vec![LitByteStr::new(b"MODL", proc_macro2::Span::call_site())],
