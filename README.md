@@ -3,7 +3,7 @@
 
 - `ESM` - Active
 - `NIF` - Paused - Need ESM to advance
-- `BS2` - Paused - Need ESM to advance
+- `BA2` - Paused - Need ESM to advance
 
 
 ## ESM
