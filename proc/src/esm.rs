@@ -163,6 +163,14 @@ pub fn common_map() -> HashMap<String, FieldDefinition> {
         }
     );
 
+    map.insert("PreviewTransform".to_string(), 
+        FieldDefinition {
+            idens: vec![LitByteStr::new(b"PTRN", proc_macro2::Span::call_site())],
+            names: vec![Ident::new("PreviewTransform", proc_macro2::Span::call_site())],
+            field_types: vec![syn::parse_str("FormId").unwrap()],
+        }
+    );
+
     map.insert("ModelPath".to_string(), 
         FieldDefinition {
             idens: vec![LitByteStr::new(b"MODL", proc_macro2::Span::call_site())],

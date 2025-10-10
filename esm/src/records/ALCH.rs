@@ -3,9 +3,9 @@ use crate::{dev::*, structs::geometry::ObjectBounds};
 define_record! {
     b"ALCH",
     Alchemy, [
-        b"EDID", EditorId, ESMString;
-        b"OBND", ObjectBounds, ObjectBounds;
-        b"PTRN", PTRN, ESMString; // TODO: Find actual type
+        EditorId;
+        ObjectBounds;
+        PreviewTransform;
         b"FULL", FullName, LocalizedString;
         b"KSIZ", KeywordSize, u32;
         b"KWDA", Keywords, u32; // Make compound field work

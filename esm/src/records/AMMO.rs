@@ -6,8 +6,8 @@ define_record! {
         EditorId;
         ObjectBounds;
         AllModelData;
-
-        b"PTRN", PreviewTransform, FormId; // Ref to TRNS
+        PreviewTransform;
+        
         b"FULL", FullName, ESMString; // LocalizedString?
         b"DESC", Description, ESMString; // LocalizedString?
 

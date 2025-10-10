@@ -4,6 +4,11 @@ define_record! {
     b"ACTI",
     Activator, [
 
+        EditorId;
+        AllModelData;
+        ObjectBounds;
+        PreviewTransform;
+
         b"ATTX", ActivateTextOverride, ESMString; // TODO: Verify
         b"CIS1", Condition1, u8; // TODO: Find type
         b"CIS2", Condition2, u8; // TODO: Find type
@@ -20,7 +25,7 @@ define_record! {
         b"DSTF", DestructionFlags, u8; // TODO: Find type
 
 
-        EditorId;
+        
         b"FNAM", Flags, u8; // TODO: Find type
         b"FTYP", ForcedLocRefType, u8; // TODO: Find type
         b"FULL", Name, u32; // TODO: Find type
@@ -28,16 +33,13 @@ define_record! {
         // Keywords
         b"KSIZ", KeywordCount, u32; // TODO: Find type
         b"KWDA", Keywords, u8; // TODO: Find type
-
-        // Model data
-        AllModelData;
-
+        
 
         b"NTRM", NativeTerminal, u8; // TODO: Find type
-        ObjectBounds;
+       
         b"PNAM", MarkerColor, u8; // TODO: Find type
         b"PRPS", Properties, u8; // TODO: Find type
-        b"PTRN", PreviewTransform, u8; // TODO: Find type
+        
         b"RADR", RadioReciever, u8;
         b"SNAM", SoundLooping, FormId; // TODO: Verify
         b"STCP", AnimationSound, u8; // TODO: Find type

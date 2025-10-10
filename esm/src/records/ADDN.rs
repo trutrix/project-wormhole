@@ -3,8 +3,8 @@ use crate::dev::*;
 define_record! {
     b"ADDN",
     AddonNode, [
-        b"EDID", EditorId, ESMString;
-        b"OBND", ObjectBounds, ObjectBounds;
+        EditorId;
+        ObjectBounds;
         
         b"DATA", NodeIndex, u32; // TODO: Verify type
         b"SNAM", Sound, FormId;
