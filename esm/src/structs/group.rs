@@ -349,7 +349,7 @@ pub enum TopGroup {
     ARMO(Group<Armor>),
     ARTO(Group<ArtObject>),
     ASPC(Group<AcousticSpace>),
-    ASTP(ASTP),
+    ASTP(Group<AssociationType>),
     AVIF(Group<ActorValueInformation>),
     BNDS(BNDS),
     BOOK(BOOK),
