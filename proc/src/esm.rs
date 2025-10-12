@@ -107,6 +107,7 @@ impl ToTokens for RecordDefinition {
 
 
 pub struct FieldDefinition {
+    pub required: bool,
     pub idens: Vec<LitByteStr>,
     pub names: Vec<Ident>,
     pub field_types: Vec<Type>,
@@ -114,6 +115,14 @@ pub struct FieldDefinition {
 
 impl parse::Parse for FieldDefinition {
     fn parse(input: parse::ParseStream) -> Result<Self> {
+
+        // Check if the field is required
+        let required = if input.peek(Token![+]) {
+            input.parse::<Token![+]>()?;
+            true
+        } else {
+            false
+        };
 
         // Check if the field is a common field
         let mut idens: Vec<LitByteStr> = Vec::new();
@@ -141,7 +150,7 @@ impl parse::Parse for FieldDefinition {
         }
 
 
-        Ok(FieldDefinition { idens, names, field_types })
+        Ok(FieldDefinition { required, idens, names, field_types })
     }
 }
 
@@ -149,6 +158,7 @@ pub fn common_map() -> HashMap<String, FieldDefinition> {
     let mut map = HashMap::new();
     map.insert("EditorId".to_string(), {
         FieldDefinition {
+            required: true,
             idens: vec![LitByteStr::new(b"EDID", proc_macro2::Span::call_site())],
             names: vec![Ident::new("EditorId", proc_macro2::Span::call_site())],
             field_types: vec![syn::parse_str("EditorId").unwrap()],
@@ -157,6 +167,7 @@ pub fn common_map() -> HashMap<String, FieldDefinition> {
     
     map.insert("ObjectBounds".to_string(), 
         FieldDefinition {
+            required: false,
             idens: vec![LitByteStr::new(b"OBND", proc_macro2::Span::call_site())],
             names: vec![Ident::new("ObjectBounds", proc_macro2::Span::call_site())],
             field_types: vec![syn::parse_str("ObjectBounds").unwrap()],
@@ -165,6 +176,7 @@ pub fn common_map() -> HashMap<String, FieldDefinition> {
 
     map.insert("PreviewTransform".to_string(), 
         FieldDefinition {
+            required: false,
             idens: vec![LitByteStr::new(b"PTRN", proc_macro2::Span::call_site())],
             names: vec![Ident::new("PreviewTransform", proc_macro2::Span::call_site())],
             field_types: vec![syn::parse_str("FormId").unwrap()],
@@ -173,6 +185,7 @@ pub fn common_map() -> HashMap<String, FieldDefinition> {
 
     map.insert("Keywords".to_string(), 
         FieldDefinition {
+            required: false,
             idens: vec![LitByteStr::new(b"KWDA", proc_macro2::Span::call_site()), LitByteStr::new(b"KSIZ", proc_macro2::Span::call_site())],
             names: vec![Ident::new("Keywords", proc_macro2::Span::call_site()), Ident::new("KeywordCount", proc_macro2::Span::call_site())],
             field_types: vec![syn::parse_str("Vec<FormId>").unwrap(), syn::parse_str("u32").unwrap()],
@@ -181,6 +194,7 @@ pub fn common_map() -> HashMap<String, FieldDefinition> {
 
     map.insert("ModelPath".to_string(), 
         FieldDefinition {
+            required: false,
             idens: vec![LitByteStr::new(b"MODL", proc_macro2::Span::call_site())],
             names: vec![Ident::new("ModelPath", proc_macro2::Span::call_site())],
             field_types: vec![syn::parse_str("ModelPath").unwrap()],
@@ -189,6 +203,7 @@ pub fn common_map() -> HashMap<String, FieldDefinition> {
 
     map.insert("ModelTexture".to_string(), 
         FieldDefinition {
+            required: false,
             idens: vec![LitByteStr::new(b"MODT", proc_macro2::Span::call_site())],
             names: vec![Ident::new("ModelTexture", proc_macro2::Span::call_site())],
             field_types: vec![syn::parse_str("ModelTexture").unwrap()],
@@ -197,6 +212,7 @@ pub fn common_map() -> HashMap<String, FieldDefinition> {
 
     map.insert("ModelMaterialSwap".to_string(), 
         FieldDefinition {
+            required: false,
             idens: vec![LitByteStr::new(b"MODS", proc_macro2::Span::call_site())],
             names: vec![Ident::new("ModelMaterialSwap", proc_macro2::Span::call_site())],
             field_types: vec![syn::parse_str("ModelMaterialSwap").unwrap()],
@@ -205,6 +221,7 @@ pub fn common_map() -> HashMap<String, FieldDefinition> {
 
     map.insert("ModelColorMap".to_string(), 
         FieldDefinition {
+            required: false,
             idens: vec![LitByteStr::new(b"MODC", proc_macro2::Span::call_site())],
             names: vec![Ident::new("ModelColorMap", proc_macro2::Span::call_site())],
             field_types: vec![syn::parse_str("ModelColorMap").unwrap()],
@@ -213,6 +230,7 @@ pub fn common_map() -> HashMap<String, FieldDefinition> {
 
     map.insert("ModelFlags".to_string(), 
         FieldDefinition {
+            required: false,
             idens: vec![LitByteStr::new(b"MODF", proc_macro2::Span::call_site())],
             names: vec![Ident::new("ModelFlags", proc_macro2::Span::call_site())],
             field_types: vec![syn::parse_str("ModelFlags").unwrap()],
@@ -221,6 +239,7 @@ pub fn common_map() -> HashMap<String, FieldDefinition> {
 
     map.insert("AllModelData".to_string(), 
         FieldDefinition {
+            required: false,
             idens: vec![
                 LitByteStr::new(b"MODL", proc_macro2::Span::call_site()),
                 LitByteStr::new(b"MODT", proc_macro2::Span::call_site()),
