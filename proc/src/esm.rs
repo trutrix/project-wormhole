@@ -200,6 +200,16 @@ pub fn common_map() -> HashMap<String, FieldDefinition> {
         field_types: vec![syn::parse_str("VirtualMachineAdapter").unwrap()],
     });
 
+
+    map.insert("FullName".to_string(), 
+        FieldDefinition {
+            required: true,
+            idens: vec![LitByteStr::new(b"FULL", proc_macro2::Span::call_site())],
+            names: vec![Ident::new("FullName", proc_macro2::Span::call_site())],
+            field_types: vec![syn::parse_str("LocalizedString").unwrap()],
+        }
+    );
+
     map.insert("ModelPath".to_string(), 
         FieldDefinition {
             required: false,
