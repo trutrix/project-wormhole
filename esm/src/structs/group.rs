@@ -359,7 +359,7 @@ pub enum TopGroup {
     CLAS(Group<Class>),
     CLFM(Group<Color>),
     CLMT(Group<Climate>),
-    CMPO(Component),
+    CMPO(Group<Component>),
     COBJ(COBJ),
     COLL(COLL),
     CONT(CONT),
