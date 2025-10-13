@@ -354,7 +354,7 @@ pub enum TopGroup {
     BNDS(Group<BendableSpline>),
     BOOK(Group<Book>),
     BPTD(Group<BodyPartData>),
-    CAMS(CAMS),
+    CAMS(Group<CameraShot>),
     CELL(Group<Cell>),
     CLAS(CLAS),
     CLFM(CLFM),
