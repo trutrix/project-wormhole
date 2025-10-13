@@ -356,7 +356,7 @@ pub enum TopGroup {
     BPTD(Group<BodyPartData>),
     CAMS(Group<CameraShot>),
     CELL(Group<Cell>),
-    CLAS(CLAS),
+    CLAS(Group<Class>),
     CLFM(CLFM),
     CLMT(CLMT),
     CMPO(CMPO),

@@ -2,6 +2,12 @@ use crate::dev::*;
 
 define_record! {
     b"CLAS",
-    CLAS, [
+    Class, [
+        EditorId;
+        b"FULL", Name, u32;
+        b"DESC", Description, ESMString;
+        b"ICON", InventoryImage, u8; // TODO: unknown
+        b"PRPS", Properties, Vec<(FormId, f32)>; // AVIF ref / value
+        b"DATA", ClassData, (u32, f32); // Unknown / Bleedout?
     ]
 }
