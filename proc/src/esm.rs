@@ -192,6 +192,14 @@ pub fn common_map() -> HashMap<String, FieldDefinition> {
         }
     );
 
+    map.insert("VirtualMachineAdapter".to_string(), 
+    FieldDefinition { 
+        required: false,
+        idens: vec![LitByteStr::new(b"VMAD", proc_macro2::Span::call_site())],
+        names: vec![Ident::new("VirtualMachineAdapter", proc_macro2::Span::call_site())],
+        field_types: vec![syn::parse_str("VirtualMachineAdapter").unwrap()],
+    });
+
     map.insert("ModelPath".to_string(), 
         FieldDefinition {
             required: false,
