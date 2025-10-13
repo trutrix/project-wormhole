@@ -7,3 +7,4 @@ pub mod group;
 pub mod record;
 pub mod vectors;
 pub mod geometry;
+pub mod virtual_machine_adapter;
