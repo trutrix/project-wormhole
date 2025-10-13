@@ -3,7 +3,7 @@ use crate::{dev::*, structs::{geometry::LocationRotation, vectors::Vec2}};
 
 define_record! {
     b"REFR", Reference, [
-            b"EDID", EditorId, ESMString;
+            EditorId;
             b"XOWN", Owner, FormId;
             b"NAME", BaseObject, FormId;
             b"XSCL", Scale, f32;

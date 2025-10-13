@@ -3,7 +3,7 @@ use crate::dev::*;
 
 define_record! {
     b"CELL", Cell, [
-        b"EDID", EditorId, ESMString;
+        EditorId;
         b"DATA", Flags, u16;
         b"XCLC", GridLocation, GridLocation;
         b"MHDT", MaximumHeightData, u8;

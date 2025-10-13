@@ -6,7 +6,7 @@ use crate::{dev::*, traits::{GroupParser, RecordParser}};
 define_record! {
     b"GMST",
     GameSetting, [
-        b"EDID", EditorId, ESMString;
+        EditorId;
         b"DATA", Value, Vec<u8>;
     ]
 }

@@ -5,7 +5,7 @@ use crate::{dev::*, structs::{geometry::CellLoc, vectors::Vec2}};
 
 define_record! {
     b"WRLD", Worldspace, [
-            b"EDID", EditorId, ESMString;
+            EditorId;
             // b"CNAM", Color, u32; // Duplicate field
             b"ZNAM", Music, FormId;
 
