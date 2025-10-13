@@ -351,7 +351,7 @@ pub enum TopGroup {
     ASPC(Group<AcousticSpace>),
     ASTP(Group<AssociationType>),
     AVIF(Group<ActorValueInformation>),
-    BNDS(BNDS),
+    BNDS(Group<BendableSpline>),
     BOOK(BOOK),
     BPTD(BPTD),
     CAMS(CAMS),

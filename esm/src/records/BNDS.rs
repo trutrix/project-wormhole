@@ -2,6 +2,15 @@ use crate::dev::*;
 
 define_record! {
     b"BNDS",
-    BNDS, [
+    BendableSpline, [
+        EditorId;
+        ObjectBounds;
+        b"DNAM", Data, BendableSplineData;
+        b"TNAM", Texture, u8; // TODO: Find value type
     ]
+}
+
+#[derive(Debug, NomLE)]
+pub struct BendableSplineData {
+
 }
