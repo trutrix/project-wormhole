@@ -353,7 +353,7 @@ pub enum TopGroup {
     AVIF(Group<ActorValueInformation>),
     BNDS(Group<BendableSpline>),
     BOOK(Group<Book>),
-    BPTD(BPTD),
+    BPTD(Group<BodyPartData>),
     CAMS(CAMS),
     CELL(Group<Cell>),
     CLAS(CLAS),
