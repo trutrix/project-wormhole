@@ -1,6 +1,6 @@
 use std::collections::{HashMap, HashSet};
 
-use crate::records::all::{Armor, ArmorAddon, ArtObject, AttractionRule, BodyPartData, Book, Class};
+use crate::records::all::{Armor, ArmorAddon, ArtObject, AttractionRule, BodyPartData, Book, Class, Color};
 
 
 const ESM_PATH: &str = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Fallout 4\\Data\\Fallout4.esm";
@@ -31,17 +31,17 @@ fn test1() {
     for (id, rr) in esm.records {
         
 
-        if rr.header.iden.0 != *b"CLAS" {
+        if rr.header.iden.0 != *b"CLFM" {
             continue;
         } else {
             let set = field_ids.entry(rr.header.iden).or_insert(HashSet::new());
-            let tr = Class::try_from(rr).unwrap();
+            let tr = Color::try_from(rr).unwrap();
 
             println!("{:#?}", tr);
 
             for f in tr.fields {
                 match f {
-                    crate::records::all::ClassField::Unknown(four_cc) => {
+                    crate::records::all::ColorField::Unknown(four_cc) => {
                         set.insert(four_cc);
                     }
                     _ => { /* Ignore known fields */ }

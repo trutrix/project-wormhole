@@ -357,7 +357,7 @@ pub enum TopGroup {
     CAMS(Group<CameraShot>),
     CELL(Group<Cell>),
     CLAS(Group<Class>),
-    CLFM(CLFM),
+    CLFM(Group<Color>),
     CLMT(CLMT),
     CMPO(CMPO),
     COBJ(COBJ),
