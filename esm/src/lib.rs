@@ -24,4 +24,5 @@ mod dev {
     pub use super::structs::strings::*;
     pub use super::structs::geometry::*;
     pub use super::structs::colors::*;
+    pub use super::structs::virtual_machine_adapter::*;
 }

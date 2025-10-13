@@ -352,7 +352,7 @@ pub enum TopGroup {
     ASTP(Group<AssociationType>),
     AVIF(Group<ActorValueInformation>),
     BNDS(Group<BendableSpline>),
-    BOOK(BOOK),
+    BOOK(Group<Book>),
     BPTD(BPTD),
     CAMS(CAMS),
     CELL(Group<Cell>),
