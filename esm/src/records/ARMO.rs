@@ -53,7 +53,7 @@ define_record! {
         b"OBTE", ObjectTemplateExtra, u8; // Unknown
         b"OBTF", ObjectTemplateFlags, u8; // Unknown
 
-        b"FULL", FullName, LocalizedString;
+        FullName;
         b"ETYP", EquipmentType, u8; // Unknown struct
         b"BOD2", BipedBodyTemplate, u8; // Unknown struct
         b"RNAM", Race, FormId; // Ref

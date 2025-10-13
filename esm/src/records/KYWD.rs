@@ -7,7 +7,7 @@ define_record! {
     b"KYWD", Keyword, [
         b"EDID", EditorId, ESMString;
         b"CNAM", Color, Color4;
-        b"FULL", FullName, u32;
+        FullName;
         b"DNAM", Notes, ESMString;
         b"TNAM", Type, u32;
         b"DATA", AttractionRule, u32;

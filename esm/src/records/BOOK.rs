@@ -9,7 +9,7 @@ define_record! {
         AllModelData;
         Keywords;
         VirtualMachineAdapter;
-        b"FULL", FullName, ESMString;
+        FullName;
         b"DESC", Description, ESMString;
         b"YNAM", SoundPickUp, FormId;
         b"ZNAM", SoundPutDown, FormId;

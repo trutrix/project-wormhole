@@ -4,7 +4,7 @@ define_record! {
     b"AVIF",
     ActorValueInformation, [
         EditorId;
-        b"FULL", FullName, u32; // String ref?
+        FullName; // String ref?
         b"DESC", Description, ESMString; // String?
         b"ANAM", Abbreviation, ESMString; // String?
         b"NAM0", DefaultValue, f32; // TODO: Verify type

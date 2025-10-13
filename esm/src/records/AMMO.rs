@@ -8,7 +8,7 @@ define_record! {
         AllModelData;
         PreviewTransform;
         
-        b"FULL", FullName, ESMString; // LocalizedString?
+        FullName; // LocalizedString?
         b"DESC", Description, ESMString; // LocalizedString?
 
         // Unsure if KSIZ defines the actual size of KWDA

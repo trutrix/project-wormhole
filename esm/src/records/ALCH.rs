@@ -6,7 +6,7 @@ define_record! {
         EditorId;
         ObjectBounds;
         PreviewTransform;
-        b"FULL", FullName, LocalizedString;
+        FullName;
         b"KSIZ", KeywordSize, u32;
         b"KWDA", Keywords, u32; // Make compound field work
         b"MODL", Model, ModelPath;

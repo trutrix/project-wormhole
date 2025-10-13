@@ -5,7 +5,7 @@ define_record! {
     Component, [
         EditorId;
         ObjectBounds;
-        b"FULL", FullName, LocalizedString;
+        FullName;
         b"CUSD", CraftSound, FormId;
         b"DATA", AutoCalcValue, u8; // TODO: find actual type
         b"MNAM", ScrapItem, FormId;
