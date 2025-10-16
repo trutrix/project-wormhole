@@ -1,5 +1,6 @@
 use clap::Parser;
 mod heightmap;
+mod dumper;
 
 /// Simple program to greet a person
 #[derive(Parser, Debug)]
@@ -28,6 +29,10 @@ fn main() {
 
         "extract-heightmap" => {
             heightmap::extract_heightmap(path);
+        }
+
+        "dumper" => {
+            dumper::dump_esm_fields(path);
         }
 
         _ => {
