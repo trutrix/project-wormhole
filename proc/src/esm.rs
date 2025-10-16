@@ -202,6 +202,7 @@ pub fn common_map() -> HashMap<String, FieldDefinition> {
 
 
     map.insert("FullName".to_string(), 
+    
         FieldDefinition {
             required: true,
             idens: vec![LitByteStr::new(b"FULL", proc_macro2::Span::call_site())],
