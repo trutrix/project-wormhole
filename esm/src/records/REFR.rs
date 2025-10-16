@@ -12,7 +12,7 @@ define_record! {
             b"XNDP", DoorPivot, DoorPivot;
             b"XLRT", LocationReferenceType, FormId;
             b"XLKR", LinkedReference, LinkedReference;
-            b"VMAD", VirtualMachineAdapter, SkippedField; // TODO: Extremely complex, not sure if needed
+            VirtualMachineAdapter;
             b"XPRM", Primitive, Primitive;
             b"XRFG", ReferenceGroup, FormId;
             b"XLYR", Layer, FormId;

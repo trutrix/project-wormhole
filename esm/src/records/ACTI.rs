@@ -43,7 +43,7 @@ define_record! {
         b"RADR", RadioReciever, u8;
         b"SNAM", SoundLooping, FormId; // TODO: Verify
         b"STCP", AnimationSound, u8; // TODO: Find type
-        b"VMAD", VirtualMachineAdapter, u8; // TODO: Find type
+        VirtualMachineAdapter;
         b"VNAM", SoundActivation, u8; // TODO: Find type
         b"WNAM", WaterType, u8; // TODO: Find type
     ]

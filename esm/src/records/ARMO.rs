@@ -32,7 +32,7 @@ define_record! {
         b"MO4S", ModelMaterialSwap4, ModelMaterialSwap;
         b"MO5S", ModelMaterialSwap5, ModelMaterialSwap;
 
-        b"VMAD", VirtualMachineAdapter, u8; // Complex struct
+        VirtualMachineAdapter;
         b"YNAM", SoundPickUp, FormId; // Ref
         b"ZNAM", SoundPutDown, FormId; // Ref
 
