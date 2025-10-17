@@ -40,4 +40,13 @@
   - Should help identify fixed structs
 - Heightmap Extractor - `WIP`
   - I was unsatisfied how long it took creation kit to do this
-  - I have achieved this 2 times before, just didn't save the code :(
+  - I have achieved this 2 times before, just didn't save the code `:(`
+
+
+
+
+# Sources
+- Fallout 4 & Creation Kit
+- [FO4Edit](https://tes5edit.github.io/) - Best tool there is
+- [UESP](https://en.uesp.net/wiki/Skyrim_Mod:Mod_File_Format) - Extremely helpful understanding records and groups
+- Places I didn't write down (I promise I'll find you again)

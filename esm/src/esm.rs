@@ -56,11 +56,11 @@ impl<'esm> ESM1<'esm> {
 // ====================================================================================================
 
 
-/// This is a barebones parsing of an ESM file
-/// It does not attempt to interpret any records or fields
-/// It simply breaks the file into its constituent groups and records
-/// This is useful for debugging and for understanding the structure of the file
-/// More advanced parsing can be built on top of this
+/// This is a barebones parsing of an ESM file.  
+/// It does not attempt to interpret any records or fields.  
+/// It simply breaks the file into its constituent groups and records.  
+/// This is useful for debugging and for understanding the structure of the file. 
+/// More advanced parsing can be built on top of this.    
 
 #[derive(Debug)]
 pub struct RawESM<'esm> {
