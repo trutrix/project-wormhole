@@ -361,6 +361,19 @@ impl Debug for RawRecord<'_> {
     }
 }
 
+impl RawRecord<'_> {
+    pub fn get_raw_fields(&self) -> IResult<&[u8], Vec<RawField<'_>>, nom::error::Error<&[u8]>> {
+        match &self.data {
+            RawRecordData::Pointer(data) => {
+                many0(complete(RawField::parse))(data)
+            }
+            RawRecordData::Decompressed(data) => {
+                many0(complete(RawField::parse))(data)
+            }
+        }
+    }   
+}
+
 #[derive(Debug)]
 pub enum RawRecordData<'esm> {
     Pointer(&'esm[u8]),
@@ -375,6 +388,8 @@ impl RawRecordData<'_> {
         }
     }
 }
+
+
 
 // ====================================================================================================
 

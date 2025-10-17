@@ -14,5 +14,24 @@ pub fn dump_esm_fields(path: &Path) {
     // [ Record Idens: [ Field Idens: [ Field Sizes ] ] ]
     let mut dump: HashMap<FourCC, HashMap<FourCC, HashSet<u16>>> = HashMap::with_capacity(100000);
 
-    unimplemented!("Dump ESM fields");
+
+    let mut rcount = 0;
+
+    for (rid, rr) in esm.records {
+
+        let record_entry = dump.entry(rr.header.iden).or_insert(HashMap::new());
+        let (_, record_fields) = rr.get_raw_fields().expect("Could not convert record data into raw fields.");
+        rcount += 1;
+
+        for field in record_fields {
+            let field_entry = record_entry.entry(field.header.iden().clone()).or_insert(HashSet::new());
+            field_entry.insert(field.data.len() as u16);
+        }
+        
+    }
+
+    let json = serde_json::to_string_pretty(&dump).expect("Failed to serialize dump to JSON");
+    let out_path = path.with_extension("_fields_dump.json");
+    std::fs::write(&out_path, json).expect("Failed to write dump to file");
+    println!("Dumped fields from {} records to {}", rcount, out_path.display());
 }
