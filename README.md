@@ -32,3 +32,12 @@
 ## BA2
 - Needs previous code to be migrated over
 - Base version fully working, just needs optimization
+
+
+## CLI
+- Dumper - `Operational WIP`
+  - Dumps all top level field idens and the sizes present in the file
+  - Should help identify fixed structs
+- Heightmap Extractor - `WIP`
+  - I was unsatisfied how long it took creation kit to do this
+  - I have achieved this 2 times before, just didn't save the code :(
