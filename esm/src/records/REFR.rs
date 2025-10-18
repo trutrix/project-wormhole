@@ -60,7 +60,7 @@ define_record! {
             b"XHLT", HealthPercentage, u32;
             b"XMRK", MapMarkerData, SkippedField; // TODO: Compounded
             b"FNAM", MM1, SkippedField;
-            b"FULL", MM2, SkippedField;
+            b"FULL", MM2, SkippedField; // unsure if this is actually FULL
             b"TNAM", MM3, SkippedField;
             b"XSPC", SpawnContainer, FormId;
             b"XOCP", OcculsionPlane, SkippedField; // Size, Loc, Rot

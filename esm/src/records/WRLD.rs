@@ -32,7 +32,7 @@ define_record! {
             b"PNAM", UseFlags, u16;
             b"WCTR", CenterCell, Vec2<u16>;
             b"RNAM", LocIdRef, WorldRNAM; //TODO
-            b"FULL", Name, u32;
+            FullName;
             b"MHDT", MaxHeightData, MaxHeightDataWorld;
             b"WNAM", ParentWorldspace, FormId;
 

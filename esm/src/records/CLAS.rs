@@ -4,7 +4,7 @@ define_record! {
     b"CLAS",
     Class, [
         EditorId;
-        b"FULL", Name, u32;
+        FullName;
         b"DESC", Description, ESMString;
         b"ICON", InventoryImage, u8; // TODO: unknown
         b"PRPS", Properties, Vec<(FormId, f32)>; // AVIF ref / value

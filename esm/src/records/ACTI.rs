@@ -28,7 +28,7 @@ define_record! {
         
         b"FNAM", Flags, u8; // TODO: Find type
         b"FTYP", ForcedLocRefType, u8; // TODO: Find type
-        b"FULL", Name, u32; // TODO: Find type
+        FullName;
 
         // Keywords
         b"KSIZ", KeywordCount, u32; // TODO: Find type
