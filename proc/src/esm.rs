@@ -166,6 +166,36 @@ pub fn common_map() -> HashMap<String, FieldDefinition> {
             field_types: vec![syn::parse_str("EditorId").unwrap()],
         }
     });
+
+    map.insert("Description".to_string(), 
+        FieldDefinition {
+            required: false,
+            idens: vec![LitByteStr::new(b"DESC", proc_macro2::Span::call_site())],
+            names: vec![Ident::new("Description", proc_macro2::Span::call_site())],
+            field_types: vec![syn::parse_str("ESMString").unwrap()],
+        }
+    );
+
+    map.insert("Condition".to_string(), 
+        FieldDefinition {
+            required: false,
+            idens: vec![
+                LitByteStr::new(b"CTDA", proc_macro2::Span::call_site()),
+                LitByteStr::new(b"CIS1", proc_macro2::Span::call_site()),
+                LitByteStr::new(b"CIS2", proc_macro2::Span::call_site())
+            ],
+            names: vec![
+                Ident::new("Condition", proc_macro2::Span::call_site()),
+                Ident::new("ConditionParam1", proc_macro2::Span::call_site()),
+                Ident::new("ConditionParam2", proc_macro2::Span::call_site())
+            ],
+            field_types: vec![
+                syn::parse_str("u8").unwrap(),
+                syn::parse_str("u8").unwrap(),
+                syn::parse_str("u8").unwrap(),
+            ],
+        }
+    );
     
     map.insert("ObjectBounds".to_string(), 
         FieldDefinition {
