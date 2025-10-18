@@ -7,12 +7,12 @@ define_record! {
         ObjectBounds;
         PreviewTransform;
         FullName;
+        Description;
         b"KSIZ", KeywordSize, u32;
         b"KWDA", Keywords, u32; // Make compound field work
         b"MODL", Model, ModelPath;
         b"MODT", ModelTexture, ModelTexture; // TODO: Find actual type
         b"YNAM", Value, u32;
-        b"DESC", Description, u32;
         b"CUSD", CustomData, u8; // TODO: Find actual type
         b"DATA", Data, u8; // TODO: Find actual type
         b"ENIT", EffectData, u8; // TODO: Find actual type

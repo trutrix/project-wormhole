@@ -7,7 +7,7 @@ define_record! {
         ObjectBounds;
         AllModelData;
         PreviewTransform;
-
+        Description;
 
         b"KSIZ", KeywordCount, u32;
         b"KWDA", Keywords, Vec<FormId>; // Refs
@@ -45,7 +45,7 @@ define_record! {
 
         b"EITM", ObjectEffect, u8; // Unknown
         b"INDX", Unknown2, u8; // Unknown
-        b"DESC", Description, ESMString; // LocalizedString?
+        
         b"STOP", Unknown3, u8; // Unknown
         b"OBTS", ObjectTemplate, u8; // Unknown
         b"APPR", AttachParentSlots, u8; // Unknown

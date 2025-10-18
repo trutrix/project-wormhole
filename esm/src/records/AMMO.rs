@@ -9,7 +9,7 @@ define_record! {
         PreviewTransform;
         
         FullName; // LocalizedString?
-        b"DESC", Description, ESMString; // LocalizedString?
+        Description; // LocalizedString?
 
         // Unsure if KSIZ defines the actual size of KWDA
         // Why wouldnt you be able to just divide the size of KWDA by 4?
