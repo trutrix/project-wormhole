@@ -362,7 +362,7 @@ pub enum TopGroup {
     CMPO(Group<Component>),
     COBJ(Group<ConstructibleObject>),
     COLL(Group<CollisionLayer>),
-    CONT(CONT),
+    CONT(Group<Container>),
     CPTH(CPTH),
     CSTY(CSTY),
     DEBR(DEBR),
