@@ -5,9 +5,7 @@ define_record! {
     CameraShot, [
         EditorId;
         AllModelData;
-        b"CTDA", Condition, u8; // TODO: unknown struct
-        b"CIS1", ConditionParam1, u8; // TODO: unknown
-        b"CIS2", ConditionParam2, u8; // TODO: unknown
+        Condition;
         b"DATA", CameraShotData, u8; // TODO: unknown struct
         b"MNAM", ImageSpaceModifier, FormId;
     ]

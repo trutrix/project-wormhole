@@ -5,8 +5,8 @@ define_record! {
     Color, [
         EditorId;
         FullName;
+        Condition;
         b"CNAM", RGBA, Color4;
         b"FNAM", Flags, u8; // TODO: find flags
-        b"CTDA", Condition, u8; // Unknown
     ]
 }

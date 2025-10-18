@@ -8,12 +8,10 @@ define_record! {
         AllModelData;
         ObjectBounds;
         PreviewTransform;
+        Condition;
 
         b"ATTX", ActivateTextOverride, ESMString; // TODO: Verify
-        b"CIS1", Condition1, u8; // TODO: Find type
-        b"CIS2", Condition2, u8; // TODO: Find type
         b"CITC", ConditionCount, u8; // TODO: Find type
-        b"CTDA", UnknownConditionData, u8; // TODO: Find type
 
         // Compound destruction fields
         b"DAMC", DamageResistance, u8; // TODO: Find type
