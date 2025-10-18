@@ -145,6 +145,8 @@ impl parse::Parse for FieldDefinition {
                 idens.extend(fd.idens.clone());
                 names.extend(fd.names.clone());
                 field_types.extend(fd.field_types.clone());
+            } else {
+                return Err(syn::Error::new(name.span(), format!("Unknown common field: {}", name)));
             }
 
         }
