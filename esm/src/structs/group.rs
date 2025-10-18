@@ -361,7 +361,7 @@ pub enum TopGroup {
     CLMT(Group<Climate>),
     CMPO(Group<Component>),
     COBJ(Group<ConstructibleObject>),
-    COLL(COLL),
+    COLL(Group<CollisionLayer>),
     CONT(CONT),
     CPTH(CPTH),
     CSTY(CSTY),
