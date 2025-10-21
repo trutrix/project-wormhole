@@ -366,7 +366,7 @@ pub enum TopGroup {
     CPTH(Group<CameraPath>),
     CSTY(Group<CombatStyle>),
     DEBR(Group<Debris>),
-    DFOB(DFOB),
+    DFOB(Group<DefaultObject>),
     DLVW(DLVW),
     DMGT(DMGT),
     DOBJ(DOBJ),
