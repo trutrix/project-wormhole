@@ -365,7 +365,7 @@ pub enum TopGroup {
     CONT(Group<Container>),
     CPTH(Group<CameraPath>),
     CSTY(Group<CombatStyle>),
-    DEBR(DEBR),
+    DEBR(Group<Debris>),
     DFOB(DFOB),
     DLVW(DLVW),
     DMGT(DMGT),
