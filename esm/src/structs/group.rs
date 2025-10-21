@@ -369,7 +369,7 @@ pub enum TopGroup {
     DFOB(Group<DefaultObject>),
     DLVW(Group<DialogView>),
     DMGT(Group<DamageType>),
-    DOBJ(DOBJ),
+    DOBJ(Group<DefaultObjects>),
     DOOR(DOOR),
     ECZN(ECZN),
     EFSH(EFSH),
