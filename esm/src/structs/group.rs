@@ -372,7 +372,7 @@ pub enum TopGroup {
     DOBJ(Group<DefaultObjects>),
     DOOR(Door),
     ECZN(Group<EncounterZone>),
-    EFSH(EFSH),
+    EFSH(EffectShader),
     ENCH(ENCH),
     EQUP(EQUP),
     EXPL(EXPL),
