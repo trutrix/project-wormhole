@@ -368,7 +368,7 @@ pub enum TopGroup {
     DEBR(Group<Debris>),
     DFOB(Group<DefaultObject>),
     DLVW(Group<DialogView>),
-    DMGT(DMGT),
+    DMGT(Group<DamageType>),
     DOBJ(DOBJ),
     DOOR(DOOR),
     ECZN(ECZN),
