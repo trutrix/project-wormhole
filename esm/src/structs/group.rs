@@ -367,7 +367,7 @@ pub enum TopGroup {
     CSTY(Group<CombatStyle>),
     DEBR(Group<Debris>),
     DFOB(Group<DefaultObject>),
-    DLVW(DLVW),
+    DLVW(Group<DialogView>),
     DMGT(DMGT),
     DOBJ(DOBJ),
     DOOR(DOOR),
