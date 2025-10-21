@@ -371,7 +371,7 @@ pub enum TopGroup {
     DMGT(Group<DamageType>),
     DOBJ(Group<DefaultObjects>),
     DOOR(Door),
-    ECZN(ECZN),
+    ECZN(Group<EncounterZone>),
     EFSH(EFSH),
     ENCH(ENCH),
     EQUP(EQUP),
