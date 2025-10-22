@@ -1,3 +1,4 @@
+pub mod destructible;
 pub mod compound;
 pub mod colors;
 pub mod strings;
