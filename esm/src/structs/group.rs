@@ -381,7 +381,7 @@ pub enum TopGroup {
     FLST(Group<FormIdList>),
     FSTP(Group<Footstep>),
     FSTS(Group<FootstepSet>),
-    FURN(FURN),
+    FURN(Furniture),
     GMST(Group<GameSetting>),
     GDRY(GDRY),
     GLOB(GLOB),
