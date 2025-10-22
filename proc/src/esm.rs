@@ -315,5 +315,23 @@ pub fn common_map() -> HashMap<String, FieldDefinition> {
         }
     );
 
+    map.insert("Destructible".to_string(), 
+        FieldDefinition {
+            required: false,
+            idens: vec![
+                LitByteStr::new(b"DEST", proc_macro2::Span::call_site()),
+                LitByteStr::new(b"DSTD", proc_macro2::Span::call_site())
+            ],
+            names: vec![
+                Ident::new("Destructible", proc_macro2::Span::call_site()),
+                Ident::new("DestructibleStageData", proc_macro2::Span::call_site())
+            ],
+            field_types: vec![
+                syn::parse_str("DestructibleHeader").unwrap(),
+                syn::parse_str("Vec<DestructibleStage>").unwrap()
+            ],
+        }
+    );
+
     map
 }
