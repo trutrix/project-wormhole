@@ -10,13 +10,12 @@ define_record! {
         Keywords;
         PreviewTransform;
         FullName;
+        Destructible;
         b"SNAM", SoundOpen, FormId;
         b"ANAM", SoundClose, FormId;
         b"BNAM", SoundLoop, FormId;
         b"FNAM", Flags, u8;
         b"ONAM", OpenText, LocalizedString;
         b"CNAM", CloseText, LocalizedString;
-        b"DEST", DestructionData, u8; // TODO
-        b"DSTD", Destruction, u8; // TODO
     ]
 }
