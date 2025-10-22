@@ -375,7 +375,7 @@ pub enum TopGroup {
     EFSH(Group<EffectShader>),
     ENCH(Group<ObjectEffect>),
     EQUP(Group<EquipType>),
-    EXPL(EXPL),
+    EXPL(Group<Explosion>),
     FACT(FACT),
     FLOR(FLOR),
     FLST(FLST),
