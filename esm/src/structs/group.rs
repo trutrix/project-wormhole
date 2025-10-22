@@ -380,7 +380,7 @@ pub enum TopGroup {
     FLOR(Group<Flora>),
     FLST(Group<FormIdList>),
     FSTP(Group<Footstep>),
-    FSTS(FSTS),
+    FSTS(Group<FootstepSet>),
     FURN(FURN),
     GMST(Group<GameSetting>),
     GDRY(GDRY),
