@@ -11,9 +11,9 @@ define_record! {
         b"CRGR", SharedCrimeList, FormId;
         b"VEND", VendorItemList, FormId;
         b"VENC", VendorContainer, FormId; // Refers to a REFR usually
-        b"VENV", VendorValues, VendorValues;
+        b"VENV", VendorValues, FactionVendorValues;
         b"CITC", ConditionCount, u32;
-        b"CRVA", CrimeValues, CrimeValues;
+        b"CRVA", CrimeValues, FactionCrimeValues;
         b"RNAM", Ranks, Vec<FormId>; // Unsure if list or single
         b"PLVD", Location, FactionLocation;
     ]
@@ -35,7 +35,7 @@ pub struct FactionRelation {
 // 12 bytes - 8 values
 // TODO: Verify structure - these are guesses
 #[derive(Debug, NomLE)]
-pub struct VendorValues {
+pub struct FactionVendorValues {
     pub start_hour: u8,
     pub end_hour: u8,
     pub radius: u16,
@@ -49,7 +49,7 @@ pub struct VendorValues {
 // 20 bytes - 10 values
 // TODO: Verify structure - these are guesses
 #[derive(Debug, NomLE)]
-pub struct CrimeValues {
+pub struct FactionCrimeValues {
     pub arrest: u8,
     pub attack: u8,
     pub murder: u16,
