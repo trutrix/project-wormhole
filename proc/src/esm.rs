@@ -320,15 +320,24 @@ pub fn common_map() -> HashMap<String, FieldDefinition> {
             required: false,
             idens: vec![
                 LitByteStr::new(b"DEST", proc_macro2::Span::call_site()),
-                LitByteStr::new(b"DSTD", proc_macro2::Span::call_site())
+                LitByteStr::new(b"DSTD", proc_macro2::Span::call_site()),
+                LitByteStr::new(b"DSTF", proc_macro2::Span::call_site()),
+                LitByteStr::new(b"DMDL", proc_macro2::Span::call_site()),
+                LitByteStr::new(b"DMDT", proc_macro2::Span::call_site()),
             ],
             names: vec![
                 Ident::new("Destructible", proc_macro2::Span::call_site()),
-                Ident::new("DestructibleStageData", proc_macro2::Span::call_site())
+                Ident::new("DestructibleStageData", proc_macro2::Span::call_site()),
+                Ident::new("DestructibleEnd", proc_macro2::Span::call_site()),
+                Ident::new("DestructibleModelPath", proc_macro2::Span::call_site()),
+                Ident::new("DestructibleModelTexture", proc_macro2::Span::call_site()),
             ],
             field_types: vec![
                 syn::parse_str("DestructibleHeader").unwrap(),
-                syn::parse_str("Vec<DestructibleStage>").unwrap()
+                syn::parse_str("Vec<DestructibleStage>").unwrap(),
+                syn::parse_str("EmptyParser").unwrap(),
+                syn::parse_str("ESMString").unwrap(),
+                syn::parse_str("ModelTexture").unwrap(),
             ],
         }
     );
