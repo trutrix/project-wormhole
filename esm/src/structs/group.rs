@@ -379,7 +379,7 @@ pub enum TopGroup {
     FACT(Group<Faction>),
     FLOR(Group<Flora>),
     FLST(Group<FormIdList>),
-    FSTP(FSTP),
+    FSTP(Group<Footstep>),
     FSTS(FSTS),
     FURN(FURN),
     GMST(Group<GameSetting>),

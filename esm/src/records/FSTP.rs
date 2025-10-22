@@ -2,6 +2,9 @@ use crate::dev::*;
 
 define_record! {
     b"FSTP",
-    FSTP, [
+    Footstep, [
+        EditorId;
+        b"DATA", ImpactData, FormId;
+        b"ANAM", Tag, ESMString;
     ]
 }
