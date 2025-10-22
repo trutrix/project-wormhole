@@ -378,7 +378,7 @@ pub enum TopGroup {
     EXPL(Group<Explosion>),
     FACT(Group<Faction>),
     FLOR(Group<Flora>),
-    FLST(FLST),
+    FLST(Group<FormIdList>),
     FSTP(FSTP),
     FSTS(FSTS),
     FURN(FURN),
