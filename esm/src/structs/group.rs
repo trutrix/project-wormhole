@@ -384,7 +384,7 @@ pub enum TopGroup {
     FURN(Group<Furniture>),
     GMST(Group<GameSetting>),
     GDRY(Group<Godray>),
-    GLOB(GLOB),
+    GLOB(Group<Global>),
     GRAS(GRAS),
     HAZD(HAZD),
     HDPT(HDPT),
