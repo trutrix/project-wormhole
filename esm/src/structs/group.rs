@@ -388,7 +388,7 @@ pub enum TopGroup {
     GRAS(Group<Grass>),
     HAZD(Group<Hazard>),
     HDPT(Group<HeadPart>),
-    IDLE(IDLE),
+    IDLE(Group<IdleAnimation>),
     IDLM(IDLM),
     IMAD(IMAD),
     IMGS(IMGS),
