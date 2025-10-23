@@ -386,7 +386,7 @@ pub enum TopGroup {
     GDRY(Group<Godray>),
     GLOB(Group<Global>),
     GRAS(Group<Grass>),
-    HAZD(HAZD),
+    HAZD(Hazard),
     HDPT(HDPT),
     IDLE(IDLE),
     IDLM(IDLM),
