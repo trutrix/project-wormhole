@@ -389,7 +389,7 @@ pub enum TopGroup {
     HAZD(Group<Hazard>),
     HDPT(Group<HeadPart>),
     IDLE(Group<IdleAnimation>),
-    IDLM(IDLM),
+    IDLM(Group<IdleMarker>),
     IMAD(IMAD),
     IMGS(IMGS),
     INGR(INGR),
