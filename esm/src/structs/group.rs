@@ -385,7 +385,7 @@ pub enum TopGroup {
     GMST(Group<GameSetting>),
     GDRY(Group<Godray>),
     GLOB(Group<Global>),
-    GRAS(GRAS),
+    GRAS(Group<Grass>),
     HAZD(HAZD),
     HDPT(HDPT),
     IDLE(IDLE),
