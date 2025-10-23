@@ -2,6 +2,15 @@ use crate::dev::*;
 
 define_record! {
     b"GDRY",
-    GDRY, [
+    Godray, [
+        EditorId;
+        b"DATA", Data, GodrayData;
     ]
+}
+
+
+// 60 bytes
+#[derive(Debug, NomLE)]
+pub struct GodrayData {
+    
 }
