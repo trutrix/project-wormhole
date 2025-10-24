@@ -398,7 +398,7 @@ pub enum TopGroup {
     IPDS(Group<ImpactDataSet>),
     KEYM(Group<Key>),
     KYWD(Group<Keyword>),
-    KSSM(KSSM),
+    KSSM(Group<KeywordSoundMapping>),
     LAYR(LAYR),
     LCRT(LCRT),
     LCTN(LCTN),
