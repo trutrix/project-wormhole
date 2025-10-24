@@ -401,7 +401,7 @@ pub enum TopGroup {
     KSSM(Group<KeywordSoundMapping>),
     // LAND is not a top-level group
     LAYR(Group<Layer>),
-    LCRT(LCRT),
+    LCRT(Group<LocationReferenceType>),
     LCTN(LCTN),
     LENS(LENS),
     LGTM(LGTM),
