@@ -394,7 +394,7 @@ pub enum TopGroup {
     IMGS(Group<ImageSpace>),
     INGR(Group<Ingredient>),
     INNR(Group<InstanceNamingRules>),
-    IPCT(IPCT),
+    IPCT(Group<Impact>),
     IPDS(IPDS),
     KEYM(KEYM),
     KYWD(Group<Keyword>),
