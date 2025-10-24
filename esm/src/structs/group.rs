@@ -393,7 +393,7 @@ pub enum TopGroup {
     IMAD(Group<ImageSpaceAdapter>),
     IMGS(Group<ImageSpace>),
     INGR(Group<Ingredient>),
-    INNR(INNR),
+    INNR(Group<InstanceNamingRules>),
     IPCT(IPCT),
     IPDS(IPDS),
     KEYM(KEYM),
