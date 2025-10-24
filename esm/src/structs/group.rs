@@ -396,7 +396,7 @@ pub enum TopGroup {
     INNR(Group<InstanceNamingRules>),
     IPCT(Group<Impact>),
     IPDS(Group<ImpactDataSet>),
-    KEYM(KEYM),
+    KEYM(Group<Key>),
     KYWD(Group<Keyword>),
     KSSM(KSSM),
     LAYR(LAYR),
