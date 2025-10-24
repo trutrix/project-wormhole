@@ -2,6 +2,8 @@ use crate::dev::*;
 
 define_record! {
     b"LAYR",
-    LAYR, [
+    Layer, [
+        EditorId;
+        b"PNAM", Parent, FormId;
     ]
 }

@@ -399,7 +399,8 @@ pub enum TopGroup {
     KEYM(Group<Key>),
     KYWD(Group<Keyword>),
     KSSM(Group<KeywordSoundMapping>),
-    LAYR(LAYR),
+    // LAND is not a top-level group
+    LAYR(Group<Layer>),
     LCRT(LCRT),
     LCTN(LCTN),
     LENS(LENS),
