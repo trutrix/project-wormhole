@@ -403,7 +403,7 @@ pub enum TopGroup {
     LAYR(Group<Layer>),
     LCRT(Group<LocationReferenceType>),
     LCTN(Group<Location>),
-    LENS(LENS),
+    LENS(Group<LensFlare>),
     LGTM(LGTM),
     LIGH(LIGH),
     LSCR(LSCR),
