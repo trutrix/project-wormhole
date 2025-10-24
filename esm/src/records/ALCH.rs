@@ -1,5 +1,8 @@
 use crate::{dev::*, structs::geometry::ObjectBounds};
 
+
+// Also known as ingestible
+
 define_record! {
     b"ALCH",
     Alchemy, [
