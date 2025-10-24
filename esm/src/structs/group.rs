@@ -392,7 +392,7 @@ pub enum TopGroup {
     IDLM(Group<IdleMarker>),
     IMAD(Group<ImageSpaceAdapter>),
     IMGS(Group<ImageSpace>),
-    INGR(INGR),
+    INGR(Group<Ingredient>),
     INNR(INNR),
     IPCT(IPCT),
     IPDS(IPDS),
