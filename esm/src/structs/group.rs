@@ -402,7 +402,7 @@ pub enum TopGroup {
     // LAND is not a top-level group
     LAYR(Group<Layer>),
     LCRT(Group<LocationReferenceType>),
-    LCTN(LCTN),
+    LCTN(Group<Location>),
     LENS(LENS),
     LGTM(LGTM),
     LIGH(LIGH),
