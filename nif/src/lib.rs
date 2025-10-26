@@ -1,14 +1,34 @@
-pub fn add(left: u64, right: u64) -> u64 {
-    left + right
-}
+pub mod nif_header;
+pub mod nif_file;
+pub mod nif_block;
+pub mod nif_enum;
+pub mod nif_flags;
+pub mod nif_types;
+pub mod bs;
+
 
 #[cfg(test)]
-mod tests {
-    use super::*;
+mod tests;
 
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
+
+pub mod prelude {
+    pub use nom_derive::{NomLE, Parse};
+    pub use nom::{bytes::complete::take, multi::count, number::complete::*, IResult};
+    pub use std::io::{Read, Seek, SeekFrom};
+    pub use log::*;
+    pub use shared::prelude::*;
+    pub use half::prelude::*;
+    pub use std::collections::{BTreeMap, HashSet};
+
+    pub use super::nif_header::*;
+    pub use super::nif_file::*;
+    pub use super::nif_block::*;
+    pub use super::nif_enum::*;
+    pub use super::nif_flags::*;
+    pub use super::nif_types::*;
+    pub use super::bs::prelude::*;
+    
 }
+
+
+

@@ -3,4 +3,21 @@ name = "nif"
 version = "0.1.0"
 edition = "2021"
 
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
 [dependencies]
+log = "0.4.20"
+nom = "7.1.3"
+nom-derive = "0.10.1"
+serde = "1.0.196"
+serde_json = "1.0.114"
+simplelog = "0.12.1"
+half = { version = "2.3.1", features = ["serde"] }
+gltf = { version = "1.4.0", features = ["KHR_materials_pbrSpecularGlossiness", "extras", "extensions"] }
+fbxcel = { version = "0.9.0", features = ["writer"] }
+
+proc = { path = "../proc" }
+shared = { path = "../shared" }
+ba2 = { path = "../ba2" }
+esm = { path = "../esm" }
+bgsm = { path = "../bgsm" }
