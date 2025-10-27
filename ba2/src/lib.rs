@@ -12,13 +12,13 @@ pub mod prelude {
     pub use std::io::{Read, Seek, SeekFrom};
     pub use std::fs::File;
     pub use log::*;
-    pub use proc::cc4;
-    pub use shared::fourcc::FourCC;
-    pub use shared::common::standardize_path;
     pub use std::collections::BTreeMap;
+    pub use esm::structs::fourcc::FourCC;
+
 
     pub use super::shared::*;
     pub use super::archive::*;
+    
 
 
     pub fn format_from_u8(format: u8) -> image_dds::ddsfile::DxgiFormat {

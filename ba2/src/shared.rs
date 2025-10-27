@@ -1,6 +1,5 @@
 use std::fmt::Debug;
 
-use shared::common::SizedString16;
 
 use super::prelude::*;
 
@@ -19,7 +18,7 @@ impl Parse<&[u8]> for BA2Header {
     fn parse(i: &[u8]) -> IResult<&[u8], Self, error::Error<&[u8]>> {
         let (i, id) = FourCC::parse(i)?;
 
-        if id != cc4!(BTDX) {
+        if id != b"BTDX" {
             return Err(nom::Err::Error(error::Error::new(i, nom::error::ErrorKind::Tag)));
         }
 
@@ -41,10 +40,10 @@ pub enum ArchiveType {
 
 impl Parse<&[u8]> for ArchiveType {
     fn parse(i: &[u8]) -> IResult<&[u8], Self, error::Error<&[u8]>> {
-        let (i, archive_type) = nom::number::complete::le_u32(i)?;
-        match archive_type {
-            cc4!(GNRL) => Ok((i, ArchiveType::General)),
-            cc4!(DX10) => Ok((i, ArchiveType::Texture)),
+        let (i, archive_type) = FourCC::parse(i)?;
+        match &archive_type.0 {
+            b"GNRL" => Ok((i, ArchiveType::General)),
+            b"DX10" => Ok((i, ArchiveType::Texture)),
             _ => Err(nom::Err::Error(error::Error::new(i, nom::error::ErrorKind::Tag)))
         }
     }
@@ -86,4 +85,351 @@ pub fn get_file_names(file: &mut File, offset: u64) -> Result<Vec<String>, std::
     let names = names.iter().map(|s| s.0.clone()).collect();
 
     Ok(names)
+}
+
+
+
+use esm::structs::vectors::Vec4;
+use nom::{bytes::complete::take_until, number::complete::{le_u16, le_u32, le_u8}, IResult};
+
+
+
+pub fn sized_string_none_if_empty(i: &[u8], size: StringSize) -> IResult<&[u8], Option<String>> {
+    match size {
+        StringSize::U8 => {
+            let (i, len) = nom::number::complete::le_u8(i)?;
+            if len == 0 {
+                Ok((i, None))
+            } else {
+                let (i, s) = nom::bytes::complete::take(len)(i)?;
+                Ok((i, Some(String::from_utf8_lossy(s).to_string())))
+            }
+        },
+        StringSize::U16 => {
+            let (i, len) = nom::number::complete::le_u16(i)?;
+            if len == 0 {
+                Ok((i, None))
+            } else {
+                let (i, s) = nom::bytes::complete::take(len)(i)?;
+                Ok((i, Some(String::from_utf8_lossy(s).to_string())))
+            }
+        },
+        StringSize::U32 => {
+            let (i, len) = nom::number::complete::le_u32(i)?;
+            if len == 0 {
+                Ok((i, None))
+            } else {
+                let (i, s) = nom::bytes::complete::take(len)(i)?;
+                Ok((i, Some(String::from_utf8_lossy(s).to_string())))
+            }
+        },
+    }
+}
+
+pub enum StringSize {
+    U8,
+    U16,
+    U32
+}
+
+pub fn sized8_string_none_if_empty(i: &[u8]) -> IResult<&[u8], Option<String>> {
+    sized_string_none_if_empty(i, StringSize::U8)
+}
+
+pub fn sized16_string_none_if_empty(i: &[u8]) -> IResult<&[u8], Option<String>> {
+    sized_string_none_if_empty(i, StringSize::U16)
+}
+
+pub fn sized32_string_none_if_empty(i: &[u8]) -> IResult<&[u8], Option<String>> {
+    sized_string_none_if_empty(i, StringSize::U32)
+}
+
+
+pub struct SizedString<T> {
+    pub size: T,
+    pub value: Option<String>
+}
+
+impl nom_derive::Parse<&[u8]> for SizedString<u32> {
+    fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
+        let (i, size) = nom::number::complete::le_u32(i)?;
+        if size == 0 {
+            Ok((i, SizedString { size, value: None }))
+        } else {
+            let (i, value) = nom::bytes::complete::take(size)(i)?;
+            Ok((i, SizedString { size, value: Some(String::from_utf8_lossy(value).to_string()) }))
+        }
+    }
+}
+
+impl nom_derive::Parse<&[u8]> for SizedString<u16> {
+    fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
+        let (i, size) = nom::number::complete::le_u16(i)?;
+        if size == 0 {
+            Ok((i, SizedString { size, value: None }))
+        } else {
+            let (i, value) = nom::bytes::complete::take(size)(i)?;
+            Ok((i, SizedString { size, value: Some(String::from_utf8_lossy(value).to_string()) }))
+        }
+    }
+}
+
+impl nom_derive::Parse<&[u8]> for SizedString<u8> {
+    fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
+        let (i, size) = nom::number::complete::le_u8(i)?;
+        if size == 0 {
+            Ok((i, SizedString { size, value: None }))
+        } else {
+            let (i, value) = nom::bytes::complete::take(size)(i)?;
+            Ok((i, SizedString { size, value: Some(String::from_utf8_lossy(value).to_string()) }))
+        }
+    }
+}
+
+impl<T> std::convert::Into<String> for SizedString<T> {
+    fn into(self) -> String {
+        self.value.unwrap_or_default()
+    }
+}
+
+
+
+#[derive(Debug, PartialEq, NomLE, Clone, Copy)]
+pub struct Bounds {
+    pub center: [f32;3],
+    pub radius: f32,
+}
+
+
+
+#[derive(PartialEq, Eq, Clone)]
+pub struct SizedString32(pub String);
+
+impl Parse<&[u8]> for SizedString32 {
+    fn parse(i: &[u8]) -> nom::IResult<&[u8], Self, nom::error::Error<&[u8]>> {
+        let (i, len) = le_u32(i)?;
+        let (i, s) = take(len)(i)?;
+        let s = String::from_utf8_lossy(s).to_string().replace('\0', "");
+        Ok((i, SizedString32(s)))
+    }
+}
+
+impl SizedString32 {
+    pub fn parse_empty_as_none(i: &[u8]) -> IResult<&[u8], Option<String>> {
+        let (i, result) = Self::parse(i)?;
+        if result.0.len() == 0 {
+            Ok((i, None))
+        } else {
+            Ok((i, Some(result.0)))
+        }
+    }
+}
+
+impl std::fmt::Display for SizedString32 {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
+impl std::fmt::Debug for SizedString32 {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "\"{}\"", self.0)
+    }
+}
+
+#[derive(PartialEq, Eq, Clone)]
+pub struct SizedString16(pub String);
+
+impl Parse<&[u8]> for SizedString16 {
+    fn parse(i: &[u8]) -> nom::IResult<&[u8], Self, nom::error::Error<&[u8]>> {
+        let (i, len) = le_u16(i)?;
+        let (i, s) = take(len)(i)?;
+        let s = String::from_utf8_lossy(s).to_string().replace('\0', "");
+        Ok((i, SizedString16(s)))
+    }
+}
+
+impl std::fmt::Display for SizedString16 {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
+impl std::fmt::Debug for SizedString16 {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "\"{}\"", self.0)
+    }
+}
+
+pub fn parse_ss16(i: &[u8]) -> IResult<&[u8], String> {
+    let (i, len) = nom::number::complete::le_u16(i)?;
+    let (i, s) = nom::bytes::complete::take(len)(i)?;
+    Ok((i, String::from_utf8_lossy(s).to_string()))
+}
+
+#[derive(PartialEq, Eq)]
+pub struct SizedString8(pub String);
+
+impl Parse<&[u8]> for SizedString8 {
+    fn parse(i: &[u8]) -> nom::IResult<&[u8], Self, nom::error::Error<&[u8]>> {
+        let (i, len) = le_u8(i)?;
+        let (i, s) = take(len)(i)?;
+        let s = String::from_utf8_lossy(s).to_string().replace('\0', "");
+        Ok((i, SizedString8(s)))
+    }
+}
+
+impl std::fmt::Display for SizedString8 {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
+impl std::fmt::Debug for SizedString8 {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "\"{}\"", self.0)
+    }
+}
+
+
+pub struct StringN {
+    pub value: String,
+}
+
+impl Parse<&[u8]> for StringN {
+    fn parse(i: &[u8]) -> IResult<&[u8], Self> {
+        let (i, data) = take_until("\n")(i)?;
+        let (i, _) = take(1usize)(i)?;
+        Ok((i, StringN { value: String::from_utf8_lossy(data).to_string() }))
+    }
+}
+
+impl std::fmt::Debug for StringN {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "\"{}\"", self.value)
+    }
+}
+
+#[derive(Debug, PartialEq, Clone, Copy)]
+pub struct Bool(pub bool);
+
+impl Parse<&[u8]> for Bool {
+    fn parse(i: &[u8]) -> IResult<&[u8], Self> {
+        let (i, b) = le_u8(i)?;
+        Ok((i, Bool(b != 0)))
+    }
+}
+
+impl std::fmt::Display for Bool {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
+
+
+pub fn normalize_path(path: String) -> String {
+    let mut path = path
+        .replace('\\', "/")
+        .replace('\0', "")
+        .to_lowercase();
+
+    if path.starts_with("./") {
+        path = path[2..].to_string();
+    }
+
+    if !path.starts_with("textures/") {
+        path = format!("textures/{}", path);
+    }
+    
+    path
+}
+
+
+#[derive(Debug, PartialEq, Clone, Copy)]
+pub struct MaxRef(pub Option<u32>);
+
+impl Parse<&[u8]> for MaxRef {
+    fn parse(i: &[u8]) -> IResult<&[u8], Self> {
+        let (i, value) = le_u32(i)?;
+
+        if value == u32::MAX {
+            Ok((i, MaxRef(None)))
+        } else {
+            Ok((i, MaxRef(Some(value))))
+        }
+    }
+}
+
+
+#[derive(Debug, PartialEq, Clone)]
+/// A quaternion in the form of `[x, y, z, w]`
+pub struct Quaternion(Vec4<f32>);
+
+impl Quaternion {
+    pub const fn x(&self) -> &f32 { &self.0.0[0] }
+    pub const fn y(&self) -> &f32 { &self.0.0[1] }
+    pub const fn z(&self) -> &f32 { &self.0.0[2] }
+    pub const fn w(&self) -> &f32 { &self.0.0[3] }
+
+    pub fn new(x: f32, y: f32, z: f32, w: f32) -> Self {
+        Quaternion(Vec4([x, y, z, w]))
+    }
+}
+
+
+pub fn standardize_path(path: &str) -> String {
+    let mut path = path
+        .replace('\\', "/")
+        .replace('\0', "")
+        .to_lowercase();
+
+    if path.starts_with("./") {
+        path = path[2..].to_string();
+    }
+    
+    path
+}
+
+pub fn ensure_texture_parent(path: &mut String) {
+    if !path.starts_with("textures/") {
+        path.insert_str(0, "textures/");
+    }
+}
+
+pub fn parse_u8_as_bool(i: &[u8]) -> IResult<&[u8], bool> {
+    let (i, value) = le_u8(i)?;
+    Ok((i, value == 1))
+}
+
+
+#[derive(Debug)]
+pub enum Endianess {
+    Big,
+    Little
+}
+
+impl Parse<&[u8]> for Endianess {
+    fn parse(i: &[u8]) -> nom::IResult<&[u8], Self, nom::error::Error<&[u8]>> {
+        let (i, endian_type) = le_u8(i)?;
+        match endian_type {
+            0x00 => Ok((i, Endianess::Big)),
+            0x01 => Ok((i, Endianess::Little)),
+            _ => Err(nom::Err::Error(nom::error::Error::new(i, nom::error::ErrorKind::Tag)))
+        }
+    }
+}
+
+
+#[derive(Debug, NomLE)]
+pub struct BoolU8(pub u8);
+
+impl From<BoolU8> for bool {
+    fn from(b: BoolU8) -> Self {
+        if b.0 == 0 {
+            false
+        } else {
+            true
+        }
+    }
 }
