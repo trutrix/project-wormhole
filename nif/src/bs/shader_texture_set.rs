@@ -9,7 +9,7 @@ pub struct BSShaderTextureSet {
 }
 
 impl Parse<&[u8]> for BSShaderTextureSet {
-    fn parse(i: &[u8]) -> IResult<&[u8], Self, ba2::prelude::error::Error<&[u8]>> {
+    fn parse(i: &[u8]) -> IResult<&[u8], Self> {
         let (i, string_count) = le_u32(i)?;
         let (i, textures) = count(SizedString32::parse, string_count as usize)(i)?;
 

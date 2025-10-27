@@ -1,8 +1,9 @@
-use core::panic;
 use std::{fmt::Debug, io::Read};
 
 
-use crate::{dev::*, records::all::*, traits::EditorId};
+use crate::{dev::*, records::all::*};
+use bitflags::bitflags;
+
 
 // ====================================================================================================
 
@@ -10,7 +11,7 @@ use crate::{dev::*, records::all::*, traits::EditorId};
 pub struct RecordHeader {
     pub iden: FourCC,
     pub size: u32, // Size NOT INCLUDING header, unlike GroupHeader
-    pub flags: RecordFlags,
+    pub flags: RecordFlags2,
     pub form_id: FormId,
     pub version_control: VersionControl,
 }
@@ -173,154 +174,179 @@ pub const REFR_NORESPAWN: u32 = 0x40000000;
 // 0x80000000	(REFR) MultiBound
 pub const REFR_MULTIBOUND: u32 = 0x80000000;
 
-#[derive(Clone, Copy, NomLE)]
-pub struct RecordFlags(pub u32);
+// #[derive(Clone, Copy, NomLE)]
+// pub struct RecordFlags2(pub u32);
 
-impl std::fmt::Debug for RecordFlags {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        if self.has_flags() {
-            let mut flags = Vec::new();
-            if self.has_flag(TES4_MASTER) {
-                flags.push("TES4_MASTER")
-            }
-            if self.has_flag(UNKNOWN_FLAG_2) {
-                flags.push("UNKNOWN_FLAG_2")
-            }
-            if self.has_flag(UNKNOWN_FLAG_4) {
-                flags.push("UNKNOWN_FLAG_4")
-            }
-            if self.has_flag(DELETED_GROUP) {
-                flags.push("DELETED_GROUP")
-            }
-            if self.has_flag(DELETED_RECORD) {
-                flags.push("DELETED_RECORD")
-            }
-            if self.has_flag(GLOB_CONSTANT) {
-                flags.push("GLOB_CONSTANT")
-            }
-            if self.has_flag(REFR_HIDDEN) {
-                flags.push("REFR_HIDDEN")
-            }
-            if self.has_flag(TES4_LOCALIZED) {
-                flags.push("TES4_LOCALIZED")
-            }
-            if self.has_flag(MUST_UPDATE_ANIMS) {
-                flags.push("MUST_UPDATE_ANIMS")
-            }
-            if self.has_flag(REFR_INACCESSIBLE) {
-                flags.push("REFR_INACCESSIBLE")
-            }
-            if self.has_flag(TES4_LIGHT_MASTER) {
-                flags.push("TES4_LIGHT_MASTER")
-            }
-            if self.has_flag(REFR_HIDDEN2) {
-                flags.push("REFR_HIDDEN2")
-            }
-            if self.has_flag(ACHR_STARTS_DEAD) {
-                flags.push("ACHR_STARTS_DEAD")
-            }
-            if self.has_flag(REFR_MOTION_BLUR_CASTS_SHADOWS) {
-                flags.push("REFR_MOTION_BLUR_CASTS_SHADOWS")
-            }
-            if self.has_flag(QUEST_ITEM) {
-                flags.push("QUEST_ITEM")
-            }
-            if self.has_flag(PERSISTENT_REFERENCE) {
-                flags.push("PERSISTENT_REFERENCE")
-            }
-            if self.has_flag(LSCR_DISPLAYS_IN_MAIN_MENU) {
-                flags.push("LSCR_DISPLAYS_IN_MAIN_MENU")
-            }
-            if self.has_flag(INITIALLY_DISABLED) {
-                flags.push("INITIALLY_DISABLED")
-            }
-            if self.has_flag(IGNORED) {
-                flags.push("IGNORED")
-            }
-            if self.has_flag(UNKNOWN_FLAG_2000) {
-                flags.push("UNKNOWN_FLAG_2000")
-            }
-            if self.has_flag(VISIBLE_WHEN_DISTANT) {
-                flags.push("VISIBLE_WHEN_DISTANT")
-            }
-            if self.has_flag(ACTI_RANDOM_ANIMATION_START) {
-                flags.push("ACTI_RANDOM_ANIMATION_START")
-            }
-            if self.has_flag(ACTI_DANGEROUS) {
-                flags.push("ACTI_DANGEROUS")
-            }
-            if self.has_flag(OFF_LIMITS) {
-                flags.push("OFF_LIMITS")
-            }
-            if self.has_flag(COMPRESSED) {
-                flags.push("COMPRESSED")
-            }
-            if self.has_flag(CANT_WAIT) {
-                flags.push("CANT_WAIT")
-            }
-            if self.has_flag(ACTI_IGNORE_OBJECT_INTERACTION) {
-                flags.push("ACTI_IGNORE_OBJECT_INTERACTION")
-            }
+// impl std::fmt::Debug for RecordFlags2 {
+//     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+//         if self.has_flags() {
+//             let mut flags = Vec::new();
+//             if self.has_flag(TES4_MASTER) {
+//                 flags.push("TES4_MASTER")
+//             }
+//             if self.has_flag(UNKNOWN_FLAG_2) {
+//                 flags.push("UNKNOWN_FLAG_2")
+//             }
+//             if self.has_flag(UNKNOWN_FLAG_4) {
+//                 flags.push("UNKNOWN_FLAG_4")
+//             }
+//             if self.has_flag(DELETED_GROUP) {
+//                 flags.push("DELETED_GROUP")
+//             }
+//             if self.has_flag(DELETED_RECORD) {
+//                 flags.push("DELETED_RECORD")
+//             }
+//             if self.has_flag(GLOB_CONSTANT) {
+//                 flags.push("GLOB_CONSTANT")
+//             }
+//             if self.has_flag(REFR_HIDDEN) {
+//                 flags.push("REFR_HIDDEN")
+//             }
+//             if self.has_flag(TES4_LOCALIZED) {
+//                 flags.push("TES4_LOCALIZED")
+//             }
+//             if self.has_flag(MUST_UPDATE_ANIMS) {
+//                 flags.push("MUST_UPDATE_ANIMS")
+//             }
+//             if self.has_flag(REFR_INACCESSIBLE) {
+//                 flags.push("REFR_INACCESSIBLE")
+//             }
+//             if self.has_flag(TES4_LIGHT_MASTER) {
+//                 flags.push("TES4_LIGHT_MASTER")
+//             }
+//             if self.has_flag(REFR_HIDDEN2) {
+//                 flags.push("REFR_HIDDEN2")
+//             }
+//             if self.has_flag(ACHR_STARTS_DEAD) {
+//                 flags.push("ACHR_STARTS_DEAD")
+//             }
+//             if self.has_flag(REFR_MOTION_BLUR_CASTS_SHADOWS) {
+//                 flags.push("REFR_MOTION_BLUR_CASTS_SHADOWS")
+//             }
+//             if self.has_flag(QUEST_ITEM) {
+//                 flags.push("QUEST_ITEM")
+//             }
+//             if self.has_flag(PERSISTENT_REFERENCE) {
+//                 flags.push("PERSISTENT_REFERENCE")
+//             }
+//             if self.has_flag(LSCR_DISPLAYS_IN_MAIN_MENU) {
+//                 flags.push("LSCR_DISPLAYS_IN_MAIN_MENU")
+//             }
+//             if self.has_flag(INITIALLY_DISABLED) {
+//                 flags.push("INITIALLY_DISABLED")
+//             }
+//             if self.has_flag(IGNORED) {
+//                 flags.push("IGNORED")
+//             }
+//             if self.has_flag(UNKNOWN_FLAG_2000) {
+//                 flags.push("UNKNOWN_FLAG_2000")
+//             }
+//             if self.has_flag(VISIBLE_WHEN_DISTANT) {
+//                 flags.push("VISIBLE_WHEN_DISTANT")
+//             }
+//             if self.has_flag(ACTI_RANDOM_ANIMATION_START) {
+//                 flags.push("ACTI_RANDOM_ANIMATION_START")
+//             }
+//             if self.has_flag(ACTI_DANGEROUS) {
+//                 flags.push("ACTI_DANGEROUS")
+//             }
+//             if self.has_flag(OFF_LIMITS) {
+//                 flags.push("OFF_LIMITS")
+//             }
+//             if self.has_flag(COMPRESSED) {
+//                 flags.push("COMPRESSED")
+//             }
+//             if self.has_flag(CANT_WAIT) {
+//                 flags.push("CANT_WAIT")
+//             }
+//             if self.has_flag(ACTI_IGNORE_OBJECT_INTERACTION) {
+//                 flags.push("ACTI_IGNORE_OBJECT_INTERACTION")
+//             }
 
-            if self.has_flag(IS_MARKER) {
-                flags.push("IS_MARKER")
-            }
-            if self.has_flag(ACTI_OBSTACLE) {
-                flags.push("ACTI_OBSTACLE")
-            }
-            if self.has_flag(REFR_NO_AI_ACQUIRE) {
-                flags.push("REFR_NO_AI_ACQUIRE")
-            }
-            if self.has_flag(NAVMESH_GEN_FILTER) {
-                flags.push("NAVMESH_GEN_FILTER")
-            }
-            if self.has_flag(NAVMESH_GEN_BOUNDING_BOX) {
-                flags.push("NAVMESH_GEN_BOUNDING_BOX")
-            }
-            if self.has_flag(FURN_MUST_EXIT_TO_TALK) {
-                flags.push("FURN_MUST_EXIT_TO_TALK")
-            }
-            if self.has_flag(REFR_REFLECTED_BY_AUTO_WATER) {
-                flags.push("REFR_REFLECTED_BY_AUTO_WATER")
-            }
-            if self.has_flag(FURN_CHILD_CAN_USE) {
-                flags.push("FURN_CHILD_CAN_USE")
-            }
-            if self.has_flag(IDLM_CHILD_CAN_USE) {
-                flags.push("IDLM_CHILD_CAN_USE")
-            }
-            if self.has_flag(REFR_DONT_HAVOK_SETTLE) {
-                flags.push("REFR_DONT_HAVOK_SETTLE")
-            }
-            if self.has_flag(NAVMESH_GEN_GROUND) {
-                flags.push("NAVMESH_GEN_GROUND")
-            }
-            if self.has_flag(REFR_NORESPAWN) {
-                flags.push("REFR_NORESPAWN")
-            }
-            if self.has_flag(REFR_MULTIBOUND) {
-                flags.push("REFR_MULTIBOUND")
-            }
-            if flags.is_empty() {
-                panic!("Unrecognized flags: {:x}", self.0)
-            } else {
-                write!(f, "{}", flags.join(", "))
-            }
-        } else {
-            write!(f, "NONE")
-        }
+//             if self.has_flag(IS_MARKER) {
+//                 flags.push("IS_MARKER")
+//             }
+//             if self.has_flag(ACTI_OBSTACLE) {
+//                 flags.push("ACTI_OBSTACLE")
+//             }
+//             if self.has_flag(REFR_NO_AI_ACQUIRE) {
+//                 flags.push("REFR_NO_AI_ACQUIRE")
+//             }
+//             if self.has_flag(NAVMESH_GEN_FILTER) {
+//                 flags.push("NAVMESH_GEN_FILTER")
+//             }
+//             if self.has_flag(NAVMESH_GEN_BOUNDING_BOX) {
+//                 flags.push("NAVMESH_GEN_BOUNDING_BOX")
+//             }
+//             if self.has_flag(FURN_MUST_EXIT_TO_TALK) {
+//                 flags.push("FURN_MUST_EXIT_TO_TALK")
+//             }
+//             if self.has_flag(REFR_REFLECTED_BY_AUTO_WATER) {
+//                 flags.push("REFR_REFLECTED_BY_AUTO_WATER")
+//             }
+//             if self.has_flag(FURN_CHILD_CAN_USE) {
+//                 flags.push("FURN_CHILD_CAN_USE")
+//             }
+//             if self.has_flag(IDLM_CHILD_CAN_USE) {
+//                 flags.push("IDLM_CHILD_CAN_USE")
+//             }
+//             if self.has_flag(REFR_DONT_HAVOK_SETTLE) {
+//                 flags.push("REFR_DONT_HAVOK_SETTLE")
+//             }
+//             if self.has_flag(NAVMESH_GEN_GROUND) {
+//                 flags.push("NAVMESH_GEN_GROUND")
+//             }
+//             if self.has_flag(REFR_NORESPAWN) {
+//                 flags.push("REFR_NORESPAWN")
+//             }
+//             if self.has_flag(REFR_MULTIBOUND) {
+//                 flags.push("REFR_MULTIBOUND")
+//             }
+//             if flags.is_empty() {
+//                 panic!("Unrecognized flags: {:x}", self.0)
+//             } else {
+//                 write!(f, "{}", flags.join(", "))
+//             }
+//         } else {
+//             write!(f, "NONE")
+//         }
+//     }
+// }
+
+// impl RecordFlags2 {
+//     pub fn has_flags(&self) -> bool {
+//         self.0 != 0
+//     }
+//     pub fn has_flag(&self, flag: u32) -> bool {
+//         (self.0 & flag) != 0
+//     }
+//     pub fn is_compressed(&self) -> bool {
+//         self.has_flag(COMPRESSED)
+//     }
+// }
+
+bitflags! {
+    /// Represents a set of flags.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+    pub struct RecordFlags2: u32 {
+        /// The value `A`, at bit position `0`.
+        
+        /// The data is compressed.
+        const COMPRESSED = 0x00040000;
     }
 }
 
-impl RecordFlags {
-    pub fn has_flags(&self) -> bool {
-        self.0 != 0
+impl<'esm> Parse<&'esm[u8]> for RecordFlags2 {
+    fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
+        let (i, raw_flags) = le_u32::<&'esm[u8], nom::error::Error<&'esm[u8]>>(i)?;
+        Ok((i, RecordFlags2::from_bits_retain(raw_flags)))
     }
-    pub fn has_flag(&self, flag: u32) -> bool {
-        (self.0 & flag) != 0
-    }
+}
+
+impl RecordFlags2 {
+
     pub fn is_compressed(&self) -> bool {
-        self.has_flag(COMPRESSED)
+        self.contains(RecordFlags2::COMPRESSED)
     }
 }
 
