@@ -2,13 +2,14 @@ pub mod shared;
 pub mod archive;
 mod tests;
 
-pub mod prelude {
+pub mod dev {
     pub use nom::*;
     pub use nom::bytes::complete::take;
     pub use nom::multi::count;
     pub use nom::multi::many0;
     pub use nom::combinator::complete;
     pub use nom_derive::*;
+    pub use nom::number::complete::{le_u64, le_u32, le_u16, le_u8};
     pub use std::io::{Read, Seek, SeekFrom};
     pub use std::fs::File;
     pub use log::*;

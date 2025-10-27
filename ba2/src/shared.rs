@@ -1,8 +1,4 @@
-use std::fmt::Debug;
-
-
-use super::prelude::*;
-
+use super::dev::*;
 
 
 #[derive(Debug, Clone)]
@@ -22,10 +18,10 @@ impl Parse<&[u8]> for BA2Header {
             return Err(nom::Err::Error(error::Error::new(i, nom::error::ErrorKind::Tag)));
         }
 
-        let (i, version) = nom::number::complete::le_u32(i)?;
+        let (i, version) = le_u32(i)?;
         let (i, archive_type) = ArchiveType::parse(i)?;
-        let (i, file_count) = nom::number::complete::le_u32(i)?;
-        let (i, name_table_offset) = nom::number::complete::le_u64(i)?;
+        let (i, file_count) = le_u32(i)?;
+        let (i, name_table_offset) = le_u64(i)?;
         Ok((i, BA2Header { id, version, archive_type, file_count, name_table_offset }))
     }
 }
@@ -49,7 +45,7 @@ impl Parse<&[u8]> for ArchiveType {
     }
 }
 
-impl Debug for ArchiveType {
+impl std::fmt::Debug for ArchiveType {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             ArchiveType::General => write!(f, "General [GRNL]"),
@@ -90,14 +86,14 @@ pub fn get_file_names(file: &mut File, offset: u64) -> Result<Vec<String>, std::
 
 
 use esm::structs::vectors::Vec4;
-use nom::{bytes::complete::take_until, number::complete::{le_u16, le_u32, le_u8}, IResult};
+use nom::{bytes::complete::take_until, number::complete::{le_u16, le_u32, le_u64, le_u8}, IResult};
 
 
 
 pub fn sized_string_none_if_empty(i: &[u8], size: StringSize) -> IResult<&[u8], Option<String>> {
     match size {
         StringSize::U8 => {
-            let (i, len) = nom::number::complete::le_u8(i)?;
+            let (i, len) = le_u8(i)?;
             if len == 0 {
                 Ok((i, None))
             } else {
@@ -106,7 +102,7 @@ pub fn sized_string_none_if_empty(i: &[u8], size: StringSize) -> IResult<&[u8], 
             }
         },
         StringSize::U16 => {
-            let (i, len) = nom::number::complete::le_u16(i)?;
+            let (i, len) = le_u16(i)?;
             if len == 0 {
                 Ok((i, None))
             } else {
@@ -115,7 +111,7 @@ pub fn sized_string_none_if_empty(i: &[u8], size: StringSize) -> IResult<&[u8], 
             }
         },
         StringSize::U32 => {
-            let (i, len) = nom::number::complete::le_u32(i)?;
+            let (i, len) = le_u32(i)?;
             if len == 0 {
                 Ok((i, None))
             } else {
@@ -152,7 +148,7 @@ pub struct SizedString<T> {
 
 impl nom_derive::Parse<&[u8]> for SizedString<u32> {
     fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
-        let (i, size) = nom::number::complete::le_u32(i)?;
+        let (i, size) = le_u32(i)?;
         if size == 0 {
             Ok((i, SizedString { size, value: None }))
         } else {
@@ -164,7 +160,7 @@ impl nom_derive::Parse<&[u8]> for SizedString<u32> {
 
 impl nom_derive::Parse<&[u8]> for SizedString<u16> {
     fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
-        let (i, size) = nom::number::complete::le_u16(i)?;
+        let (i, size) = le_u16(i)?;
         if size == 0 {
             Ok((i, SizedString { size, value: None }))
         } else {
@@ -176,7 +172,7 @@ impl nom_derive::Parse<&[u8]> for SizedString<u16> {
 
 impl nom_derive::Parse<&[u8]> for SizedString<u8> {
     fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
-        let (i, size) = nom::number::complete::le_u8(i)?;
+        let (i, size) = le_u8(i)?;
         if size == 0 {
             Ok((i, SizedString { size, value: None }))
         } else {
@@ -262,7 +258,7 @@ impl std::fmt::Debug for SizedString16 {
 }
 
 pub fn parse_ss16(i: &[u8]) -> IResult<&[u8], String> {
-    let (i, len) = nom::number::complete::le_u16(i)?;
+    let (i, len) = le_u16(i)?;
     let (i, s) = nom::bytes::complete::take(len)(i)?;
     Ok((i, String::from_utf8_lossy(s).to_string()))
 }
