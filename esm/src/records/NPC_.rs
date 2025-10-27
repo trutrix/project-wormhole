@@ -8,6 +8,12 @@ use crate::dev::*;
 define_record! {
     b"NPC_",
     NonPlayerCharacter, [
+        EditorId;
+        Keywords;
+        VirtualMachineAdapter;
+        FullName;
+        Destructible;
+        ObjectBounds;
     ]
 }
 
