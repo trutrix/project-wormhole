@@ -35,37 +35,37 @@ define_record! {
         b"DNAM", Data, [u16;4];
         b"DOFT", DefaultOutfit, FormId;
         b"DPLT", DefaultPackageList, FormId;
-        b"ECOR", ECOR, EmptyParser;
-        b"FMIN", FMIN, EmptyParser;
-        b"FMRI", FMRI, EmptyParser;
-        b"FMRS", FMRS, EmptyParser;
-        b"FTST", FTST, EmptyParser;
-        b"FTYP", FTYP, EmptyParser;
-        b"GWOR", GWOR, EmptyParser;
-        b"HCLF", HCLF, EmptyParser;
-        b"INAM", INAM, EmptyParser;
-        b"LTPC", LTPC, EmptyParser;
-        b"LTPT", LTPT, EmptyParser;
-        b"MRSV", MRSV, EmptyParser;
-        b"MSDK", MSDK, EmptyParser;
-        b"MSDV", MSDV, EmptyParser;
-        b"MWGT", MWGT, EmptyParser;
-        b"NAM4", NAM4, EmptyParser;
-        b"NAM5", NAM5, EmptyParser;
-        b"NAM6", NAM6, EmptyParser;
-        b"NAM8", NAM8, EmptyParser;
-        b"NTRM", NTRM, EmptyParser;
-        b"OBTE", OBTE, EmptyParser;
-        b"OBTF", OBTF, EmptyParser;
-        b"OBTS", OBTS, EmptyParser;
-        b"PFRN", PFRN, EmptyParser;
-        b"PKID", PKID, EmptyParser;
-        b"PNAM", PNAM, EmptyParser;
-        b"PRKR", PRKR, EmptyParser;
-        b"PRKZ", PRKZ, EmptyParser;
-        b"PRPS", PRPS, EmptyParser;
-        b"QNAM", QNAM, EmptyParser;
-        b"RCLR", RCLR, EmptyParser;
+        b"ECOR", CombatOverridePackageList, FormId;
+        b"FMIN", FaceMorphIntensity, f32;
+        b"FMRI", FaceMorphIndex, u32;
+        b"FMRS", FaceMorphValues, [f32;9]; // TODO: make struct
+        b"FTST", FaceTexture, FormId;
+        b"FTYP", ForcedLocationRefType, FormId;
+        b"GWOR", GuardWarning, FormId; // TODO: Unverified
+        b"HCLF", HairColor, FormId;
+        b"INAM", DeathItem, FormId;
+        b"LTPC", LegendaryChance, FormId; // GLOB
+        b"LTPT", LegendaryTemplate, FormId;
+        b"MRSV", BodyMorphRegionValues, [f32;5]; // TODO: make struct
+        b"MSDK", MorphKeys, Vec<f32>;
+        b"MSDV", MorphValues, Vec<f32>;
+        b"MWGT", Weight, [f32;3];
+        b"NAM4", HeightMax, f32;
+        b"NAM5", Unknown1, u16;
+        b"NAM6", HeightMix, f32;
+        b"NAM8", SoundLevel, u32; // TODO: Enum?
+        b"NTRM", NativeTerminal, FormId;
+        b"OBTE", ObjectCount, u32;
+        b"OBTF", ObjectEditorOnly, EmptyParser; // TODO: Always zero, marker?
+        b"OBTS", ObjectTemplateItem, EmptyParser; // TODO: Robust struct
+        b"PFRN", PowerArmorStand, FormId; // FURN
+        b"PKID", Package, FormId; // PACK
+        b"PNAM", HeadParts, FormId;
+        b"PRKR", Perk, (FormId, u8); // Perk / level
+        b"PRKZ", PerkCount, u32;
+        b"PRPS", Property, (FormId, f32); // Property / value
+        b"QNAM", TextureLight, ([u32;3], f32);
+        b"RCLR", FollowerElevatorList, FormId; // unverified
         b"RNAM", RNAM, EmptyParser;
         b"SHRT", SHRT, EmptyParser;
         b"SNAM", SNAM, EmptyParser;
