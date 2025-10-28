@@ -66,21 +66,21 @@ define_record! {
         b"PRPS", Property, (FormId, f32); // Property / value
         b"QNAM", TextureLight, ([u32;3], f32);
         b"RCLR", FollowerElevatorList, FormId; // unverified
-        b"RNAM", RNAM, EmptyParser;
-        b"SHRT", SHRT, EmptyParser;
-        b"SNAM", SNAM, EmptyParser;
-        b"SOFT", SOFT, EmptyParser;
-        b"SPCT", SPCT, EmptyParser;
-        b"SPLO", SPLO, EmptyParser;
-        b"STCP", STCP, EmptyParser;
-        b"STOP", STOP, EmptyParser;
-        b"TEND", TEND, EmptyParser;
-        b"TETI", TETI, EmptyParser;
-        b"TPLT", TPLT, EmptyParser;
-        b"TPTA", TPTA, EmptyParser;
-        b"VTCK", VTCK, EmptyParser;
-        b"WNAM", WNAM, EmptyParser;
-        b"ZNAM", ZNAM, EmptyParser;
+        b"RNAM", Race, FormId;
+        b"SHRT", ShortName, LocalizedString;
+        b"SNAM", Faction, (FormId, u8); // Faction / rank
+        b"SOFT", SleepingOutfit, FormId;
+        b"SPCT", EffectCount, u32;
+        b"SPLO", Effect, FormId;
+        b"STCP", AnimationSound, FormId;
+        b"STOP", StopMarker, EmptyParser;
+        b"TEND", FaceTintData, EmptyParser; // TODO: Data is 1 or 7 bytes long
+        b"TETI", FaceTintIndex, [u16;2];
+        b"TPLT", DefaultTemplate, FormId;
+        b"TPTA", TemplateActors, Vec<FormId>;
+        b"VTCK", Voice, FormId;
+        b"WNAM", Skin, FormId;
+        b"ZNAM", CombatStyle, FormId;
     ]
 }
 
