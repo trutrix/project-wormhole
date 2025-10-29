@@ -405,7 +405,7 @@ pub enum TopGroup {
     LCTN(Group<Location>),
     LENS(Group<LensFlare>),
     LGTM(Group<LightingTemplate>),
-    LIGH(LIGH),
+    LIGH(Group<Light>),
     LSCR(LSCR),
     LTEX(LTEX),
     LVLI(LVLI),
