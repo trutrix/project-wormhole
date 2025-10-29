@@ -172,7 +172,7 @@ pub fn common_map() -> HashMap<String, FieldDefinition> {
             required: false,
             idens: vec![LitByteStr::new(b"DESC", proc_macro2::Span::call_site())],
             names: vec![Ident::new("Description", proc_macro2::Span::call_site())],
-            field_types: vec![syn::parse_str("ESMString").unwrap()],
+            field_types: vec![syn::parse_str("LocalizedString").unwrap()],
         }
     );
 
