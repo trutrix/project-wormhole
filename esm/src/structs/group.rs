@@ -412,7 +412,7 @@ pub enum TopGroup {
     LVLN(Group<LeveledNPC>),
     MATO(Group<MaterialObject>),
     MATT(Group<MaterialType>),
-    MESG(MESG),
+    MESG(Group<Message>),
     MGEF(MGEF),
     MISC(MISC),
     MOVT(MOVT),
