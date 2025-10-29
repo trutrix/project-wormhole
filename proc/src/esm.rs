@@ -342,5 +342,14 @@ pub fn common_map() -> HashMap<String, FieldDefinition> {
         }
     );
 
+    map.insert("Properties".to_string(), 
+        FieldDefinition {
+            required: false,
+            idens: vec![LitByteStr::new(b"PRPS", proc_macro2::Span::call_site())],
+            names: vec![Ident::new("Properties", proc_macro2::Span::call_site())],
+            field_types: vec![syn::parse_str("RecordProperty").unwrap()],
+        }
+    );
+
     map
 }
