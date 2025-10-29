@@ -7,7 +7,7 @@ define_record! {
         FullName;
         Description;
         b"ICON", InventoryImage, u8; // TODO: unknown
-        b"PRPS", Properties, Vec<(FormId, f32)>; // AVIF ref / value
+        Properties;
         b"DATA", ClassData, (u32, f32); // Unknown / Bleedout?
     ]
 }

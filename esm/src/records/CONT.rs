@@ -20,6 +20,6 @@ define_record! {
         b"DATA", Data, (u8, f32); // Always 5 bytes
         b"FTYP", ForcedLocRefType, u32; // Unknown - Always 4 bytes
         b"NTRM", NativeTerminal, FormId; // References a terminal
-        b"PRPS", Properties, Vec<(FormId, f32)>;
+        Properties;
     ]
 }

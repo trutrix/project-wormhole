@@ -12,7 +12,7 @@ define_record! {
         Destructible;
         PreviewTransform;
         b"PFPC", IngredientProduction, [u8;4];
-        b"PRPS", Properties, (u32, f32); // TODO: make common
+        Properties;
         b"ATTX", ActivateTextOverride, LocalizedString;
         b"PNAM", Unknown1, u32; // TODO: figure out - always 4 bytes
         b"PFIG", Ingredient, FormId;

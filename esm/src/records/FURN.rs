@@ -17,7 +17,7 @@ define_record! {
         Condition;
         b"CITC", ConditionCount, u32;
 
-        b"PRPS", Properties, Vec<(FormId, f32)>;
+        Properties;
         b"NTRM", NativeTerminal, FormId;
         b"STOP", StopMark, EmptyParser; // Marker for end of object template
         b"ENAM", MarkerIndex, u32;

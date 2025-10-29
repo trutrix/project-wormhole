@@ -63,7 +63,7 @@ define_record! {
         b"PNAM", HeadParts, FormId;
         b"PRKR", Perk, (FormId, u8); // Perk / level
         b"PRKZ", PerkCount, u32;
-        b"PRPS", Property, (FormId, f32); // Property / value
+        Properties;
         b"QNAM", TextureLight, ([u32;3], f32);
         b"RCLR", FollowerElevatorList, FormId; // unverified
         b"RNAM", Race, FormId;
