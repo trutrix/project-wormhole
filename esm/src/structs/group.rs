@@ -413,7 +413,7 @@ pub enum TopGroup {
     MATO(Group<MaterialObject>),
     MATT(Group<MaterialType>),
     MESG(Group<Message>),
-    MGEF(MGEF),
+    MGEF(Group<MagicEffect>),
     MISC(MISC),
     MOVT(MOVT),
     MSTT(MSTT),
