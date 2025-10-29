@@ -407,7 +407,7 @@ pub enum TopGroup {
     LGTM(Group<LightingTemplate>),
     LIGH(Group<Light>),
     LSCR(Group<LoadingScreen>),
-    LTEX(LTEX),
+    LTEX(Group<LandscapeTexture>),
     LVLI(LVLI),
     LVLN(LVLN),
     MATO(MATO),
