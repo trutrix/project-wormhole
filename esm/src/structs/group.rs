@@ -409,7 +409,7 @@ pub enum TopGroup {
     LSCR(Group<LoadingScreen>),
     LTEX(Group<LandscapeTexture>),
     LVLI(Group<LeveledItem>),
-    LVLN(LVLN),
+    LVLN(Group<LeveledNPC>),
     MATO(MATO),
     MATT(MATT),
     MESG(MESG),
