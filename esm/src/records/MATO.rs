@@ -2,6 +2,15 @@ use crate::dev::*;
 
 define_record! {
     b"MATO",
-    MATO, [
+    MaterialObject, [
+        EditorId;
+        AllModelData;
+        b"DATA", Data, MaterialObjectData;
+        b"DNAM", PropertyData, EmptyParser; // TODO: unknown, strange sizes - may be binary
     ]
+}
+
+#[derive(Debug, NomLE)]
+pub struct MaterialObjectData {
+    // TODO: fill out
 }

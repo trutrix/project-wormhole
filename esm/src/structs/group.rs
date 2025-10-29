@@ -410,7 +410,7 @@ pub enum TopGroup {
     LTEX(Group<LandscapeTexture>),
     LVLI(Group<LeveledItem>),
     LVLN(Group<LeveledNPC>),
-    MATO(MATO),
+    MATO(Group<MaterialObject>),
     MATT(MATT),
     MESG(MESG),
     MGEF(MGEF),
