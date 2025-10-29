@@ -406,7 +406,7 @@ pub enum TopGroup {
     LENS(Group<LensFlare>),
     LGTM(Group<LightingTemplate>),
     LIGH(Group<Light>),
-    LSCR(LSCR),
+    LSCR(Group<LoadingScreen>),
     LTEX(LTEX),
     LVLI(LVLI),
     LVLN(LVLN),
