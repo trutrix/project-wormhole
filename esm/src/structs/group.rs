@@ -411,7 +411,7 @@ pub enum TopGroup {
     LVLI(Group<LeveledItem>),
     LVLN(Group<LeveledNPC>),
     MATO(Group<MaterialObject>),
-    MATT(MATT),
+    MATT(Group<MaterialType>),
     MESG(MESG),
     MGEF(MGEF),
     MISC(MISC),
