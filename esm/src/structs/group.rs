@@ -422,7 +422,7 @@ pub enum TopGroup {
     MUST(Group<MusicTrack>),
     NAVI(Group<NavMeshMapInfo>),
     NOCM(Group<NavObstacleManager>),
-    NOTE(Group<NOTE>),
+    NOTE(Group<Note>),
     NPC_(Group<NonPlayerCharacter>),
     OMOD(Group<OMOD>),
     OTFT(Group<OTFT>),
