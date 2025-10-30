@@ -420,7 +420,7 @@ pub enum TopGroup {
     MSWP(Group<MaterialSwap>),
     MUSC(Group<MusicType>),
     MUST(Group<MusicTrack>),
-    NAVI(Group<NAVI>),
+    NAVI(Group<NavMeshMapInfo>),
     NOCM(Group<NOCM>),
     NOTE(Group<NOTE>),
     NPC_(Group<NonPlayerCharacter>),
