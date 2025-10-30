@@ -416,7 +416,7 @@ pub enum TopGroup {
     MGEF(Group<MagicEffect>),
     MISC(Group<MiscItem>),
     MOVT(Group<MovementType>),
-    MSTT(Group<MSTT>),
+    MSTT(Group<MoveableStatic>),
     MSWP(Group<MSWP>),
     MUSC(Group<MUSC>),
     MUST(Group<MUST>),
