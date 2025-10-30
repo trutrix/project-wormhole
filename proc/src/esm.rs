@@ -351,5 +351,14 @@ pub fn common_map() -> HashMap<String, FieldDefinition> {
         }
     );
 
+    map.insert("PickUpPutDown".to_string(),
+        FieldDefinition {
+            required: false,
+            idens: vec![LitByteStr::new(b"YNAM", proc_macro2::Span::call_site()),LitByteStr::new(b"ZNAM", proc_macro2::Span::call_site())],
+            names: vec![Ident::new("PickUpSound", proc_macro2::Span::call_site()),Ident::new("PutDownSound", proc_macro2::Span::call_site())],
+            field_types: vec![syn::parse_str("FormId").unwrap(),syn::parse_str("FormId").unwrap()],
+        }
+    );
+
     map
 }
