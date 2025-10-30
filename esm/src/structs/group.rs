@@ -427,7 +427,7 @@ pub enum TopGroup {
     OMOD(Group<ObjectModification>),
     OTFT(Group<Outfit>),
     OVIS(Group<ObjectVisibility>),
-    PACK(Group<PACK>),
+    PACK(Group<Package>),
     PERK(Group<PERK>),
     PKIN(Group<PKIN>),
     PROJ(Group<PROJ>),
