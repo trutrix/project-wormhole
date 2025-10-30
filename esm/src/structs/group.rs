@@ -418,7 +418,7 @@ pub enum TopGroup {
     MOVT(Group<MovementType>),
     MSTT(Group<MoveableStatic>),
     MSWP(Group<MaterialSwap>),
-    MUSC(Group<MUSC>),
+    MUSC(Group<MusicType>),
     MUST(Group<MUST>),
     NAVI(Group<NAVI>),
     NOCM(Group<NOCM>),
