@@ -3,5 +3,25 @@ use crate::dev::*;
 define_record! {
     b"MISC",
     MiscItem, [
+        EditorId;
+        ObjectBounds;
+        PreviewTransform;
+        VirtualMachineAdapter;
+        AllModelData;
+        FullName;
+        Keywords;
+        Destructible;
+        b"YNAM", PickupSound, FormId;
+        b"ZNAM", DropSound, FormId;
+        b"DATA", Data, MiscItemData;
+        b"CVPA", Components, Vec<(FormId, u32)>; // (Component, Count)
+        b"FIMD", FeaturedItemMessage, LocalizedString; // TODO: confirm type
+        b"CDIX", ComponentDisplayIndices, u32;
     ]
+}
+
+#[derive(Debug, NomLE)]
+pub struct MiscItemData {
+    pub value: u32,
+    pub weight: f32
 }
