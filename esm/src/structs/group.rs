@@ -425,7 +425,7 @@ pub enum TopGroup {
     NOTE(Group<Note>),
     NPC_(Group<NonPlayerCharacter>),
     OMOD(Group<ObjectModification>),
-    OTFT(Group<OTFT>),
+    OTFT(Group<Outfit>),
     OVIS(Group<OVIS>),
     PACK(Group<PACK>),
     PERK(Group<PERK>),
