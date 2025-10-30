@@ -11,9 +11,8 @@ define_record! {
         Keywords;
         AllModelData;
         Destructible;
+        PickUpPutDown;
         b"DATA", Data, KeyData;
-        b"YNAM", PickUpSound, FormId;
-        b"ZNAM", PutDownSound, FormId;
     ]
 }
 

@@ -11,12 +11,11 @@ define_record! {
         AllModelData;
         ObjectBounds;
         FullName;
+        PickUpPutDown;
         b"EFID", BaseEffect, FormId;
         b"ENIT", EffectData, EmptyParser;
         b"EFIT", EffectRadius, EmptyParser;
         b"DATA", Data, (FormId, f32);
-        b"YNAM", SoundPickUp, FormId;
-        b"ZNAM", SoundPutDown, FormId; // assumed - not present
         // TODO: find the rest of the fields
     ]
 }

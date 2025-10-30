@@ -11,8 +11,7 @@ define_record! {
         VirtualMachineAdapter;
         FullName;
         Description;
-        b"YNAM", SoundPickUp, FormId;
-        b"ZNAM", SoundPutDown, FormId;
+        PickUpPutDown;
         b"CNAM", Description2, ESMString;
         b"INAM", InventoryArt, FormId;
         b"FIMD", FeaturedItemMessage, u8; // TODO: unknown

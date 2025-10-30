@@ -11,8 +11,7 @@ define_record! {
         FullName;
         Keywords;
         Destructible;
-        b"YNAM", PickupSound, FormId;
-        b"ZNAM", DropSound, FormId;
+        PickUpPutDown;
         b"DATA", Data, ValueWeight;
         b"CVPA", Components, Vec<(FormId, u32)>; // (Component, Count)
         b"FIMD", FeaturedItemMessage, LocalizedString; // TODO: confirm type

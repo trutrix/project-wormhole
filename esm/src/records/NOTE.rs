@@ -9,8 +9,7 @@ define_record! {
         FullName;
         PreviewTransform;
         VirtualMachineAdapter;
-        b"YNAM", PickUpSound, FormId;
-        b"ZNAM", PutDownSound, FormId;
+        PickUpPutDown;
         b"DATA", ValueWeight, ValueWeight;
         b"PNAM", ProgramFilePath, ESMString;
         b"SNAM", Scene, FormId; // TODO: verify type - always 4 bytes

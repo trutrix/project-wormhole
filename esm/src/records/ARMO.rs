@@ -33,8 +33,7 @@ define_record! {
         b"MO5S", ModelMaterialSwap5, ModelMaterialSwap;
 
         VirtualMachineAdapter;
-        b"YNAM", SoundPickUp, FormId; // Ref
-        b"ZNAM", SoundPutDown, FormId; // Ref
+        PickUpPutDown;
 
         b"DATA", Data, u8; // Unknown struct
         b"FNAM", Data2, u8; // Unknown struct

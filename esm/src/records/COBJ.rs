@@ -6,8 +6,7 @@ define_record! {
         EditorId;
         Description;
         Condition;
-        b"YNAM", PickupSound, FormId;
-        b"ZNAM", PutDownSound, FormId;
+        PickUpPutDown;
         b"CNAM", CreatedObject, FormId;
         b"BNAM", WorkbenchKeyword, FormId;
         b"FVPA", Components, Vec<(FormId, u32)>;
