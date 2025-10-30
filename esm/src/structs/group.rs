@@ -424,7 +424,7 @@ pub enum TopGroup {
     NOCM(Group<NavObstacleManager>),
     NOTE(Group<Note>),
     NPC_(Group<NonPlayerCharacter>),
-    OMOD(Group<OMOD>),
+    OMOD(Group<ObjectModification>),
     OTFT(Group<OTFT>),
     OVIS(Group<OVIS>),
     PACK(Group<PACK>),
