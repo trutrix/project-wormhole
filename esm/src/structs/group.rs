@@ -421,7 +421,7 @@ pub enum TopGroup {
     MUSC(Group<MusicType>),
     MUST(Group<MusicTrack>),
     NAVI(Group<NavMeshMapInfo>),
-    NOCM(Group<NOCM>),
+    NOCM(Group<NavObstacleManager>),
     NOTE(Group<NOTE>),
     NPC_(Group<NonPlayerCharacter>),
     OMOD(Group<OMOD>),
