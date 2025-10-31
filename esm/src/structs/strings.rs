@@ -125,3 +125,23 @@ impl std::fmt::Debug for SizedString8 {
         write!(f, "\"{}\"", self.0)
     }
 }
+
+// ====================================================================================================
+
+pub struct StringN {
+    pub value: String,
+}
+
+impl Parse<&[u8]> for StringN {
+    fn parse(i: &[u8]) -> IResult<&[u8], Self> {
+        let (i, data) = nom::bytes::complete::take_until("\n")(i)?;
+        let (i, _) = take(1usize)(i)?;
+        Ok((i, StringN { value: String::from_utf8_lossy(data).to_string() }))
+    }
+}
+
+impl std::fmt::Debug for StringN {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "\"{}\"", self.value)
+    }
+}

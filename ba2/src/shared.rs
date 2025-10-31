@@ -1,3 +1,5 @@
+use nom::bytes::complete::take_until;
+
 use super::dev::*;
 
 
@@ -82,11 +84,6 @@ pub fn get_file_names(file: &mut File, offset: u64) -> Result<Vec<String>, std::
 
     Ok(names)
 }
-
-
-
-use esm::structs::vectors::Vec4;
-use nom::{bytes::complete::take_until, number::complete::{le_u16, le_u32, le_u64, le_u8}, IResult};
 
 
 
@@ -287,24 +284,6 @@ impl std::fmt::Debug for SizedString8 {
     }
 }
 
-
-pub struct StringN {
-    pub value: String,
-}
-
-impl Parse<&[u8]> for StringN {
-    fn parse(i: &[u8]) -> IResult<&[u8], Self> {
-        let (i, data) = take_until("\n")(i)?;
-        let (i, _) = take(1usize)(i)?;
-        Ok((i, StringN { value: String::from_utf8_lossy(data).to_string() }))
-    }
-}
-
-impl std::fmt::Debug for StringN {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "\"{}\"", self.value)
-    }
-}
 
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub struct Bool(pub bool);
