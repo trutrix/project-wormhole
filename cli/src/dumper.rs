@@ -17,7 +17,7 @@ pub fn dump_esm_fields(path: &Path) {
 
     let mut rcount = 0;
 
-    for (rid, rr) in esm.records {
+    for (_rid, rr) in esm.records {
 
         let record_entry = dump.entry(rr.header.iden).or_insert(HashMap::new());
         let (_, record_fields) = rr.get_raw_fields().expect("Could not convert record data into raw fields.");
