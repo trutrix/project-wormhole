@@ -1,3 +1,4 @@
+#![allow(unused)]
 use std::collections::{HashMap, HashSet};
 
 use crate::records::all::{Armor, ArmorAddon, ArtObject, AttractionRule, BodyPartData, Book, Class, Color, NonPlayerCharacter};

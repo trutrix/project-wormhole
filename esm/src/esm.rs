@@ -1,6 +1,6 @@
 use std::{collections::HashMap, io::{Read, Seek}};
 
-use crate::{dev::*, records::{all::{FileHeaderField, GameSetting, GameSettingField}, TES4::FileHeader}, structs::record::{RawRecord, RecordHeader}, traits::{RecordParser, GroupParser}};
+use crate::{dev::*, records::{all::{FileHeaderField, GameSettingField}, TES4::FileHeader}, structs::record::{RawRecord, RecordHeader}, traits::{RecordParser, GroupParser}};
 
 
 // ====================================================================================================
@@ -11,8 +11,8 @@ pub const SPECIAL_GROUPS: [&[u8;4];3] = [b"WRLD", b"CELL", b"QUST"];
 
 
 pub struct ESM1<'esm> {
-    file: std::fs::File,
-    junk: Option<RawRecord<'esm>>,
+    _file: std::fs::File,
+    _junk: Option<RawRecord<'esm>>,
     pub header: FileHeader,
     pub groups: Vec<RawDataGroup<'esm>>,
     
@@ -39,7 +39,7 @@ impl<'esm> ESM1<'esm> {
         
 
         if let Ok((_, record)) = FileHeader::parse(dbuf) {
-            Ok(ESM1 { file, junk: None, header: record.try_into().unwrap(), groups: Vec::new() })
+            Ok(ESM1 { _file: file, _junk: None, header: record.try_into().unwrap(), groups: Vec::new() })
         } else {
             Err(ESMError::InvalidFile)
         }
@@ -91,7 +91,7 @@ impl<'esm> RawESM<'esm> {
                 GroupLabel::Top(iden) => {
                     match &iden.0 {
                         b"CELL" => {
-                            let (i, (ghead, graw)) = alloc_group(raw)?;
+                            let (i, (_ghead, graw)) = alloc_group(raw)?;
                             // println!("{:?}", ghead);
                             raw = i;
                             let (_, icb) = many0(complete(RawInteriorCellBlock::parse))(graw)?;
@@ -145,7 +145,7 @@ impl SmartESM {
         if let Ok((i, header)) = FileHeader::parse_record(i) {
 
             
-            if let Ok((i, gmst)) = <Group<Record<GameSettingField>>>::parse_group(i) {
+            if let Ok((_, gmst)) = <Group<Record<GameSettingField>>>::parse_group(i) {
                 println!("{:?}", gmst.data[0].header);
                 Ok(Self { header })
             } else {
