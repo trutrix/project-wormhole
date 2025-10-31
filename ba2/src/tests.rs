@@ -37,7 +37,7 @@ fn test_texture_archive() {
 fn test_archive_dir() {
     use std::io::Write;
     let path = PathBuf::from_str("D:\\SteamLibrary\\steamapps\\common\\Fallout 4\\Data").unwrap();
-    let ba2 = BA2ArchiveGroup::open_all(path).unwrap();
+    let _ba2 = BA2ArchiveGroup::open_all(path).unwrap();
 }
 
 /*
