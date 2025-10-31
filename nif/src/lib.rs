@@ -5,20 +5,23 @@ pub mod nif_enum;
 pub mod nif_flags;
 pub mod nif_types;
 pub mod bs;
-
+pub mod model;
 
 #[cfg(test)]
 mod tests;
 
 
-pub mod prelude {
+mod dev {
     pub use nom_derive::{NomLE, Parse};
     pub use nom::{bytes::complete::take, multi::count, number::complete::*, IResult};
     pub use std::io::{Read, Seek, SeekFrom};
     pub use log::*;
-    pub use shared::prelude::*;
     pub use half::prelude::*;
     pub use std::collections::{BTreeMap, HashSet};
+    pub use esm::structs::vectors::*;
+    pub use esm::structs::strings::*;
+    pub use esm::structs::matrix::*;
+    pub use ba2::shared::{Bool, Bounds, MaxRef};
 
     pub use super::nif_header::*;
     pub use super::nif_file::*;

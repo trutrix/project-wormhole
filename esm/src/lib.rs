@@ -27,4 +27,6 @@ mod dev {
     pub use super::structs::virtual_machine_adapter::*;
     pub use super::structs::destructible::*;
     pub use super::structs::data::*;
+    pub use super::structs::matrix::*;
+    pub use super::structs::vectors::*;
 }

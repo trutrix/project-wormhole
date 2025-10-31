@@ -1,6 +1,9 @@
 use std::collections::BTreeSet;
 
 
+use ba2::dev::ensure_texture_parent;
+use ba2::dev::standardize_path;
+use esm::structs::geometry::Quaternion;
 use gltf::json::accessor::GenericComponentType;
 use gltf::json::accessor::ComponentType;
 use gltf::json::buffer::View;
@@ -17,7 +20,9 @@ use gltf::json::texture::Info;
 use gltf::json::validation::{Checked, USize64};
 use gltf::{json::*, Semantic};
 
-use super::prelude::*;
+use crate::model::all::*;
+
+use super::dev::*;
 
 #[derive(Debug)]
 pub struct NifFile {
@@ -352,7 +357,7 @@ pub fn nif_to_model(nif: &NifFile, skeleton: Option<&NifFile>) -> Result<Model, 
                 let glow = mat.glow.clone();
                 let specular = mat.specular.clone();
 
-                model.materials.push(shared::prelude::Material {
+                model.materials.push(super::model::all::Material {
                     diffuse,
                     normal,
                     glow,
@@ -405,7 +410,7 @@ pub fn nif_to_model(nif: &NifFile, skeleton: Option<&NifFile>) -> Result<Model, 
             let glow = mat.glow.clone();
             let specular = mat.specular.clone();
 
-            model.materials.push(shared::prelude::Material {
+            model.materials.push(super::model::all::Material {
                 diffuse,
                 normal,
                 glow,
@@ -547,7 +552,7 @@ impl NifFileV3 {
     /// Basic hacky function to get materials and textures from the nif file  
     /// Returns a tuple with a vector of materials and a set of textures
     /// TODO: There is a ton of room for improvement here, but it works for now
-    pub fn build_materials(&self) -> (Vec<shared::prelude::Material>, BTreeSet<String>) {
+    pub fn build_materials(&self) -> (Vec<super::model::all::Material>, BTreeSet<String>) {
         // Init empty material vector
         let mut materials = Vec::new();
 
@@ -599,7 +604,7 @@ impl NifFileV3 {
                     }
 
 
-                    materials.push(shared::prelude::Material {
+                    materials.push(super::model::all::Material {
                         diffuse,
                         normal,
                         glow,

@@ -1,4 +1,4 @@
-use super::prelude::*;
+use super::dev::*;
 
 /*
 <bitflags name="FurnitureEntryPoints" storage="ushort" versions="#BETHESDA#">

@@ -1,7 +1,7 @@
 #![allow(unused_imports)]
 use std::{io::Write, path::Path};
 
-use crate::prelude::*;
+use crate::dev::*;
 
 const OUT_DIR: &str = "./out/";
 

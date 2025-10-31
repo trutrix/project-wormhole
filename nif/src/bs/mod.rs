@@ -8,10 +8,9 @@ pub mod prelude {
     pub use nom::{bytes::complete::take, multi::count, number::complete::*, IResult};
     pub use std::io::{Read, Seek, SeekFrom};
     pub use log::*;
-    pub use shared::common::*;
     pub use half::prelude::*;
 
-    pub use crate::prelude::*;
+    pub use crate::dev::*;
 
     pub use super::tri_shape::*;
     pub use super::sub_index_tri_shape::*;

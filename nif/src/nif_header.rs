@@ -1,5 +1,6 @@
+use ba2::dev::StringN;
 use log::error;
-use shared::common::{SizedString32, SizedString8, StringN};
+use crate::dev::*;
 
 use nom_derive::{NomLE, Parse};
 use nom::number::complete::{le_u16, le_u32, le_u8};

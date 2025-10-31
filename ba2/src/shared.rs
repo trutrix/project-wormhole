@@ -358,20 +358,7 @@ impl Parse<&[u8]> for MaxRef {
 }
 
 
-#[derive(Debug, PartialEq, Clone)]
-/// A quaternion in the form of `[x, y, z, w]`
-pub struct Quaternion(Vec4<f32>);
 
-impl Quaternion {
-    pub const fn x(&self) -> &f32 { &self.0.0[0] }
-    pub const fn y(&self) -> &f32 { &self.0.0[1] }
-    pub const fn z(&self) -> &f32 { &self.0.0[2] }
-    pub const fn w(&self) -> &f32 { &self.0.0[3] }
-
-    pub fn new(x: f32, y: f32, z: f32, w: f32) -> Self {
-        Quaternion(Vec4([x, y, z, w]))
-    }
-}
 
 
 pub fn standardize_path(path: &str) -> String {
