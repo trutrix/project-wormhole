@@ -1,3 +1,5 @@
+#![allow(unused)]
+
 pub mod nif_header;
 pub mod nif_file;
 pub mod nif_block;
