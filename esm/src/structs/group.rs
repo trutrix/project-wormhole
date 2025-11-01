@@ -432,7 +432,7 @@ pub enum TopGroup {
     PKIN(Group<PackIn>),
     PROJ(Group<Projectile>),
     QUST(Group<Quest>),
-    RACE(Group<RACE>),
+    RACE(Group<Race>),
     REGN(Group<REGN>),
     RELA(Group<RELA>),
     REVB(Group<REVB>),
