@@ -428,7 +428,7 @@ pub enum TopGroup {
     OTFT(Group<Outfit>),
     OVIS(Group<ObjectVisibility>),
     PACK(Group<Package>),
-    PERK(Group<PERK>),
+    PERK(Group<Perk>),
     PKIN(Group<PKIN>),
     PROJ(Group<PROJ>),
     QUST(Group<QUST>),
