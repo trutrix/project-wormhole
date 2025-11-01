@@ -430,7 +430,7 @@ pub enum TopGroup {
     PACK(Group<Package>),
     PERK(Group<Perk>),
     PKIN(Group<PackIn>),
-    PROJ(Group<PROJ>),
+    PROJ(Group<Projectile>),
     QUST(Group<QUST>),
     RACE(Group<RACE>),
     REGN(Group<REGN>),
