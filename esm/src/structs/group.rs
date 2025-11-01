@@ -433,7 +433,7 @@ pub enum TopGroup {
     PROJ(Group<Projectile>),
     QUST(Group<Quest>),
     RACE(Group<Race>),
-    REGN(Group<REGN>),
+    REGN(Group<Region>),
     RELA(Group<RELA>),
     REVB(Group<REVB>),
     RFCT(Group<RFCT>),
