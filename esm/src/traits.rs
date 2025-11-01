@@ -17,13 +17,6 @@ pub trait FieldParser<T> {
 
 // ====================================================================================================
 
-pub trait EditorId {
-    fn try_get_editor_id(&self) -> Option<ESMString>;
-}
-
-
-// ====================================================================================================
-
 pub trait RecordParser<T> where T: for<'esm> Parse<&'esm[u8]> {
     fn parse_body(i: &[u8]) -> IResult<&[u8], Vec<T>, nom::error::Error<&[u8]>> {
         let (i, fields) = many0(complete(T::parse_le))(i)?;
@@ -79,3 +72,21 @@ pub trait ESMParser<T> where T: for<'esm> Parse<&'esm[u8]> {
 
 // ====================================================================================================
 
+pub trait RecordEditorId {
+    fn try_get_editor_id(&self) -> Option<&ESMString>;
+}
+
+
+pub trait RecordFullName {
+    fn try_get_full_name(&self) -> Option<&FormId>;
+}
+
+
+pub trait RecordKeywords {
+    fn try_get_keywords(&self) -> Option<&Vec<FormId>>;
+}
+
+
+pub trait RecordDescription {
+    fn try_get_description(&self) -> Option<&ESMString>;
+}
