@@ -429,7 +429,7 @@ pub enum TopGroup {
     OVIS(Group<ObjectVisibility>),
     PACK(Group<Package>),
     PERK(Group<Perk>),
-    PKIN(Group<PKIN>),
+    PKIN(Group<PackIn>),
     PROJ(Group<PROJ>),
     QUST(Group<QUST>),
     RACE(Group<RACE>),
