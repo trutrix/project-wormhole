@@ -2,6 +2,7 @@ use proc_macro::TokenStream;
 use syn::parse_macro_input;
 use quote::quote;
 mod esm;
+mod consts;
 
 #[proc_macro]
 pub fn define_record(input: TokenStream) -> TokenStream {
