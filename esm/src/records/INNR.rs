@@ -4,7 +4,7 @@ define_record! {
     b"INNR",
     InstanceNamingRules, [
         EditorId;
-        Keywords;
+        Keyword;
         b"VNAM", NamingCount, u32;
         b"WNAM", Text, LocalizedString;
         b"YNAM", Index, u16;

@@ -7,7 +7,7 @@ define_record! {
         FullName;
         AllModelData;
         VirtualMachineAdapter;
-        Keywords;
+        Keyword;
         ObjectBounds;
         Destructible;
         PreviewTransform;

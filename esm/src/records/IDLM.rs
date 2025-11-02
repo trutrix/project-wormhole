@@ -4,7 +4,7 @@ define_record! {
     b"IDLM",
     IdleMarker, [
         EditorId;
-        Keywords;
+        Keyword;
         AllModelData;
         ObjectBounds;
         b"IDLA", Animations, Vec<FormId>;

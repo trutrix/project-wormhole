@@ -5,7 +5,7 @@ define_record! {
     Location, [
         EditorId;
         FullName;
-        Keywords;
+        Keyword;
         b"LCPR", PersistentRefs, Vec<LocationPersistentRef>;
         b"LCEC", EncounterCell, Vec<LocationEncounterCell>;
         b"LCID", CellMarkerRef, Vec<FormId>;

@@ -12,7 +12,7 @@ define_record! {
         VirtualMachineAdapter;
         Destructible;
         FullName;
-        Keywords;
+        Keyword;
 
         b"ATTX", ActivateTextOverride, ESMString; // TODO: Verify
         b"CITC", ConditionCount, u8; // TODO: Find type

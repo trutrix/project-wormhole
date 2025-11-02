@@ -205,49 +205,49 @@ pub fn common_map() -> HashMap<String, FieldDefinition> {
         }
     );
     
-    map.insert("ObjectBounds".to_string(), 
+    map.insert(OBND_NAME.to_string(), 
         FieldDefinition {
             _required: false,
-            idens: vec![LitByteStr::new(b"OBND", proc_macro2::Span::call_site())],
-            names: vec![Ident::new("ObjectBounds", proc_macro2::Span::call_site())],
-            field_types: vec![syn::parse_str("ObjectBounds").unwrap()],
+            idens: vec![LitByteStr::new(OBND_CODE, proc_macro2::Span::call_site())],
+            names: vec![Ident::new(OBND_NAME, proc_macro2::Span::call_site())],
+            field_types: vec![syn::parse_str(OBND_TYPE).unwrap()],
         }
     );
 
-    map.insert("PreviewTransform".to_string(), 
+    map.insert(PTRN_NAME.to_string(), 
         FieldDefinition {
             _required: false,
-            idens: vec![LitByteStr::new(b"PTRN", proc_macro2::Span::call_site())],
-            names: vec![Ident::new("PreviewTransform", proc_macro2::Span::call_site())],
-            field_types: vec![syn::parse_str("FormId").unwrap()],
+            idens: vec![LitByteStr::new(PTRN_CODE, proc_macro2::Span::call_site())],
+            names: vec![Ident::new(PTRN_NAME, proc_macro2::Span::call_site())],
+            field_types: vec![syn::parse_str(PTRN_TYPE).unwrap()],
         }
     );
 
-    map.insert("Keywords".to_string(), 
+    map.insert(KYWD_NAME.to_string(), 
         FieldDefinition {
             _required: false,
-            idens: vec![LitByteStr::new(b"KWDA", proc_macro2::Span::call_site()), LitByteStr::new(b"KSIZ", proc_macro2::Span::call_site())],
-            names: vec![Ident::new("Keywords", proc_macro2::Span::call_site()), Ident::new("KeywordCount", proc_macro2::Span::call_site())],
-            field_types: vec![syn::parse_str("Vec<FormId>").unwrap(), syn::parse_str("u32").unwrap()],
+            idens: vec![LitByteStr::new(KYWD_CODE, proc_macro2::Span::call_site()), LitByteStr::new(KSIZ_CODE, proc_macro2::Span::call_site())],
+            names: vec![Ident::new(KYWD_NAME, proc_macro2::Span::call_site()), Ident::new(KSIZ_NAME, proc_macro2::Span::call_site())],
+            field_types: vec![syn::parse_str(KYWD_TYPE).unwrap(), syn::parse_str(KSIZ_TYPE).unwrap()],
         }
     );
 
-    map.insert("VirtualMachineAdapter".to_string(), 
+    map.insert(VMAD_NAME.to_string(), 
     FieldDefinition { 
         _required: false,
-        idens: vec![LitByteStr::new(b"VMAD", proc_macro2::Span::call_site())],
-        names: vec![Ident::new("VirtualMachineAdapter", proc_macro2::Span::call_site())],
-        field_types: vec![syn::parse_str("VirtualMachineAdapter").unwrap()],
+        idens: vec![LitByteStr::new(VMAD_CODE, proc_macro2::Span::call_site())],
+        names: vec![Ident::new(VMAD_NAME, proc_macro2::Span::call_site())],
+        field_types: vec![syn::parse_str(VMAD_TYPE).unwrap()],
     });
 
 
-    map.insert("FullName".to_string(), 
+    map.insert(FULL_NAME.to_string(), 
     
         FieldDefinition {
             _required: true,
-            idens: vec![LitByteStr::new(b"FULL", proc_macro2::Span::call_site())],
-            names: vec![Ident::new("FullName", proc_macro2::Span::call_site())],
-            field_types: vec![syn::parse_str("LocalizedString").unwrap()],
+            idens: vec![LitByteStr::new(FULL_CODE, proc_macro2::Span::call_site())],
+            names: vec![Ident::new(FULL_NAME, proc_macro2::Span::call_site())],
+            field_types: vec![syn::parse_str(FULL_TYPE).unwrap()],
         }
     );
 

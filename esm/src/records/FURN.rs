@@ -7,7 +7,7 @@ define_record! {
     b"FURN",
     Furniture, [
         EditorId;
-        Keywords;
+        Keyword;
         AllModelData;
         Destructible;
         ObjectBounds;

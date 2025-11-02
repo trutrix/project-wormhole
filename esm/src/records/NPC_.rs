@@ -9,7 +9,7 @@ define_record! {
     b"NPC_",
     NonPlayerCharacter, [
         EditorId;
-        Keywords;
+        Keyword;
         VirtualMachineAdapter;
         FullName;
         Destructible;

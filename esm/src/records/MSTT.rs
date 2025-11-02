@@ -10,7 +10,7 @@ define_record! {
         FullName;
         AllModelData;
         Destructible;
-        Keywords;
+        Keyword;
         Properties;
         b"DATA", OnLocalMap, u8;
         b"SNAM", LoopingSound, FormId;

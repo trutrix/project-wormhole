@@ -6,7 +6,7 @@ define_record! {
         EditorId;
         FullName;
         Description;
-        Keywords;
+        Keyword;
         Properties;
         Condition;
         AllModelData;

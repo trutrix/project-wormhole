@@ -8,7 +8,7 @@ define_record! {
         ObjectBounds;
         PreviewTransform;
         FullName;
-        Keywords;
+        Keyword;
         AllModelData;
         Destructible;
         PickUpPutDown;

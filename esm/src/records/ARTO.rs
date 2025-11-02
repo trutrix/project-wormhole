@@ -7,7 +7,7 @@ define_record! {
         AllModelData;
         ObjectBounds;
         PreviewTransform;
-        Keywords;
+        Keyword;
         b"DNAM", ArtType, u32;
     ]
 }

@@ -9,7 +9,7 @@ define_record! {
         VirtualMachineAdapter;
         AllModelData;
         FullName;
-        Keywords;
+        Keyword;
         Destructible;
         PickUpPutDown;
         b"DATA", Data, ValueWeight;

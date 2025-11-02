@@ -4,7 +4,7 @@ define_record! {
     b"MGEF",
     MagicEffect, [
         EditorId;
-        Keywords;
+        Keyword;
         FullName;
         VirtualMachineAdapter;
         Condition;

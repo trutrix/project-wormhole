@@ -8,7 +8,7 @@ define_record! {
         PreviewTransform;
         VirtualMachineAdapter;
         AllModelData;
-        Keywords;
+        Keyword;
         Destructible;
         FullName;
         Properties;

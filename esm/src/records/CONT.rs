@@ -9,7 +9,7 @@ define_record! {
         AllModelData;
         ObjectBounds;
         FullName;
-        Keywords;
+        Keyword;
         Destructible;
         b"ONAM", Filters, Vec<FormId>;
         b"SNAM", SoundOpen, FormId;
