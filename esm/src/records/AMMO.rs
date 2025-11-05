@@ -5,7 +5,7 @@ define_record! {
     Ammo, [
         EditorId;
         ObjectBounds;
-        AllModelData;
+        ModelData;
         PreviewTransform;
         
         FullName;

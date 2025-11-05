@@ -4,7 +4,7 @@ define_record! {
     b"CLMT",
     Climate, [
         EditorId;
-        AllModelData;
+        ModelData;
         b"WSLT", WeatherList, Vec<WeatherData>;
         b"FNAM", SunTexture, ESMString;
         b"GNAM", SunGlareTexture, ESMString;

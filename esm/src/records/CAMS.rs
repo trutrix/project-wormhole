@@ -4,7 +4,7 @@ define_record! {
     b"CAMS",
     CameraShot, [
         EditorId;
-        AllModelData;
+        ModelData;
         Condition;
         b"DATA", CameraShotData, u8; // TODO: unknown struct
         b"MNAM", ImageSpaceModifier, FormId;

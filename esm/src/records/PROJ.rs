@@ -6,7 +6,7 @@ define_record! {
         EditorId;
         ObjectBounds;
         FullName;
-        AllModelData;
+        ModelData;
         Destructible;
         b"DNAM", Data, ProjectileData;
         b"VNAM", SoundLevel, u32; // TODO: enum?

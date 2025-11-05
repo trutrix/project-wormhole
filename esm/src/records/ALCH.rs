@@ -12,7 +12,7 @@ define_record! {
         FullName;
         Description;
         Condition;
-        AllModelData;
+        ModelData;
         Keyword;
         PickUpPutDown;
         b"CUSD", CustomData, u8; // TODO: Find actual type

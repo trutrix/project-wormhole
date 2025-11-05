@@ -8,7 +8,7 @@ define_record! {
     Furniture, [
         EditorId;
         Keyword;
-        AllModelData;
+        ModelData;
         Destructible;
         ObjectBounds;
         VirtualMachineAdapter;

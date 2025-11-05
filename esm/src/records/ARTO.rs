@@ -4,7 +4,7 @@ define_record! {
     b"ARTO",
     ArtObject, [
         EditorId;
-        AllModelData;
+        ModelData;
         ObjectBounds;
         PreviewTransform;
         Keyword;

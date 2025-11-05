@@ -5,7 +5,7 @@ define_record! {
     Hazard, [
         EditorId;
         FullName;
-        AllModelData;
+        ModelData;
         ObjectBounds;
         b"DNAM", Data, HazardData;
         b"MNAM", ImageSpaceModifier, FormId;

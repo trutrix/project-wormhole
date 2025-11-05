@@ -251,52 +251,7 @@ pub fn common_map() -> HashMap<String, FieldDefinition> {
         }
     );
 
-    map.insert("ModelPath".to_string(), 
-        FieldDefinition {
-            _required: false,
-            idens: vec![LitByteStr::new(b"MODL", proc_macro2::Span::call_site())],
-            names: vec![Ident::new("ModelPath", proc_macro2::Span::call_site())],
-            field_types: vec![syn::parse_str("ModelPath").unwrap()],
-        }
-    );
-
-    map.insert("ModelTexture".to_string(), 
-        FieldDefinition {
-            _required: false,
-            idens: vec![LitByteStr::new(b"MODT", proc_macro2::Span::call_site())],
-            names: vec![Ident::new("ModelTexture", proc_macro2::Span::call_site())],
-            field_types: vec![syn::parse_str("ModelTexture").unwrap()],
-        }
-    );
-
-    map.insert("ModelMaterialSwap".to_string(), 
-        FieldDefinition {
-            _required: false,
-            idens: vec![LitByteStr::new(b"MODS", proc_macro2::Span::call_site())],
-            names: vec![Ident::new("ModelMaterialSwap", proc_macro2::Span::call_site())],
-            field_types: vec![syn::parse_str("ModelMaterialSwap").unwrap()],
-        }
-    );
-
-    map.insert("ModelColorMap".to_string(), 
-        FieldDefinition {
-            _required: false,
-            idens: vec![LitByteStr::new(b"MODC", proc_macro2::Span::call_site())],
-            names: vec![Ident::new("ModelColorMap", proc_macro2::Span::call_site())],
-            field_types: vec![syn::parse_str("ModelColorMap").unwrap()],
-        }
-    );
-
-    map.insert("ModelFlags".to_string(), 
-        FieldDefinition {
-            _required: false,
-            idens: vec![LitByteStr::new(b"MODF", proc_macro2::Span::call_site())],
-            names: vec![Ident::new("ModelFlags", proc_macro2::Span::call_site())],
-            field_types: vec![syn::parse_str("ModelFlags").unwrap()],
-        }
-    );
-
-    map.insert("AllModelData".to_string(), 
+    map.insert("ModelData".to_string(), 
         FieldDefinition {
             _required: false,
             idens: vec![

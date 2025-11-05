@@ -5,7 +5,7 @@ define_record! {
     HeadPart, [
         EditorId;
         FullName;
-        AllModelData;
+        ModelData;
         Condition;
         b"TNAM", TextureSet, FormId;
         b"RNAM", ValidRaces, FormId;

@@ -5,7 +5,7 @@ define_record! {
     Flora, [
         EditorId;
         FullName;
-        AllModelData;
+        ModelData;
         VirtualMachineAdapter;
         Keyword;
         ObjectBounds;

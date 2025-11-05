@@ -8,7 +8,7 @@ define_record! {
     b"INGR",
     Ingredient, [
         EditorId;
-        AllModelData;
+        ModelData;
         ObjectBounds;
         FullName;
         PickUpPutDown;

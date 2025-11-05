@@ -9,7 +9,7 @@ define_record! {
         Keyword;
         Properties;
         Condition;
-        AllModelData;
+        ModelData;
         // TODO: Large amount of fields
     ]
 }

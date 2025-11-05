@@ -4,7 +4,7 @@ define_record! {
     b"DOOR",
     Door, [
         EditorId;
-        AllModelData;
+        ModelData;
         ObjectBounds;
         VirtualMachineAdapter;
         Keyword;

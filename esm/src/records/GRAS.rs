@@ -5,7 +5,7 @@ define_record! {
     Grass, [
         EditorId;
         ObjectBounds;
-        AllModelData;
+        ModelData;
         b"DATA", Data, GrassData;
     ]
 }

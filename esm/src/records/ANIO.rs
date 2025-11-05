@@ -4,7 +4,7 @@ define_record! {
     b"ANIO",
     AnimatedObject, [
         EditorId;
-        AllModelData;
+        ModelData;
         b"BNAM", UnloadEvent, ESMString; // String?
     ]
 }

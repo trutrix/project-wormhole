@@ -4,7 +4,7 @@ define_record! {
     b"MATT",
     MaterialType, [
         EditorId;
-        AllModelData; // Maybe only MODT?
+        ModelData; // Maybe only MODT?
         b"MNAM", MaterialName, ESMString;
         b"CNAM", HavokColor, [u32;3]; // TODO: 12 bytes, three u32s seems like overkill
         b"BNAM", Buoyancy, f32;

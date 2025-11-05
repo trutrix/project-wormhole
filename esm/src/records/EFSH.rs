@@ -4,7 +4,7 @@ define_record! {
     b"EFSH",
     EffectShader, [
         EditorId;
-        AllModelData;
+        ModelData;
         b"DNAM", Data, EffectShaderData;
         b"ICON", FillTexture, ESMString;
         b"ICO2", ParticleShaderTexture, ESMString;
