@@ -4,7 +4,7 @@ define_record! {
     b"DEBR",
     Debris, [
         EditorId;
-        ModelTexture;
+        ModelData;
         b"DATA", Data, u8;
     ]
 }
