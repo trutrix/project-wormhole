@@ -3,6 +3,7 @@ pub mod records;
 pub mod traits;
 pub mod structs;
 pub mod esm;
+pub mod consts;
 mod tests;
 
 mod dev {
@@ -30,4 +31,5 @@ mod dev {
     #[allow(unused_imports)]
     pub use super::structs::matrix::*;
     pub use super::structs::vectors::*;
+    pub use super::consts::*;
 }
