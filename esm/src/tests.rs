@@ -1,7 +1,7 @@
 #![allow(unused)]
 use std::collections::{HashMap, HashSet};
 
-use crate::records::all::{Armor, ArmorAddon, ArtObject, AttractionRule, BodyPartData, Book, Class, Color, NonPlayerCharacter};
+use crate::records::all::{Armor, ArmorAddon, ArtObject, AttractionRule, BodyPartData, Book, Class, Color, NonPlayerCharacter, Projectile};
 
 
 const ESM_PATH: &str = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Fallout 4\\Data\\Fallout4.esm";
@@ -32,17 +32,17 @@ fn test1() {
     for (id, rr) in esm.records {
         
 
-        if rr.header.iden.0 != *b"NPC_" {
+        if rr.header.iden.0 != *b"PROJ" {
             continue;
         } else {
             let set = field_ids.entry(rr.header.iden).or_insert(HashSet::new());
-            let tr = NonPlayerCharacter::try_from(rr).unwrap();
+            let tr = Projectile::try_from(rr).unwrap();
 
             println!("{:#?}", tr);
 
             for f in tr.fields {
                 match f {
-                    crate::records::all::NonPlayerCharacterField::Unknown(four_cc) => {
+                    crate::records::all::ProjectileField::Unknown(four_cc) => {
                         set.insert(four_cc);
                     }
                     _ => { /* Ignore known fields */ }
