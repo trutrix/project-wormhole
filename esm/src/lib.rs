@@ -31,5 +31,6 @@ mod dev {
     #[allow(unused_imports)]
     pub use super::structs::matrix::*;
     pub use super::structs::vectors::*;
+    #[allow(unused_imports)]
     pub use super::consts::*;
 }
