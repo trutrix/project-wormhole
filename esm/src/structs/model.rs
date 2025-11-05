@@ -1,3 +1,5 @@
+use nom_derive::nom::multi::count;
+
 use crate::dev::*;
 
 
@@ -10,57 +12,74 @@ pub type ModelFlags = u32;
 
 #[derive(Debug)]
 pub struct ModelTexture {
-    pub header_count: u8,
-    pub texture_count: Option<u8>,
-    pub addon_count: Option<u8>,
-    pub texture_sets: Option<u8>,
-    pub materials_count: Option<u8>,
-    pub texture_path: ESMString
+    pub item_types_count: u32,
+    pub item_counts: Vec<u32>,
+    pub textures: Vec<FileHashInfo>,
+    pub addons: Vec<FileHashInfo>,
+    pub materials: Vec<FileHashInfo>,
 }
 
 
+impl ModelTexture {
+    pub fn get_texture_count(&self) -> Option<&u32> {
+        self.item_counts.get(0)
+    }
+
+    pub fn get_addon_count(&self) -> Option<&u32> {
+        self.item_counts.get(1)
+    }
+
+    pub fn get_texture_set_count(&self) -> Option<&u32> {
+        self.item_counts.get(2)
+    }
+
+    pub fn get_material_count(&self) -> Option<&u32> {
+        self.item_counts.get(3)
+    }
+}
+
+#[derive(Debug, NomLE)]
+pub struct FileHashInfo {
+    pub file_hash: u32,
+    pub file_ext: FourCC,
+    pub folder_hash: u32,
+}
 
 impl Parse<&[u8]> for ModelTexture {
     fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
-        let (i, header_count) = le_u8(i)?;
+        let (i, item_types_count) = le_u32(i)?;
 
-        let (i, texture_count) = if header_count >= 1 {
-            let (i, v) = le_u8(i)?;
-            (i, Some(v))
+        let (i, item_counts) = count(le_u32, item_types_count as usize)(i)?;
+        let item_counts_len = item_counts.len();
+
+
+        let (i, textures) = if item_counts_len >= 1 {
+            count(FileHashInfo::parse, item_counts[0] as usize)(i)?
         } else {
-            (i, None)
+            (i, vec![])
         };
 
-        let (i, addon_count) = if header_count >= 2 {
-            let (i, v) = le_u8(i)?;
-            (i, Some(v))
+
+        let (i, addons) = if item_counts_len >= 2 {
+            count(FileHashInfo::parse, item_counts[1] as usize)(i)?
         } else {
-            (i, None)
+            (i, vec![])
         };
 
-        let (i, texture_sets) = if header_count >= 3 {
-            let (i, v) = le_u8(i)?;
-            (i, Some(v))
+
+        let (i, materials) = if item_counts_len >= 4 {
+            count(FileHashInfo::parse, item_counts[3] as usize)(i)?
         } else {
-            (i, None)
+            (i, vec![])
         };
 
-        let (i, materials_count) = if header_count >= 4 {
-            let (i, v) = le_u8(i)?;
-            (i, Some(v))
-        } else {
-            (i, None)
-        };
-
-        let (i, texture_path) = ESMString::parse(i)?;
 
         Ok((i, ModelTexture {
-            header_count,
-            texture_count,
-            addon_count,
-            texture_sets,
-            materials_count,
-            texture_path
+            item_types_count,
+            item_counts,
+            textures,
+            addons,
+            materials
         }))
     }
 }
