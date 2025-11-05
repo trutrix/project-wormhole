@@ -2,6 +2,7 @@
 use std::collections::HashMap;
 
 use proc_macro2::TokenStream;
+use proc_macro2::Span;
 use quote::{ToTokens, quote};
 use syn::{*, parse::Parse, punctuated::Punctuated};
 
@@ -169,8 +170,8 @@ pub fn common_map() -> HashMap<String, FieldDefinition> {
     map.insert(EDID_NAME.to_string(), {
         FieldDefinition {
             _required: true,
-            idens: vec![LitByteStr::new(EDID_CODE, proc_macro2::Span::call_site())],
-            names: vec![Ident::new(EDID_NAME, proc_macro2::Span::call_site())],
+            idens: vec![LitByteStr::new(EDID_CODE, Span::call_site())],
+            names: vec![Ident::new(EDID_NAME, Span::call_site())],
             field_types: vec![syn::parse_str(EDID_TYPE).unwrap()],
         }
     });
@@ -178,8 +179,8 @@ pub fn common_map() -> HashMap<String, FieldDefinition> {
     map.insert(DESC_NAME.to_string(), 
         FieldDefinition {
             _required: false,
-            idens: vec![LitByteStr::new(DESC_CODE, proc_macro2::Span::call_site())],
-            names: vec![Ident::new(DESC_NAME, proc_macro2::Span::call_site())],
+            idens: vec![LitByteStr::new(DESC_CODE, Span::call_site())],
+            names: vec![Ident::new(DESC_NAME, Span::call_site())],
             field_types: vec![syn::parse_str(DESC_TYPE).unwrap()],
         }
     );
@@ -188,14 +189,14 @@ pub fn common_map() -> HashMap<String, FieldDefinition> {
         FieldDefinition {
             _required: false,
             idens: vec![
-                LitByteStr::new(CTDA_CODE, proc_macro2::Span::call_site()),
-                LitByteStr::new(CIS1_CODE, proc_macro2::Span::call_site()),
-                LitByteStr::new(CIS2_CODE, proc_macro2::Span::call_site())
+                LitByteStr::new(CTDA_CODE, Span::call_site()),
+                LitByteStr::new(CIS1_CODE, Span::call_site()),
+                LitByteStr::new(CIS2_CODE, Span::call_site())
             ],
             names: vec![
-                Ident::new(CTDA_NAME, proc_macro2::Span::call_site()),
-                Ident::new(CIS1_NAME, proc_macro2::Span::call_site()),
-                Ident::new(CIS2_NAME, proc_macro2::Span::call_site())
+                Ident::new(CTDA_NAME, Span::call_site()),
+                Ident::new(CIS1_NAME, Span::call_site()),
+                Ident::new(CIS2_NAME, Span::call_site())
             ],
             field_types: vec![
                 syn::parse_str(CTDA_TYPE).unwrap(),
@@ -208,8 +209,8 @@ pub fn common_map() -> HashMap<String, FieldDefinition> {
     map.insert(OBND_NAME.to_string(), 
         FieldDefinition {
             _required: false,
-            idens: vec![LitByteStr::new(OBND_CODE, proc_macro2::Span::call_site())],
-            names: vec![Ident::new(OBND_NAME, proc_macro2::Span::call_site())],
+            idens: vec![LitByteStr::new(OBND_CODE, Span::call_site())],
+            names: vec![Ident::new(OBND_NAME, Span::call_site())],
             field_types: vec![syn::parse_str(OBND_TYPE).unwrap()],
         }
     );
@@ -217,8 +218,8 @@ pub fn common_map() -> HashMap<String, FieldDefinition> {
     map.insert(PTRN_NAME.to_string(), 
         FieldDefinition {
             _required: false,
-            idens: vec![LitByteStr::new(PTRN_CODE, proc_macro2::Span::call_site())],
-            names: vec![Ident::new(PTRN_NAME, proc_macro2::Span::call_site())],
+            idens: vec![LitByteStr::new(PTRN_CODE, Span::call_site())],
+            names: vec![Ident::new(PTRN_NAME, Span::call_site())],
             field_types: vec![syn::parse_str(PTRN_TYPE).unwrap()],
         }
     );
@@ -226,8 +227,8 @@ pub fn common_map() -> HashMap<String, FieldDefinition> {
     map.insert(KYWD_NAME.to_string(), 
         FieldDefinition {
             _required: false,
-            idens: vec![LitByteStr::new(KYWD_CODE, proc_macro2::Span::call_site()), LitByteStr::new(KSIZ_CODE, proc_macro2::Span::call_site())],
-            names: vec![Ident::new(KYWD_NAME, proc_macro2::Span::call_site()), Ident::new(KSIZ_NAME, proc_macro2::Span::call_site())],
+            idens: vec![LitByteStr::new(KYWD_CODE, Span::call_site()), LitByteStr::new(KSIZ_CODE, Span::call_site())],
+            names: vec![Ident::new(KYWD_NAME, Span::call_site()), Ident::new(KSIZ_NAME, Span::call_site())],
             field_types: vec![syn::parse_str(KYWD_TYPE).unwrap(), syn::parse_str(KSIZ_TYPE).unwrap()],
         }
     );
@@ -235,8 +236,8 @@ pub fn common_map() -> HashMap<String, FieldDefinition> {
     map.insert(VMAD_NAME.to_string(), 
     FieldDefinition { 
         _required: false,
-        idens: vec![LitByteStr::new(VMAD_CODE, proc_macro2::Span::call_site())],
-        names: vec![Ident::new(VMAD_NAME, proc_macro2::Span::call_site())],
+        idens: vec![LitByteStr::new(VMAD_CODE, Span::call_site())],
+        names: vec![Ident::new(VMAD_NAME, Span::call_site())],
         field_types: vec![syn::parse_str(VMAD_TYPE).unwrap()],
     });
 
@@ -245,8 +246,8 @@ pub fn common_map() -> HashMap<String, FieldDefinition> {
     
         FieldDefinition {
             _required: true,
-            idens: vec![LitByteStr::new(FULL_CODE, proc_macro2::Span::call_site())],
-            names: vec![Ident::new(FULL_NAME, proc_macro2::Span::call_site())],
+            idens: vec![LitByteStr::new(FULL_CODE, Span::call_site())],
+            names: vec![Ident::new(FULL_NAME, Span::call_site())],
             field_types: vec![syn::parse_str(FULL_TYPE).unwrap()],
         }
     );
@@ -255,25 +256,25 @@ pub fn common_map() -> HashMap<String, FieldDefinition> {
         FieldDefinition {
             _required: false,
             idens: vec![
-                LitByteStr::new(b"MODL", proc_macro2::Span::call_site()),
-                LitByteStr::new(b"MODT", proc_macro2::Span::call_site()),
-                LitByteStr::new(b"MODC", proc_macro2::Span::call_site()),
-                LitByteStr::new(b"MODS", proc_macro2::Span::call_site()),
-                LitByteStr::new(b"MODF", proc_macro2::Span::call_site()),
+                LitByteStr::new(MODL_CODE, Span::call_site()),
+                LitByteStr::new(MODT_CODE, Span::call_site()),
+                LitByteStr::new(MODC_CODE, Span::call_site()),
+                LitByteStr::new(MODS_CODE, Span::call_site()),
+                LitByteStr::new(MODF_CODE, Span::call_site()),
             ],
             names: vec![
-                Ident::new("ModelPath", proc_macro2::Span::call_site()),
-                Ident::new("ModelTexture", proc_macro2::Span::call_site()),
-                Ident::new("ModelColorMap", proc_macro2::Span::call_site()),
-                Ident::new("ModelMaterialSwap", proc_macro2::Span::call_site()),
-                Ident::new("ModelFlags", proc_macro2::Span::call_site()),
+                Ident::new(MODL_NAME, Span::call_site()),
+                Ident::new(MODT_NAME, Span::call_site()),
+                Ident::new(MODC_NAME, Span::call_site()),
+                Ident::new(MODS_NAME, Span::call_site()),
+                Ident::new(MODF_NAME, Span::call_site()),
             ],
             field_types: vec![
-                syn::parse_str("ModelPath").unwrap(),
-                syn::parse_str("ModelTexture").unwrap(),
-                syn::parse_str("ModelColorMap").unwrap(),
-                syn::parse_str("ModelMaterialSwap").unwrap(),
-                syn::parse_str("ModelFlags").unwrap(),
+                syn::parse_str(MODL_TYPE).unwrap(),
+                syn::parse_str(MODT_TYPE).unwrap(),
+                syn::parse_str(MODC_TYPE).unwrap(),
+                syn::parse_str(MODS_TYPE).unwrap(),
+                syn::parse_str(MODF_TYPE).unwrap(),
             ],
         }
     );
@@ -282,44 +283,44 @@ pub fn common_map() -> HashMap<String, FieldDefinition> {
         FieldDefinition {
             _required: false,
             idens: vec![
-                LitByteStr::new(b"DEST", proc_macro2::Span::call_site()),
-                LitByteStr::new(b"DSTD", proc_macro2::Span::call_site()),
-                LitByteStr::new(b"DSTF", proc_macro2::Span::call_site()),
-                LitByteStr::new(b"DMDL", proc_macro2::Span::call_site()),
-                LitByteStr::new(b"DMDT", proc_macro2::Span::call_site()),
+                LitByteStr::new(DEST_CODE, Span::call_site()),
+                LitByteStr::new(DSTD_CODE, Span::call_site()),
+                LitByteStr::new(DSTF_CODE, Span::call_site()),
+                LitByteStr::new(DMDL_CODE, Span::call_site()),
+                LitByteStr::new(DMDT_CODE, Span::call_site()),
             ],
             names: vec![
-                Ident::new("Destructible", proc_macro2::Span::call_site()),
-                Ident::new("DestructibleStageData", proc_macro2::Span::call_site()),
-                Ident::new("DestructibleEnd", proc_macro2::Span::call_site()),
-                Ident::new("DestructibleModelPath", proc_macro2::Span::call_site()),
-                Ident::new("DestructibleModelTexture", proc_macro2::Span::call_site()),
+                Ident::new(DEST_NAME, Span::call_site()),
+                Ident::new(DSTD_NAME, Span::call_site()),
+                Ident::new(DSTF_NAME, Span::call_site()),
+                Ident::new(DMDL_NAME, Span::call_site()),
+                Ident::new(DMDT_NAME, Span::call_site()),
             ],
             field_types: vec![
-                syn::parse_str("DestructibleHeader").unwrap(),
-                syn::parse_str("Vec<DestructibleStage>").unwrap(),
-                syn::parse_str("EmptyParser").unwrap(),
-                syn::parse_str("ESMString").unwrap(),
-                syn::parse_str("ModelTexture").unwrap(),
+                syn::parse_str(DEST_TYPE).unwrap(),
+                syn::parse_str(DSTD_TYPE).unwrap(),
+                syn::parse_str(DSTF_TYPE).unwrap(),
+                syn::parse_str(DMDL_TYPE).unwrap(),
+                syn::parse_str(DMDT_TYPE).unwrap(),
             ],
         }
     );
 
-    map.insert("Properties".to_string(), 
+    map.insert(PRPS_NAME.to_string(), 
         FieldDefinition {
             _required: false,
-            idens: vec![LitByteStr::new(b"PRPS", proc_macro2::Span::call_site())],
-            names: vec![Ident::new("Properties", proc_macro2::Span::call_site())],
-            field_types: vec![syn::parse_str("RecordProperty").unwrap()],
+            idens: vec![LitByteStr::new(PRPS_CODE, Span::call_site())],
+            names: vec![Ident::new(PRPS_NAME, Span::call_site())],
+            field_types: vec![syn::parse_str(PRPS_TYPE).unwrap()],
         }
     );
 
     map.insert("PickUpPutDown".to_string(),
         FieldDefinition {
             _required: false,
-            idens: vec![LitByteStr::new(b"YNAM", proc_macro2::Span::call_site()),LitByteStr::new(b"ZNAM", proc_macro2::Span::call_site())],
-            names: vec![Ident::new("PickUpSound", proc_macro2::Span::call_site()),Ident::new("PutDownSound", proc_macro2::Span::call_site())],
-            field_types: vec![syn::parse_str("FormId").unwrap(),syn::parse_str("FormId").unwrap()],
+            idens: vec![LitByteStr::new(YNAM_CODE, Span::call_site()),LitByteStr::new(ZNAM_CODE, Span::call_site())],
+            names: vec![Ident::new(YNAM_NAME, Span::call_site()),Ident::new(ZNAM_NAME, Span::call_site())],
+            field_types: vec![syn::parse_str(YNAM_TYPE).unwrap(),syn::parse_str(ZNAM_TYPE).unwrap()],
         }
     );
 
