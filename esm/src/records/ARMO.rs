@@ -5,7 +5,7 @@ define_record! {
     Armor, [
         EditorId;
         ObjectBounds;
-        AllModelData;
+        ModelData;
         PreviewTransform;
         Description;
 

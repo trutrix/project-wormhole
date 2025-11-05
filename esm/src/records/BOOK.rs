@@ -6,7 +6,7 @@ define_record! {
         EditorId;
         ObjectBounds;
         PreviewTransform;
-        AllModelData;
+        ModelData;
         Keyword;
         VirtualMachineAdapter;
         FullName;

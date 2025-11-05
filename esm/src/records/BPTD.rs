@@ -4,7 +4,7 @@ define_record! {
     b"BPTD",
     BodyPartData, [
         EditorId;
-        AllModelData;
+        ModelData;
 
         // Compound data list
         b"BPTN", BodyPartName, LocalizedString;

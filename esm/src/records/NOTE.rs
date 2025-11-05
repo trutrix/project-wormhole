@@ -5,7 +5,7 @@ define_record! {
     Note, [
         EditorId;
         ObjectBounds;
-        AllModelData;
+        ModelData;
         FullName;
         PreviewTransform;
         VirtualMachineAdapter;

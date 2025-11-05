@@ -6,7 +6,7 @@ define_record! {
         EditorId;
         FullName;
         Description;
-        AllModelData;
+        ModelData;
         b"DATA", Data, ObjectModificationData;
         b"NAM1", Priority, u32;
         b"FNAM", FilterKeywords, Vec<FormId>;

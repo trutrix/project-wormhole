@@ -9,7 +9,7 @@ define_record! {
         PreviewTransform;
         FullName;
         Keyword;
-        AllModelData;
+        ModelData;
         Destructible;
         PickUpPutDown;
         b"DATA", Data, KeyData;

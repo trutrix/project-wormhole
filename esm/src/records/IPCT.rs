@@ -4,7 +4,7 @@ define_record! {
     b"IPCT",
     Impact, [
         EditorId;
-        AllModelData;
+        ModelData;
         b"DATA", Data, ImpactData;
         b"DNAM", TextureSet1, FormId;
         b"ENAM", TextureSet2, FormId;

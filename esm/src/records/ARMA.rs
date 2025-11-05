@@ -4,7 +4,7 @@ define_record! {
     b"ARMA",
     ArmorAddon, [
         EditorId;
-        AllModelData;
+        ModelData;
 
         b"BOD2", BipedBodyTemplate, u8; // Unknown struct
         b"RNAM", Race, FormId; // Ref

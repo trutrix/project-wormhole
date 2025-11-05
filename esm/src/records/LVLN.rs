@@ -5,7 +5,7 @@ define_record! {
     LeveledNPC, [
         EditorId;
         ObjectBounds;
-        AllModelData;
+        ModelData;
         b"LVLO", LeveledObject, EmptyParser; // TODO: 12 bytes - 4 values (same as LVLI?)
         b"LVLD", ChanceNone, u8;
         b"LVLF", Flags, u8;

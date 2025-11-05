@@ -5,7 +5,7 @@ define_record! {
     Activator, [
 
         EditorId;
-        AllModelData;
+        ModelData;
         ObjectBounds;
         PreviewTransform;
         Condition;

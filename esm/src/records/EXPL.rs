@@ -5,7 +5,7 @@ define_record! {
     Explosion, [
         EditorId;
         FullName;
-        AllModelData;
+        ModelData;
         ObjectBounds;
         b"DATA", Data, ExplosionData;
         b"EITM", ObjectEffect, FormId;

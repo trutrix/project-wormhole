@@ -4,7 +4,7 @@ define_record! {
     b"MATO",
     MaterialObject, [
         EditorId;
-        AllModelData;
+        ModelData;
         b"DATA", Data, MaterialObjectData;
         b"DNAM", PropertyData, EmptyParser; // TODO: unknown, strange sizes - may be binary
     ]
