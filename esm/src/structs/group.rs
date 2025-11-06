@@ -434,7 +434,7 @@ pub enum TopGroup {
     QUST(Group<Quest>),
     RACE(Group<Race>),
     REGN(Group<Region>),
-    RELA(Group<RELA>),
+    RELA(Group<Relationship>),
     REVB(Group<REVB>),
     RFCT(Group<RFCT>),
     RFGP(Group<RFGP>),
