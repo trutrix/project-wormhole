@@ -437,7 +437,7 @@ pub enum TopGroup {
     RELA(Group<Relationship>),
     REVB(Group<Reverb>),
     RFCT(Group<VisualEffect>),
-    RFGP(Group<RFGP>),
+    RFGP(Group<ReferenceGroup>),
     SCCO(Group<SCCO>),
     SCOL(Group<SCOL>),
     SCSN(Group<SCSN>),
