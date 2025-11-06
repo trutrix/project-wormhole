@@ -435,7 +435,7 @@ pub enum TopGroup {
     RACE(Group<Race>),
     REGN(Group<Region>),
     RELA(Group<Relationship>),
-    REVB(Group<REVB>),
+    REVB(Group<Reverb>),
     RFCT(Group<RFCT>),
     RFGP(Group<RFGP>),
     SCCO(Group<SCCO>),
