@@ -438,7 +438,7 @@ pub enum TopGroup {
     REVB(Group<Reverb>),
     RFCT(Group<VisualEffect>),
     RFGP(Group<ReferenceGroup>),
-    SCCO(Group<SCCO>),
+    SCCO(Group<SceneCollection>),
     SCOL(Group<SCOL>),
     SCSN(Group<SCSN>),
     SMBN(Group<SMBN>),
