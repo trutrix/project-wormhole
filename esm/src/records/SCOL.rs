@@ -2,6 +2,24 @@ use crate::dev::*;
 
 define_record! {
     b"SCOL",
-    SCOL, [
+    StaticCollection, [
+        EditorId;
+        PreviewTransform;
+        ModelData;
+        ObjectBounds;
+        FullName;
+        b"FLTR", Filter, ESMString;
+        b"ONAM", StaticItem, FormId;
+        b"DATA", ItemPlacements, Vec<StaticItemPlacement>;
     ]
+}
+
+
+// TODO: Smallest DATA structure size is 24 bytes, yet it seems to be wildly inaccurate
+// Maybe its all halves?
+#[derive(Debug, NomLE)]
+pub struct StaticItemPlacement {
+    pub position: [f32; 3],
+    pub rotation: [f32; 3],
+    pub scale: f32
 }

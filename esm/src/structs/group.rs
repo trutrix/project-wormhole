@@ -439,7 +439,7 @@ pub enum TopGroup {
     RFCT(Group<VisualEffect>),
     RFGP(Group<ReferenceGroup>),
     SCCO(Group<SceneCollection>),
-    SCOL(Group<SCOL>),
+    SCOL(Group<StaticCollection>),
     SCSN(Group<SCSN>),
     SMBN(Group<SMBN>),
     SMEN(Group<SMEN>),
