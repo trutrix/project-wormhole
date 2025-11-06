@@ -436,7 +436,7 @@ pub enum TopGroup {
     REGN(Group<Region>),
     RELA(Group<Relationship>),
     REVB(Group<Reverb>),
-    RFCT(Group<RFCT>),
+    RFCT(Group<VisualEffect>),
     RFGP(Group<RFGP>),
     SCCO(Group<SCCO>),
     SCOL(Group<SCOL>),
