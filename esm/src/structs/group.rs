@@ -442,7 +442,7 @@ pub enum TopGroup {
     SCOL(Group<StaticCollection>),
     SCSN(Group<AudioCategorySnapshot>),
     SMBN(Group<StoryManagerBranchNode>),
-    SMEN(Group<SMEN>),
+    SMEN(Group<StoryManagerEventNode>),
     SMQN(Group<SMQN>),
     SNCT(Group<SNCT>),
     SNDR(Group<SNDR>),
