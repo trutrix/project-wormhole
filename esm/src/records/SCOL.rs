@@ -15,7 +15,7 @@ define_record! {
 }
 
 
-// TODO: Smallest DATA structure size is 24 bytes, yet it seems to be wildly inaccurate
+// TODO: Smallest DATA structure size is 28 bytes, yet it seems to be wildly inaccurate
 // Maybe its all halves?
 #[derive(Debug, NomLE)]
 pub struct StaticItemPlacement {
