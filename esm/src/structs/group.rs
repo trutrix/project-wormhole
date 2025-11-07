@@ -440,7 +440,7 @@ pub enum TopGroup {
     RFGP(Group<ReferenceGroup>),
     SCCO(Group<SceneCollection>),
     SCOL(Group<StaticCollection>),
-    SCSN(Group<SCSN>),
+    SCSN(Group<AudioCategorySnapshot>),
     SMBN(Group<SMBN>),
     SMEN(Group<SMEN>),
     SMQN(Group<SMQN>),
