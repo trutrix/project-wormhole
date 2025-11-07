@@ -441,7 +441,7 @@ pub enum TopGroup {
     SCCO(Group<SceneCollection>),
     SCOL(Group<StaticCollection>),
     SCSN(Group<AudioCategorySnapshot>),
-    SMBN(Group<SMBN>),
+    SMBN(Group<StoryManagerBranchNode>),
     SMEN(Group<SMEN>),
     SMQN(Group<SMQN>),
     SNCT(Group<SNCT>),
