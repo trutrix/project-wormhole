@@ -443,7 +443,7 @@ pub enum TopGroup {
     SCSN(Group<AudioCategorySnapshot>),
     SMBN(Group<StoryManagerBranchNode>),
     SMEN(Group<StoryManagerEventNode>),
-    SMQN(Group<SMQN>),
+    SMQN(Group<StoryManagerQuestNode>),
     SNCT(Group<SNCT>),
     SNDR(Group<SNDR>),
     SOPM(Group<SOPM>),
