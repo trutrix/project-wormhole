@@ -446,7 +446,7 @@ pub enum TopGroup {
     SMQN(Group<StoryManagerQuestNode>),
     SNCT(Group<SoundCategory>),
     SNDR(Group<SoundDescriptor>),
-    SOPM(Group<SOPM>),
+    SOPM(Group<SoundOutputModel>),
     SOUN(Group<SOUN>),
     SPEL(Group<SPEL>),
     SPGD(Group<SPGD>),
