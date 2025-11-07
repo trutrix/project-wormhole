@@ -444,7 +444,7 @@ pub enum TopGroup {
     SMBN(Group<StoryManagerBranchNode>),
     SMEN(Group<StoryManagerEventNode>),
     SMQN(Group<StoryManagerQuestNode>),
-    SNCT(Group<SNCT>),
+    SNCT(Group<SoundCategory>),
     SNDR(Group<SNDR>),
     SOPM(Group<SOPM>),
     SOUN(Group<SOUN>),
