@@ -453,7 +453,7 @@ pub enum TopGroup {
     STAG(Group<SoundTag>),
     STAT(Group<Static>),
     TACT(Group<TalkingActivator>),
-    TERM(Group<TERM>),
+    TERM(Group<Terminal>),
     TREE(Group<TREE>),
     TRNS(Group<TRNS>),
     TXST(Group<TXST>),
