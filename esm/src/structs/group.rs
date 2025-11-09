@@ -456,7 +456,7 @@ pub enum TopGroup {
     TERM(Group<Terminal>),
     TREE(Group<Tree>),
     TRNS(Group<Transform>),
-    TXST(Group<TXST>),
+    TXST(Group<TextureSet>),
     VTYP(Group<VTYP>),
     WATR(Group<WATR>),
     WEAP(Group<WEAP>),
