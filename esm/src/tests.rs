@@ -32,17 +32,16 @@ fn test1() {
     for (id, rr) in esm.records {
         
 
-        if rr.header.iden.0 != *b"STAG" {
+        if rr.header.iden.0 != *b"STAT" {
             continue;
         } else {
             let set = field_ids.entry(rr.header.iden).or_insert(HashSet::new());
-            let tr = SoundTag::try_from(rr).unwrap();
-
+            let tr = crate::records::all::Static::try_from(rr).unwrap();
             println!("{:#?}", tr);
 
             for f in tr.fields {
                 match f {
-                    crate::records::all::SoundTagField::Unknown(four_cc) => {
+                    crate::records::all::StaticField::Unknown(four_cc) => {
                         set.insert(four_cc);
                     }
                     _ => { /* Ignore known fields */ }
