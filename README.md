@@ -4,12 +4,13 @@
 - `ESM` - Active
 - `NIF` - Paused - Need ESM to advance
 - `BA2` - Paused - Need ESM to advance
+- `BGSM` - Not Started
 
 
 ## ESM
 - Working on data driven code generation for each record type
 - `RawESM` - `WIP`
-  - On demand data for editing
+  - On demand data for faster editor performance
   - Indexes all top records in less than 300ms
   - Data is only converted to actual record structure on request
 - `SmartESM` - `WIP`
@@ -42,11 +43,24 @@
   - I was unsatisfied how long it took creation kit to do this
   - I have achieved this 2 times before, just didn't save the code `:(`
 
+## BGSM
+  - Material files parser `Not Started`
 
 
+## GUI Application
+  - Rust has extremely young UI frameworks that are poorly documented
+  - May be easier to export libs to different langs
+  - Tauri is the frontrunner for rust but requires an enormous amount of effort to get the features I want
 
 # Sources
 - Fallout 4 & Creation Kit
 - [FO4Edit](https://tes5edit.github.io/) - Best tool there is
 - [UESP](https://en.uesp.net/wiki/Skyrim_Mod:Mod_File_Format) - Extremely helpful understanding records and groups
+- [NifSkope](https://github.com/niftools/nifskope) - Has almost all info regarding nif files, seems unmaintained right now
 - Places I didn't write down (I promise I'll find you again)
+
+
+# Project Notes
+- Need to switch some types to use standard libs that perform much better (ie `glam` for vecs and matrices)
+- Debating rolling everything except `proc` into one `src` since they all reference `esm`
+- `nom_derive` works thusfar but seems poorly suited for versioned files, if we ever want to support all the games this must be addressed
