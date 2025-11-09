@@ -448,7 +448,7 @@ pub enum TopGroup {
     SNDR(Group<SoundDescriptor>),
     SOPM(Group<SoundOutputModel>),
     SOUN(Group<SoundMarker>),
-    SPEL(Group<SPEL>),
+    SPEL(Group<Spell>),
     SPGD(Group<SPGD>),
     STAG(Group<STAG>),
     STAT(Group<STAT>),
