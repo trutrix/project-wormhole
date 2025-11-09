@@ -454,7 +454,7 @@ pub enum TopGroup {
     STAT(Group<Static>),
     TACT(Group<TalkingActivator>),
     TERM(Group<Terminal>),
-    TREE(Group<TREE>),
+    TREE(Group<Tree>),
     TRNS(Group<TRNS>),
     TXST(Group<TXST>),
     VTYP(Group<VTYP>),
