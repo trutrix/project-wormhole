@@ -1,7 +1,7 @@
 #![allow(unused)]
 use std::collections::{HashMap, HashSet};
 
-use crate::records::all::{Armor, ArmorAddon, ArtObject, AttractionRule, BodyPartData, Book, Class, Color, NonPlayerCharacter, Projectile, AudioCategorySnapshot, StaticCollection, VisualEffect};
+use crate::records::all::{Armor, ArmorAddon, ArtObject, AttractionRule, AudioCategorySnapshot, BodyPartData, Book, Class, Color, NonPlayerCharacter, Projectile, SoundTag, StaticCollection, VisualEffect};
 
 
 const ESM_PATH: &str = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Fallout 4\\Data\\Fallout4.esm";
@@ -32,17 +32,17 @@ fn test1() {
     for (id, rr) in esm.records {
         
 
-        if rr.header.iden.0 != *b"SCSN" {
+        if rr.header.iden.0 != *b"STAG" {
             continue;
         } else {
             let set = field_ids.entry(rr.header.iden).or_insert(HashSet::new());
-            let tr = AudioCategorySnapshot::try_from(rr).unwrap();
+            let tr = SoundTag::try_from(rr).unwrap();
 
             println!("{:#?}", tr);
 
             for f in tr.fields {
                 match f {
-                    crate::records::all::AudioCategorySnapshotField::Unknown(four_cc) => {
+                    crate::records::all::SoundTagField::Unknown(four_cc) => {
                         set.insert(four_cc);
                     }
                     _ => { /* Ignore known fields */ }
