@@ -449,7 +449,7 @@ pub enum TopGroup {
     SOPM(Group<SoundOutputModel>),
     SOUN(Group<SoundMarker>),
     SPEL(Group<Spell>),
-    SPGD(Group<SPGD>),
+    SPGD(Group<ShaderParticleGeometry>),
     STAG(Group<STAG>),
     STAT(Group<STAT>),
     TACT(Group<TACT>),
