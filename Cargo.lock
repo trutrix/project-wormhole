@@ -323,6 +323,7 @@ version = "0.1.0"
 dependencies = [
  "bitflags 2.10.0",
  "flate2",
+ "glam",
  "gltf",
  "nom-derive",
  "proc",
@@ -397,6 +398,17 @@ checksum = "4ae047235e33e2829703574b54fdec96bfbad892062d97fed2f76022287de61b"
 dependencies = [
  "color_quant",
  "weezl",
+]
+
+[[package]]
+name = "glam"
+version = "0.30.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bd47b05dddf0005d850e5644cae7f2b14ac3df487979dbfff3b56f20b1a6ae46"
+dependencies = [
+ "bytemuck",
+ "zerocopy",
+ "zerocopy-derive",
 ]
 
 [[package]]
