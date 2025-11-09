@@ -32,16 +32,16 @@ fn test1() {
     for (id, rr) in esm.records {
         
 
-        if rr.header.iden.0 != *b"TRNS" {
+        if rr.header.iden.0 != *b"WATR" {
             continue;
         } else {
             let set = field_ids.entry(rr.header.iden).or_insert(HashSet::new());
-            let tr = crate::records::all::Transform::try_from(rr).unwrap();
+            let tr = crate::records::all::Water::try_from(rr).unwrap();
             println!("{:#?}", tr);
 
             for f in tr.fields {
                 match f {
-                    crate::records::all::TransformField::Unknown(four_cc) => {
+                    crate::records::all::WaterField::Unknown(four_cc) => {
                         set.insert(four_cc);
                     }
                     _ => { /* Ignore known fields */ }

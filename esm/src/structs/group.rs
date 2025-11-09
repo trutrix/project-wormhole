@@ -458,7 +458,7 @@ pub enum TopGroup {
     TRNS(Group<Transform>),
     TXST(Group<TextureSet>),
     VTYP(Group<VoiceType>),
-    WATR(Group<WATR>),
+    WATR(Group<Water>),
     WEAP(Group<WEAP>),
     WRLD(Group<Worldspace>),
     WTHR(Group<WTHR>),
