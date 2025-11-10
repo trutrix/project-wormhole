@@ -459,7 +459,7 @@ pub enum TopGroup {
     TXST(Group<TextureSet>),
     VTYP(Group<VoiceType>),
     WATR(Group<Water>),
-    WEAP(Group<WEAP>),
+    WEAP(Group<Weapon>),
     WRLD(Group<Worldspace>),
     WTHR(Group<WTHR>),
     ZOOM(Group<ZOOM>),
