@@ -462,7 +462,7 @@ pub enum TopGroup {
     WEAP(Group<Weapon>),
     WRLD(Group<Worldspace>),
     WTHR(Group<Weather>),
-    ZOOM(Group<ZOOM>),
+    ZOOM(Group<Zoom>),
 }
 
 impl Parse<&[u8]> for TopGroup {
