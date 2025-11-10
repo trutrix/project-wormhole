@@ -16,6 +16,8 @@ mod dev {
     pub use nom_derive::nom;
     pub use proc::define_record;
 
+    pub use super::traits::*;
+
 
     pub use super::structs::fourcc::FourCC;
     pub use super::structs::record::*;

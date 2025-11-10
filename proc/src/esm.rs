@@ -106,6 +106,31 @@ impl ToTokens for RecordDefinition {
             }
 
         });
+
+        for field in field_idens {
+            let v = field.value();
+            let four_cc: [u8;4] = v.try_into().unwrap();
+            match &four_cc {
+                b"EDID" => {
+                    tokens.extend(quote! {
+                        impl RecordEditorId for #name {
+                            fn try_get_editor_id(&self) -> Option<&ESMString> {
+                                for field in &self.fields {
+                                    match field {
+                                        #name_field::EditorId(edid) => {
+                                            return Some(edid);
+                                        },
+                                        _ => {}
+                                    }
+                                }
+                                None
+                            }
+                        }
+                    });
+                }
+                _ => {}
+            }
+        }
     }
 }
 
