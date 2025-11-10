@@ -64,3 +64,4 @@
 - Need to switch some types to use standard libs that perform much better (ie `glam` for vecs and matrices)
 - Debating rolling everything except `proc` into one `src` since they all reference `esm`
 - `nom_derive` works thusfar but seems poorly suited for versioned files, if we ever want to support all the games this must be addressed
+- I want to implement `zerocopy` at some point for transmutations 
