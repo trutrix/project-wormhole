@@ -1,9 +1,12 @@
 use crate::dev::*;
 
+// TODO: this record needs many structs created just to access the data properly
+
 define_record! {
     b"WTHR",
     Weather, [
         EditorId;
+        ModelData;
         b"00TX", Texture0, ESMString;
         b"10TX", Texture1, ESMString;
         b"20TX", Texture2, ESMString;
@@ -36,11 +39,11 @@ define_record! {
         b"M0TX", Texture29, ESMString;
         b"N0TX", Texture30, ESMString;
         b"O0TX", Texture31, ESMString;
-        b"LNAM", Unknown1, u32;
+        b"LNAM", Unknown1, u32; // TODO: flags or counts?
         b"MNAM", Rain, FormId;
         b"NNAM", Effect, FormId;
-        b"RNAM", CloudYSpeeds, [u8;32];
-        b"QNAM", CloudXSpeeds, [u8;32];
+        b"RNAM", CloudYSpeeds, [u8;32]; // These are scalars compressed to u8 (127 = 0.0, 255 = 1.0, 0 = -1.0)
+        b"QNAM", CloudXSpeeds, [u8;32]; 
         b"PNAM", CloudColors, WeatherCloudColors;
         b"JNAM", CloudAlphas, EmptyParser; // TODO: struct (512 and 1024 bytes)
         b"NAM0", WeatherColors, EmptyParser; // TODO: struct (272, 544, 608 bytes)
@@ -48,7 +51,15 @@ define_record! {
         b"NAM4", Unknown2, [f32;32]; // TODO: verify purpose
         b"FNAM", FogDistance, EmptyParser; // TODO: struct (72, 56, 32 bytes)
         b"DATA", Data, EmptyParser; // TODO: struct (20, 19 bytes)
-        
+        b"VNAM", VolatilityMultiplier, f32;
+        b"UNAM", Magic, EmptyParser; // TODO: struct (12, 24 bytes) list?
+        b"GNAM", SunGlareLensFlare, FormId;
+        b"WNAM", VisibilityMultiplier, f32;
+        b"IMSP", ImageSpaces, EmptyParser; // TODO: struct (32 and 16 bytes) list?
+        b"DALC", DirectionalAmbientLightColors, EmptyParser; // TODO: struct (32 bytes)
+        b"TNAM", SkyStatic, FormId;
+        b"SNAM", Sound, (FormId, u32); // TODO: struct with FormId and enum?
+        b"WGDR", Godrays, [FormId;8]; // TODO: wrapper struct?
     ]
 }
 
