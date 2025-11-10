@@ -461,7 +461,7 @@ pub enum TopGroup {
     WATR(Group<Water>),
     WEAP(Group<Weapon>),
     WRLD(Group<Worldspace>),
-    WTHR(Group<WTHR>),
+    WTHR(Group<Weather>),
     ZOOM(Group<ZOOM>),
 }
 
