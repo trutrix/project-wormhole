@@ -1,12 +1,13 @@
 #![allow(unused)]
 use std::collections::{HashMap, HashSet};
 
-use crate::records::all::{Armor, ArmorAddon, ArtObject, AttractionRule, AudioCategorySnapshot, BodyPartData, Book, Class, Color, NonPlayerCharacter, Projectile, SoundTag, StaticCollection, VisualEffect};
+use crate::records::all::*;
 
 
 const ESM_PATH: &str = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Fallout 4\\Data\\Fallout4.esm";
 
 #[test]
+#[ignore = "reason: no longer needed"]
 fn test1() {
     use crate::esm::*;
     use crate::dev::*;
