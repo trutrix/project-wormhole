@@ -503,7 +503,7 @@ impl RawCellRecord<'_> {
     }
 }
 
-impl <'esm> Parse<&'esm[u8]> for RawCellRecord<'esm> where 'esm:'esm {
+impl <'esm> Parse<&'esm[u8]> for RawCellRecord<'esm> {
     fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
         let (i, cell) = RawRecord::parse(i)?;
         println!("{:?}", cell);
