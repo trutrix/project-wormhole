@@ -1,6 +1,6 @@
 use crate::dev::*;
 
-pub type FormId = u32;
+//pub type FormId = u32;
 pub type FormRef = u32;
 pub type EditorId = ESMString;
 pub type RecordProperty = (FormId, f32);
