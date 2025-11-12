@@ -20,52 +20,52 @@ define_record! {
             b"XPLK", SplineConnection, FormId;
             b"XRDS", Radius, f32;
             b"XPRD", IdleTime, f32;
-            b"XPPA", PatrolMarker, SkippedField; // Unknown
+            b"XPPA", PatrolMarker, EmptyParser; // Unknown
             b"INAM", Idle, FormId;
-            b"PDTO", Unknown1, SkippedField; // Unknown - size 8 bytes
+            b"PDTO", Unknown1, EmptyParser; // Unknown - size 8 bytes
             b"XPDD", ProjectedDecal, Vec2<f32>;
-            b"XATP", ActivationPoint, SkippedField; // Unknown
+            b"XATP", ActivationPoint, EmptyParser; // Unknown
             b"XATR", AttachmentReference, FormId;
-            b"XESP", EnableParent, SkippedField; // Shared field
-            b"XRGD", Ragdoll, SkippedField; // Shared field
+            b"XESP", EnableParent, EmptyParser; // Shared field
+            b"XRGD", Ragdoll, EmptyParser; // Shared field
             b"XEMI", Emitter, FormId;
-            b"XLOC", Lock, SkippedField;
-            b"XACT", Action, SkippedField; // Unknown if this is actually an action
+            b"XLOC", Lock, EmptyParser;
+            b"XACT", Action, EmptyParser; // Unknown if this is actually an action
             b"XMSP", MaterialSwap, FormId;
-            b"ONAM", Open, SkippedField;
-            b"XIS2", IgnoredSandbox, SkippedField;
-            b"XLIG", LightData, SkippedField;
+            b"ONAM", Open, EmptyParser;
+            b"XIS2", IgnoredSandbox, EmptyParser;
+            b"XLIG", LightData, EmptyParser;
             b"XEZN", EncounterZone, FormId;
-            b"XRDO", Radio, SkippedField;
+            b"XRDO", Radio, EmptyParser;
             b"XTRI", CollisionLayer, FormId;
-            b"XAPD", ActivateParents, SkippedField;
-            b"XAPR", ActivateParentsReference, SkippedField;
+            b"XAPD", ActivateParents, EmptyParser;
+            b"XAPR", ActivateParentsReference, EmptyParser;
             b"XLIB", LevelItemBaseObject, FormId;
-            b"XWCN", Unknown2, SkippedField;
-            b"XWCU", WaterVelocity, SkippedField;
+            b"XWCN", Unknown2, EmptyParser;
+            b"XWCU", WaterVelocity, EmptyParser;
             b"XRNK", OwnerFactionRank, i32;
-            b"XLKT", LinkedRefTrans, SkippedField;
-            b"XTNM", TeleportLocationName, SkippedField;
+            b"XLKT", LinkedRefTrans, EmptyParser;
+            b"XTNM", TeleportLocationName, EmptyParser;
             b"XLCN", PersistantLocation, FormId;
-            b"XWPG", PowerGrid1, SkippedField;
-            b"XWPN", PowerGrid2, SkippedField;
+            b"XWPG", PowerGrid1, EmptyParser;
+            b"XWPN", PowerGrid2, EmptyParser;
             b"XLCM", LevelModifier, i32;
             b"XHTW", HeadTrackingWeight, f32;
             b"XFVC", FavorCost, f32;
             b"XALP", Alpha, Vec2<u8>;
             b"XAMC", AmmoCount, u32;
             b"XCNT", ItemCount, i32;
-            b"XCVL", Unknown3, SkippedField;
+            b"XCVL", Unknown3, EmptyParser;
             b"MNAM", PowerComments, ESMString;
             b"XHLT", HealthPercentage, u32;
-            b"XMRK", MapMarkerData, SkippedField; // TODO: Compounded
-            b"FNAM", MM1, SkippedField;
-            b"FULL", MM2, SkippedField; // unsure if this is actually FULL
-            b"TNAM", MM3, SkippedField;
+            b"XMRK", MapMarkerData, EmptyParser; // TODO: Compounded
+            b"FNAM", MM1, EmptyParser;
+            b"FULL", MM2, EmptyParser; // unsure if this is actually FULL
+            b"TNAM", MM3, EmptyParser;
             b"XSPC", SpawnContainer, FormId;
-            b"XOCP", OcculsionPlane, SkippedField; // Size, Loc, Rot
+            b"XOCP", OcculsionPlane, EmptyParser; // Size, Loc, Rot
             b"XCZC", CurrentZoneCell, FormId;
-            b"XCZA", Unknown4, SkippedField;
+            b"XCZA", Unknown4, EmptyParser;
             b"XASP", AcousticRestriction, FormId;
         ]
 }

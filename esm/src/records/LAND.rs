@@ -3,13 +3,13 @@ use crate::dev::*;
 define_record! {
     b"LAND", Landscape, [
         b"VHGT", VertexHeight, VertexHeightData;
-        b"VNML", VertexNormals, SkippedField;
-        b"VCLR", VertexColors, SkippedField;
-        b"DATA", DATA, SkippedField;
-        b"BTXT", BaseTexture, SkippedField;
-        b"ATXT", AdditionalTexture, SkippedField;
-        b"VTXT", VTXT, SkippedField;
-        b"MPCD", HiResHeightmap, SkippedField;
+        b"VNML", VertexNormals, EmptyParser;
+        b"VCLR", VertexColors, EmptyParser;
+        b"DATA", DATA, EmptyParser;
+        b"BTXT", BaseTexture, EmptyParser;
+        b"ATXT", AdditionalTexture, EmptyParser;
+        b"VTXT", VTXT, EmptyParser;
+        b"MPCD", HiResHeightmap, EmptyParser;
     ]
 }
 
