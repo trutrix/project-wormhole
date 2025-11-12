@@ -67,7 +67,7 @@ pub struct RawESM<'esm> {
     pub header: FileHeader,
     pub cells: Vec<RawInteriorCellBlock<'esm>>,
     pub worlds: Vec<RawWorldGroup<'esm>>,
-    pub records: HashMap<u32, RawRecord<'esm>>,
+    pub records: HashMap<FormId, RawRecord<'esm>>,
     pub quests: Vec<RawQuestGroup<'esm>>,
 }
 
@@ -114,7 +114,7 @@ impl<'esm> RawESM<'esm> {
                             let (i, rg) = RawDataGroup::parse(raw)?;
                             raw = i;
                             for r in rg.data {
-                                records.insert(r.header.form_id, r);
+                                records.insert(r.header.form_id.clone(), r);
                             }
                         }
                     }
