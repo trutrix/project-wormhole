@@ -7,7 +7,7 @@ define_record! {
         b"CNAM", Color, Color4;
         b"TNAM", Type, u32; // TODO: Find correct type
         b"DNAM", Notes, ESMString;
-        FullName; // TODO: Find correct type
+        FullName;
         b"DATA", AttractionRule, u8; // TODO: Find correct type
     ]
 }

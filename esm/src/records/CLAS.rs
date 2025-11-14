@@ -6,8 +6,8 @@ define_record! {
         EditorId;
         FullName;
         Description;
-        b"ICON", InventoryImage, u8; // TODO: unknown
         Properties;
+        b"ICON", InventoryImage, u8; // TODO: unknown
         b"DATA", ClassData, (u32, f32); // Unknown / Bleedout?
     ]
 }

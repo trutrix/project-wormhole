@@ -13,6 +13,7 @@ define_record! {
         Destructible;
         FullName;
         Keyword;
+        Properties;
 
         b"ATTX", ActivateTextOverride, ESMString; // TODO: Verify
         b"CITC", ConditionCount, u8; // TODO: Find type
@@ -34,7 +35,7 @@ define_record! {
         b"NTRM", NativeTerminal, u8; // TODO: Find type
        
         b"PNAM", MarkerColor, u8; // TODO: Find type
-        Properties;
+        
         
         b"RADR", RadioReciever, u8;
         b"SNAM", SoundLooping, FormId; // TODO: Verify
