@@ -1,6 +1,6 @@
 use std::{collections::HashMap, io::{Read, Seek}};
 
-use crate::{dev::*, records::{all::{FileHeaderField, GameSettingField}, TES4::FileHeader}, structs::record::{RawRecord, RecordHeader}, traits::{RecordParser, GroupParser}};
+use crate::{dev::*, records::{TES4::FileHeader, all::{FileHeaderField, GameSettingField}}, structs::{group::TopGroup, record::{RawRecord, RecordHeader}}, traits::{GroupParser, RecordParser}};
 
 
 // ====================================================================================================
@@ -78,7 +78,65 @@ impl<'esm> RawESM<'esm> {
         let mut records = HashMap::new();
         let mut quests = Vec::new();
 
+        
+        let (i, header) = FileHeader::parse(i)?;
+        let mut raw = i;
 
+        while raw.len() > 0 {
+
+            let (_, gh) = GroupHeader::parse(raw)?;
+            
+
+            match gh.label {
+                GroupLabel::Top(iden) => {
+                    match &iden.0 {
+                        b"CELL" => {
+                            let (i, (_ghead, graw)) = alloc_group(raw)?;
+                            // println!("{:?}", ghead);
+                            raw = i;
+                            let (_, icb) = many0(complete(RawInteriorCellBlock::parse))(graw)?;
+                            cells = icb;
+                        }
+                        b"WRLD" => {
+                            // println!("Parsing {:?}", gh.label);
+                            let (i, gw) = RawWorldGroup::parse(raw)?;
+                            raw = i;
+                            worlds.push(gw);
+                        }
+                        b"QUST" => {
+                            // println!("Skipping: {:?}", gh.label);
+                            let (i, gq) = RawQuestGroup::parse(raw)?;
+                            raw = i;
+                            quests.push(gq);
+                        }
+                        _ => {
+                            // println!("Parsing {:?}", gh.label);
+                            let (i, rg) = RawDataGroup::parse(raw)?;
+                            raw = i;
+                            for r in rg.data {
+                                records.insert(r.header.form_id.clone(), r);
+                            }
+                        }
+                    }
+                }
+                _ => {
+                    panic!("Encountered non-top group in RawESM")
+                }
+            }
+
+
+        }
+
+        Ok((i, Self { header, cells, worlds, records, quests }))
+    }
+
+    pub fn parse_mt(i: &'esm[u8]) -> IResult<&'esm[u8], Self> {
+        let mut cells = Vec::new();
+        let mut worlds = Vec::new();
+        let mut records = HashMap::new();
+        let mut quests = Vec::new();
+
+        
         let (i, header) = FileHeader::parse(i)?;
         let mut raw = i;
 
@@ -185,3 +243,40 @@ impl From<std::io::Error> for ESMError {
         ESMError::IO(err)
     }
 }
+
+
+
+
+
+pub fn get_file_chunks(i: &[u8]) -> IResult<&[u8], Vec<&[u8]>> {
+    // Should be entire file
+    let mut raw = i;
+    // Init list of results
+    let mut out = Vec::new();
+
+    while raw.len() > 0 {
+
+        // Set orig for ref
+        let orig = raw;
+
+        // Parse the fourcc and size
+        let (i, iden) = FourCC::parse(raw)?;
+        let (_, size) = le_u32(i)?;
+
+        // Calculate the real size
+        let size_mod = if iden.0 == *b"GRUP" {
+            size
+        } else {
+            size+24
+        };
+
+        let (i, chunk) = nom::bytes::complete::take(size_mod as usize)(orig)?;
+        raw = i;
+        out.push(chunk);
+
+    }
+
+    Ok((raw, out))
+
+}
+
