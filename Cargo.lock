@@ -327,6 +327,7 @@ dependencies = [
  "gltf",
  "nom-derive",
  "proc",
+ "rayon",
  "serde",
  "serde_json",
 ]
