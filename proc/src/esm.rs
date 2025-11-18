@@ -12,7 +12,8 @@ use syn::{*, parse::Parse, punctuated::Punctuated};
 pub struct RecordDefinition {
     pub _iden: LitByteStr,
     pub name: Ident,
-    pub fields: Punctuated<FieldDefinition, Token![;]>
+    pub fields: Punctuated<FieldDefinition, Token![;]>,
+    pub flags: Punctuated<FlagDefinition, Token![;]>
 }
 
 impl Parse for RecordDefinition {
@@ -25,7 +26,15 @@ impl Parse for RecordDefinition {
         bracketed!(inner in input);
         let fields = inner.parse_terminated(FieldDefinition::parse, Token![;])?;
 
-        Ok(RecordDefinition { _iden: iden, name, fields })
+        if input.peek(Token![,]) {
+            input.parse::<Token![,]>()?;
+            let inner2;
+            bracketed!(inner2 in input);
+            let flags = inner2.parse_terminated(FlagDefinition::parse, Token![;])?;
+            Ok(RecordDefinition { _iden: iden, name, fields, flags })
+        } else {
+            Ok(RecordDefinition { _iden: iden, name, fields, flags: Punctuated::new() })
+        }
     }
 }
 
@@ -136,8 +145,40 @@ impl ToTokens for RecordDefinition {
 
 // ====================================================================================================
 
+pub struct RecordDefinition2 {
+    pub _iden: LitByteStr,
+    pub name: Ident,
+    pub fields: Punctuated<FieldDefinition2, Token![;]>,
+    pub flags: Punctuated<FlagDefinition, Token![;]>
+}
+
+impl Parse for RecordDefinition2 {
+    fn parse(input: parse::ParseStream) -> Result<Self> {
+        let iden: LitByteStr = input.parse()?;
+        input.parse::<Token![,]>()?;
+        let name: Ident = input.parse()?;
+        input.parse::<Token![,]>()?;
+        let inner;
+        bracketed!(inner in input);
+        let fields = inner.parse_terminated(FieldDefinition2::parse, Token![;])?;
+
+        if input.peek(Token![,]) {
+            input.parse::<Token![,]>()?;
+            let inner2;
+            bracketed!(inner2 in input);
+            let flags = inner2.parse_terminated(FlagDefinition::parse, Token![;])?;
+            Ok(RecordDefinition2 { _iden: iden, name, fields, flags })
+        } else {
+            Ok(RecordDefinition2 { _iden: iden, name, fields, flags: Punctuated::new() })
+        }
+    }
+}
+
+
+// ====================================================================================================
+
 pub struct FieldDefinition {
-    pub _required: bool, // Unused (for now) >:)
+    pub required: bool,
     pub idens: Vec<LitByteStr>,
     pub names: Vec<Ident>,
     pub field_types: Vec<Type>,
@@ -182,9 +223,73 @@ impl parse::Parse for FieldDefinition {
         }
 
 
-        Ok(FieldDefinition { _required: required, idens, names, field_types })
+        Ok(FieldDefinition { required, idens, names, field_types })
     }
 }
+
+// ====================================================================================================
+
+pub struct FieldDefinition2 {
+    pub required: bool,
+    pub iden: LitByteStr,
+    pub name: Ident,
+    pub field_type: FieldType,
+}
+
+impl Parse for FieldDefinition2 {
+    fn parse(input: parse::ParseStream) -> Result<Self> {
+        
+        let required = if input.peek(Token![+]) {
+            input.parse::<Token![+]>();
+            true
+        } else {
+            false
+        };
+
+
+        // Is custom or ref field
+        if input.peek(LitByteStr) {
+            let iden: LitByteStr = input.parse()?;
+            input.parse::<Token![,]>()?;
+            let name: Ident = input.parse()?;
+            input.parse::<Token![,]>()?;
+            
+            if input.peek(syn::token::Bracket) {
+                let content;
+                bracketed!(content in input);
+                let refs = content.parse_terminated(LitByteStr::parse, Token![,])?;
+                Ok(FieldDefinition2 { required, iden, name, field_type: FieldType::Reference(refs.into_iter().collect()) })
+            } else {
+                let field_type: Type = input.parse()?;
+                Ok(FieldDefinition2 { required, iden, name, field_type: FieldType::Custom(field_type) })
+            }
+
+
+        } 
+        // Is common field
+        else {
+            let common = common_map();
+            let name: Ident = input.parse()?;
+            let ns = name.to_string();
+            if let Some(fd) = common.get(&ns) {
+                Ok(FieldDefinition2 { required, iden: fd.idens[0].clone(), name: fd.names[0].clone(), field_type: FieldType::Common(name) })
+            } else {
+                return Err(syn::Error::new(name.span(), format!("Unknown common field: {}", name)));
+            }
+        }
+    }
+}
+
+pub struct FieldDefinitionList(
+    pub Vec<FieldDefinition2>
+);
+
+pub enum FieldType {
+    Common(Ident),
+    Custom(Type),
+    Reference(Vec<LitByteStr>)
+}
+
 
 // ====================================================================================================
 
@@ -194,7 +299,7 @@ pub fn common_map() -> HashMap<String, FieldDefinition> {
     let mut map = HashMap::new();
     map.insert(EDID_NAME.to_string(), {
         FieldDefinition {
-            _required: true,
+            required: true,
             idens: vec![LitByteStr::new(EDID_CODE, Span::call_site())],
             names: vec![Ident::new(EDID_NAME, Span::call_site())],
             field_types: vec![syn::parse_str(EDID_TYPE).unwrap()],
@@ -203,7 +308,7 @@ pub fn common_map() -> HashMap<String, FieldDefinition> {
 
     map.insert(DESC_NAME.to_string(), 
         FieldDefinition {
-            _required: false,
+            required: false,
             idens: vec![LitByteStr::new(DESC_CODE, Span::call_site())],
             names: vec![Ident::new(DESC_NAME, Span::call_site())],
             field_types: vec![syn::parse_str(DESC_TYPE).unwrap()],
@@ -212,7 +317,7 @@ pub fn common_map() -> HashMap<String, FieldDefinition> {
 
     map.insert(CTDA_NAME.to_string(), 
         FieldDefinition {
-            _required: false,
+            required: false,
             idens: vec![
                 LitByteStr::new(CTDA_CODE, Span::call_site()),
                 LitByteStr::new(CIS1_CODE, Span::call_site()),
@@ -233,7 +338,7 @@ pub fn common_map() -> HashMap<String, FieldDefinition> {
     
     map.insert(OBND_NAME.to_string(), 
         FieldDefinition {
-            _required: false,
+            required: false,
             idens: vec![LitByteStr::new(OBND_CODE, Span::call_site())],
             names: vec![Ident::new(OBND_NAME, Span::call_site())],
             field_types: vec![syn::parse_str(OBND_TYPE).unwrap()],
@@ -242,7 +347,7 @@ pub fn common_map() -> HashMap<String, FieldDefinition> {
 
     map.insert(PTRN_NAME.to_string(), 
         FieldDefinition {
-            _required: false,
+            required: false,
             idens: vec![LitByteStr::new(PTRN_CODE, Span::call_site())],
             names: vec![Ident::new(PTRN_NAME, Span::call_site())],
             field_types: vec![syn::parse_str(PTRN_TYPE).unwrap()],
@@ -251,7 +356,7 @@ pub fn common_map() -> HashMap<String, FieldDefinition> {
 
     map.insert(KYWD_NAME.to_string(), 
         FieldDefinition {
-            _required: false,
+            required: false,
             idens: vec![LitByteStr::new(KYWD_CODE, Span::call_site()), LitByteStr::new(KSIZ_CODE, Span::call_site())],
             names: vec![Ident::new(KYWD_NAME, Span::call_site()), Ident::new(KSIZ_NAME, Span::call_site())],
             field_types: vec![syn::parse_str(KYWD_TYPE).unwrap(), syn::parse_str(KSIZ_TYPE).unwrap()],
@@ -260,7 +365,7 @@ pub fn common_map() -> HashMap<String, FieldDefinition> {
 
     map.insert(VMAD_NAME.to_string(), 
     FieldDefinition { 
-        _required: false,
+        required: false,
         idens: vec![LitByteStr::new(VMAD_CODE, Span::call_site())],
         names: vec![Ident::new(VMAD_NAME, Span::call_site())],
         field_types: vec![syn::parse_str(VMAD_TYPE).unwrap()],
@@ -270,7 +375,7 @@ pub fn common_map() -> HashMap<String, FieldDefinition> {
     map.insert(FULL_NAME.to_string(), 
     
         FieldDefinition {
-            _required: true,
+            required: true,
             idens: vec![LitByteStr::new(FULL_CODE, Span::call_site())],
             names: vec![Ident::new(FULL_NAME, Span::call_site())],
             field_types: vec![syn::parse_str(FULL_TYPE).unwrap()],
@@ -279,7 +384,7 @@ pub fn common_map() -> HashMap<String, FieldDefinition> {
 
     map.insert("ModelData".to_string(), 
         FieldDefinition {
-            _required: false,
+            required: false,
             idens: vec![
                 LitByteStr::new(MODL_CODE, Span::call_site()),
                 LitByteStr::new(MODT_CODE, Span::call_site()),
@@ -306,7 +411,7 @@ pub fn common_map() -> HashMap<String, FieldDefinition> {
 
     map.insert("Destructible".to_string(), 
         FieldDefinition {
-            _required: false,
+            required: false,
             idens: vec![
                 LitByteStr::new(DEST_CODE, Span::call_site()),
                 LitByteStr::new(DSTD_CODE, Span::call_site()),
@@ -333,7 +438,7 @@ pub fn common_map() -> HashMap<String, FieldDefinition> {
 
     map.insert(PRPS_NAME.to_string(), 
         FieldDefinition {
-            _required: false,
+            required: false,
             idens: vec![LitByteStr::new(PRPS_CODE, Span::call_site())],
             names: vec![Ident::new(PRPS_NAME, Span::call_site())],
             field_types: vec![syn::parse_str(PRPS_TYPE).unwrap()],
@@ -342,7 +447,7 @@ pub fn common_map() -> HashMap<String, FieldDefinition> {
 
     map.insert("PickUpPutDown".to_string(),
         FieldDefinition {
-            _required: false,
+            required: false,
             idens: vec![LitByteStr::new(YNAM_CODE, Span::call_site()),LitByteStr::new(ZNAM_CODE, Span::call_site())],
             names: vec![Ident::new(YNAM_NAME, Span::call_site()),Ident::new(ZNAM_NAME, Span::call_site())],
             field_types: vec![syn::parse_str(YNAM_TYPE).unwrap(),syn::parse_str(ZNAM_TYPE).unwrap()],
@@ -350,4 +455,220 @@ pub fn common_map() -> HashMap<String, FieldDefinition> {
     );
 
     map
+}
+
+pub fn common_map2() -> HashMap<String, Vec<FieldDefinition2>> {
+    let mut map = HashMap::new();
+    map.insert(EDID_NAME.to_string(),
+        vec![FieldDefinition2 {
+            required:true, 
+            iden: LitByteStr::new(EDID_CODE, Span::call_site()), 
+            name: Ident::new(EDID_NAME, Span::call_site()), 
+            field_type: FieldType::Custom(syn::parse_str(EDID_TYPE).unwrap())
+        }]
+    );
+
+    map.insert(DESC_NAME.to_string(), 
+        vec![FieldDefinition2 {
+            required:false, 
+            iden: LitByteStr::new(DESC_CODE, Span::call_site()), 
+            name: Ident::new(DESC_NAME, Span::call_site()), 
+            field_type: FieldType::Custom(syn::parse_str(DESC_TYPE).unwrap())
+        }]
+    );
+
+    map.insert(CTDA_NAME.to_string(),
+        vec![
+            FieldDefinition2 {
+            required:false, 
+            iden: LitByteStr::new(CTDA_CODE, Span::call_site()), 
+            name: Ident::new(CTDA_NAME, Span::call_site()), 
+            field_type: FieldType::Custom(syn::parse_str(CTDA_TYPE).unwrap())
+            },
+            FieldDefinition2 {
+                required:false, 
+                iden: LitByteStr::new(CIS1_CODE, Span::call_site()), 
+                name: Ident::new(CIS1_NAME, Span::call_site()), 
+                field_type: FieldType::Custom(syn::parse_str(CIS1_TYPE).unwrap())
+            },
+            FieldDefinition2 {
+                required:false, 
+                iden: LitByteStr::new(CIS2_CODE, Span::call_site()), 
+                name: Ident::new(CIS2_NAME, Span::call_site()), 
+                field_type: FieldType::Custom(syn::parse_str(CIS2_TYPE).unwrap())
+            }
+        ]
+    );
+    
+    map.insert(OBND_NAME.to_string(), 
+        vec![FieldDefinition2 {
+            required:false, 
+            iden: LitByteStr::new(OBND_CODE, Span::call_site()), 
+            name: Ident::new(OBND_NAME, Span::call_site()), 
+            field_type: FieldType::Custom(syn::parse_str(OBND_TYPE).unwrap())
+        }]
+    );
+
+    map.insert(PTRN_NAME.to_string(), 
+        vec![FieldDefinition2 {
+            required:false, 
+            iden: LitByteStr::new(PTRN_CODE, Span::call_site()), 
+            name: Ident::new(PTRN_NAME, Span::call_site()), 
+            field_type: FieldType::Custom(syn::parse_str(PTRN_TYPE).unwrap())
+        }]
+    );
+
+    map.insert(KYWD_NAME.to_string(), 
+        vec![
+            FieldDefinition2 {
+            required:false, 
+            iden: LitByteStr::new(KYWD_CODE, Span::call_site()), 
+            name: Ident::new(KYWD_NAME, Span::call_site()), 
+            field_type: FieldType::Custom(syn::parse_str(KYWD_TYPE).unwrap())
+            },
+            FieldDefinition2 {
+                required:false, 
+                iden: LitByteStr::new(KSIZ_CODE, Span::call_site()), 
+                name: Ident::new(KSIZ_NAME, Span::call_site()), 
+                field_type: FieldType::Custom(syn::parse_str(KSIZ_TYPE).unwrap())
+            }
+        ]
+    );
+
+    map.insert(VMAD_NAME.to_string(), 
+    vec![FieldDefinition2 {
+            required:false, 
+            iden: LitByteStr::new(VMAD_CODE, Span::call_site()), 
+            name: Ident::new(VMAD_NAME, Span::call_site()), 
+            field_type: FieldType::Custom(syn::parse_str(VMAD_TYPE).unwrap())
+        }]
+    );
+
+
+    map.insert(FULL_NAME.to_string(), 
+        vec![FieldDefinition2 {
+            required:false, 
+            iden: LitByteStr::new(FULL_CODE, Span::call_site()), 
+            name: Ident::new(FULL_NAME, Span::call_site()), 
+            field_type: FieldType::Custom(syn::parse_str(FULL_TYPE).unwrap())
+        }]
+    );
+
+    map.insert("ModelData".to_string(), 
+        vec![
+            FieldDefinition2 {
+            required:false, 
+            iden: LitByteStr::new(MODL_CODE, Span::call_site()), 
+            name: Ident::new(MODL_NAME, Span::call_site()), 
+            field_type: FieldType::Custom(syn::parse_str(MODL_TYPE).unwrap())
+            },
+            FieldDefinition2 {
+                required:false, 
+                iden: LitByteStr::new(MODT_CODE, Span::call_site()), 
+                name: Ident::new(MODT_NAME, Span::call_site()), 
+                field_type: FieldType::Custom(syn::parse_str(MODT_TYPE).unwrap())
+            },
+            FieldDefinition2 {
+                required:false, 
+                iden: LitByteStr::new(MODC_CODE, Span::call_site()), 
+                name: Ident::new(MODC_NAME, Span::call_site()), 
+                field_type: FieldType::Custom(syn::parse_str(MODC_TYPE).unwrap())
+            },
+            FieldDefinition2 {
+                required:false, 
+                iden: LitByteStr::new(MODS_CODE, Span::call_site()), 
+                name: Ident::new(MODS_NAME, Span::call_site()), 
+                field_type: FieldType::Custom(syn::parse_str(MODS_TYPE).unwrap())
+            },
+            FieldDefinition2 {
+                required:false, 
+                iden: LitByteStr::new(MODF_CODE, Span::call_site()), 
+                name: Ident::new(MODF_NAME, Span::call_site()), 
+                field_type: FieldType::Custom(syn::parse_str(MODF_TYPE).unwrap())
+            }
+        ]
+    );
+
+    map.insert("Destructible".to_string(),
+        vec![
+            FieldDefinition2 {
+            required:false, 
+            iden: LitByteStr::new(DEST_CODE, Span::call_site()), 
+            name: Ident::new(DEST_NAME, Span::call_site()), 
+            field_type: FieldType::Custom(syn::parse_str(DEST_TYPE).unwrap())
+            },
+            FieldDefinition2 {
+                required:false, 
+                iden: LitByteStr::new(DSTD_CODE, Span::call_site()), 
+                name: Ident::new(DSTD_NAME, Span::call_site()), 
+                field_type: FieldType::Custom(syn::parse_str(DSTD_TYPE).unwrap())
+            },
+            FieldDefinition2 {
+                required:false, 
+                iden: LitByteStr::new(DSTF_CODE, Span::call_site()), 
+                name: Ident::new(DSTF_NAME, Span::call_site()), 
+                field_type: FieldType::Custom(syn::parse_str(DSTF_TYPE).unwrap())
+            },
+            FieldDefinition2 {
+                required:false, 
+                iden: LitByteStr::new(DMDL_CODE, Span::call_site()), 
+                name: Ident::new(DMDL_NAME, Span::call_site()), 
+                field_type: FieldType::Custom(syn::parse_str(DMDL_TYPE).unwrap())
+            },
+            FieldDefinition2 {
+                required:false, 
+                iden: LitByteStr::new(DMDT_CODE, Span::call_site()), 
+                name: Ident::new(DMDT_NAME, Span::call_site()), 
+                field_type: FieldType::Custom(syn::parse_str(DMDT_TYPE).unwrap())
+            }
+        ]
+    );
+
+    map.insert(PRPS_NAME.to_string(),
+        vec![
+            FieldDefinition2 {
+                required:false, 
+                iden: LitByteStr::new(PRPS_CODE, Span::call_site()), 
+                name: Ident::new(PRPS_NAME, Span::call_site()), 
+                field_type: FieldType::Custom(syn::parse_str(PRPS_TYPE).unwrap())
+            }
+        ]
+    );
+
+    map.insert("PickUpPutDown".to_string(),
+        vec![
+            FieldDefinition2 {
+                required:false, 
+                iden: LitByteStr::new(YNAM_CODE, Span::call_site()), 
+                name: Ident::new(YNAM_NAME, Span::call_site()), 
+                field_type: FieldType::Custom(syn::parse_str(YNAM_TYPE).unwrap())
+            },
+            FieldDefinition2 {
+                required:false, 
+                iden: LitByteStr::new(ZNAM_CODE, Span::call_site()), 
+                name: Ident::new(ZNAM_NAME, Span::call_site()), 
+                field_type: FieldType::Custom(syn::parse_str(ZNAM_TYPE).unwrap())
+            }
+        ]
+    );
+
+    map
+}
+
+// ====================================================================================================
+
+pub struct FlagDefinition {
+    pub position: LitInt,
+    pub name: Ident
+}
+
+
+impl Parse for FlagDefinition {
+    fn parse(input: parse::ParseStream) -> Result<Self> {
+        let position = input.parse()?;
+        input.parse::<Token![,]>()?;
+        let name = input.parse()?;
+
+        Ok(FlagDefinition { position, name })
+    }
 }

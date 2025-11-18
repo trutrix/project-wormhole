@@ -10,3 +10,10 @@ pub fn define_record(input: TokenStream) -> TokenStream {
     let out = quote! { #input };
     out.into()
 }
+
+#[proc_macro]
+pub fn define_record2(input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input as esm::RecordDefinition2);
+    let out = quote! {  };
+    out.into()
+}

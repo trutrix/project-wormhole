@@ -1,13 +1,21 @@
-use crate::dev::*;
+use proc::define_record2;
 
-define_record! {
+use crate::{dev::*, records::all::KeywordType};
+
+define_record2! {
     b"AACT",
-    Action, [
+    Action, 
+    // Fields - 'Common Name' or 'Iden, Name, Type'
+    [
         EditorId;
-        b"CNAM", Color, Color4;
-        b"TNAM", Type, u32; // TODO: Find correct type
-        b"DNAM", Notes, ESMString;
         FullName;
-        b"DATA", AttractionRule, u8; // TODO: Find correct type
+        b"CNAM", Color, Color4;
+        +b"TNAM", Type, KeywordType;
+        b"DNAM", Notes, ESMString;
+        b"DATA", AttractionRule, [b"AORU"];
+    ],
+    // Flags - Position / Name
+    [
+        0x00080000, Restricted;
     ]
 }
