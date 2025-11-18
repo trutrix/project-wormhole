@@ -1,18 +1,21 @@
 pub const EDID_CODE: &[u8;4] = b"EDID";
 pub const EDID_NAME: &str = "EditorId";
 pub const EDID_TYPE: &str = "EditorId";
+pub const EDID_LIST: [(&[u8;4], &str, &str);1] = [(EDID_CODE, EDID_NAME, EDID_TYPE)];
 
 // ====================================================================================================
 
 pub const DESC_CODE: &[u8;4] = b"DESC";
 pub const DESC_NAME: &str = "Description";
 pub const DESC_TYPE: &str = "LocalizedString";
+pub const DESC_LIST: [(&[u8;4], &str, &str);1] = [(DESC_CODE, DESC_NAME, DESC_TYPE)];
 
 // ====================================================================================================
 
 pub const FULL_CODE: &[u8;4] = b"FULL";
 pub const FULL_NAME: &str = "FullName";
 pub const FULL_TYPE: &str = "LocalizedString";
+pub const FULL_LIST: [(&[u8;4], &str, &str);1] = [(FULL_CODE, FULL_NAME, FULL_TYPE)];
 
 // ====================================================================================================
 
@@ -28,17 +31,27 @@ pub const CIS2_CODE: &[u8;4] = b"CIS2";
 pub const CIS2_NAME: &str = "ConditionParameter2";
 pub const CIS2_TYPE: &str = "ConditionParameter";
 
+pub const CTDA_LIST: [(&[u8;4], &str, &str);3] = [
+    (CTDA_CODE, CTDA_NAME, CTDA_TYPE),
+    (CIS1_CODE, CIS1_NAME, CIS1_TYPE),
+    (CIS2_CODE, CIS2_NAME, CIS2_TYPE),
+];
+
 // ====================================================================================================
 
 pub const OBND_CODE: &[u8;4] = b"OBND";
 pub const OBND_NAME: &str = "ObjectBounds";
 pub const OBND_TYPE: &str = "ObjectBounds";
 
+pub const OBND_LIST: [(&[u8;4], &str, &str);1] = [(OBND_CODE, OBND_NAME, OBND_TYPE)];
+
 // ====================================================================================================
 
 pub const PTRN_CODE: &[u8;4] = b"PTRN";
 pub const PTRN_NAME: &str = "PreviewTransform";
 pub const PTRN_TYPE: &str = "FormId";
+
+pub const PTRN_LIST: [(&[u8;4], &str, &str);1] = [(PTRN_CODE, PTRN_NAME, PTRN_TYPE)];
 
 // ====================================================================================================
 
@@ -50,11 +63,18 @@ pub const KSIZ_CODE: &[u8;4] = b"KSIZ";
 pub const KSIZ_NAME: &str = "KeywordListSize";
 pub const KSIZ_TYPE: &str = "u32";
 
+pub const KYWD_LIST: [(&[u8;4], &str, &str);2] = [
+    (KYWD_CODE, KYWD_NAME, KYWD_TYPE),
+    (KSIZ_CODE, KSIZ_NAME, KSIZ_TYPE),
+];
+
 // ====================================================================================================
 
 pub const VMAD_CODE: &[u8;4] = b"VMAD";
 pub const VMAD_NAME: &str = "VirtualMachineAdapter";
 pub const VMAD_TYPE: &str = "VirtualMachineAdapter";
+
+pub const VMAD_LIST: [(&[u8;4], &str, &str);1] = [(VMAD_CODE, VMAD_NAME, VMAD_TYPE)];
 
 // ====================================================================================================
 
@@ -78,6 +98,14 @@ pub const MODF_CODE: &[u8;4] = b"MODF";
 pub const MODF_NAME: &str = "ModelFlags";
 pub const MODF_TYPE: &str = "ModelFlags";
 
+pub const MOD_LIST: [(&[u8;4], &str, &str);5] = [
+    (MODL_CODE, MODL_NAME, MODL_TYPE),
+    (MODT_CODE, MODT_NAME, MODT_TYPE),
+    (MODC_CODE, MODC_NAME, MODC_TYPE),
+    (MODS_CODE, MODS_NAME, MODS_TYPE),
+    (MODF_CODE, MODF_NAME, MODF_TYPE),
+];
+
 // ====================================================================================================
 
 pub const DEST_CODE: &[u8;4] = b"DEST";
@@ -100,11 +128,21 @@ pub const DMDT_CODE: &[u8;4] = b"DMDT";
 pub const DMDT_NAME: &str = "DestructibleModelTexture";
 pub const DMDT_TYPE: &str = "ModelTexture";
 
+pub const DEST_LIST: [(&[u8;4], &str, &str);5] = [
+    (DEST_CODE, DEST_NAME, DEST_TYPE),
+    (DSTD_CODE, DSTD_NAME, DSTD_TYPE),
+    (DSTF_CODE, DSTF_NAME, DSTF_TYPE),
+    (DMDL_CODE, DMDL_NAME, DMDL_TYPE),
+    (DMDT_CODE, DMDT_NAME, DMDT_TYPE),
+];
+
 // ====================================================================================================
 
 pub const PRPS_CODE: &[u8;4] = b"PRPS";
 pub const PRPS_NAME: &str = "Properties";
 pub const PRPS_TYPE: &str = "RecordProperty";
+
+pub const PRPS_LIST: [(&[u8;4], &str, &str);1] = [(PRPS_CODE, PRPS_NAME, PRPS_TYPE)];
 
 // ====================================================================================================
 
@@ -115,6 +153,11 @@ pub const YNAM_TYPE: &str = "FormId";
 pub const ZNAM_CODE: &[u8;4] = b"ZNAM";
 pub const ZNAM_NAME: &str = "PutDownSound";
 pub const ZNAM_TYPE: &str = "FormId";
+
+pub const YNAM_LIST: [(&[u8;4], &str, &str);2] = [
+    (YNAM_CODE, YNAM_NAME, YNAM_TYPE),
+    (ZNAM_CODE, ZNAM_NAME, ZNAM_TYPE),
+];
 
 // ====================================================================================================
 
