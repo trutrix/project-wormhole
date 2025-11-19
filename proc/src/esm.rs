@@ -510,6 +510,7 @@ pub fn common_map() -> HashMap<String, FieldDefinition> {
                 LitByteStr::new(DSTF_CODE, Span::call_site()),
                 LitByteStr::new(DMDL_CODE, Span::call_site()),
                 LitByteStr::new(DMDT_CODE, Span::call_site()),
+                LitByteStr::new(DSTA_CODE, Span::call_site()),
             ],
             names: vec![
                 Ident::new(DEST_NAME, Span::call_site()),
@@ -517,6 +518,7 @@ pub fn common_map() -> HashMap<String, FieldDefinition> {
                 Ident::new(DSTF_NAME, Span::call_site()),
                 Ident::new(DMDL_NAME, Span::call_site()),
                 Ident::new(DMDT_NAME, Span::call_site()),
+                Ident::new(DSTA_NAME, Span::call_site()),
             ],
             field_types: vec![
                 syn::parse_str(DEST_TYPE).unwrap(),
@@ -524,6 +526,7 @@ pub fn common_map() -> HashMap<String, FieldDefinition> {
                 syn::parse_str(DSTF_TYPE).unwrap(),
                 syn::parse_str(DMDL_TYPE).unwrap(),
                 syn::parse_str(DMDT_TYPE).unwrap(),
+                syn::parse_str(DSTA_TYPE).unwrap(),
             ],
         }
     );

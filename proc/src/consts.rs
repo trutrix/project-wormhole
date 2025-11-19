@@ -31,10 +31,15 @@ pub const CIS2_CODE: &[u8;4] = b"CIS2";
 pub const CIS2_NAME: &str = "ConditionParameter2";
 pub const CIS2_TYPE: &str = "ConditionParameter";
 
-pub const CTDA_LIST: [(&[u8;4], &str, &str);3] = [
+pub const CITC_CODE: &[u8;4] = b"CITC";
+pub const CITC_NAME: &str = "ConditionCount";
+pub const CITC_TYPE: &str = "u32";
+
+pub const CTDA_LIST: [(&[u8;4], &str, &str);4] = [
     (CTDA_CODE, CTDA_NAME, CTDA_TYPE),
     (CIS1_CODE, CIS1_NAME, CIS1_TYPE),
     (CIS2_CODE, CIS2_NAME, CIS2_TYPE),
+    (CITC_CODE, CITC_NAME, CITC_TYPE),
 ];
 
 // ====================================================================================================
@@ -113,8 +118,8 @@ pub const DEST_NAME: &str = "DestructibleHeader";
 pub const DEST_TYPE: &str = "DestructibleHeader";
 
 pub const DSTD_CODE: &[u8;4] = b"DSTD";
-pub const DSTD_NAME: &str = "DestructibleStage";
-pub const DSTD_TYPE: &str = "DestructibleStage";
+pub const DSTD_NAME: &str = "DestructibleStageData";
+pub const DSTD_TYPE: &str = "DestructibleStageData";
 
 pub const DSTF_CODE: &[u8;4] = b"DSTF";
 pub const DSTF_NAME: &str = "DestructibleEnd";
@@ -128,12 +133,17 @@ pub const DMDT_CODE: &[u8;4] = b"DMDT";
 pub const DMDT_NAME: &str = "DestructibleModelTexture";
 pub const DMDT_TYPE: &str = "ModelTexture";
 
-pub const DEST_LIST: [(&[u8;4], &str, &str);5] = [
+pub const DSTA_CODE: &[u8;4] = b"DSTA";
+pub const DSTA_NAME: &str = "DestructibleSequenceName";
+pub const DSTA_TYPE: &str = "ESMString";
+
+pub const DEST_LIST: [(&[u8;4], &str, &str);6] = [
     (DEST_CODE, DEST_NAME, DEST_TYPE),
     (DSTD_CODE, DSTD_NAME, DSTD_TYPE),
     (DSTF_CODE, DSTF_NAME, DSTF_TYPE),
     (DMDL_CODE, DMDL_NAME, DMDL_TYPE),
     (DMDT_CODE, DMDT_NAME, DMDT_TYPE),
+    (DSTA_CODE, DSTA_NAME, DSTA_TYPE),
 ];
 
 // ====================================================================================================

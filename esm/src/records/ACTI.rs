@@ -17,12 +17,10 @@ define_record2! {
         Keyword;
         Properties;
 
-        b"ATTX", ActivateTextOverride, ESMString; // TODO: Verify
-        b"CITC", ConditionCount, u8; // TODO: Find type
+        b"ATTX", ActivateTextOverride, LocalizedString;
 
         // Compound destruction fields
         b"DAMC", DamageResistance, u8; // TODO: Find type
-        b"DSTA", DestructionName, u8; // TODO: Verify
         b"FNAM", Flags, u8; // TODO: Find type
         b"FTYP", ForcedLocRefType, u8; // TODO: Find type
         b"NTRM", NativeTerminal, u8; // TODO: Find type
