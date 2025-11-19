@@ -300,6 +300,7 @@ impl parse::Parse for FieldDefinition {
 
 // ====================================================================================================
 
+#[derive(Clone)]
 pub struct FieldDefinition2 {
     pub required: bool,
     pub iden: LitByteStr,
@@ -338,12 +339,14 @@ impl Parse for FieldDefinition2 {
 
         } 
         // Is common field
+        // TODO: this is messy and unnecessary
         else {
-            let common = common_map();
+            let common = common_map2();
             let name: Ident = input.parse()?;
             let ns = name.to_string();
             if let Some(fd) = common.get(&ns) {
-                Ok(FieldDefinition2 { required, iden: fd.idens[0].clone(), name: fd.names[0].clone(), field_type: FieldType::Common(name) })
+                Ok(fd[0].clone())
+                //Ok(FieldDefinition2 { required, iden: fd.idens[0].clone(), name: fd.names[0].clone(), field_type: FieldType::Common(name) })
             } else {
                 return Err(syn::Error::new(name.span(), format!("Unknown common field: {}", name)));
             }
@@ -358,7 +361,7 @@ pub struct FieldDefinitionList(
 
 // ====================================================================================================
 
-
+#[derive(Clone)]
 pub enum FieldType {
     Common(Ident),
     Custom(Type),
@@ -743,6 +746,17 @@ pub fn common_map2() -> HashMap<String, Vec<FieldDefinition2>> {
                 iden: LitByteStr::new(ZNAM_CODE, Span::call_site()), 
                 name: Ident::new(ZNAM_NAME, Span::call_site()), 
                 field_type: FieldType::Custom(syn::parse_str(ZNAM_TYPE).unwrap())
+            }
+        ]
+    );
+
+    map.insert(ATTX_NAME.to_string(),
+        vec![
+            FieldDefinition2 {
+                required:false,
+                iden: LitByteStr::new(ATTX_CODE, Span::call_site()),
+                name: Ident::new(ATTX_NAME, Span::call_site()),
+                field_type: FieldType::Custom(syn::parse_str(ATTX_TYPE).unwrap())
             }
         ]
     );

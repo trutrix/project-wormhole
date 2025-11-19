@@ -170,3 +170,9 @@ pub const YNAM_LIST: [(&[u8;4], &str, &str);2] = [
 ];
 
 // ====================================================================================================
+
+pub const ATTX_CODE: &[u8;4] = b"ATTX";
+pub const ATTX_NAME: &str = "ActivateTextOverride";
+pub const ATTX_TYPE: &str = "LocalizedString";
+
+pub const ATTX_LIST: [(&[u8;4], &str, &str);1] = [(ATTX_CODE, ATTX_NAME, ATTX_TYPE)];
