@@ -174,6 +174,77 @@ impl Parse for RecordDefinition2 {
     }
 }
 
+impl ToTokens for RecordDefinition2 {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        let cmap = common_map2();
+
+        let name = &self.name;
+        let name_field = Ident::new(format!("{}Field", name.clone().to_string().as_str()).as_str(), name.span());
+
+        let fields = &self.fields;
+
+        let mut end_fields: Vec<&FieldDefinition2> = Vec::new();
+
+        for field in fields {
+            match &field.field_type {
+                FieldType::Common(ident) => {
+                    if let Some(cf) = cmap.get(&ident.to_string()) {
+                        end_fields.extend(cf);
+                    } else {
+                        panic!("Unknown common field: {}", ident);
+                    }
+                }
+                FieldType::Custom(_cuf) => {
+                    end_fields.push(field);
+                }
+                FieldType::Reference(_lit_byte_strs) => {
+                    end_fields.push(field);
+                },
+            }
+        }
+
+
+        let field_idens: Vec<LitByteStr> = end_fields.iter().map(|f| f.iden.clone()).collect();
+        let field_names: Vec<Ident> = end_fields.iter().map(|f| f.name.clone()).collect();
+        let field_types: Vec<&FieldType> = end_fields.iter().map(|f| &f.field_type).collect();
+
+        
+
+        tokens.extend(quote! {
+            #[derive(Debug)]
+            pub struct #name {
+                pub header: RecordHeader,
+                pub fields: Vec<#name_field>
+            }
+
+            impl RecordTraits for #name {
+                fn get_record_header(&self) -> &RecordHeader {
+                    &self.header
+                }
+                fn try_get_editor_id(&self) -> Option<&ESMString> {
+                    for field in &self.fields {
+                        match field {
+                            #name_field::EditorId(edid) => {
+                                return Some(edid);
+                            },
+                            _ => {}
+                        }
+                    }
+                    None
+                }
+            }
+
+            #[derive(Debug)]
+            pub enum #name_field {
+                Unhandled(FourCC),
+                #(#field_names(#field_types)),*
+            }
+        });
+
+        
+    }
+}
+
 
 // ====================================================================================================
 
@@ -240,7 +311,7 @@ impl Parse for FieldDefinition2 {
     fn parse(input: parse::ParseStream) -> Result<Self> {
         
         let required = if input.peek(Token![+]) {
-            input.parse::<Token![+]>();
+            input.parse::<Token![+]>().unwrap();
             true
         } else {
             false
@@ -284,10 +355,31 @@ pub struct FieldDefinitionList(
     pub Vec<FieldDefinition2>
 );
 
+
+// ====================================================================================================
+
+
 pub enum FieldType {
     Common(Ident),
     Custom(Type),
     Reference(Vec<LitByteStr>)
+}
+
+impl ToTokens for FieldType {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        match self {
+            FieldType::Common(ident) => {
+                
+                panic!("Common field cannot be converted directly to tokens.")
+            },
+            FieldType::Custom(ty) => {
+                ty.to_tokens(tokens);
+            },
+            FieldType::Reference(_refs) => {
+                quote! { FormRef }.to_tokens(tokens);
+            }
+        }
+    }
 }
 
 

@@ -10,7 +10,7 @@ define_record2! {
         EditorId;
         FullName;
         b"CNAM", Color, Color4;
-        +b"TNAM", Type, KeywordType; // TODO: Not sure if this is an override for the actual keyword record
+        b"TNAM", Type, KeywordType; // TODO: Not sure if this is an override for the actual keyword record
         b"DNAM", Notes, ESMString;
         b"DATA", AttractionRule, [b"AORU"];
     ],
