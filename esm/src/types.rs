@@ -5,7 +5,7 @@ pub type FormRef = u32;
 pub type EditorId = ESMString;
 pub type RecordProperty = (FormId, f32);
 
-pub type TopGroup<T> = Group<Vec<Record<Vec<Field<T>>>>>;
+//pub type TopGroup<T> = Group<Vec<Record<Vec<Field<T>>>>>;
 
 
 

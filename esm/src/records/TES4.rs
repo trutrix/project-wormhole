@@ -1,5 +1,5 @@
 use crate::{dev::*, traits::RecordParser};
-use proc::define_record;
+use proc::{define_record, define_record2};
 
 // pub type FileHeader = Record<Field<FileHeaderField>>;
 
@@ -38,7 +38,7 @@ use proc::define_record;
 // }
 
 
-define_record! {
+define_record2! {
     b"TES4",
     FileHeader, [
         b"INCC", InteriorCellCount, u32;
@@ -58,7 +58,7 @@ impl RecordParser<FileHeaderField> for FileHeader {}
 pub struct FileHeaderMetadata {
     pub version: f32,
     pub object_count: u32,
-    pub next_object_id: u32
+    pub next_object_id: FormId
 }
 
 #[derive(NomLE)]

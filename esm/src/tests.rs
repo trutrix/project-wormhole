@@ -7,6 +7,7 @@ use crate::records::all::*;
 const ESM_PATH: &str = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Fallout 4\\Data\\Fallout4.esm";
 
 #[test]
+#[ignore = "disabled"]
 fn test1() {
     use crate::esm::*;
     use crate::dev::*;
@@ -25,5 +26,24 @@ fn test1() {
     //let esm = SmartESM::parse_complete(&buf).unwrap();
     let (_, esm) = RawESM::parse(&buf).unwrap();
     println!("Parsed esm in: {:?}", start.elapsed());
+
+}
+
+
+#[test]
+pub fn top_group_test() {
+    use crate::esm::*;
+    use crate::dev::*;
+    use std::io::Read;
+
+    let mut file = std::fs::File::open(ESM_PATH).unwrap();
+    let mut buf = Vec::new();
+    file.read_to_end(&mut buf).unwrap();
+
+    let (i, header) = FileHeader::parse(&buf).unwrap();
+    let (i, top_group) = many0(TopGroup::parse)(i).unwrap();
+
+    println!("Header: {:?}", header);
+    println!("Top groups: {:?}", top_group.len());
 
 }
