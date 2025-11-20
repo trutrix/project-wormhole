@@ -184,12 +184,16 @@ impl ToTokens for RecordDefinition2 {
         let fields = &self.fields;
 
         let mut end_fields: Vec<&FieldDefinition2> = Vec::new();
+        let mut has_edid = false;
 
         for field in fields {
             match &field.field_type {
                 FieldType::Common(ident) => {
                     if let Some(cf) = cmap.get(&ident.to_string()) {
                         end_fields.extend(cf);
+                        if ident.to_string() == "EditorId" {
+                            has_edid = true;
+                        }
                     } else {
                         panic!("Unknown common field: {}", ident);
                     }
@@ -208,19 +212,8 @@ impl ToTokens for RecordDefinition2 {
         let field_names: Vec<Ident> = end_fields.iter().map(|f| f.name.clone()).collect();
         let field_types: Vec<&FieldType> = end_fields.iter().map(|f| &f.field_type).collect();
 
-        
-
-        tokens.extend(quote! {
-            #[derive(Debug)]
-            pub struct #name {
-                pub header: RecordHeader,
-                pub fields: Vec<#name_field>
-            }
-
-            impl RecordTraits for #name {
-                fn get_record_header(&self) -> &RecordHeader {
-                    &self.header
-                }
+        let try_edid_code = if has_edid {
+            quote! {
                 fn try_get_editor_id(&self) -> Option<&ESMString> {
                     for field in &self.fields {
                         match field {
@@ -233,11 +226,61 @@ impl ToTokens for RecordDefinition2 {
                     None
                 }
             }
+        } else {
+            quote! {
+                fn try_get_editor_id(&self) -> Option<&ESMString> {
+                    None
+                }
+            }
+        };
+        
+
+        tokens.extend(quote! {
+            #[derive(Debug)]
+            pub struct #name {
+                pub header: RecordHeader,
+                pub fields: Vec<#name_field>
+            }
+
+            impl Parse<&[u8]> for #name {
+                fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
+                    let (i, (header, data)) = alloc_record(i)?;
+                    let (_, fields) = many0(complete(#name_field::parse_le))(data)?;
+                    Ok((i, Self { header, fields }))
+                }
+            }
+
+            impl RecordTraits for #name {
+                fn get_record_header(&self) -> &RecordHeader {
+                    &self.header
+                }
+                #try_edid_code
+            }
 
             #[derive(Debug)]
             pub enum #name_field {
                 Unhandled(FourCC),
                 #(#field_names(#field_types)),*
+            }
+
+            impl Parse<&[u8]> for #name_field {
+                fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
+                    let (i, (header, data)) = alloc_field(i)?;
+                    match &header.iden().0 {
+                        #(
+                            #field_idens => {
+                                let (_, out) = <#field_types>::parse_le(data)?;
+                                Ok((i, Self::#field_names(out)))
+                            }
+                        )*
+                        _ => {
+                            //unimplemented!("Field {} not implemented", header.iden());
+                            Ok((i, #name_field::Unhandled(header.iden().clone())))
+                        }
+                    }
+
+                    
+                }
             }
         });
 
