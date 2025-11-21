@@ -1,9 +1,11 @@
 
+use core::panic;
 use std::collections::HashMap;
 
 use proc_macro2::TokenStream;
 use proc_macro2::Span;
 use quote::{ToTokens, quote};
+use syn::parse::discouraged::Speculative;
 use syn::{*, parse::Parse, punctuated::Punctuated};
 
 
@@ -373,16 +375,25 @@ impl Parse for FieldDefinition2 {
             let name: Ident = input.parse()?;
             input.parse::<Token![,]>()?;
             
-            if input.peek(syn::token::Bracket) && input.peek2(LitByteStr) {
+            if input.peek(syn::token::Bracket)  {
+                let orig = input.fork();
                 let content;
-                bracketed!(content in input);
-                let refs = content.parse_terminated(LitByteStr::parse, Token![,])?;
-                Ok(FieldDefinition2 { required, iden, name, field_type: FieldType::Reference(refs.into_iter().collect()) })
+                bracketed!(content in orig);
+
+                if content.peek(LitByteStr) {
+                    input.advance_to(&orig);
+                    let refs = content.parse_terminated(LitByteStr::parse, Token![,])?;
+                    Ok(FieldDefinition2 { required, iden, name, field_type: FieldType::Reference(refs.into_iter().collect()) })
+                } else {
+                    let field_type: Type = input.parse()?;
+                    Ok(FieldDefinition2 { required, iden, name, field_type: FieldType::Custom(field_type) })
+                }
+
+                
             } else {
                 let field_type: Type = input.parse()?;
                 Ok(FieldDefinition2 { required, iden, name, field_type: FieldType::Custom(field_type) })
             }
-
 
         } 
         // Is common field
