@@ -3,7 +3,7 @@ use proc::define_record;
 use crate::{dev::*, traits::{GroupParser, RecordParser}};
 
 
-define_record! {
+define_record2! {
     b"GMST",
     GameSetting, [
         EditorId;

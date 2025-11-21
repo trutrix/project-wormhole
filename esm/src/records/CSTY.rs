@@ -3,7 +3,7 @@ use crate::dev::*;
 // Unknown structs here appear to just be f32 lists of varying lengths
 // Maybe make wrapper structs for them that pick specific indices and fail gracefully?
 
-define_record! {
+define_record2! {
     b"CSTY",
     CombatStyle, [
         EditorId;

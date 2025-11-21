@@ -1,6 +1,6 @@
 use crate::{dev::*, structs::geometry::ObjectBounds};
 
-define_record! {
+define_record2! {
     b"AMMO",
     Ammo, [
         EditorId;

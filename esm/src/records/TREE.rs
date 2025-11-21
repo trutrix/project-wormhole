@@ -3,7 +3,7 @@ use crate::dev::*;
 // Appears only once in Fallout4.esm, maybe not used in Fallout 4
 
 
-define_record! {
+define_record2! {
     b"TREE",
     Tree, [
         EditorId;

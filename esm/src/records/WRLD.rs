@@ -3,7 +3,7 @@ use proc::define_record;
 use crate::{dev::*, structs::{geometry::CellLoc, vectors::Vec2}};
 
 
-define_record! {
+define_record2! {
     b"WRLD", Worldspace, [
             EditorId;
             // b"CNAM", Color, u32; // Duplicate field

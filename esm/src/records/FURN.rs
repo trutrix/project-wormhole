@@ -3,7 +3,7 @@ use crate::dev::*;
 // This has an empty stop record, implying special parsing is needed.
 
 
-define_record! {
+define_record2! {
     b"FURN",
     Furniture, [
         EditorId;

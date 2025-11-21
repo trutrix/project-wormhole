@@ -23,7 +23,7 @@ fn main() {
     //             let mut out_file = std::fs::File::create(format!("./out/{}.rs", label)).unwrap();
     //             out_file.write_all(format!("use crate::dev::*;\n\n").as_bytes()).unwrap();
 
-    //             out_file.write_all(format!("define_record! {{\n    b\"{}\",\n    {}, [\n    ]\n}}", label, label).as_bytes()).unwrap();
+    //             out_file.write_all(format!("define_record2! {{\n    b\"{}\",\n    {}, [\n    ]\n}}", label, label).as_bytes()).unwrap();
 
     //             mod_file.write_all(format!("pub mod {};\n", label).as_bytes()).unwrap();
 

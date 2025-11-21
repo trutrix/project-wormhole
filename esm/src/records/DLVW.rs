@@ -5,7 +5,7 @@ use crate::dev::*;
 // Only a single record appears in Fallout4.esm
 // TODO: Research this record more thoroughly
 
-define_record! {
+define_record2! {
     b"DLVW",
     DialogView, [
         EditorId;

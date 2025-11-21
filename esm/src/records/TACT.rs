@@ -1,6 +1,6 @@
 use crate::dev::*;
 
-define_record! {
+define_record2! {
     b"TACT",
     TalkingActivator, [
         EditorId;

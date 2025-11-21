@@ -3,7 +3,7 @@ use proc::define_record;
 use crate::{dev::*, structs::colors::Color4};
 
 
-define_record! {
+define_record2! {
     b"KYWD", Keyword, [
         EditorId;
         FullName;

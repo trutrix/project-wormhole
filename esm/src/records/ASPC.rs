@@ -3,7 +3,7 @@ use crate::dev::*;
 
 // Contains refs
 
-define_record! {
+define_record2! {
     b"ASPC",
     AcousticSpace, [
         EditorId;

@@ -2,7 +2,7 @@ use crate::dev::*;
 
 // This record forgoes the usual fields in favor of a single DATA structure
 
-define_record! {
+define_record2! {
     b"AMDL",
     AimModel, [
         EditorId;

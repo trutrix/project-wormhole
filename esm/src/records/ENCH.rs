@@ -3,7 +3,7 @@ use crate::dev::*;
 
 // Also known as Enchantment
 
-define_record! {
+define_record2! {
     b"ENCH",
     ObjectEffect, [
         EditorId;

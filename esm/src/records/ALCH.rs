@@ -3,7 +3,7 @@ use crate::{dev::*, structs::geometry::ObjectBounds};
 
 // Also known as ingestible
 
-define_record! {
+define_record2! {
     b"ALCH",
     Alchemy, [
         EditorId;

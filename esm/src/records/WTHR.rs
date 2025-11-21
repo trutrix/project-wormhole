@@ -2,7 +2,7 @@ use crate::dev::*;
 
 // TODO: this record needs many structs created just to access the data properly
 
-define_record! {
+define_record2! {
     b"WTHR",
     Weather, [
         EditorId;

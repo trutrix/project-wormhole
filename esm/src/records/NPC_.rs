@@ -5,7 +5,7 @@ use crate::dev::*;
 // For now, just parse the header and skip the rest
 
 
-define_record! {
+define_record2! {
     b"NPC_",
     NonPlayerCharacter, [
         EditorId;

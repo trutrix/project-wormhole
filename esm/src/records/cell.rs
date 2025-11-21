@@ -1,7 +1,7 @@
 use crate::dev::*;
 
 
-define_record! {
+define_record2! {
     b"CELL", Cell, [
         EditorId;
         b"DATA", Flags, u16;

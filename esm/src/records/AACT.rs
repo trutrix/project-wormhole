@@ -1,5 +1,3 @@
-use proc::define_record2;
-
 use crate::{dev::*, records::all::KeywordType};
 
 define_record2! {

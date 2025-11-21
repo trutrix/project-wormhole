@@ -4,7 +4,7 @@ use crate::dev::*;
 // Probably for crafting is TES
 
 
-define_record! {
+define_record2! {
     b"INGR",
     Ingredient, [
         EditorId;

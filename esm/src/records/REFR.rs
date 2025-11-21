@@ -1,7 +1,7 @@
 use crate::{dev::*, structs::{geometry::LocationRotation, vectors::Vec2}};
 
 
-define_record! {
+define_record2! {
     b"REFR", Reference, [
             EditorId;
             b"XOWN", Owner, FormId;
