@@ -146,7 +146,7 @@ impl ToTokens for RecordDefinition {
 // ====================================================================================================
 
 pub struct RecordDefinition2 {
-    pub _iden: LitByteStr,
+    pub iden: LitByteStr,
     pub name: Ident,
     pub fields: Punctuated<FieldDefinition2, Token![;]>,
     pub flags: Punctuated<FlagDefinition, Token![;]>
@@ -167,9 +167,9 @@ impl Parse for RecordDefinition2 {
             let inner2;
             bracketed!(inner2 in input);
             let flags = inner2.parse_terminated(FlagDefinition::parse, Token![;])?;
-            Ok(RecordDefinition2 { _iden: iden, name, fields, flags })
+            Ok(RecordDefinition2 { iden, name, fields, flags })
         } else {
-            Ok(RecordDefinition2 { _iden: iden, name, fields, flags: Punctuated::new() })
+            Ok(RecordDefinition2 { iden, name, fields, flags: Punctuated::new() })
         }
     }
 }
@@ -178,6 +178,7 @@ impl ToTokens for RecordDefinition2 {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let cmap = common_map2();
 
+        let record_iden = &self.iden;
         let name = &self.name;
         let name_field = Ident::new(format!("{}Field", name.clone().to_string().as_str()).as_str(), name.span());
 
@@ -228,9 +229,7 @@ impl ToTokens for RecordDefinition2 {
             }
         } else {
             quote! {
-                fn try_get_editor_id(&self) -> Option<&ESMString> {
-                    None
-                }
+                
             }
         };
         
@@ -245,8 +244,13 @@ impl ToTokens for RecordDefinition2 {
             impl Parse<&[u8]> for #name {
                 fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
                     let (i, (header, data)) = alloc_record(i)?;
-                    let (_, fields) = many0(complete(#name_field::parse_le))(data)?;
-                    Ok((i, Self { header, fields }))
+                    if header.iden != #record_iden {
+                        panic!("Tried to parse record {:?} as {:?}", header.iden, #record_iden);
+                    } else {
+                        let (_, fields) = many0(complete(#name_field::parse_le))(data)?;
+                        Ok((i, Self { header, fields }))
+                    }
+                    
                 }
             }
 
@@ -369,7 +373,7 @@ impl Parse for FieldDefinition2 {
             let name: Ident = input.parse()?;
             input.parse::<Token![,]>()?;
             
-            if input.peek(syn::token::Bracket) {
+            if input.peek(syn::token::Bracket) && input.peek2(LitByteStr) {
                 let content;
                 bracketed!(content in input);
                 let refs = content.parse_terminated(LitByteStr::parse, Token![,])?;
