@@ -1,4 +1,4 @@
-
+#![allow(dead_code)]
 use core::panic;
 use std::collections::HashMap;
 
@@ -429,8 +429,7 @@ pub enum FieldType {
 impl ToTokens for FieldType {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         match self {
-            FieldType::Common(ident) => {
-                
+            FieldType::Common(_) => {
                 panic!("Common field cannot be converted directly to tokens.")
             },
             FieldType::Custom(ty) => {

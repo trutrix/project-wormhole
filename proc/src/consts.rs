@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 pub const EDID_CODE: &[u8;4] = b"EDID";
 pub const EDID_NAME: &str = "EditorId";
 pub const EDID_TYPE: &str = "EditorId";
