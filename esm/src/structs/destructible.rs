@@ -26,7 +26,7 @@ pub struct DestructibleStageData {
 
 
 #[derive(Debug, NomLE)]
-pub struct DestructibleHeaderFlags(u8);
+pub struct DestructibleHeaderFlags(pub u8);
 
 bitflags! {
     #[derive(Debug)]
