@@ -1,5 +1,3 @@
-use proc::define_record;
-
 use crate::{dev::*, structs::{geometry::CellLoc, vectors::Vec2}};
 
 

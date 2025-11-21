@@ -1,5 +1,3 @@
-use proc::define_record;
-
 use crate::{dev::*, structs::colors::Color4};
 
 

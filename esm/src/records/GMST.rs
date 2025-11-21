@@ -1,5 +1,3 @@
-use proc::define_record;
-
 use crate::{dev::*, traits::{GroupParser, RecordParser}};
 
 
