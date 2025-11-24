@@ -60,11 +60,38 @@ impl ToTokens for RecordDefinition {
                 pub fields: Vec<#name_field>
             }
 
+            // impl Parse<&[u8]> for #name {
+            //     fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
+            //         let (i, (header, data)) = alloc_record(i)?;
+            //         let (_, fields) = many0(complete(#name_field::parse_le))(data)?;
+            //         Ok((i, Self { header, fields }))
+            //     }
+            // }
+
             impl Parse<&[u8]> for #name {
-                fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
-                    let (i, (header, data)) = alloc_record(i)?;
-                    let (_, fields) = many0(complete(#name_field::parse_le))(data)?;
-                    Ok((i, Self { header, fields }))
+                fn parse(i: &[u8]) -> IResult<&[u8], Self> {
+                    let (i, (header, raw)) = alloc_record(i)?;
+
+                    if header.flags.is_compressed() {
+                        if let Ok(dec) = decompress_record(raw) {
+                            
+                            if let Ok((_, fields)) = many0(complete(#name_field::parse))(&dec) {
+                                return Ok((i, Self { header, fields }));
+                            } else {
+                                return Err(nom::Err::Error(nom::error::Error::new(i, nom::error::ErrorKind::Complete)));
+                            }
+                            
+                        } else {
+                            panic!("Could not decompress record: {:?}", header);
+                        }
+                        
+                    } else {
+                        if let Ok((_, fields)) = many0(complete(#name_field::parse))(&raw) {
+                            return Ok((i, Self { header, fields }));
+                        } else {
+                            return Err(nom::Err::Error(nom::error::Error::new(i, nom::error::ErrorKind::Complete)));
+                        }
+                    }       
                 }
             }
 
@@ -244,15 +271,29 @@ impl ToTokens for RecordDefinition2 {
             }
 
             impl Parse<&[u8]> for #name {
-                fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
-                    let (i, (header, data)) = alloc_record(i)?;
-                    if header.iden != #record_iden {
-                        panic!("Tried to parse record {:?} as {:?}", header.iden, #record_iden);
+                fn parse(i: &[u8]) -> IResult<&[u8], Self> {
+                    let (i, (header, raw)) = alloc_record(i)?;
+
+                    if header.flags.is_compressed() {
+                        if let Ok(dec) = decompress_record(raw) {
+                            
+                            if let Ok((_, fields)) = many0(complete(#name_field::parse))(&dec) {
+                                return Ok((i, Self { header, fields }));
+                            } else {
+                                return Err(nom::Err::Error(nom::error::Error::new(i, nom::error::ErrorKind::Complete)));
+                            }
+                            
+                        } else {
+                            panic!("Could not decompress record: {:?}", header);
+                        }
+                        
                     } else {
-                        let (_, fields) = many0(complete(#name_field::parse_le))(data)?;
-                        Ok((i, Self { header, fields }))
-                    }
-                    
+                        if let Ok((_, fields)) = many0(complete(#name_field::parse))(&raw) {
+                            return Ok((i, Self { header, fields }));
+                        } else {
+                            return Err(nom::Err::Error(nom::error::Error::new(i, nom::error::ErrorKind::Complete)));
+                        }
+                    }       
                 }
             }
 
