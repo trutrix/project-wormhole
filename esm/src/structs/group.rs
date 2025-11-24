@@ -2,6 +2,7 @@ use std::fmt::Debug;
 
 use crate::records::all::*;
 use crate::dev::*;
+use crate::structs::world_entry::WorldEntry;
 use super::record::VersionControl;
 
 
@@ -460,7 +461,7 @@ pub enum TopGroup {
     VTYP(Group<VoiceType>),
     WATR(Group<Water>),
     WEAP(Group<Weapon>),
-    WRLD(Group<Worldspace>),
+    WRLD(Group<WorldEntry>),
     WTHR(Group<Weather>),
     ZOOM(Group<Zoom>),
 }
@@ -550,7 +551,7 @@ impl Parse<&[u8]> for TopGroup {
                         Ok((i, TopGroup::CAMS(Group { header, data: group })))
                     }
                     b"CELL" => {
-                        let (i, (header, group)) = alloc_group(i)?;
+                        //let (i, (header, group)) = alloc_group(i)?;
                         Ok((i, TopGroup::CELL(Group { header, data: Vec::new()})))
                     }
                     b"CLAS" => {
@@ -970,8 +971,8 @@ impl Parse<&[u8]> for TopGroup {
                         Ok((i, TopGroup::WEAP(Group { header, data: group })))
                     }
                     b"WRLD" => {
-                        let (_, (header, raw)) = alloc_group(i)?;
-                        Ok((i, TopGroup::WRLD(Group { header, data: Vec::new() })))
+                        let (_, we) = many0(complete(WorldEntry::parse))(data)?;
+                        Ok((i, TopGroup::WRLD(Group { header, data: we })))
                     }
                     b"WTHR" => {
                         let (_, group) = many0(complete(Weather::parse))(data)?;

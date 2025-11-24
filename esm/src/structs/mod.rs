@@ -1,4 +1,4 @@
-pub mod worldspace;
+pub mod world_entry;
 pub mod model;
 pub mod data;
 pub mod destructible;
