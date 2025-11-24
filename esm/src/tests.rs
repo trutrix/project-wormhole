@@ -43,7 +43,15 @@ pub fn top_group_test() {
     let (i, header) = FileHeader::parse(&buf).unwrap();
     let (i, top_group) = many0(TopGroup::parse)(i).unwrap();
 
-    println!("Header: {:?}", header);
-    println!("Top groups: {:?}", top_group.len());
+    //println!("Header: {:?}", header);
+    
 
+    for group in &top_group {
+        match group {
+            TopGroup::WRLD(worlds) => {
+                println!("Worlds group with {:#?} worlds", worlds);
+            },
+            _ => {}
+        }
+    }
 }
