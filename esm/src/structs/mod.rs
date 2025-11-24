@@ -1,3 +1,4 @@
+pub mod worldspace;
 pub mod model;
 pub mod data;
 pub mod destructible;
