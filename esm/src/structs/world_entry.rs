@@ -1,4 +1,4 @@
-use crate::{dev::*, records::all::Worldspace};
+use crate::{dev::*, records::all::{Cell, Worldspace}};
 
 
 #[derive(Debug, NomLE)]
@@ -12,25 +12,28 @@ pub struct WorldEntry {
 #[derive(Debug)]
 #[repr(C)]
 pub struct WorldChildren {
-    pub header: GroupHeader
+    pub header: GroupHeader,
+    pub cell: Cell
 }
 
 impl Parse<&[u8]> for WorldChildren {
     fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
-        let (i, (header, _raw)) = alloc_group(i)?;
+        let (i, (header, raw)) = alloc_group(i)?;
 
+        
 
         #[cfg(debug_assertions)]
         match header.label {
-            GroupLabel::WorldChildren(_) => { 
-                Ok((i, Self { header }))
-            }
+            GroupLabel::WorldChildren(_) => { }
             _ => { panic!("WorldChildren::parse encountered wrong group type: {:?}", header.label) }
-        } 
-
-        #[cfg(not(debug_assertions))]
-        {
-            Ok((i, Self { header }))
         }
+    
+        let (raw, cell) = Cell::parse(raw)?;
+
+        let (_, next_id) = FourCC::parse(raw)?;
+        println!("Next ID after WorldChildren Cell: {:?}", next_id);
+
+        println!("{:?}", cell);
+        Ok((i, Self { header, cell }) )
     }
 }
