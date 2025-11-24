@@ -470,7 +470,7 @@ impl Parse<&[u8]> for TopGroup {
     fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
         let (i, (header, data)) = alloc_group(i)?;
 
-        println!("Parsing TopGroup: {:?}", header.label);
+        //println!("Parsing TopGroup: {:?}", header.label);
         match header.label {
             GroupLabel::Top(label) => {
                 match &label.0 {

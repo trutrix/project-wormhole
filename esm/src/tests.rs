@@ -41,10 +41,10 @@ pub fn top_group_test() {
     file.read_to_end(&mut buf).unwrap();
 
     let (i, header) = FileHeader::parse(&buf).unwrap();
-    let (i, e) = WorldChildren::parse(i).unwrap();
+    //let (i, e) = WorldChildren::parse(i).unwrap();
     let (i, top_group) = many0(TopGroup::parse)(i).unwrap();
 
-    println!("Header: {:?}", header);
+    //println!("Header: {:?}", header);
     
 
     // for group in &top_group {
