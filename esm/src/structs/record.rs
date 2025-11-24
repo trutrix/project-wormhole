@@ -333,6 +333,46 @@ bitflags! {
         
         /// The data is compressed.
         const COMPRESSED = 0x00040000;
+
+        const TES4_MASTER = 0x1;
+        const UNKNOWN_FLAG_2 = 0x2;
+        const UNKNOWN_FLAG_4 = 0x4;
+        const DELETED_GROUP = 0x10;
+        const DELETED_RECORD = 0x20;
+        const GLOB_CONSTANT = 0x40;
+        const REFR_HIDDEN = 0x40;
+        const TES4_LOCALIZED = 0x80;
+        const MUST_UPDATE_ANIMS = 0x100;
+        const REFR_INACCESSIBLE = 0x100;
+        const TES4_LIGHT_MASTER = 0x200;
+        const REFR_HIDDEN2 = 0x200;
+        const ACHR_STARTS_DEAD = 0x200;
+        const REFR_MOTION_BLUR_CASTS_SHADOWS = 0x200;
+        const QUEST_ITEM = 0x400;
+        const PERSISTENT_REFERENCE = 0x400;
+        const LSCR_DISPLAYS_IN_MAIN_MENU = 0x400;
+        const INITIALLY_DISABLED = 0x800;
+        const IGNORED = 0x1000;
+        const UNKNOWN_FLAG_2000 = 0x2000;
+        const VISIBLE_WHEN_DISTANT = 0x8000;
+        const ACTI_RANDOM_ANIMATION_START = 0x10000;
+        const ACTI_DANGEROUS = 0x20000;
+        const OFF_LIMITS = 0x20000;
+        const CANT_WAIT = 0x80000;
+        const ACTI_IGNORE_OBJECT_INTERACTION = 0x100000;
+        const IS_MARKER = 0x800000;
+        const ACTI_OBSTACLE = 0x2000000;
+        const REFR_NO_AI_ACQUIRE = 0x2000000;
+        const NAVMESH_GEN_FILTER = 0x4000000;
+        const NAVMESH_GEN_BOUNDING_BOX = 0x8000000;
+        const FURN_MUST_EXIT_TO_TALK = 0x10000000;
+        const REFR_REFLECTED_BY_AUTO_WATER = 0x10000000;
+        const FURN_CHILD_CAN_USE = 0x20000000;
+        const IDLM_CHILD_CAN_USE = 0x20000000;
+        const REFR_DONT_HAVOK_SETTLE = 0x20000000;
+        const NAVMESH_GEN_GROUND = 0x40000000;
+        const REFR_NORESPAWN = 0x40000000;
+        const REFR_MULTIBOUND = 0x80000000;
     }
 }
 

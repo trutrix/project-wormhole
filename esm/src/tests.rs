@@ -1,7 +1,7 @@
 #![allow(unused)]
 use std::collections::{HashMap, HashSet};
 
-use crate::records::all::*;
+use crate::{records::all::*, structs::world_entry::WorldChildren};
 
 
 const ESM_PATH: &str = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Fallout 4\\Data\\Fallout4.esm";
@@ -41,17 +41,18 @@ pub fn top_group_test() {
     file.read_to_end(&mut buf).unwrap();
 
     let (i, header) = FileHeader::parse(&buf).unwrap();
+    let (i, e) = WorldChildren::parse(i).unwrap();
     let (i, top_group) = many0(TopGroup::parse)(i).unwrap();
 
-    //println!("Header: {:?}", header);
+    println!("Header: {:?}", header);
     
 
-    for group in &top_group {
-        match group {
-            TopGroup::WRLD(worlds) => {
-                println!("Worlds group with {:#?} worlds", worlds);
-            },
-            _ => {}
-        }
-    }
+    // for group in &top_group {
+    //     match group {
+    //         TopGroup::WRLD(worlds) => {
+    //             println!("Worlds group with {:#?} worlds", worlds);
+    //         },
+    //         _ => {}
+    //     }
+    // }
 }

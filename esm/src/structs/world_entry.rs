@@ -18,6 +18,19 @@ pub struct WorldChildren {
 impl Parse<&[u8]> for WorldChildren {
     fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
         let (i, (header, _raw)) = alloc_group(i)?;
-        Ok((i, Self { header }))
+
+
+        #[cfg(debug_assertions)]
+        match header.label {
+            GroupLabel::WorldChildren(_) => { 
+                Ok((i, Self { header }))
+            }
+            _ => { panic!("WorldChildren::parse encountered wrong group type: {:?}", header.label) }
+        } 
+
+        #[cfg(not(debug_assertions))]
+        {
+            Ok((i, Self { header }))
+        }
     }
 }
