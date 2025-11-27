@@ -1,4 +1,5 @@
-pub mod world_entry;
+pub mod cell;
+pub mod world;
 pub mod model;
 pub mod data;
 pub mod destructible;

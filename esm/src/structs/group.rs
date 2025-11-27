@@ -2,7 +2,7 @@ use std::fmt::Debug;
 
 use crate::records::all::*;
 use crate::dev::*;
-use crate::structs::world_entry::WorldEntry;
+use crate::structs::world::WorldEntry;
 use super::record::VersionControl;
 
 
