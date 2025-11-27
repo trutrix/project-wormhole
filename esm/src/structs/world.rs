@@ -70,6 +70,7 @@ impl Parse<&[u8]> for ExteriorCellBlock {
 #[derive(Debug)]
 pub struct ExteriorCellSubBlock {
     pub header: GroupHeader,
+    pub cells: Vec<CellEntry>
 }
 
 impl Parse<&[u8]> for ExteriorCellSubBlock {
@@ -80,7 +81,8 @@ impl Parse<&[u8]> for ExteriorCellSubBlock {
 
         match header.label {
             GroupLabel::ExteriorCellSubBlock(_) => {
-                Ok((i, Self { header }) )
+                let (raw, cells) = many0(complete(CellEntry::parse))(raw)?;
+                Ok((i, Self { header, cells }) )
             }
             _ => { panic!("ExteriorCellSubBlock::parse encountered wrong group type: {:?}", header.label) }
         }
