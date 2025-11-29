@@ -10,16 +10,21 @@ impl Parse<&[u8]> for CellEntry {
     fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
 
         // Parse the Cell record
-        let (i, cell) = Cell::parse(i)?;    
+        let (i, cell) = Cell::parse(i)?;
+
+        // Check if buffer is consumed (usually at the end of groups)
+        if i.len() < 4 {
+            return Ok((i, Self { cell, children: None }) )
+        }  
 
         // Peek at the next FourCC to see if it's a GRUP
-        let (_, next_id) = FourCC::parse(i)?;
+        let  (_, next_id) = FourCC::parse(i)?;
 
         // If next iden is not GRUP, there are no children 
         // The groups themselves have pointers to parents, so in theory they could be out of order
         // In practice, they always seem to follow the Cell record directly.
 
-        // Return early if no children group
+        // Check if next item is a group, if not return with no children
         if &next_id.0 != GRUP {
             return Ok((i, Self { cell, children: None }) )
         }
