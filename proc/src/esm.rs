@@ -274,6 +274,10 @@ impl ToTokens for RecordDefinition2 {
                 fn parse(i: &[u8]) -> IResult<&[u8], Self> {
                     let (i, (header, raw)) = alloc_record(i)?;
 
+                    if header.iden != #record_iden {
+                        panic!("Tried to parse {:?} record as {:?}", header, FourCC(*#record_iden))
+                    }
+
                     if header.flags.is_compressed() {
                         if let Ok(dec) = decompress_record(raw) {
                             
