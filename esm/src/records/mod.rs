@@ -1,6 +1,7 @@
 
 #![allow(non_snake_case)]
-
+pub mod NAVM;
+pub mod ACHR;
 pub mod TES4;
 pub mod GMST;
 pub mod KYWD;
@@ -262,4 +263,6 @@ pub mod all {
     pub use super::OVIS::*;
     pub use super::REFR::*;
     pub use super::LAND::*;
+    pub use super::ACHR::*;
+    pub use super::NAVM::*;
 }
