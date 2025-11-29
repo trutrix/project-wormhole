@@ -29,12 +29,10 @@ impl Parse<&[u8]> for CellEntry {
 
         match next_header.label {
             GroupLabel::CellChildren(_) => {
-                println!("  Parsing CellChildren for Cell: {:?}", cell.header.form_id);
                 let (i, children) = CellChildren::parse(i)?;
                 Ok((i, Self { cell, children: Some(children) }) )
             }
             _ => {
-                println!("  No CellChildren group found for Cell: {:?}", cell.header.form_id);
                 Ok((i, Self { cell, children: None }) )
             }
         }
@@ -74,12 +72,10 @@ impl Parse<&[u8]> for CellChildren {
         
         match next_header.label {
             GroupLabel::CellPersistentChildren(_) => {
-                println!("    Found CellPersistentChildren in CellChildren group");
                 let (raw, pc) = CellPersistentChildren::parse(raw)?;
                 persistent_children = Some(pc);
 
                 if raw.len() > 0 {
-                    println!("      Found CellTemporaryChildren after CellPersistentChildren");
                     let (_, tc) = CellTemporaryChildren::parse(raw)?;
                     temporary_children = Some(tc);
                 }
