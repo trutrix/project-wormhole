@@ -33,7 +33,13 @@ impl Parse<&[u8]> for WorldChildren {
     
         // Parse the Cell record inside the WorldChildren group
         let (raw, cell) = CellEntry::parse(raw)?;
-        let (raw, blocks) = many0(complete(ExteriorCellBlock::parse))(raw)?;
+        let (raw, blocks) = many0(ExteriorCellBlock::parse)(raw)?;
+
+        #[cfg(debug_assertions)]
+        if raw.len() > 0 {
+            panic!("WorldChildren::parse found unexpected remaining data after parsing all ExteriorCellBlock items: {} bytes left.", raw.len());
+        }
+
 
         Ok((i, Self { header, cell, blocks }) )
     }
@@ -56,7 +62,15 @@ impl Parse<&[u8]> for ExteriorCellBlock {
 
         match header.label {
             GroupLabel::ExteriorCellBlock(_) => {
-                let (raw, sub_blocks) = many0(complete(ExteriorCellSubBlock::parse))(raw)?;
+                let (raw, sub_blocks) = many0(ExteriorCellSubBlock::parse)(raw)?;
+
+                #[cfg(debug_assertions)]
+                if raw.len() > 0 {
+                    let (_, next_id) = FourCC::parse(raw)?;
+                    panic!("ExteriorCellBlock::parse found unexpected remaining data after parsing all ExteriorCellSubBlock items: {} bytes left. NextId: {:?}", raw.len(), next_id);
+                }
+
+
                 Ok((i, Self { header, sub_blocks }) )
             }
             _ => { panic!("ExteriorCellBlock::parse encountered wrong group type: {:?}", header.label) }
@@ -83,6 +97,7 @@ impl Parse<&[u8]> for ExteriorCellSubBlock {
             GroupLabel::ExteriorCellSubBlock(_) => {
                 let (raw, cells) = many0(CellEntry::parse)(raw)?;
 
+                #[cfg(debug_assertions)]
                 if raw.len() > 0 {
                     let (_, next_id) = FourCC::parse(raw)?;
                     panic!("ExteriorCellSubBlock::parse found unexpected remaining data after parsing all CellEntry items: {} bytes left. NextId: {:?}", raw.len(), next_id);
