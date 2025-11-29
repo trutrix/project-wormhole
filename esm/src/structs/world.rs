@@ -1,4 +1,4 @@
-use crate::{dev::*, records::all::{Cell, Worldspace}, structs::cell::CellEntry};
+use crate::{dev::*, records::all::Worldspace, structs::cell::CellEntry};
 
 
 #[derive(Debug, NomLE)]
