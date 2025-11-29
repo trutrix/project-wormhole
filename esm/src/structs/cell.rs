@@ -94,7 +94,7 @@ impl Parse<&[u8]> for CellChildren {
                     panic!("Warning: Extra data found after CellTemporaryChildren in CellChildren group");
                 }
             }
-            _ => { }
+            _ => { panic!("Encountered wrong group type in CellChildren::parse") }
         }
 
         Ok((i, Self { header, persistent_children, temporary_children }) )
