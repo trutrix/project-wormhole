@@ -88,6 +88,8 @@ impl Parse<&[u8]> for CellChildren {
             GroupLabel::CellTemporaryChildren(_) => {
                 let (raw, tc) = CellTemporaryChildren::parse(raw)?;
                 temporary_children = Some(tc);
+
+                #[cfg(debug_assertions)]
                 if raw.len() > 0 {
                     panic!("Warning: Extra data found after CellTemporaryChildren in CellChildren group");
                 }
