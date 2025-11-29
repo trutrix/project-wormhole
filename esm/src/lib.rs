@@ -17,7 +17,7 @@ mod dev {
     pub use proc::define_record2;
 
     pub use super::traits::*;
-
+    pub use super::consts::*;
 
     pub use super::structs::fourcc::FourCC;
     pub use super::structs::record::*;
