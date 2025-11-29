@@ -81,7 +81,13 @@ impl Parse<&[u8]> for ExteriorCellSubBlock {
 
         match header.label {
             GroupLabel::ExteriorCellSubBlock(_) => {
-                let (raw, cells) = many0(complete(CellEntry::parse))(raw)?;
+                let (raw, cells) = many0(CellEntry::parse)(raw)?;
+
+                if raw.len() > 0 {
+                    let (_, next_id) = FourCC::parse(raw)?;
+                    panic!("ExteriorCellSubBlock::parse found unexpected remaining data after parsing all CellEntry items: {} bytes left. NextId: {:?}", raw.len(), next_id);
+                }
+
                 Ok((i, Self { header, cells }) )
             }
             _ => { panic!("ExteriorCellSubBlock::parse encountered wrong group type: {:?}", header.label) }
