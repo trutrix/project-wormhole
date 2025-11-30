@@ -308,6 +308,30 @@ impl ToTokens for RecordDefinition2 {
                 #try_edid_code
             }
 
+            impl<'esm> TryFrom<RawRecord<'esm>> for #name {
+                type Error = nom::error::Error<&'esm[u8]>;
+
+                fn try_from(value: RawRecord<'esm>) -> Result<Self, Self::Error> {
+
+                    match value.data {
+                        RawRecordData::Pointer(items) => {
+                            if let Ok((_, fields)) = many0(#name_field::parse)(items) {
+                                Ok(Self { header: value.header, fields })
+                            } else {
+                                Err(nom::error::Error::new(items, nom::error::ErrorKind::Fail))
+                            }
+                        },
+                        RawRecordData::Decompressed(items) => {
+                            if let Ok((_, fields)) = many0(#name_field::parse)(items.as_ref()) {
+                                Ok(Self { header: value.header, fields })
+                            } else {
+                                Err(nom::error::Error::new(&[], nom::error::ErrorKind::Fail))
+                            }
+                        }
+                    }
+                }
+            }
+
             #[derive(Debug)]
             pub enum #name_field {
                 Unhandled(FourCC),
