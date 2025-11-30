@@ -1,3 +1,4 @@
+pub mod chunk;
 pub mod cell;
 pub mod world;
 pub mod model;
