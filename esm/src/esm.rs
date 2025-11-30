@@ -94,7 +94,7 @@ impl<'esm> RawESM<'esm> {
                             let (i, (_ghead, graw)) = alloc_group(raw)?;
                             // println!("{:?}", ghead);
                             raw = i;
-                            let (_, icb) = many0(complete(RawInteriorCellBlock::parse))(graw)?;
+                            let (_, icb) = many0(RawInteriorCellBlock::parse)(graw)?;
                             cells = icb;
                         }
                         b"WRLD" => {
@@ -152,7 +152,7 @@ impl<'esm> RawESM<'esm> {
                             let (i, (_ghead, graw)) = alloc_group(raw)?;
                             // println!("{:?}", ghead);
                             raw = i;
-                            let (_, icb) = many0(complete(RawInteriorCellBlock::parse))(graw)?;
+                            let (_, icb) = many0(RawInteriorCellBlock::parse)(graw)?;
                             cells = icb;
                         }
                         b"WRLD" => {

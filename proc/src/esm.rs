@@ -63,7 +63,7 @@ impl ToTokens for RecordDefinition {
             // impl Parse<&[u8]> for #name {
             //     fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
             //         let (i, (header, data)) = alloc_record(i)?;
-            //         let (_, fields) = many0(complete(#name_field::parse_le))(data)?;
+            //         let (_, fields) = many0(#name_field::parse_le)(data)?;
             //         Ok((i, Self { header, fields }))
             //     }
             // }
@@ -75,7 +75,7 @@ impl ToTokens for RecordDefinition {
                     if header.flags.is_compressed() {
                         if let Ok(dec) = decompress_record(raw) {
                             
-                            if let Ok((_, fields)) = many0(complete(#name_field::parse))(&dec) {
+                            if let Ok((_, fields)) = many0(#name_field::parse)(&dec) {
                                 return Ok((i, Self { header, fields }));
                             } else {
                                 return Err(nom::Err::Error(nom::error::Error::new(i, nom::error::ErrorKind::Complete)));
@@ -86,7 +86,7 @@ impl ToTokens for RecordDefinition {
                         }
                         
                     } else {
-                        if let Ok((_, fields)) = many0(complete(#name_field::parse))(&raw) {
+                        if let Ok((_, fields)) = many0(#name_field::parse)(&raw) {
                             return Ok((i, Self { header, fields }));
                         } else {
                             return Err(nom::Err::Error(nom::error::Error::new(i, nom::error::ErrorKind::Complete)));
@@ -103,11 +103,11 @@ impl ToTokens for RecordDefinition {
 
                     match value.data {
                         RawRecordData::Pointer(items) => {
-                            let (_, fields) = many0(complete(#name_field::parse))(items).expect("Failed to convert RawRecord to #name");
+                            let (_, fields) = many0(#name_field::parse)(items).expect("Failed to convert RawRecord to #name");
                             Ok(Self { header: value.header, fields })
                         },
                         RawRecordData::Decompressed(items) => {
-                            let (_, fields) = many0(complete(#name_field::parse))(items.as_ref()).expect("Failed to convert RawRecord to #name");
+                            let (_, fields) = many0(#name_field::parse)(items.as_ref()).expect("Failed to convert RawRecord to #name");
                             Ok(Self { header: value.header, fields })
                         }
                     }
@@ -281,7 +281,7 @@ impl ToTokens for RecordDefinition2 {
                     if header.flags.is_compressed() {
                         if let Ok(dec) = decompress_record(raw) {
                             
-                            if let Ok((_, fields)) = many0(complete(#name_field::parse))(&dec) {
+                            if let Ok((_, fields)) = many0(#name_field::parse)(&dec) {
                                 return Ok((i, Self { header, fields }));
                             } else {
                                 return Err(nom::Err::Error(nom::error::Error::new(i, nom::error::ErrorKind::Complete)));
@@ -292,7 +292,7 @@ impl ToTokens for RecordDefinition2 {
                         }
                         
                     } else {
-                        if let Ok((_, fields)) = many0(complete(#name_field::parse))(&raw) {
+                        if let Ok((_, fields)) = many0(#name_field::parse)(&raw) {
                             return Ok((i, Self { header, fields }));
                         } else {
                             return Err(nom::Err::Error(nom::error::Error::new(i, nom::error::ErrorKind::Complete)));

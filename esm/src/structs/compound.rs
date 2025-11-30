@@ -11,7 +11,7 @@ impl Parse<&[u8]> for KeywordList {
         let (i, real_count) = u32::parse_le(i)?;
         let (i, (_header, _size)) = alloc_field(i)?;
         let (i, raw) = take(real_count * 4)(i)?; // Each FormID is 4 bytes
-        let (_, ids) = many0(complete(FormId::parse_le))(raw)?;
+        let (_, ids) = many0(FormId::parse_le)(raw)?;
         Ok((i, Self(ids)))
         
     }

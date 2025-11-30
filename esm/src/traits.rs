@@ -19,7 +19,7 @@ pub trait FieldParser<T> {
 
 pub trait RecordParser<T> where T: for<'esm> Parse<&'esm[u8]> {
     fn parse_body(i: &[u8]) -> IResult<&[u8], Vec<T>, nom::error::Error<&[u8]>> {
-        let (i, fields) = many0(complete(T::parse_le))(i)?;
+        let (i, fields) = many0(T::parse_le)(i)?;
         Ok((i, fields))
     }
     fn parse_record(i: &[u8]) -> IResult<&[u8], Record<T>, nom::error::Error<&[u8]>> {
@@ -49,7 +49,7 @@ pub trait RecordParser<T> where T: for<'esm> Parse<&'esm[u8]> {
 pub trait GroupParser<T> where T: for<'esm> Parse<&'esm[u8]> {
     fn parse_group(i: &[u8]) -> IResult<&[u8], Group<T>> {
         let (i, (header, raw)) = alloc_group(i)?;
-        let (_, items) = many0(complete(T::parse_le))(raw)?;
+        let (_, items) = many0(T::parse_le)(raw)?;
         Ok((i, Group { header, data: items} ))
     }
 }
@@ -60,12 +60,12 @@ pub trait GroupParser<T> where T: for<'esm> Parse<&'esm[u8]> {
 pub trait ESMParser<T> where T: for<'esm> Parse<&'esm[u8]> {
     fn parse_as_group(i: &[u8]) -> IResult<&[u8], Group<T>> {
         let (i, (header, raw)) = alloc_group(i)?;
-        let (_, items) = many0(complete(T::parse_le))(raw)?;
+        let (_, items) = many0(T::parse_le)(raw)?;
         Ok((i, Group { header, data: items} ))
     }
     fn parse_as_record(i: &[u8]) -> IResult<&[u8], Record<T>> {
         let (i, (header, raw)) = alloc_record(i)?;
-        let (_, fields) = many0(complete(T::parse_le))(raw)?;
+        let (_, fields) = many0(T::parse_le)(raw)?;
         Ok((i, Record { header, fields }))
     }
 }

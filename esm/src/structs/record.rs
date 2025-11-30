@@ -431,10 +431,10 @@ impl RawRecord<'_> {
     pub fn get_raw_fields(&self) -> IResult<&[u8], Vec<RawField<'_>>, nom::error::Error<&[u8]>> {
         match &self.data {
             RawRecordData::Pointer(data) => {
-                many0(complete(RawField::parse))(data)
+                many0(RawField::parse)(data)
             }
             RawRecordData::Decompressed(data) => {
-                many0(complete(RawField::parse))(data)
+                many0(RawField::parse)(data)
             }
         }
     }   
@@ -490,7 +490,7 @@ impl<T: for<'esm> Parse<&'esm[u8]>> Parse<&[u8]> for Record<T> {
         if header.flags.is_compressed() {
             if let Ok(dec) = decompress_record(raw) {
                 
-                if let Ok((_, fields)) = many0(complete(T::parse))(&dec) {
+                if let Ok((_, fields)) = many0(T::parse)(&dec) {
                     return Ok((i, Self { header, fields }));
                 } else {
                     return Err(nom::Err::Error(nom::error::Error::new(i, nom::error::ErrorKind::Complete)));
@@ -501,7 +501,7 @@ impl<T: for<'esm> Parse<&'esm[u8]>> Parse<&[u8]> for Record<T> {
             }
             
         } else {
-            if let Ok((_, fields)) = many0(complete(T::parse))(&raw) {
+            if let Ok((_, fields)) = many0(T::parse)(&raw) {
                 return Ok((i, Self { header, fields }));
             } else {
                 return Err(nom::Err::Error(nom::error::Error::new(i, nom::error::ErrorKind::Complete)));
@@ -599,7 +599,7 @@ impl <'esm> Parse<&'esm[u8]> for RawWorldRecord<'esm>  {
 /*impl EditorId for RawWorldRecord<'_> {
     fn try_get_editor_id(&self) -> Option<ESMString> {
         let mut edid = None;
-        let (_, fields) = many0(complete(RawField::parse))(self.world.data).expect("Could not parse fields from world record.");
+        let (_, fields) = many0(RawField::parse)(self.world.data).expect("Could not parse fields from world record.");
         for field in fields {
             match &field.header.iden().0 {
                 b"EDID" => {

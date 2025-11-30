@@ -124,7 +124,7 @@ impl Parse<&[u8]> for CellPersistentChildren {
         }
 
         // Parse all child items from remaining raw data
-        let (_, children) = many0(complete(CellChildItem::parse))(raw)?;
+        let (_, children) = many0(CellChildItem::parse)(raw)?;
 
         Ok((i, Self { header, children }) )
     }
@@ -153,7 +153,7 @@ impl Parse<&[u8]> for CellTemporaryChildren {
         }
 
         // Parse all child items from remaining raw data
-        let (_, children) = many0(complete(CellChildItem::parse))(raw)?;
+        let (_, children) = many0(CellChildItem::parse)(raw)?;
 
         Ok((i, Self { header, children }) )
     }
