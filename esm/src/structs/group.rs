@@ -470,6 +470,10 @@ impl Parse<&[u8]> for TopGroup {
     fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
         let (i, (header, data)) = alloc_group(i)?;
 
+        if data.is_empty() {
+            return Ok((i, TopGroup::Unhandled(Group { header, data: Vec::new() })));
+        }
+
         //println!("Parsing TopGroup: {:?}", header.label);
         match header.label {
             GroupLabel::Top(label) => {
@@ -855,7 +859,7 @@ impl Parse<&[u8]> for TopGroup {
                         Ok((i, TopGroup::PROJ(Group { header, data: group })))
                     }
                     b"QUST" => {
-                        let (_, (header, raw)) = alloc_group(i)?;
+                        //let (_, (header, raw)) = alloc_group(i)?;
                         Ok((i, TopGroup::QUST(Group { header, data: Vec::new()})))
                     }
                     b"RACE" => {
