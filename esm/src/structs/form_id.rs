@@ -1,7 +1,7 @@
 use crate::dev::*;
 
 
-#[derive(PartialEq, Eq, Clone, PartialOrd, Ord, Hash, NomLE)]
+#[derive(PartialEq, Eq, Clone, PartialOrd, Ord, Hash, NomLE, zerocopy::FromBytes)]
 pub struct FormId(pub u32);
 
 
