@@ -1,7 +1,7 @@
 use std::{fmt::Debug, io::Read};
 
 
-use crate::{dev::*, records::all::*};
+use crate::{dev::*, records::all::*, structs::chunk::ChunkHeader};
 use bitflags::bitflags;
 
 
@@ -16,6 +16,19 @@ pub struct RecordHeader {
     pub version_control: VersionControl,
 }
 
+
+impl From<ChunkHeader> for RecordHeader {
+    fn from(value: ChunkHeader) -> Self {
+        Self {
+            iden: value.iden,
+            size: value.size,
+            flags: RecordFlags2::from_bits_retain(value.field1),
+            form_id: FormId(value.field2),
+            version_control: VersionControl::from(value.field3),
+        }
+    }
+}
+
 // ====================================================================================================
 
 // The information contained in the version control structure appears to be used by a custom Perforce VCM
@@ -25,6 +38,17 @@ pub struct VersionControl {
     pub users: [u8; 2],
     pub form: u16,
     pub revision: u16,
+}
+
+impl From<[u8; 8]> for VersionControl {
+    fn from(value: [u8; 8]) -> Self {
+        Self {
+            timestamp: ESMTimestamp(u16::from_le_bytes([value[0], value[1]])),
+            users: [value[2], value[3]],
+            form: u16::from_le_bytes([value[4], value[5]]),
+            revision: u16::from_le_bytes([value[6], value[7]]),
+        }
+    }
 }
 
 
