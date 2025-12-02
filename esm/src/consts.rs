@@ -7,3 +7,8 @@ pub const CELL_WIDTH_MM: f32 = CELL_WIDTH_M * 1000.0;
 pub const UE_TO_CE_SCALE: f32 = 1.42822265625; // Unvalidated
 
 pub const GRUP: &[u8; 4] = b"GRUP";
+
+
+// ====================================================================================================
+
+pub const REFERENCE_GROUPS: [&[u8;4];3] = [b"WRLD", b"CELL", b"QUST"];
