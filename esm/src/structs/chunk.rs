@@ -52,42 +52,33 @@ pub fn get_file_chunks(i: &'_ [u8]) -> IResult<&'_ [u8], Vec<ESMChunk<'_>>> {
 }
 
 
-#[derive(Debug)]
 pub struct SmartChunks<'esm> {
     pub header: FileHeader,
-    pub data_groups: Vec<ESMChunk<'esm>>,
-    pub reference_groups: Vec<ESMChunk<'esm>>
+    pub chunks: Vec<ESMChunk2<'esm>>
 }
 
 
 impl<'esm> Parse<&'esm[u8]> for SmartChunks<'esm> {
     fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
-        let mut data_groups = Vec::new();
-        let mut reference_groups = Vec::new();
-        
-        
         let (i, header) = FileHeader::parse(i)?;
+        let (i, chunks) = many0(ESMChunk2::parse)(i)?;
 
-        let mut remaining = i;
-
-        while remaining.len() > 0 {
-
-            let (_, header) = GroupHeader::parse(remaining)?;
-            let (i, chunk) = alloc_chunk(remaining)?;
-            remaining = i;
-
-            if REFERENCE_GROUPS.contains(&&header.iden.0) {
-                reference_groups.push(chunk);
-            } else {
-                data_groups.push(chunk);
-            }
+        Ok((i, Self { header, chunks }))
+    }
+}
 
 
-        }
+// ====================================================================================================
 
 
-        Ok((remaining, Self { header, data_groups, reference_groups }))
+pub struct ESMChunk2<'esm> {
+    pub header: GroupHeader,
+    pub data: &'esm[u8]
+}
 
-
+impl<'esm> Parse<&'esm[u8]> for ESMChunk2<'esm> {
+    fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
+        let (i, (header, data)) = alloc_group(i)?;
+        Ok((i, Self { header, data }))
     }
 }
