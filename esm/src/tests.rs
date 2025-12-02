@@ -31,26 +31,40 @@ fn test1() {
 
 
 #[test]
-pub fn top_group_test() {
+pub fn esm_benchmarks() {
     use crate::esm::*;
     use crate::dev::*;
     use std::io::Read;
 
+    println!("");
+
+    let start = std::time::Instant::now();
     let mut file = std::fs::File::open(ESM_PATH).unwrap();
     let mut buf = Vec::new();
     file.read_to_end(&mut buf).unwrap();
+    println!("Read file to memory: {:?}", start.elapsed());
+    println!("");
 
     let start = std::time::Instant::now();
     let (_, chunks) = SmartChunks::parse(&buf).unwrap();
-    println!("SmartChunks time: {:?}", start.elapsed());
+    println!("SmartChunks::parse: {:?}", start.elapsed());
+
+    let start = std::time::Instant::now();
+    let (_, file_chunks) = get_file_chunks(&buf).unwrap();
+    println!("get_file_chunks: {:?}", start.elapsed());
+    println!("");
+
+    let start = std::time::Instant::now();
+    let (_, esm) = RawESM::parse(&buf).unwrap();
+    println!("RawESM: {:?}", start.elapsed());
 
     let start = std::time::Instant::now();
     let (_, esm) = ESMFull::parse_mt(&buf).unwrap();
-    println!("ESM (Multi )(Per Group): {:?}", start.elapsed());
+    println!("ESMFull (Multi )(Per Group): {:?}", start.elapsed());
 
     let start = std::time::Instant::now();
     let (_, esm) = ESMFull::parse(&buf).unwrap();
-    println!("ESM (Single)(Per Group): {:?}", start.elapsed());
+    println!("ESMFull (Single)(Per Group): {:?}", start.elapsed());
     // println!("Counted {:?} chunks", chunks.len());
 
     //println!("Header: {:?}", header);
