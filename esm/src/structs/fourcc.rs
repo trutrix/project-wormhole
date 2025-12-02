@@ -1,6 +1,8 @@
+use zerocopy::FromBytes;
+
 use crate::dev::*;
 
-#[derive(Clone, Copy, PartialEq, Eq, Hash, NomLE, PartialOrd, Ord)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, NomLE, PartialOrd, Ord, FromBytes)]
 pub struct FourCC(pub [u8;4]);
 
 
