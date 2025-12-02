@@ -1,7 +1,7 @@
 #![allow(unused)]
 use std::collections::{HashMap, HashSet};
 
-use crate::{records::all::*, structs::world::WorldChildren};
+use crate::{records::all::*, structs::{chunk::{SmartChunks, get_file_chunks}, world::WorldChildren}};
 
 
 const ESM_PATH: &str = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Fallout 4\\Data\\Fallout4.esm";
@@ -40,9 +40,18 @@ pub fn top_group_test() {
     let mut buf = Vec::new();
     file.read_to_end(&mut buf).unwrap();
 
-    let (i, header) = FileHeader::parse(&buf).unwrap();
-    //let (i, e) = WorldChildren::parse(i).unwrap();
-    let (i, top_group) = many0(TopGroup::parse)(i).unwrap();
+    let start = std::time::Instant::now();
+    let (_, chunks) = SmartChunks::parse(&buf).unwrap();
+    println!("SmartChunks time: {:?}", start.elapsed());
+
+    let start = std::time::Instant::now();
+    let (_, esm) = ESMFull::parse_mt(&buf).unwrap();
+    println!("ESM (Multi )(Per Group): {:?}", start.elapsed());
+
+    let start = std::time::Instant::now();
+    let (_, esm) = ESMFull::parse(&buf).unwrap();
+    println!("ESM (Single)(Per Group): {:?}", start.elapsed());
+    // println!("Counted {:?} chunks", chunks.len());
 
     //println!("Header: {:?}", header);
     
