@@ -1,11 +1,11 @@
 use std::{collections::HashMap, io::{Read, Seek}};
 
-use crate::{dev::*, records::{TES4::FileHeader, all::{FileHeaderField, GameSettingField}}, structs::{group::TopGroup, record::{RawRecord, RecordHeader}}, traits::{GroupParser, RecordParser}};
+use rayon::iter::{IndexedParallelIterator, IntoParallelIterator, IntoParallelRefIterator, ParallelBridge, ParallelIterator};
+
+use crate::{dev::*, records::{TES4::FileHeader, all::{FileHeaderField, GameSettingField}}, structs::{chunk::{SmartChunks, get_file_chunks}, group::{self, TopGroup}, record::{RawRecord, RecordHeader}}, traits::{GroupParser, RecordParser}};
 
 
-// ====================================================================================================
 
-pub const SPECIAL_GROUPS: [&[u8;4];3] = [b"WRLD", b"CELL", b"QUST"];
 
 // ====================================================================================================
 
@@ -218,12 +218,83 @@ impl SmartESM {
         
     }
 
+    // pub fn parse_smart_mt(i: &[u8]) -> IResult<&[u8], Self> {
+        
+    //     let (_leftover, chunks) = SmartChunks::parse(i)?;
+    //     let header = chunks.header;
+    //     let mut groups = Vec::new();
+
+    //     for dg in chunks.data_groups {
+    //         groups.push(TopGroup::parse(dg.data)?.1);
+    //     }
+
+    //     let groups = chunks.reference_groups.par_iter().map(|x| {
+    //         let (_, header) = GroupHeader::parse(x.data).unwrap();
+            
+    //         if let Ok((_, g)) = TopGroup::parse(x.data) {
+    //             return g;
+    //         } else {
+    //             panic!("Failed parsing group: {:?}", header);
+    //         }
+    //     }).collect();
+
+    //     Ok((i, Self { header, groups }))
+    // }
+
     
 }
 
 
 // ====================================================================================================
 
+#[derive(Debug)]
+pub struct ESMFull {
+    pub header: FileHeader,
+    pub groups: Vec<TopGroup>,
+}
+
+impl ESMFull {
+    pub fn parse_mt(i: &[u8]) -> IResult<&[u8], Self> {
+        
+        let (i, chunks) = get_file_chunks(i)?;
+
+        let (_, header) = FileHeader::parse(chunks[0].data)?;
+
+
+
+        // for chunk in &chunks[1..] {
+        //     let (_, g) = TopGroup::parse(chunk.data)?;
+        //     groups.push(g);
+        // }
+
+        let groups = chunks.par_iter().skip(1).map(|x| {
+            let (_, header) = GroupHeader::parse(x.data).unwrap();
+            
+            if let Ok((_, g)) = TopGroup::parse(x.data) {
+                return g;
+            } else {
+                panic!("Failed parsing group: {:?}", header);
+            }
+        }).collect();
+
+
+        Ok((i, Self { header, groups}))
+
+    }
+
+    pub fn parse(i: &[u8]) -> IResult<&[u8], Self> {
+        let (i, header) = FileHeader::parse(i)?;
+        let (i, groups) = many0(TopGroup::parse)(i)?;
+        Ok((i, Self { header, groups}))
+    }
+
+    
+}
+
+
+
+
+// ====================================================================================================
 
 #[derive(Debug)]
 pub enum ESMError {
