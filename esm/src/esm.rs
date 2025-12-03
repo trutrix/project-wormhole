@@ -260,13 +260,6 @@ impl ESMFull {
 
         let (_, header) = FileHeader::parse(chunks[0].data)?;
 
-
-
-        // for chunk in &chunks[1..] {
-        //     let (_, g) = TopGroup::parse(chunk.data)?;
-        //     groups.push(g);
-        // }
-
         let groups = chunks.par_iter().skip(1).map(|x| {
             let (_, header) = GroupHeader::parse(x.data).unwrap();
             

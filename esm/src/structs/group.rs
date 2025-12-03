@@ -2,7 +2,6 @@ use std::fmt::Debug;
 
 use crate::records::all::*;
 use crate::dev::*;
-use crate::structs::chunk::ChunkHeader;
 use crate::structs::world::WorldEntry;
 use super::record::VersionControl;
 
@@ -31,18 +30,6 @@ impl Parse<&[u8]> for GroupHeader {
         let (i, version_control) = VersionControl::parse(i)?;
 
         Ok((i, GroupHeader { iden, size, label, version_control }))
-    }
-}
-
-
-impl From<ChunkHeader> for GroupHeader {
-    fn from(value: ChunkHeader) -> Self {
-        Self {
-            iden: value.iden,
-            size: value.size,
-            label: GroupLabel::parse(&value.field3).unwrap().1,
-            version_control: VersionControl::from(value.field3),
-        }
     }
 }
 

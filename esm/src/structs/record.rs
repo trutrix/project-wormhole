@@ -1,7 +1,7 @@
 use std::{fmt::Debug, io::Read};
 
 
-use crate::{dev::*, records::all::*, structs::chunk::ChunkHeader};
+use crate::{dev::*, records::all::*};
 use bitflags::bitflags;
 
 
@@ -14,19 +14,6 @@ pub struct RecordHeader {
     pub flags: RecordFlags2,
     pub form_id: FormId,
     pub version_control: VersionControl,
-}
-
-
-impl From<ChunkHeader> for RecordHeader {
-    fn from(value: ChunkHeader) -> Self {
-        Self {
-            iden: value.iden,
-            size: value.size,
-            flags: RecordFlags2::from_bits_retain(value.field1),
-            form_id: FormId(value.field2),
-            version_control: VersionControl::from(value.field3),
-        }
-    }
 }
 
 // ====================================================================================================
