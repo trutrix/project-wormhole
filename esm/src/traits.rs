@@ -72,6 +72,7 @@ pub trait ESMParser<T> where T: for<'esm> Parse<&'esm[u8]> {
 
 // ====================================================================================================
 
+// These will be automatically implemented for most Records
 pub trait RecordTraits {
     fn get_record_header(&self) -> &RecordHeader;
     fn try_get_editor_id(&self) -> Option<&ESMString> { None }
@@ -79,5 +80,5 @@ pub trait RecordTraits {
     fn try_get_keywords(&self) -> Option<&Vec<FormId>> { None }
     fn try_get_description(&self) -> Option<&ESMString> { None }
     fn try_get_native_terminal(&self) -> Option<&FormId> { None }
-    fn try_get_virtual_machine_adapter(&self) -> Option<&FormId> { None }
+    fn try_get_virtual_machine_adapter(&self) -> Option<&VirtualMachineAdapter> { None }
 }
