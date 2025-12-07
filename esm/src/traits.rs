@@ -82,3 +82,16 @@ pub trait RecordTraits {
     fn try_get_native_terminal(&self) -> Option<&FormId> { None }
     fn try_get_virtual_machine_adapter(&self) -> Option<&VirtualMachineAdapter> { None }
 }
+
+
+// ====================================================================================================
+
+pub trait ParseVersioned<T>
+where Self: Sized
+{
+    fn parse_versioned(i: &[u8], version: T) -> IResult<&[u8], Self, nom::error::Error<&[u8]>>;
+    fn parse_versioned_debug(i: &[u8], version: T, depth: u8) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
+        let (i, result) = Self::parse_versioned(i, version)?;
+        Ok((i, result))
+    }
+}
