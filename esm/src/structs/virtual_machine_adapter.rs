@@ -31,14 +31,15 @@ impl Parse<&[u8]> for VirtualMachineAdapter {
         let mut remaining = i;
         let mut depth = 0;
 
-        if script_count > 0 {
-            println!("VMAD Header: version: {}, format: {}, script_count: {}", version, object_format, script_count);
-        }
+        // for debugging
+        // if script_count > 0 {
+        //     println!("VMAD Header: version: {}, format: {}, script_count: {}", version, object_format, script_count);
+        // }
 
         depth += 1;
 
         while loop_count < script_count {
-            let (i_new, script) = VMADScriptEntry::parse_versioned_debug(remaining, version, depth)?;
+            let (i_new, script) = VMADScriptEntry::parse_versioned(remaining, version)?;
             scripts.push(script);
             loop_count += 1;
             remaining = i_new;
@@ -100,7 +101,7 @@ impl ParseVersioned<i16> for VMADScriptEntry {
         let mut properties = Vec::new();
         let mut remaining = i;
         while loop_count < property_count {
-            let (i_new, property) = VMADPropertyEntry::parse_versioned_debug(remaining, version, depth)?;
+            let (i_new, property) = VMADPropertyEntry::parse(remaining)?;
             properties.push(property);
             loop_count += 1;
             remaining = i_new;
@@ -218,8 +219,8 @@ impl Parse<&[u8]> for VMADPropertyEntry {
             VMADPropertyType::StructArray => {
                 // Struct Array
                 let (i, item_count) = le_u32(i)?;
-                let (i, values) = nom::multi::count(VMADPropertyEntry::parse, item_count as usize)(i)?;
-                Ok((i, VMADPropertyEntry { name, type_, flags, value: VMADPropertyValue::StructArray(Box::new(values))}))
+                let (i, values) = nom::multi::count(SubStruct::parse, item_count as usize)(i)?;
+                Ok((i, VMADPropertyEntry { name, type_, flags, value: VMADPropertyValue::StructArray(values)}))
             }
             _ => {
 
@@ -338,8 +339,22 @@ impl ParseVersioned<i16> for VMADPropertyEntry {
             VMADPropertyType::StructArray => {
                 // Struct Array
                 let (i, item_count) = le_u32(i)?;
-                let (i, values) = nom::multi::count(VMADPropertyEntry::parse, item_count as usize)(i)?;
-                Ok((i, VMADPropertyEntry { name, type_, flags, value: VMADPropertyValue::StructArray(Box::new(values))}))
+                println!("{}VMAD property struct array count {}", depth_to_space(depth), item_count);
+
+                // let (i, sub_count) = le_u32(i)?;
+                // println!("{}VMAD property struct array sub-count {}", depth_to_space(depth), sub_count);
+
+                // let (i, st) = SizedString16::parse(i)?;
+                // println!("{}VMAD property struct array type name: {}", depth_to_space(depth), st);
+
+                // todo!()
+                if let Ok((i, values)) = nom::multi::count(SubStruct::parse, item_count as usize)(i) {
+                    println!("{}{:?}", depth_to_space(depth), values);
+                    Ok((i, VMADPropertyEntry { name, type_, flags, value: VMADPropertyValue::StructArray(values)}))    
+                } else {
+                    panic!("{}Failed to parse struct array items!", depth_to_space(depth));
+                    Ok((i, VMADPropertyEntry { name, type_, flags, value: VMADPropertyValue::StructArray(Vec::new())}))
+                }
             }
             _ => {
 
@@ -373,7 +388,7 @@ pub enum VMADPropertyValue {
     FloatArray(Vec<f32>), // 14
     BoolArray(Vec<bool>), // 15
     VarArray, // 16
-    StructArray(Box<Vec<VMADPropertyEntry>>), // 17
+    StructArray(Vec<SubStruct>), // 17
     Unsupported
 }
 
@@ -435,4 +450,13 @@ impl Parse<&[u8]> for VMADScriptFlags {
         let (i, raw) = u8::parse_le(i)?;
         Ok((i, VMADScriptFlags::from_bits_truncate(raw)))
     }
+}
+
+
+// ====================================================================================================
+
+#[derive(Debug, NomLE)]
+pub struct SubStruct {
+    #[nom(LengthCount = "le_u32")]
+    pub values: Vec<VMADPropertyEntry>
 }
