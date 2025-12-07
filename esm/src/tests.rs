@@ -59,12 +59,14 @@ pub fn esm_benchmarks() {
     println!("RawESM: {:?}", start.elapsed());
 
     let start = std::time::Instant::now();
+    let (_, esm) = ESMFull::parse(&buf).unwrap();
+    println!("ESMFull (Single)(Per Group): {:?}", start.elapsed());
+
+    let start = std::time::Instant::now();
     let (_, esm) = ESMFull::parse_mt(&buf).unwrap();
     println!("ESMFull (Multi )(Per Group): {:?}", start.elapsed());
 
-    let start = std::time::Instant::now();
-    let (_, esm) = ESMFull::parse(&buf).unwrap();
-    println!("ESMFull (Single)(Per Group): {:?}", start.elapsed());
+    
     // println!("Counted {:?} chunks", chunks.len());
 
     //println!("Header: {:?}", header);
