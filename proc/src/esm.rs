@@ -888,6 +888,46 @@ fn make_record_traits_impl(record_name: &Ident, record_field_name: &Ident, field
     
     let mut out = quote! {};
 
+    for field in fields {
+        let name = &field.name;
+
+        match name.to_string().as_str() {
+            EDID_NAME => {
+                out.extend(quote! {
+                    fn try_get_editor_id(&self) -> Option<&ESMString> {
+                        for field in &self.fields {
+                            match field {
+                                #record_field_name::EditorId(edid) => {
+                                    return Some(edid);
+                                },
+                                _ => {}
+                            }
+                        }
+                        None
+                    }
+                });
+            }
+            DESC_NAME => {
+                out.extend(quote! {
+                    fn try_get_description(&self) -> Option<&LocalizedString> {
+                        for field in &self.fields {
+                            match field {
+                                #record_field_name::Description(desc) => {
+                                    return Some(desc);
+                                },
+                                _ => {}
+                            }
+                        }
+                        None
+                    }
+                });
+            }
+
+            
+
+            _ => { /* do nothing */ }
+        }
+    }
 
 
     quote! {
