@@ -1,6 +1,4 @@
-use serde::de;
-
-use crate::{dev::*, records::all::NavMeshMapInfo};
+use crate::dev::*;
 
 #[derive(Debug)]
 pub struct VirtualMachineAdapter {
