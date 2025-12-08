@@ -9,7 +9,7 @@ define_record2! {
         b"INTV", AvailableTags, u32;
         b"HEDR", Metadata, FileHeaderMetadata;
         b"CNAM", Author, ESMString;
-        b"SNAM", Description, ESMString; // TODO: Check if current
+        b"SNAM", TextDescription, ESMString; // TODO: Check if current
         b"ONAM", OverriddenForms, Vec<FormId>;
         b"TNAM", TransientItems, FileHeaderTransientItems;
     ]
