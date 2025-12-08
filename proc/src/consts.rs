@@ -178,3 +178,37 @@ pub const ATTX_NAME: &str = "ActivateTextOverride";
 pub const ATTX_TYPE: &str = "LocalizedString";
 
 pub const ATTX_LIST: [(&[u8;4], &str, &str);1] = [(ATTX_CODE, ATTX_NAME, ATTX_TYPE)];
+
+
+// ====================================================================================================
+
+
+pub const ALL_IDENS: [&[u8;4];27] = [
+    EDID_CODE,
+    DESC_CODE,
+    FULL_CODE,
+    CTDA_CODE,
+    CIS1_CODE,
+    CIS2_CODE,
+    CITC_CODE,
+    OBND_CODE,
+    PTRN_CODE,
+    KYWD_CODE,
+    KSIZ_CODE,
+    VMAD_CODE,
+    MODL_CODE,
+    MODT_CODE,
+    MODC_CODE,
+    MODS_CODE,
+    MODF_CODE,
+    DEST_CODE,
+    DSTD_CODE,
+    DSTF_CODE,
+    DMDL_CODE,
+    DMDT_CODE,
+    DSTA_CODE,
+    PRPS_CODE,
+    YNAM_CODE,
+    ZNAM_CODE,
+    ATTX_CODE,
+];

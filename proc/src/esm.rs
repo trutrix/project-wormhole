@@ -893,11 +893,12 @@ fn make_record_traits_impl(record_name: &Ident, record_field_name: &Ident, field
 
         match name.to_string().as_str() {
             EDID_NAME => {
+                let field_name = Ident::new(EDID_NAME, name.span());
                 out.extend(quote! {
                     fn try_get_editor_id(&self) -> Option<&ESMString> {
                         for field in &self.fields {
                             match field {
-                                #record_field_name::EditorId(edid) => {
+                                #record_field_name::#field_name(edid) => {
                                     return Some(edid);
                                 },
                                 _ => {}
@@ -908,11 +909,12 @@ fn make_record_traits_impl(record_name: &Ident, record_field_name: &Ident, field
                 });
             }
             DESC_NAME => {
+                let field_name = Ident::new(DESC_NAME, name.span());
                 out.extend(quote! {
                     fn try_get_description(&self) -> Option<&LocalizedString> {
                         for field in &self.fields {
                             match field {
-                                #record_field_name::Description(desc) => {
+                                #record_field_name::#field_name(desc) => {
                                     return Some(desc);
                                 },
                                 _ => {}
@@ -922,6 +924,24 @@ fn make_record_traits_impl(record_name: &Ident, record_field_name: &Ident, field
                     }
                 });
             }
+            FULL_NAME => {
+                let field_name = Ident::new(FULL_NAME, name.span());
+                out.extend(quote! {
+                    fn try_get_full_name(&self) -> Option<&LocalizedString> {
+                        for field in &self.fields {
+                            match field {
+                                #record_field_name::#field_name(full) => {
+                                    return Some(full);
+                                },
+                                _ => {}
+                            }
+                        }
+                        None
+                    }
+                });
+            }
+
+            
 
             
 

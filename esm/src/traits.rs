@@ -76,7 +76,7 @@ pub trait ESMParser<T> where T: for<'esm> Parse<&'esm[u8]> {
 pub trait RecordTraits {
     fn get_record_header(&self) -> &RecordHeader;
     fn try_get_editor_id(&self) -> Option<&ESMString> { None }
-    fn try_get_full_name(&self) -> Option<&FormId> { None }
+    fn try_get_full_name(&self) -> Option<&LocalizedString> { None }
     fn try_get_keywords(&self) -> Option<&Vec<FormId>> { None }
     fn try_get_description(&self) -> Option<&LocalizedString> { None }
     fn try_get_native_terminal(&self) -> Option<&FormId> { None }
