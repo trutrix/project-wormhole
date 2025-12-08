@@ -214,6 +214,7 @@ impl Parse<&[u8]> for VMADPropertyEntry {
             },
             VMADPropertyType::VarArray => {
                 // Var Array
+                panic!("VarArray parsing not implemented yet!");
                 Ok((i, VMADPropertyEntry { name, type_, flags, value: VMADPropertyValue::VarArray}))
             },
             VMADPropertyType::StructArray => {
