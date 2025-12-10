@@ -22,7 +22,7 @@ pub struct ModelTexture {
 
 impl ModelTexture {
     pub fn get_texture_count(&self) -> Option<&u32> {
-        self.item_counts.get(0)
+        self.item_counts.first()
     }
 
     pub fn get_addon_count(&self) -> Option<&u32> {

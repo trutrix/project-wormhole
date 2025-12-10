@@ -993,7 +993,7 @@ impl Parse<&[u8]> for TopGroup {
                 }
             }
             _ => {
-                return Err(nom::Err::Error(nom::error::Error::new(i, nom::error::ErrorKind::Tag)));
+                Err(nom::Err::Error(nom::error::Error::new(i, nom::error::ErrorKind::Tag)))
             }
         }
 

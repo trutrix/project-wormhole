@@ -36,7 +36,7 @@ impl Parse<&[u8]> for WorldChildren {
         let (raw, blocks) = many0(ExteriorCellBlock::parse)(raw)?;
 
         #[cfg(debug_assertions)]
-        if raw.len() > 0 {
+        if !raw.is_empty() {
             panic!("WorldChildren::parse found unexpected remaining data after parsing all ExteriorCellBlock items: {} bytes left.", raw.len());
         }
 
@@ -65,7 +65,7 @@ impl Parse<&[u8]> for ExteriorCellBlock {
                 let (raw, sub_blocks) = many0(ExteriorCellSubBlock::parse)(raw)?;
 
                 #[cfg(debug_assertions)]
-                if raw.len() > 0 {
+                if !raw.is_empty() {
                     let (_, next_id) = FourCC::parse(raw)?;
                     panic!("ExteriorCellBlock::parse found unexpected remaining data after parsing all ExteriorCellSubBlock items: {} bytes left. NextId: {:?}", raw.len(), next_id);
                 }
@@ -98,7 +98,7 @@ impl Parse<&[u8]> for ExteriorCellSubBlock {
                 let (raw, cells) = many0(CellEntry::parse)(raw)?;
 
                 #[cfg(debug_assertions)]
-                if raw.len() > 0 {
+                if !raw.is_empty() {
                     let (_, next_id) = FourCC::parse(raw)?;
                     panic!("ExteriorCellSubBlock::parse found unexpected remaining data after parsing all CellEntry items: {} bytes left. NextId: {:?}", raw.len(), next_id);
                 }

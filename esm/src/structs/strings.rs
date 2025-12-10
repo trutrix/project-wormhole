@@ -16,8 +16,8 @@ pub struct ESMString(pub String);
 
 impl Parse<&[u8]> for ESMString {
     fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
-        if i.len() == 0 {
-            return Ok((i, Self(String::new())));
+        if i.is_empty() {
+            Ok((i, Self(String::new())))
         } else {
             let (_, left) = take(i.len()-1)(i)?;
             let s = String::from_utf8_lossy(left).to_string();
@@ -51,7 +51,7 @@ impl Parse<&[u8]> for SizedString32 {
 impl SizedString32 {
     pub fn parse_empty_as_none(i: &[u8]) -> IResult<&[u8], Option<String>> {
         let (i, result) = Self::parse(i)?;
-        if result.0.len() == 0 {
+        if result.0.is_empty() {
             Ok((i, None))
         } else {
             Ok((i, Some(result.0)))

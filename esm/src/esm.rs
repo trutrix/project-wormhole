@@ -1,10 +1,9 @@
-use std::{collections::HashMap, io::{Read, Seek}};
+use std::collections::HashMap;
 
-use rayon::iter::{IndexedParallelIterator, IntoParallelIterator, IntoParallelRefIterator, ParallelBridge, ParallelIterator};
+use rayon::iter::{IndexedParallelIterator, IntoParallelRefIterator, ParallelIterator};
 
-use crate::{dev::*, records::{TES4::FileHeader, all::{FileHeaderField, GameSettingField}}, structs::{chunk::{ESMFileChunk, SmartChunks, get_file_chunks, get_file_chunks2}, group::{self, TopGroup}, record::{RawRecord, RecordHeader}}, traits::{GroupParser, RecordParser}};
+use crate::{dev::*, records::TES4::FileHeader, structs::{chunk::{get_file_chunks, get_file_chunks2}, group::TopGroup, record::RawRecord}};
 
-use rayon::prelude::*;
 
 
 // ====================================================================================================

@@ -502,21 +502,19 @@ impl<T: for<'esm> Parse<&'esm[u8]>> Parse<&[u8]> for Record<T> {
             if let Ok(dec) = decompress_record(raw) {
                 
                 if let Ok((_, fields)) = many0(T::parse)(&dec) {
-                    return Ok((i, Self { header, fields }));
+                    Ok((i, Self { header, fields }))
                 } else {
-                    return Err(nom::Err::Error(nom::error::Error::new(i, nom::error::ErrorKind::Complete)));
+                    Err(nom::Err::Error(nom::error::Error::new(i, nom::error::ErrorKind::Complete)))
                 }
                 
             } else {
                 panic!("Could not decompress record: {:?}", header);
             }
             
+        } else if let Ok((_, fields)) = many0(T::parse)(raw) {
+            Ok((i, Self { header, fields }))
         } else {
-            if let Ok((_, fields)) = many0(T::parse)(&raw) {
-                return Ok((i, Self { header, fields }));
-            } else {
-                return Err(nom::Err::Error(nom::error::Error::new(i, nom::error::ErrorKind::Complete)));
-            }
+            Err(nom::Err::Error(nom::error::Error::new(i, nom::error::ErrorKind::Complete)))
         }       
     }
 }

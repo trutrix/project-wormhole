@@ -1,4 +1,4 @@
-use crate::{dev::*, records::all::{FileHeader, IdleAnimation}, structs::{data, group}};
+use crate::{dev::*, records::all::FileHeader};
 
 
 // ====================================================================================================
@@ -150,7 +150,7 @@ pub fn get_file_chunks2(i: &'_ [u8]) -> IResult<&'_ [u8], (Vec<ESMFileChunk<'_>>
     let mut input = i;
     let mut first = true;
     loop {
-        if input.len() == 0 {
+        if input.is_empty() {
             break;
         }
 

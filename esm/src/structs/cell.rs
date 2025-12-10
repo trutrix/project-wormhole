@@ -80,7 +80,7 @@ impl Parse<&[u8]> for CellChildren {
                 let (raw, pc) = CellPersistentChildren::parse(raw)?;
                 persistent_children = Some(pc);
 
-                if raw.len() > 0 {
+                if !raw.is_empty() {
                     let (_, tc) = CellTemporaryChildren::parse(raw)?;
                     temporary_children = Some(tc);
                 }
@@ -90,7 +90,7 @@ impl Parse<&[u8]> for CellChildren {
                 temporary_children = Some(tc);
 
                 #[cfg(debug_assertions)]
-                if raw.len() > 0 {
+                if !raw.is_empty() {
                     panic!("Warning: Extra data found after CellTemporaryChildren in CellChildren group");
                 }
             }

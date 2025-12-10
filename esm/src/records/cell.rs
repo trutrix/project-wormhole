@@ -42,9 +42,9 @@ impl Parse<&[u8]> for CellLocalWaterLevel {
     fn parse(i: &[u8]) -> IResult<&[u8], Self> {
         let (i, height) = le_f32(i)?;
         if height == f32::MAX {
-            return Ok((i, CellLocalWaterLevel::NoWater));
+            Ok((i, CellLocalWaterLevel::NoWater))
         } else {
-            return Ok((i, CellLocalWaterLevel::WaterHeight(height)));
+            Ok((i, CellLocalWaterLevel::WaterHeight(height)))
         }
     }
 }

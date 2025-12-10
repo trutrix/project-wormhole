@@ -240,7 +240,7 @@ impl Parse<&[u8]> for VMADPropertyEntry {
 }
 
 impl ParseVersioned<i16> for VMADPropertyEntry {
-    fn parse_versioned<'esm>(i: &'esm[u8], version: i16) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
+    fn parse_versioned(i: &[u8], version: i16) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
         todo!()
     }
 
