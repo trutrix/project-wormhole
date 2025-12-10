@@ -1,7 +1,7 @@
 #![allow(unused)]
 use std::collections::{HashMap, HashSet};
 
-use crate::{records::all::*, structs::{chunk::{SmartChunks, get_file_chunks}, world::WorldChildren}};
+use crate::{records::all::*, structs::{chunk::{SmartChunks, get_file_chunks, get_file_chunks2}, world::WorldChildren}};
 
 
 const ESM_PATH: &str = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Fallout 4\\Data\\Fallout4.esm";
@@ -50,21 +50,26 @@ pub fn esm_benchmarks() {
     println!("SmartChunks::parse: {:?}", start.elapsed());
 
     let start = std::time::Instant::now();
-    let (_, file_chunks) = get_file_chunks(&buf).unwrap();
-    println!("get_file_chunks: {:?}", start.elapsed());
+    let (_, file_chunks) = get_file_chunks2(&buf).unwrap();
+    println!("get_file_chunks2: {:?}", start.elapsed());
     println!("");
 
     let start = std::time::Instant::now();
     let (_, esm) = RawESM::parse(&buf).unwrap();
-    println!("RawESM: {:?}", start.elapsed());
+    println!("RawESM (Single Thread): {:?}", start.elapsed());
 
     let start = std::time::Instant::now();
     let (_, esm) = ESMFull::parse(&buf).unwrap();
-    println!("ESMFull (Single)(Per Group): {:?}", start.elapsed());
+    println!("ESMFull (Single Thread): {:?}", start.elapsed());
 
     let start = std::time::Instant::now();
     let (_, esm) = ESMFull::parse_mt(&buf).unwrap();
-    println!("ESMFull (Multi )(Per Group): {:?}", start.elapsed());
+    println!("ESMFull (Thread Per Group): {:?}", start.elapsed());
+
+
+    let start = std::time::Instant::now();
+    let (_, esm) = SmartESM::parse(&buf).unwrap();
+    println!("SmartESM (Assigned Threads): {:?}", start.elapsed());
 
     
     // println!("Counted {:?} chunks", chunks.len());

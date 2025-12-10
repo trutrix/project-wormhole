@@ -2,9 +2,9 @@ use std::{collections::HashMap, io::{Read, Seek}};
 
 use rayon::iter::{IndexedParallelIterator, IntoParallelIterator, IntoParallelRefIterator, ParallelBridge, ParallelIterator};
 
-use crate::{dev::*, records::{TES4::FileHeader, all::{FileHeaderField, GameSettingField}}, structs::{chunk::{SmartChunks, get_file_chunks}, group::{self, TopGroup}, record::{RawRecord, RecordHeader}}, traits::{GroupParser, RecordParser}};
+use crate::{dev::*, records::{TES4::FileHeader, all::{FileHeaderField, GameSettingField}}, structs::{chunk::{ESMFileChunk, SmartChunks, get_file_chunks, get_file_chunks2}, group::{self, TopGroup}, record::{RawRecord, RecordHeader}}, traits::{GroupParser, RecordParser}};
 
-
+use rayon::prelude::*;
 
 
 // ====================================================================================================
@@ -195,53 +195,55 @@ impl<'esm> RawESM<'esm> {
 /// A more fully-featured ESM parser that attempts to interpret records and fields
 /// This is still a work in progress and is not yet complete
 pub struct SmartESM {
-    pub header: Record<FileHeaderField>
+    pub header: FileHeader,
+    // pub chunks: Vec<TopGroup>,
+    // pub rchunks: Vec<TopGroup>,
+    pub data_groups: Vec<TopGroup>
 }
 
-impl SmartESM {
-    pub fn parse_complete(i: &[u8]) -> Result<Self, ESMError> {
-        if let Ok((i, header)) = FileHeader::parse_record(i) {
+impl Parse<&[u8]> for SmartESM {
+    fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
+        
+        let (leftover, (chunks, rchunks)) = get_file_chunks2(i)?;
+        //println!("Chunks: {}, RChunks: {}", chunks.len(), rchunks.len());
 
-            
-            if let Ok((_, gmst)) = <Group<Record<GameSettingField>>>::parse_group(i) {
-                println!("{:?}", gmst.data[0].header);
-                Ok(Self { header })
-            } else {
-                println!("nay");
-                Ok(Self { header })
+        // Debugging if file has leftover data after parsing chunks
+        #[cfg(debug_assertions)]
+        {
+            if leftover.len() > 0 {
+                println!("Warning: leftover data after parsing file chunks: {} bytes", leftover.len());
             }
-
-
-        } else {
-            Err(ESMError::InvalidHeader)
+            //println!("Parsed {} file chunks", chunks.len());
         }
-        
+
+        // First chunk should be the file header
+        let (_, header) = FileHeader::parse(chunks[0].data)?;
+        let mut parsed_data = Vec::new();
+        let mut parsed_refr = Vec::new();
+
+        rayon::scope(|s|{
+            // Data thread
+            s.spawn(|_|{
+                let start = std::time::Instant::now();
+                for chunk in chunks.iter().skip(1) {
+                    parsed_data.push(TopGroup::parse(chunk.data));
+                }
+                //println!("Data groups parse time: {:?}", start.elapsed())
+            });
+
+            //Refr thread
+            s.spawn(|_|{
+                let start = std::time::Instant::now();
+                for rchunk in rchunks {
+                    parsed_refr.push(TopGroup::parse(rchunk.data));
+                }
+                //println!("Refr groups parse time: {:?}", start.elapsed())
+            });
+
+        });
+
+        Ok((i, Self { header, data_groups: Vec::new() }) )
     }
-
-    // pub fn parse_smart_mt(i: &[u8]) -> IResult<&[u8], Self> {
-        
-    //     let (_leftover, chunks) = SmartChunks::parse(i)?;
-    //     let header = chunks.header;
-    //     let mut groups = Vec::new();
-
-    //     for dg in chunks.data_groups {
-    //         groups.push(TopGroup::parse(dg.data)?.1);
-    //     }
-
-    //     let groups = chunks.reference_groups.par_iter().map(|x| {
-    //         let (_, header) = GroupHeader::parse(x.data).unwrap();
-            
-    //         if let Ok((_, g)) = TopGroup::parse(x.data) {
-    //             return g;
-    //         } else {
-    //             panic!("Failed parsing group: {:?}", header);
-    //         }
-    //     }).collect();
-
-    //     Ok((i, Self { header, groups }))
-    // }
-
-    
 }
 
 
