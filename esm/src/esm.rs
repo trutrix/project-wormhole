@@ -10,52 +10,6 @@ use rayon::prelude::*;
 // ====================================================================================================
 
 
-pub struct ESM1<'esm> {
-    _file: std::fs::File,
-    _junk: Option<RawRecord<'esm>>,
-    pub header: FileHeader,
-    pub groups: Vec<RawDataGroup<'esm>>,
-    
-}
-
-impl<'esm> ESM1<'esm> {
-    pub fn new(path: &str, hbuf: &'esm mut [u8;24], dbuf: &'esm mut Vec<u8>) -> Result<Self, ESMError> {
-        // Open file handle
-        let mut file = std::fs::File::open(path)?;
-
-        // Read the first 24 bytes of the file into the buffer
-        file.read_exact(hbuf)?;
-
-        // Parse the Record from the buffer
-        let (_, header) = RecordHeader::parse(hbuf).expect("Failed to parse first record header");
-
-        // Create a new buffer for the entire first record (should be 'TES4')
-        *dbuf = vec![0u8; header.size as usize + 24];
-
-        // Seek to start and read the entire first record into the buffer
-        file.seek(std::io::SeekFrom::Start(0))?;
-        file.read_exact(dbuf)?;
-
-        
-
-        if let Ok((_, record)) = FileHeader::parse(dbuf) {
-            Ok(ESM1 { _file: file, _junk: None, header: record.try_into().unwrap(), groups: Vec::new() })
-        } else {
-            Err(ESMError::InvalidFile)
-        }
-    }
-
-    pub fn create_buffers() -> ([u8;24], Vec<u8>) {
-        let hbuf = [0u8;24];
-        let dbuf:  Vec<u8> = Vec::new();
-        (hbuf, dbuf)
-    }
-}
-
-
-// ====================================================================================================
-
-
 /// This is a barebones parsing of an ESM file.  
 /// It does not attempt to interpret any records or fields.  
 /// It simply breaks the file into its constituent groups and records.  
