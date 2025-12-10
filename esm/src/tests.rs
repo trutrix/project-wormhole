@@ -69,7 +69,7 @@ pub fn esm_benchmarks() {
 
     let start = std::time::Instant::now();
     let (_, esm) = SmartESM::parse(&buf).unwrap();
-    println!("SmartESM (Assigned Threads): {:?}", start.elapsed());
+    println!("SmartESM (2 assigned Threads): {:?}", start.elapsed());
 
     
     // println!("Counted {:?} chunks", chunks.len());
