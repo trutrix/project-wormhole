@@ -1,5 +1,7 @@
 use crate::dev::*;
 
+
+// TODO: Verify data, just because it parses doesn't mean it's correct!
 #[derive(Debug)]
 pub struct VirtualMachineAdapter {
     pub version: i16,
