@@ -36,7 +36,7 @@ impl<'esm> RawESM<'esm> {
         let (i, header) = FileHeader::parse(i)?;
         let mut raw = i;
 
-        while raw.len() > 0 {
+        while !raw.is_empty() {
 
             let (_, gh) = GroupHeader::parse(raw)?;
             
@@ -94,7 +94,7 @@ impl<'esm> RawESM<'esm> {
         let (i, header) = FileHeader::parse(i)?;
         let mut raw = i;
 
-        while raw.len() > 0 {
+        while !raw.is_empty() {
 
             let (_, gh) = GroupHeader::parse(raw)?;
             
@@ -164,7 +164,7 @@ impl Parse<&[u8]> for SmartESM {
         // Debugging if file has leftover data after parsing chunks
         #[cfg(debug_assertions)]
         {
-            if leftover.len() > 0 {
+            if !leftover.is_empty() {
                 println!("Warning: leftover data after parsing file chunks: {} bytes", leftover.len());
             }
             //println!("Parsed {} file chunks", chunks.len());
@@ -220,7 +220,7 @@ impl ESMFull {
             let (_, header) = GroupHeader::parse(x.data).unwrap();
             
             if let Ok((_, g)) = TopGroup::parse(x.data) {
-                return g;
+                g
             } else {
                 panic!("Failed parsing group: {:?}", header);
             }

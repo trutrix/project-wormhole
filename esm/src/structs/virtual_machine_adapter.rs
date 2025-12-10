@@ -60,7 +60,7 @@ pub struct VMADScriptEntry {
 }
 
 impl ParseVersioned<i16> for VMADScriptEntry {
-    fn parse_versioned<'esm>(i: &'esm[u8], version: i16) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
+    fn parse_versioned(i: &[u8], version: i16) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
         let (i, script_name) = SizedString16::parse(i)?;
         //println!("Parsed VMAD script name: {}", script_name);
         let (i, flags) = if version >= 4 {

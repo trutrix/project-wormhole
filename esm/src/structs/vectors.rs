@@ -53,7 +53,7 @@ impl<T: From<u8>> Vec3<T> {
     pub fn length(&self) -> f32 
         where T: Mul<Output = f32> + Copy
     {
-        (self.x * self.x + self.y * self.y + self.z * self.z).sqrt() as f32
+        (self.x * self.x + self.y * self.y + self.z * self.z).sqrt()
     }
 
     /// Normalize the vector to a unit vector  

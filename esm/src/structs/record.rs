@@ -563,10 +563,10 @@ impl <'esm> Parse<&'esm[u8]> for RawCellRecord<'esm> {
         match ghead.label {
             GroupLabel::CellChildren(_) => {
                 let (i, cell_children) = RawCellChildren::parse(i)?;
-                return Ok((i, Self { cell, cell_children: Some(cell_children) }));
+                Ok((i, Self { cell, cell_children: Some(cell_children) }))
             }
             _ => {
-                return Ok((i, Self { cell, cell_children: None }))
+                Ok((i, Self { cell, cell_children: None }))
             }
         }
 
@@ -597,10 +597,10 @@ impl <'esm> Parse<&'esm[u8]> for RawWorldRecord<'esm>  {
         match ghead.label {
             GroupLabel::WorldChildren(_) => {
                 let (i, world_children) = RawWorldChildren::parse(i)?;
-                return Ok((i, Self { world, world_children: Some(world_children) }));
+                Ok((i, Self { world, world_children: Some(world_children) }))
             }
             _ => {
-                return Ok((i, Self { world, world_children: None }))
+                Ok((i, Self { world, world_children: None }))
             }
         }
 
@@ -657,10 +657,10 @@ impl <'esm> Parse<&'esm[u8]> for RawQuestRecord<'esm>  {
         match ghead.label {
             GroupLabel::CellVisibleDistantChildren(_) => {
                 let (i, quest_children) = RawCellVisibleDistantChildren::parse(i)?;
-                return Ok((i, Self { quest, quest_children: Some(quest_children) }));
+                Ok((i, Self { quest, quest_children: Some(quest_children) }))
             }
             _ => {
-                return Ok((i, Self { quest, quest_children: None }))
+                Ok((i, Self { quest, quest_children: None }))
             }
         }
     }
