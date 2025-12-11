@@ -3,10 +3,10 @@ use std::ops::{Div, DivAssign, Mul, MulAssign};
 use crate::dev::*;
 
 
-#[derive(Debug, PartialEq, Eq, NomLE, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, NomLE, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub struct Matrix3<T>(pub [T; 9]);
 
-#[derive(Debug, PartialEq, Eq, NomLE, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, NomLE, Clone, Copy, serde::Serialize, serde::Deserialize)]
 pub struct Matrix4<T>(pub [T; 16]);
 
 
