@@ -5,7 +5,7 @@ use crate::dev::*;
 
 // ====================================================================================================
 
-#[derive(Debug, Clone, PartialEq, Copy, NomLE)]
+#[derive(Debug, Clone, PartialEq, Copy, NomLE, serde::Serialize, serde::Deserialize)]
 pub struct Vec2<T> {
     pub x: T,
     pub y: T,
@@ -33,7 +33,7 @@ impl<T> From<Vec2<T>> for [T; 2] {
 
 // ====================================================================================================
 
-#[derive(Debug, Clone, PartialEq, Eq, Copy, NomLE)]
+#[derive(Debug, Clone, PartialEq, Eq, Copy, NomLE, serde::Serialize, serde::Deserialize)]
 pub struct Vec3<T> {
     pub x: T,
     pub y: T,
@@ -128,7 +128,7 @@ impl<T: Copy> From<[T; 3]> for Vec3<T> {
 
 // ====================================================================================================
 
-#[derive(Debug, Clone, PartialEq, Copy, NomLE)]
+#[derive(Debug, Clone, PartialEq, Copy, NomLE, serde::Serialize, serde::Deserialize)]
 pub struct Vec4<T> {
     pub x: T,
     pub y: T,
