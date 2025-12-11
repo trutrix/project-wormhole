@@ -5,6 +5,7 @@
 - `NIF` - Paused - Need ESM to advance
 - `BA2` - Paused - Need ESM to advance
 - `BGSM` - Not Started
+- `SWF` - Not Started
 
 
 ## ESM
@@ -13,6 +14,8 @@
   - On demand data for faster editor performance
   - Indexes all top records in less than 300ms
   - Data is only converted to actual record structure on request
+- `ESMFull` - `WIP`
+  - Parse all data, take advantage of multi-threading
 - `SmartESM` - `WIP`
   - Tries to load the data as a game would, prioritizing certain data
 
@@ -62,6 +65,6 @@
 
 # Project Notes
 - Need to switch some types to use standard libs that perform much better (ie `glam` for vecs and matrices)
-- Debating rolling everything except `proc` into one `src` since they all reference `esm`
 - `nom_derive` works thusfar but seems poorly suited for versioned files, if we ever want to support all the games this must be addressed
-- I want to implement `zerocopy` at some point for transmutations 
+- I want to implement `zerocopy` at some point for transmutations
+- Unfortunately I did not account for serializing data back down, making a lot of this project unusable for editing
