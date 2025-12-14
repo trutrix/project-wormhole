@@ -22,6 +22,12 @@ impl PartialEq<&[u8;4]> for FourCC {
     }
 }
 
+impl PartialEq<FourCC> for &[u8;4] {
+    fn eq(&self, other: &FourCC) -> bool {
+        **self == other.0
+    }
+}
+
 impl serde::Serialize for FourCC {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
         where
