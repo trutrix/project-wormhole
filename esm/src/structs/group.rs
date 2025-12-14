@@ -21,6 +21,7 @@ impl Parse<&[u8]> for GroupHeader {
     fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
         let (i, iden) = FourCC::parse(i)?;
 
+        #[cfg(debug_assertions)]
         if iden != b"GRUP" {
              panic!("Invalid group header: {:?}", iden);
         }
