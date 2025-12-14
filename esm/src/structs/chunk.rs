@@ -23,10 +23,10 @@ pub fn alloc_chunk(i: &'_ [u8]) -> IResult<&'_ [u8], ESMChunk<'_>> {
 
     if size == 0 {
         Ok((i, ESMChunk { data: &[] }))
-    } else if &iden.0 == b"TES4" {
+    } else if iden == b"TES4" {
         let (i, data) = take(size + 24)(orig)?;
         Ok((i, ESMChunk { data }))
-    } else if &iden.0 == b"GRUP" {
+    } else if iden == b"GRUP" {
         let (i, data) = take(size)(orig)?;
         Ok((i, ESMChunk { data }))
     } else {
@@ -86,7 +86,7 @@ pub struct ESMFileChunk<'esm> {
 impl ESMFileChunk<'_> {
     pub fn is_group(&self) -> bool {
         if let Ok((_, iden)) = FourCC::parse(self.data) {
-            iden.0 == *b"GRUP"
+            iden == b"GRUP"
         } else {
             false
         }
@@ -118,7 +118,7 @@ impl<'esm> Parse<&'esm[u8]> for ESMFileChunk<'esm> {
         let (i, iden) = FourCC::parse(i)?;
         let (_, size) = u32::parse_le(i)?;
 
-        let (i, data) = if iden.0 == *b"GRUP" {
+        let (i, data) = if iden == b"GRUP" {
             take(size)(orig)?
         } else {
             take(size + 24)(orig)?
