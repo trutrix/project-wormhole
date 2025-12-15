@@ -1,3 +1,12 @@
 [workspace]
 resolver = "2"
-members = [ "app","ba2", "cli", "esm", "gen", "nif", "proc"]
+members = [ "app","ba2", "cli", "editor", "esm", "gen", "nif", "proc"]
+
+
+# Enable a small amount of optimization in the dev profile.
+[profile.dev]
+opt-level = 1
+
+# Enable a large amount of optimization in the dev profile for dependencies.
+[profile.dev.package."*"]
+opt-level = 3
