@@ -1,9 +1,9 @@
 use std::collections::BTreeSet;
 
 
-use ba2::dev::ensure_texture_parent;
-use ba2::dev::standardize_path;
-use esm::structs::geometry::Quaternion;
+use project_wormhole_ba2::dev::ensure_texture_parent;
+use project_wormhole_ba2::dev::standardize_path;
+use project_wormhole_esm::structs::geometry::Quaternion;
 use gltf::json::accessor::GenericComponentType;
 use gltf::json::accessor::ComponentType;
 use gltf::json::buffer::View;
@@ -991,6 +991,7 @@ impl NifFileV3 {
                         extras: Extras::default(),
                     }),
                     others: serde_json::Map::new(),
+                    ..Default::default()
                 }),
                 extras: Extras::default(),
             });

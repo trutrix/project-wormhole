@@ -80,7 +80,7 @@ impl Model {
 
                 let rotation = if r.is_some() {
                     let r = r.unwrap().to_col_major();
-                    let q = esm::structs::geometry::Quaternion::from(r);
+                    let q = project_wormhole_esm::structs::geometry::Quaternion::from(r);
                     Some(q.into())
                 } else {
                     None
@@ -647,6 +647,7 @@ impl Model {
                         others: serde_json::map::Map::new(),
                     }),
                     others: serde_json::map::Map::new(),
+                    ..Default::default()
                 }),
                 extras: Extras::default(),
             });

@@ -1,5 +1,5 @@
 [package]
-name = "ba2"
+name = "project-wormhole-ba2"
 version = "0.1.0"
 edition = "2021"
 
@@ -10,8 +10,6 @@ flate2 = { version = "1.0.28", features = ["cloudflare_zlib"] }
 log = "0.4.20"
 nom = "7.1.3"
 nom-derive = "0.10.1"
-proc = { path = "../proc" }
 image_dds = "0.4.0"
 image = "0.24.7"
-
-esm = { path="../esm"}
+serde = { version = "1.0.228", features = ["derive"] }

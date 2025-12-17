@@ -1,5 +1,5 @@
 [package]
-name = "esm"
+name = "project-wormhole-esm"
 version = "0.1.0"
 edition = "2021"
 
@@ -9,7 +9,7 @@ flate2 = { version = "1.1.1", features = ["cloudflare_zlib"] }
 glam = { version = "0.30.9", features = ["bytemuck", "zerocopy"] }
 gltf = { version = "1.4.1", features = ["extensions", "KHR_materials_pbrSpecularGlossiness"] }
 nom-derive = "0.10.1"
-proc = { path = "../proc" }
+project-wormhole-proc = { path = "../proc", version = "0.1.0" }
 rayon = "1.11.0"
 serde = { version = "1.0.228", features = ["derive"] }
 serde_json = "1.0.145"

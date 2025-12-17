@@ -20,10 +20,10 @@ mod dev {
     pub use log::*;
     pub use half::prelude::*;
     pub use std::collections::{BTreeMap, HashSet};
-    pub use esm::structs::vectors::*;
-    pub use esm::structs::strings::*;
-    pub use esm::structs::matrix::*;
-    pub use ba2::shared::{Bool, Bounds, MaxRef};
+    pub use project_wormhole_esm::structs::vectors::*;
+    pub use project_wormhole_esm::structs::strings::*;
+    pub use project_wormhole_esm::structs::matrix::*;
+    
 
     pub use super::nif_header::*;
     pub use super::nif_file::*;

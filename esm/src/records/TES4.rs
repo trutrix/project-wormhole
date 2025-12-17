@@ -1,5 +1,4 @@
 use crate::{dev::*, traits::RecordParser};
-use proc::define_record2;
 
 
 define_record2! {

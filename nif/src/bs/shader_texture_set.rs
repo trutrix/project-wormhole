@@ -1,4 +1,4 @@
-use ba2::dev::{ensure_texture_parent, standardize_path};
+use project_wormhole_ba2::dev::{ensure_texture_parent, standardize_path};
 
 use super::prelude::*;
 

@@ -1,6 +1,6 @@
 #![allow(unused)]
 use std::io::prelude::*;
-use esm::esm::RawESM;
+use project_wormhole_esm::esm::RawESM;
 use nom_derive::*;
 
 fn main() {

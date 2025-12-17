@@ -224,10 +224,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "app"
-version = "0.1.0"
-
-[[package]]
 name = "approx"
 version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -367,20 +363,6 @@ name = "autocfg"
 version = "1.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c08606f8c3cbf4ce6ec8e28fb0014a2c086708fe954eaa885384a6165172e7e8"
-
-[[package]]
-name = "ba2"
-version = "0.1.0"
-dependencies = [
- "esm",
- "flate2",
- "image 0.24.9",
- "image_dds",
- "log",
- "nom",
- "nom-derive",
- "proc",
-]
 
 [[package]]
 name = "base64"
@@ -1870,7 +1852,7 @@ name = "cli"
 version = "0.1.0"
 dependencies = [
  "clap",
- "esm",
+ "project-wormhole-esm",
  "serde_json",
 ]
 
@@ -2389,21 +2371,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "esm"
-version = "0.1.0"
-dependencies = [
- "bitflags 2.10.0",
- "flate2",
- "glam",
- "gltf",
- "nom-derive",
- "proc",
- "rayon",
- "serde",
- "serde_json",
-]
-
-[[package]]
 name = "euclid"
 version = "0.22.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2611,8 +2578,8 @@ dependencies = [
 name = "gen"
 version = "0.1.0"
 dependencies = [
- "esm",
  "nom-derive",
+ "project-wormhole-esm",
 ]
 
 [[package]]
@@ -3465,15 +3432,14 @@ dependencies = [
 name = "nif"
 version = "0.1.0"
 dependencies = [
- "ba2",
- "esm",
  "fbxcel",
  "gltf",
  "half",
  "log",
  "nom",
  "nom-derive",
- "proc",
+ "project-wormhole-ba2",
+ "project-wormhole-esm",
  "serde",
  "serde_json",
  "simplelog",
@@ -4119,16 +4085,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e8cf8e6a8aa66ce33f63993ffc4ea4271eb5b0530a9002db8455ea6050c77bfa"
 
 [[package]]
-name = "proc"
-version = "0.1.0"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 2.0.108",
- "syn_derive",
-]
-
-[[package]]
 name = "proc-macro-crate"
 version = "3.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4172,6 +4128,48 @@ name = "profiling"
 version = "1.0.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3eb8486b569e12e2c32ad3e204dbaba5e4b5b216e9367044f25f1dba42341773"
+
+[[package]]
+name = "project-wormhole-app"
+version = "0.1.0"
+
+[[package]]
+name = "project-wormhole-ba2"
+version = "0.1.0"
+dependencies = [
+ "flate2",
+ "image 0.24.9",
+ "image_dds",
+ "log",
+ "nom",
+ "nom-derive",
+ "serde",
+]
+
+[[package]]
+name = "project-wormhole-esm"
+version = "0.1.0"
+dependencies = [
+ "bitflags 2.10.0",
+ "flate2",
+ "glam",
+ "gltf",
+ "nom-derive",
+ "project-wormhole-proc",
+ "rayon",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "project-wormhole-proc"
+version = "0.1.0"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.108",
+ "syn_derive",
+]
 
 [[package]]
 name = "pxfm"
