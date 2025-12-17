@@ -1,32 +1,8 @@
+use serde::{Deserialize, Serialize, ser::SerializeStruct};
+
 use super::dev::*;
 
-
-#[derive(Debug, Clone)]
-pub struct BA2Header {
-    pub id: [u8;4],
-    pub version: u32,
-    pub archive_type: ArchiveType,
-    pub file_count: u32,
-    pub name_table_offset: u64
-}
-
-impl Parse<&[u8]> for BA2Header {
-    fn parse(i: &[u8]) -> IResult<&[u8], Self, error::Error<&[u8]>> {
-        let (i, id) = <[u8;4]>::parse(i)?;
-
-        if id != *b"BTDX" {
-            return Err(nom::Err::Error(error::Error::new(i, nom::error::ErrorKind::Tag)));
-        }
-
-        let (i, version) = le_u32(i)?;
-        let (i, archive_type) = ArchiveType::parse(i)?;
-        let (i, file_count) = le_u32(i)?;
-        let (i, name_table_offset) = le_u64(i)?;
-        Ok((i, BA2Header { id, version, archive_type, file_count, name_table_offset }))
-    }
-}
-
-
+// ================================================================================
 
 #[derive(PartialEq, Clone)]
 pub enum ArchiveType {
@@ -54,11 +30,58 @@ impl Parse<&[u8]> for ArchiveType {
 impl std::fmt::Debug for ArchiveType {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            ArchiveType::General => write!(f, "General [GRNL]"),
+            ArchiveType::General => write!(f, "General [GNRL]"),
             ArchiveType::Texture => write!(f, "Texture [DX10]")
         }
     }
 }
+
+impl Serialize for ArchiveType {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+        where
+            S: serde::Serializer {
+        let mut state = serializer.serialize_struct("ArchiveType", 1)?;
+        match self {
+            ArchiveType::General => state.serialize_field("type", b"GNRL")?,
+            ArchiveType::Texture => state.serialize_field("type", b"DX10")?,
+        }
+        state.end()
+    }
+}
+
+impl<'de> Deserialize<'de> for ArchiveType {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+        where
+            D: serde::Deserializer<'de> {
+        struct ArchiveTypeVisitor;
+
+        impl<'de> serde::de::Visitor<'de> for ArchiveTypeVisitor {
+            type Value = ArchiveType;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
+                formatter.write_str("a 4-byte array representing the archive type")
+            }
+
+            fn visit_bytes<E>(self, v: &[u8]) -> Result<Self::Value, E>
+                where
+                    E: serde::de::Error,
+            {
+                if v == b"GNRL" {
+                    Ok(ArchiveType::General)
+                } else if v == b"DX10" {
+                    Ok(ArchiveType::Texture)
+                } else {
+                    Err(E::custom(format!("unknown archive type: {:?}", v)))
+                }
+            }
+        }
+
+        deserializer.deserialize_bytes(ArchiveTypeVisitor)
+    }
+}
+
+
+// ================================================================================
 
 
 pub fn get_file_names(file: &mut File, offset: u64) -> Result<Vec<String>, std::io::Error> {

@@ -1,3 +1,4 @@
+pub mod header;
 pub mod traits;
 pub mod shared;
 pub mod archive;

@@ -1,5 +1,9 @@
 use std::path::PathBuf;
 
+use serde::ser::SerializeStruct;
+
+use crate::header::BA2Header;
+
 use super::dev::*;
 
 
@@ -296,4 +300,31 @@ impl BA2ArchiveGroup {
         Err(std::io::Error::new(std::io::ErrorKind::NotFound, "File not found"))
     }
 
+}
+
+
+// ================================================================================
+
+pub struct BA2Archive2 {
+    pub header: BA2Header
+
+}
+
+impl Parse<&[u8]> for BA2Archive2 {
+    fn parse(i: &[u8]) -> IResult<&[u8], Self, error::Error<&[u8]>> {
+        let (i, header) = BA2Header::parse(i)?;
+
+        Ok((i, BA2Archive2 { header }))
+    }
+}
+
+impl serde::Serialize for BA2Archive2 {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        let mut state = serializer.serialize_struct("BA2Archive2", 1)?;
+        state.serialize_field("header", &self.header)?;
+        state.end()
+    }
 }
