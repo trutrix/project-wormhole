@@ -40,12 +40,10 @@ impl Serialize for ArchiveType {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
         where
             S: serde::Serializer {
-        let mut state = serializer.serialize_struct("ArchiveType", 1)?;
         match self {
-            ArchiveType::General => state.serialize_field("type", b"GNRL")?,
-            ArchiveType::Texture => state.serialize_field("type", b"DX10")?,
+            ArchiveType::General => serializer.serialize_bytes(b"GNRL"),
+            ArchiveType::Texture => serializer.serialize_bytes(b"DX10")
         }
-        state.end()
     }
 }
 
@@ -57,22 +55,9 @@ impl<'de> Deserialize<'de> for ArchiveType {
 
         impl<'de> serde::de::Visitor<'de> for ArchiveTypeVisitor {
             type Value = ArchiveType;
-
+            
             fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
-                formatter.write_str("a 4-byte array representing the archive type")
-            }
-
-            fn visit_bytes<E>(self, v: &[u8]) -> Result<Self::Value, E>
-                where
-                    E: serde::de::Error,
-            {
-                if v == b"GNRL" {
-                    Ok(ArchiveType::General)
-                } else if v == b"DX10" {
-                    Ok(ArchiveType::Texture)
-                } else {
-                    Err(E::custom(format!("unknown archive type: {:?}", v)))
-                }
+                formatter.write_str("a 4-byte archive type identifier")
             }
         }
 
