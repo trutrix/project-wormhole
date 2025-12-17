@@ -3,7 +3,7 @@ use super::dev::*;
 
 #[derive(Debug, Clone)]
 pub struct BA2Header {
-    pub id: FourCC,
+    pub id: [u8;4],
     pub version: u32,
     pub archive_type: ArchiveType,
     pub file_count: u32,
@@ -12,9 +12,9 @@ pub struct BA2Header {
 
 impl Parse<&[u8]> for BA2Header {
     fn parse(i: &[u8]) -> IResult<&[u8], Self, error::Error<&[u8]>> {
-        let (i, id) = FourCC::parse(i)?;
+        let (i, id) = <[u8;4]>::parse(i)?;
 
-        if id != b"BTDX" {
+        if id != *b"BTDX" {
             return Err(nom::Err::Error(error::Error::new(i, nom::error::ErrorKind::Tag)));
         }
 
@@ -36,11 +36,17 @@ pub enum ArchiveType {
 
 impl Parse<&[u8]> for ArchiveType {
     fn parse(i: &[u8]) -> IResult<&[u8], Self, error::Error<&[u8]>> {
-        let (i, archive_type) = FourCC::parse(i)?;
-        match &archive_type.0 {
-            b"GNRL" => Ok((i, ArchiveType::General)),
-            b"DX10" => Ok((i, ArchiveType::Texture)),
-            _ => Err(nom::Err::Error(error::Error::new(i, nom::error::ErrorKind::Tag)))
+        let (i, archive_type) = take(4usize)(i)?;
+        if let Ok(archive_type) = <&[u8; 4]>::try_from(archive_type) {
+            if archive_type == b"GNRL" {
+                Ok((i, ArchiveType::General))
+            } else if archive_type == b"DX10" {
+                Ok((i, ArchiveType::Texture))
+            } else {
+                Err(nom::Err::Error(error::Error::new(i, nom::error::ErrorKind::Tag)))
+            }
+        } else {
+            Err(nom::Err::Error(error::Error::new(i, nom::error::ErrorKind::Char)))
         }
     }
 }

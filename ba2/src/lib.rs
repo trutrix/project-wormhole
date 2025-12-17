@@ -1,3 +1,4 @@
+pub mod traits;
 pub mod shared;
 pub mod archive;
 mod tests;
@@ -14,9 +15,6 @@ pub mod dev {
     pub use std::fs::File;
     pub use log::*;
     pub use std::collections::BTreeMap;
-    pub use esm::structs::fourcc::FourCC;
-
-
     pub use super::shared::*;
     pub use super::archive::*;
     

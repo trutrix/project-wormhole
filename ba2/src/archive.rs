@@ -206,7 +206,7 @@ pub struct BA2Entry {
 #[derive(Debug, NomLE, Clone)]
 pub struct GeneralEntry {
     pub unknown0: u32,
-    pub ext: FourCC,
+    pub ext: [u8;4],
     pub unknown1: u32,
     pub unknown2: u32,
     pub offset: u64,

@@ -5,7 +5,7 @@ use super::dev::*;
 
 #[test]
 pub fn test_general_archive() {
-    let path = "D:\\SteamLibrary\\steamapps\\common\\Fallout 4\\Data\\Fallout4 - Meshes.ba2";
+    let path = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Fallout 4\\Data\\Fallout4 - Meshes.ba2";
     let mut ba2 = BA2Archive::open(path).unwrap();
     println!("{:?}", ba2);
 
@@ -19,7 +19,7 @@ pub fn test_general_archive() {
 #[test]
 fn test_texture_archive() {
     use std::io::Write;
-    let path: &str = "D:\\SteamLibrary\\steamapps\\common\\Fallout 4\\Data\\Fallout4 - Textures4.ba2";
+    let path: &str = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Fallout 4\\Data\\Fallout4 - Textures4.ba2";
     let mut ba2 = BA2Archive::open(path).unwrap();
     println!("{:?}", ba2);
 
@@ -36,7 +36,7 @@ fn test_texture_archive() {
 #[test]
 fn test_archive_dir() {
     use std::io::Write;
-    let path = PathBuf::from_str("D:\\SteamLibrary\\steamapps\\common\\Fallout 4\\Data").unwrap();
+    let path = PathBuf::from_str("C:\\Program Files (x86)\\Steam\\steamapps\\common\\Fallout 4\\Data").unwrap();
     let _ba2 = BA2ArchiveGroup::open_all(path).unwrap();
 }
 
