@@ -1,6 +1,8 @@
 #![allow(unused_imports)]
 use std::{path::PathBuf, str::FromStr};
 
+use project_wormhole_shared::structs::fourcc::FourCC;
+
 use super::dev::*;
 
 #[test]
@@ -46,9 +48,9 @@ fn test_archive_dir() {
 #[test]
 fn test_header_serialization() {
     let header = crate::header::BA2Header {
-        id: *b"BTDX",
+        id: FourCC(*b"BTDX"),
         version: 24,
-        archive_type: ArchiveType::Texture,
+        archive_type: FourCC(*b"DX10"),
         file_count: 100,
         name_table_offset: 2048
     };

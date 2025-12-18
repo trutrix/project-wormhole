@@ -37,76 +37,75 @@ impl BA2Archive {
         file_handle.seek(SeekFrom::Start(24))?;
 
         // Change behavior based on archive type
-        match header.archive_type {
+        if header.is_general_archive() {
 
             // General archives have a name table and a list of file entries, no nested structure
-            ArchiveType::General => {
+            // Create buffer for file entries (36 bytes each)
+            let mut buf = vec![0u8; (header.file_count*36) as usize];
 
-                // Create buffer for file entries (36 bytes each)
-                let mut buf = vec![0u8; (header.file_count*36) as usize];
+            // Read file entries into buffer
+            file_handle.read_exact(&mut buf)?;
 
-                // Read file entries into buffer
-                file_handle.read_exact(&mut buf)?;
+            // Parse general file entries
+            let (_, mut items) = many0(complete(GeneralEntry::parse))(&buf).unwrap();
+            
+            // Check if name table and entry count match
+            if names.len() != items.len() {
+                return Err(std::io::Error::new(std::io::ErrorKind::InvalidData, "Name table and entry count mismatch"));
+            }
 
-                // Parse general file entries
-                let (_, mut items) = many0(complete(GeneralEntry::parse))(&buf).unwrap();
-                
-                // Check if name table and entry count match
-                if names.len() != items.len() {
-                    return Err(std::io::Error::new(std::io::ErrorKind::InvalidData, "Name table and entry count mismatch"));
-                }
+            // Create file map from names and entries
+            for _i in 0..names.len() {
+                files.insert(standardize_path(names.pop().unwrap().as_str()), items.pop().unwrap().into());
+            }
 
-                // Create file map from names and entries
-                for _i in 0..names.len() {
-                    files.insert(standardize_path(names.pop().unwrap().as_str()), items.pop().unwrap().into());
-                }
-
-            },
+            } else if header.is_texture_archive() {
 
             // Texture archives have a name table and a list of texture entries, each with a list of chunks, allocating the correct memory beforehand is not possible
-            ArchiveType::Texture => {
+            
 
-                // Create buffer for texture entries (24 bytes each)
-                let mut entries = Vec::new();
+            // Create buffer for texture entries (24 bytes each)
+            let mut entries = Vec::new();
 
-                // Read texture entries into buffer
-                for _i in 0..header.file_count {
+            // Read texture entries into buffer
+            for _i in 0..header.file_count {
 
-                    // Read texture entry
-                    file_handle.read_exact(&mut buf)?;
+                // Read texture entry
+                file_handle.read_exact(&mut buf)?;
 
-                    // Parse texture entry
-                    let (_, entry) = TextureEntry::parse(&buf).unwrap();
+                // Parse texture entry
+                let (_, entry) = TextureEntry::parse(&buf).unwrap();
 
-                    // Create buffer for chunks
-                    let mut chunk_buf = vec![0u8; entry.num_chunks as usize * entry.chunk_header_size as usize];
+                // Create buffer for chunks
+                let mut chunk_buf = vec![0u8; entry.num_chunks as usize * entry.chunk_header_size as usize];
 
-                    // Read chunks into buffer
-                    file_handle.read_exact(&mut chunk_buf)?;
-                    
-                    // Parse chunks
-                    let (_, chunks) = count(TextureChunk::parse, entry.num_chunks as usize)(&mut chunk_buf).unwrap();
+                // Read chunks into buffer
+                file_handle.read_exact(&mut chunk_buf)?;
+                
+                // Parse chunks
+                let (_, chunks) = count(TextureChunk::parse, entry.num_chunks as usize)(&mut chunk_buf).unwrap();
 
-                    // Store entry and chunks
-                    entries.push((entry, chunks));
+                // Store entry and chunks
+                entries.push((entry, chunks));
 
-                }
+            }
 
                 // Combine iterator of names and entries into a single iterator
-                for (name, entry) in names.iter().zip(entries.iter()) {
+            for (name, entry) in names.iter().zip(entries.iter()) {
 
-                    // Get the chunk with the highest mip level
-                    let max_lod = entry.1[0];
+                // Get the chunk with the highest mip level
+                let max_lod = entry.1[0];
 
-                    // Create file map from names and entries
-                    files.insert(standardize_path(name), BA2Entry {
-                        packed_size: max_lod.packed_size,
-                        unpacked_size: max_lod.unpacked_size,
-                        offset: max_lod.offset,
-                        texture: Some(entry.0.clone())
-                    });
-                }
+                // Create file map from names and entries
+                files.insert(standardize_path(name), BA2Entry {
+                    packed_size: max_lod.packed_size,
+                    unpacked_size: max_lod.unpacked_size,
+                    offset: max_lod.offset,
+                    texture: Some(entry.0.clone())
+                });
             }
+        } else {
+            return Err(std::io::Error::new(std::io::ErrorKind::InvalidData, "Unknown archive type"));
         }
 
         Ok(BA2Archive { header, files, file_handle })
@@ -145,7 +144,7 @@ impl BA2Archive {
             real_buf = raw_buf;
         }
 
-        if self.header.archive_type == ArchiveType::Texture && name.ends_with(".dds") {
+        if self.header.is_texture_archive() && name.ends_with(".dds") {
 
             let td = entry.texture.as_ref().unwrap();
 
