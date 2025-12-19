@@ -4150,7 +4150,6 @@ dependencies = [
  "image 0.24.9",
  "image_dds",
  "log",
- "nom 7.1.3",
  "nom-derive",
  "project-wormhole-shared",
  "serde",
