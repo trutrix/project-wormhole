@@ -9,11 +9,16 @@ use super::dev::*;
 #[ignore = "Long test, only run when needed"]
 pub fn test_general_archive() {
     let path = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Fallout 4\\Data\\Fallout4 - Meshes.ba2";
-    let mut ba2 = BA2Archive::open(path).unwrap();
-    println!("{:?}", ba2);
 
+    let start = std::time::Instant::now();
+    let mut ba2 = BA2Archive::open(path).unwrap();
+    println!("Opened BA2 in {:?}", start.elapsed());
+
+    let start = std::time::Instant::now();
     let all_files = ba2.read_all_files();
-    println!("Files: {}", all_files.len());
+    println!("Read all files in {:?}", start.elapsed());
+
+    println!("File Count: {}", all_files.len());
     //println!("{:?}", archive.files);
     //println!("{:?}", archive.files);
 }
@@ -38,14 +43,17 @@ fn test_texture_archive() {
 }
 
 #[test]
-#[ignore = "Long test, only run when needed"]
 fn test_archive_dir() {
     use std::io::Write;
     let path = PathBuf::from_str("C:\\Program Files (x86)\\Steam\\steamapps\\common\\Fallout 4\\Data").unwrap();
+
+    let start = std::time::Instant::now();
     let _ba2 = BA2ArchiveGroup::open_all(path).unwrap();
+    println!("Opened all BA2 in {:?}", start.elapsed());
 }
 
 #[test]
+#[ignore]
 fn test_header_serialization() {
     let header = crate::header::BA2Header {
         id: FourCC(*b"BTDX"),
