@@ -1,8 +1,9 @@
 use proc_macro::TokenStream;
 use syn::parse_macro_input;
 use quote::quote;
-mod esm;
+mod record_definition;
 mod consts;
+mod versioned;
 
 // #[proc_macro]
 // pub fn define_record(input: TokenStream) -> TokenStream {
@@ -33,7 +34,16 @@ mod consts;
 /// ```
 #[proc_macro]
 pub fn define_record2(input: TokenStream) -> TokenStream {
-    let input = parse_macro_input!(input as esm::RecordDefinition2);
+    let input = parse_macro_input!(input as record_definition::RecordDefinition2);
     let out = quote! { #input };
+    out.into()
+}
+
+
+
+#[proc_macro_derive(VersionedParse)]
+pub fn derive_versioned_parse(input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input as syn::DeriveInput);
+    let out = versioned::impl_versioned_parse(&input);
     out.into()
 }
