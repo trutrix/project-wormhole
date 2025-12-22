@@ -289,11 +289,6 @@ pub fn ensure_texture_parent(path: &mut String) {
     }
 }
 
-pub fn parse_u8_as_bool(i: &[u8]) -> IResult<&[u8], bool> {
-    let (i, value) = le_u8(i)?;
-    Ok((i, value == 1))
-}
-
 
 #[derive(Debug)]
 pub enum Endianess {
