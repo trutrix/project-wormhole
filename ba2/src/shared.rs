@@ -1,64 +1,6 @@
-use super::dev::*;
+use crate::dev::*;
 
-
-#[derive(Debug, Clone)]
-pub struct BA2Header {
-    pub id: [u8;4],
-    pub version: u32,
-    pub archive_type: ArchiveType,
-    pub file_count: u32,
-    pub name_table_offset: u64
-}
-
-impl Parse<&[u8]> for BA2Header {
-    fn parse(i: &[u8]) -> IResult<&[u8], Self, error::Error<&[u8]>> {
-        let (i, id) = <[u8;4]>::parse(i)?;
-
-        if id != *b"BTDX" {
-            return Err(nom::Err::Error(error::Error::new(i, nom::error::ErrorKind::Tag)));
-        }
-
-        let (i, version) = le_u32(i)?;
-        let (i, archive_type) = ArchiveType::parse(i)?;
-        let (i, file_count) = le_u32(i)?;
-        let (i, name_table_offset) = le_u64(i)?;
-        Ok((i, BA2Header { id, version, archive_type, file_count, name_table_offset }))
-    }
-}
-
-
-
-#[derive(PartialEq, Clone)]
-pub enum ArchiveType {
-    General,
-    Texture
-}
-
-impl Parse<&[u8]> for ArchiveType {
-    fn parse(i: &[u8]) -> IResult<&[u8], Self, error::Error<&[u8]>> {
-        let (i, archive_type) = take(4usize)(i)?;
-        if let Ok(archive_type) = <&[u8; 4]>::try_from(archive_type) {
-            if archive_type == b"GNRL" {
-                Ok((i, ArchiveType::General))
-            } else if archive_type == b"DX10" {
-                Ok((i, ArchiveType::Texture))
-            } else {
-                Err(nom::Err::Error(error::Error::new(i, nom::error::ErrorKind::Tag)))
-            }
-        } else {
-            Err(nom::Err::Error(error::Error::new(i, nom::error::ErrorKind::Char)))
-        }
-    }
-}
-
-impl std::fmt::Debug for ArchiveType {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            ArchiveType::General => write!(f, "General [GRNL]"),
-            ArchiveType::Texture => write!(f, "Texture [DX10]")
-        }
-    }
-}
+// ================================================================================
 
 
 pub fn get_file_names(file: &mut File, offset: u64) -> Result<Vec<String>, std::io::Error> {
@@ -341,31 +283,10 @@ impl Parse<&[u8]> for MaxRef {
 }
 
 
-
-
-
-pub fn standardize_path(path: &str) -> String {
-    let mut path = path
-        .replace('\\', "/")
-        .replace('\0', "")
-        .to_lowercase();
-
-    if path.starts_with("./") {
-        path = path[2..].to_string();
-    }
-    
-    path
-}
-
 pub fn ensure_texture_parent(path: &mut String) {
     if !path.starts_with("textures/") {
         path.insert_str(0, "textures/");
     }
-}
-
-pub fn parse_u8_as_bool(i: &[u8]) -> IResult<&[u8], bool> {
-    let (i, value) = le_u8(i)?;
-    Ok((i, value == 1))
 }
 
 

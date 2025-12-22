@@ -4141,9 +4141,10 @@ dependencies = [
  "image 0.24.9",
  "image_dds",
  "log",
- "nom",
  "nom-derive",
+ "project-wormhole-shared",
  "serde",
+ "serde_json",
 ]
 
 [[package]]
@@ -4169,6 +4170,14 @@ dependencies = [
  "quote",
  "syn 2.0.108",
  "syn_derive",
+]
+
+[[package]]
+name = "project-wormhole-shared"
+version = "0.1.0"
+dependencies = [
+ "nom-derive",
+ "serde",
 ]
 
 [[package]]

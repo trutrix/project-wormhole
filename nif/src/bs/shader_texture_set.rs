@@ -1,4 +1,4 @@
-use project_wormhole_ba2::dev::{ensure_texture_parent, standardize_path};
+use project_wormhole_ba2::dev::{ensure_texture_parent, normalize_esm_path};
 
 use super::prelude::*;
 
@@ -20,7 +20,7 @@ impl Parse<&[u8]> for BSShaderTextureSet {
         let mut fixed = Vec::new();
 
         for texture in textures {
-            let mut fixed_path = standardize_path(&texture.0);
+            let mut fixed_path = normalize_esm_path(&texture.0);
             ensure_texture_parent(&mut fixed_path);
 
             fixed.push(fixed_path);

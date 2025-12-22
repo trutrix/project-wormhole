@@ -2,7 +2,7 @@ use std::collections::BTreeSet;
 
 
 use project_wormhole_ba2::dev::ensure_texture_parent;
-use project_wormhole_ba2::dev::standardize_path;
+use project_wormhole_ba2::dev::normalize_esm_path;
 use project_wormhole_esm::structs::geometry::Quaternion;
 use gltf::json::accessor::GenericComponentType;
 use gltf::json::accessor::ComponentType;
@@ -572,7 +572,7 @@ impl NifFileV3 {
 
 
                     if let Some(raw_diffuse) = &set.diffuse {
-                        let mut fixed = standardize_path(&raw_diffuse);
+                        let mut fixed = normalize_esm_path(&raw_diffuse);
                         ensure_texture_parent(&mut fixed);
 
                         textures.insert(fixed.clone());
@@ -580,7 +580,7 @@ impl NifFileV3 {
                     }
 
                     if let Some(raw_normal) = &set.normal {
-                        let mut fixed = standardize_path(&raw_normal);
+                        let mut fixed = normalize_esm_path(&raw_normal);
                         ensure_texture_parent(&mut fixed);
 
                         textures.insert(fixed.clone());
@@ -588,7 +588,7 @@ impl NifFileV3 {
                     }
 
                     if let Some(raw_glow) = &set.glow {
-                        let mut fixed = standardize_path(&raw_glow);
+                        let mut fixed = normalize_esm_path(&raw_glow);
                         ensure_texture_parent(&mut fixed);
 
                         textures.insert(fixed.clone());
@@ -596,7 +596,7 @@ impl NifFileV3 {
                     }
 
                     if let Some(raw_specular) = &set.specular {
-                        let mut fixed = standardize_path(&raw_specular);
+                        let mut fixed = normalize_esm_path(&raw_specular);
                         ensure_texture_parent(&mut fixed);
 
                         textures.insert(fixed.clone());
