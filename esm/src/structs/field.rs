@@ -59,7 +59,7 @@ impl Parse<&[u8]> for FieldHeader {
     fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
         let (orig, iden) = FourCC::parse(i)?;
 
-        if iden == b"XXXX" {
+        if &iden.0 == b"XXXX" {
             // Always 4 bytes
             let (i, size) = le_u16(orig)?;
 

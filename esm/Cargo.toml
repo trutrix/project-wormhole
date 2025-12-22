@@ -10,6 +10,7 @@ glam = { version = "0.30.9", features = ["bytemuck", "zerocopy"] }
 gltf = { version = "1.4.1", features = ["extensions", "KHR_materials_pbrSpecularGlossiness"] }
 nom-derive = "0.10.1"
 project-wormhole-proc = { path = "../proc", version = "0.1.0" }
+project-wormhole-shared = { path = "../shared", version = "0.1.0" }
 rayon = "1.11.0"
 serde = { version = "1.0.228", features = ["derive"] }
 serde_json = "1.0.145"

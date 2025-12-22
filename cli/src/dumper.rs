@@ -1,6 +1,6 @@
 use std::{collections::{HashMap, HashSet}, io::Read, path::Path};
 
-use project_wormhole_esm::structs::fourcc::FourCC;
+use project_wormhole_shared::structs::fourcc::FourCC;
 
 
 

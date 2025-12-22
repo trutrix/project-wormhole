@@ -19,7 +19,7 @@ mod dev {
     pub use super::traits::*;
     pub use super::consts::*;
 
-    pub use super::structs::fourcc::FourCC;
+    pub use project_wormhole_shared::structs::fourcc::FourCC;
     pub use super::structs::record::*;
     pub use super::structs::field::*;
     pub use super::structs::group::*;
