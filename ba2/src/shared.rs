@@ -283,22 +283,6 @@ impl Parse<&[u8]> for MaxRef {
 }
 
 
-
-
-
-pub fn standardize_path(path: &str) -> String {
-    let mut path = path
-        .replace('\\', "/")
-        .replace('\0', "")
-        .to_lowercase();
-
-    if path.starts_with("./") {
-        path = path[2..].to_string();
-    }
-    
-    path
-}
-
 pub fn ensure_texture_parent(path: &mut String) {
     if !path.starts_with("textures/") {
         path.insert_str(0, "textures/");

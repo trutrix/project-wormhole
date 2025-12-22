@@ -17,6 +17,7 @@ pub mod dev {
     pub use std::collections::BTreeMap;
     pub use super::shared::*;
     pub use super::archive::*;
+    pub use project_wormhole_shared::utils::paths::normalize_esm_path;
     
 
 

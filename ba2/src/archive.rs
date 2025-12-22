@@ -56,7 +56,7 @@ impl BA2Archive {
 
             // Create file map from names and entries
             for _i in 0..names.len() {
-                files.insert(standardize_path(names.pop().unwrap().as_str()), items.pop().unwrap().into());
+                files.insert(normalize_esm_path(names.pop().unwrap().as_str()), items.pop().unwrap().into());
             }
 
             } else if header.is_texture_archive() {
@@ -97,7 +97,7 @@ impl BA2Archive {
                 let max_lod = entry.1[0];
 
                 // Create file map from names and entries
-                files.insert(standardize_path(name), BA2Entry {
+                files.insert(normalize_esm_path(name), BA2Entry {
                     packed_size: max_lod.packed_size,
                     unpacked_size: max_lod.unpacked_size,
                     offset: max_lod.offset,
@@ -114,7 +114,7 @@ impl BA2Archive {
 
     pub fn read_file(&mut self, name: &str) -> Result<Vec<u8>, std::io::Error> {
         // Standardize path
-        let name = standardize_path(name);
+        let name = normalize_esm_path(name);
 
         // Get file entry
         let entry = self.files.get(name.as_str()).ok_or(std::io::Error::new(std::io::ErrorKind::NotFound, "File not found"))?;
@@ -173,6 +173,7 @@ impl BA2Archive {
 
     }
 
+    #[cfg(debug_assertions)]
     pub fn read_all_files(&mut self) -> Vec<(String, Vec<u8>)> {
         let mut out_files: Vec<(String, Vec<u8>)> = Vec::new();
 
