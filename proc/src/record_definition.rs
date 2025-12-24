@@ -8,7 +8,7 @@ use quote::{ToTokens, quote};
 use syn::parse::discouraged::Speculative;
 use syn::{*, parse::Parse, punctuated::Punctuated};
 
-use super::consts::*;
+use super::record_consts::*;
 
 // ====================================================================================================
 
