@@ -7,7 +7,6 @@ pub mod destructible;
 pub mod compound;
 pub mod colors;
 pub mod strings;
-pub mod fourcc;
 pub mod field;
 pub mod group;
 pub mod record;
