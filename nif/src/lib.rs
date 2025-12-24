@@ -15,6 +15,7 @@ mod tests;
 
 mod dev {
     pub use nom_derive::{NomLE, Parse};
+    pub use nom_derive::nom;
     pub use nom::{bytes::complete::take, multi::count, number::complete::*, IResult};
     pub use std::io::{Read, Seek, SeekFrom};
     pub use log::*;

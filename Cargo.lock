@@ -3437,7 +3437,6 @@ dependencies = [
  "gltf",
  "half",
  "log",
- "nom",
  "nom-derive",
  "project-wormhole-ba2",
  "project-wormhole-esm",
