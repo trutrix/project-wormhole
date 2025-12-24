@@ -57,18 +57,18 @@ pub trait GroupParser<T> where T: for<'esm> Parse<&'esm[u8]> {
 
 // ====================================================================================================
 
-pub trait ESMParser<T> where T: for<'esm> Parse<&'esm[u8]> {
-    fn parse_as_group(i: &[u8]) -> IResult<&[u8], Group<T>> {
-        let (i, (header, raw)) = alloc_group(i)?;
-        let (_, items) = many0(T::parse_le)(raw)?;
-        Ok((i, Group { header, data: items} ))
-    }
-    fn parse_as_record(i: &[u8]) -> IResult<&[u8], Record<T>> {
-        let (i, (header, raw)) = alloc_record(i)?;
-        let (_, fields) = many0(T::parse_le)(raw)?;
-        Ok((i, Record { header, fields }))
-    }
-}
+// pub trait ESMParser<T> where T: for<'esm> Parse<&'esm[u8]> {
+//     fn parse_as_group(i: &[u8]) -> IResult<&[u8], Group<T>> {
+//         let (i, (header, raw)) = alloc_group(i)?;
+//         let (_, items) = many0(T::parse_le)(raw)?;
+//         Ok((i, Group { header, data: items} ))
+//     }
+//     fn parse_as_record(i: &[u8]) -> IResult<&[u8], Record<T>> {
+//         let (i, (header, raw)) = alloc_record(i)?;
+//         let (_, fields) = many0(T::parse_le)(raw)?;
+//         Ok((i, Record { header, fields }))
+//     }
+// }
 
 // ====================================================================================================
 
@@ -85,13 +85,3 @@ pub trait RecordTraits {
 
 
 // ====================================================================================================
-
-// pub trait ParseVersioned<T>
-// where Self: Sized
-// {
-//     fn parse_versioned(i: &[u8], version: T) -> IResult<&[u8], Self, nom::error::Error<&[u8]>>;
-//     fn parse_versioned_debug(i: &[u8], version: T, depth: u8) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
-//         let (i, result) = Self::parse_versioned(i, version)?;
-//         Ok((i, result))
-//     }
-// }
