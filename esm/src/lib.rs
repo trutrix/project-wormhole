@@ -14,7 +14,7 @@ mod dev {
     pub use nom::bytes::complete::take;
     
     pub use nom_derive::nom;
-    pub use project_wormhole_proc::define_record2;
+    pub use project_wormhole_proc::{define_record2, VersionedParse};
 
     pub use super::traits::*;
     pub use super::consts::*;
