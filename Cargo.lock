@@ -4177,6 +4177,7 @@ dependencies = [
 name = "project-wormhole-shared"
 version = "0.1.0"
 dependencies = [
+ "glam",
  "nom-derive",
  "serde",
 ]
