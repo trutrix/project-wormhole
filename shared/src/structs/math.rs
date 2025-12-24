@@ -69,12 +69,32 @@ pub struct BSMatrix3(pub Mat3);
 
 impl Parse<&[u8]> for BSMatrix3 {
     fn parse(i: &[u8]) -> IResult<&[u8], Self> {
-        let (i, c1) = BSVec3::parse(i)?;
-        let (i, c2) = BSVec3::parse(i)?;
-        let (i, c3) = BSVec3::parse(i)?;
+        // TODO: not sure these are stored in column-major order, verify (looking at you nif files)
+        let (i, c1) = BSVec3::parse_le(i)?;
+        let (i, c2) = BSVec3::parse_le(i)?;
+        let (i, c3) = BSVec3::parse_le(i)?;
 
         Ok((i, BSMatrix3(Mat3::from_cols(c1.0, c2.0, c3.0))))
     }
 }
 
 // ================================================================================
+
+
+#[derive(Clone, Copy, PartialEq)]
+pub struct BSMatrix4(pub Mat4);
+impl Parse<&[u8]> for BSMatrix4 {
+    fn parse(i: &[u8]) -> IResult<&[u8], Self> {
+        // TODO: not sure these are stored in column-major order, verify (looking at you nif files)
+        let (i, c1) = BSVec4::parse_le(i)?;
+        let (i, c2) = BSVec4::parse_le(i)?;
+        let (i, c3) = BSVec4::parse_le(i)?;
+        let (i, c4) = BSVec4::parse_le(i)?;
+
+        Ok((i, BSMatrix4(Mat4::from_cols(c1.0, c2.0, c3.0, c4.0))))
+    
+    }
+}
+
+// ================================================================================
+
