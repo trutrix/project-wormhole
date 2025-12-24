@@ -77,7 +77,7 @@ impl ParseVersioned<i16> for VMADScriptEntry {
         Ok((i, VMADScriptEntry { script_name, flags, property_count, properties, fragments: Vec::new() }) )
     }
 
-    fn parse_versioned_debug(i: &[u8], version: i16, mut depth: u8) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
+    fn parse_versioned_depth(i: &[u8], version: i16, mut depth: u8) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
         let (i, script_name) = SizedString16::parse(i)?;
 
         let (i, flags) = if version >= 4 {
@@ -244,7 +244,7 @@ impl ParseVersioned<i16> for VMADPropertyEntry {
         todo!()
     }
 
-    fn parse_versioned_debug(i: &[u8], version: i16, mut depth: u8) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
+    fn parse_versioned_depth(i: &[u8], version: i16, mut depth: u8) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
         let (i, name) = SizedString16::parse(i)?;
         let (i, type_) = VMADPropertyType::parse(i)?;
         let (i, flags) = le_u8(i)?;
