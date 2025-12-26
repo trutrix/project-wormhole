@@ -1004,17 +1004,24 @@ impl Parse<&[u8]> for NifFileV3 {
     fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
         let (i, header) = NifHeader::parse(i)?;
 
+        //println!("NIF Header: {:#?}", header);
+
+        println!("Parsing NIF v3 file with {} blocks.", header.block_count);
         let mut raw_blocks = Vec::new();
         let mut data = i;
 
+
         for index in 0..header.block_count as usize {
+            println!("Parsing block {}/{}...", index + 1, header.block_count);
             let (i, raw) = nom::bytes::complete::take(header.block_size_index[index])(data)?;
             data = i;
-            let (_, block) =
-                NifBlock::parse(raw, header.get_block_type(index).unwrap().to_string())?;
+            let (_, block) = NifBlock::parse(raw, header.get_block_type(index).unwrap().to_string())?;
+            println!("Parsed block type: {:?}", header.get_block_type(index).unwrap().to_string());
             raw_blocks.push(block);
         }
 
+
+        println!("Parsing nodes...");
         let mut nodes = BTreeMap::new();
 
         for (index, block) in raw_blocks.iter().enumerate() {
