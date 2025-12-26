@@ -96,32 +96,32 @@ impl<T: Copy> Matrix4<T> {
 
 
 
-impl From<Matrix3<f32>> for Quaternion {
-    fn from(value: Matrix3<f32>) -> Self {
+// impl From<Matrix3<f32>> for Quaternion {
+//     fn from(value: Matrix3<f32>) -> Self {
 
-        let m00 = value.0[0];
-        let m10 = value.0[1];
-        let m20 = value.0[2];
-        let m01 = value.0[3];
-        let m11 = value.0[4];
-        let m21 = value.0[5];
-        let m02 = value.0[6];
-        let m12 = value.0[7];
-        let m22 = value.0[8];
+//         let m00 = value.0[0];
+//         let m10 = value.0[1];
+//         let m20 = value.0[2];
+//         let m01 = value.0[3];
+//         let m11 = value.0[4];
+//         let m21 = value.0[5];
+//         let m02 = value.0[6];
+//         let m12 = value.0[7];
+//         let m22 = value.0[8];
 
-        let qw = (1.0 + m00 + m11 + m22).max(0.0).sqrt() / 2.0;
-        let mut qx = (1.0 + m00 - m11 - m22).max(0.0).sqrt() / 2.0;
-        let mut qy = (1.0 - m00 + m11 - m22).max(0.0).sqrt() / 2.0;
-        let mut qz = (1.0 - m00 - m11 + m22).max(0.0).sqrt() / 2.0;
+//         let qw = (1.0 + m00 + m11 + m22).max(0.0).sqrt() / 2.0;
+//         let mut qx = (1.0 + m00 - m11 - m22).max(0.0).sqrt() / 2.0;
+//         let mut qy = (1.0 - m00 + m11 - m22).max(0.0).sqrt() / 2.0;
+//         let mut qz = (1.0 - m00 - m11 + m22).max(0.0).sqrt() / 2.0;
 
-        qx = qx.copysign(m21 - m12);
-        qy = qy.copysign(m02 - m20);
-        qz = qz.copysign(m10 - m01);
+//         qx = qx.copysign(m21 - m12);
+//         qy = qy.copysign(m02 - m20);
+//         qz = qz.copysign(m10 - m01);
 
-        Quaternion::new(qx, qy, qz, qw)
+//         Quaternion::from_mat3(mat)
 
-    }
-}
+//     }
+// }
 
 
 impl Matrix4<f32> {

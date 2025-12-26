@@ -1,17 +1,20 @@
+use gltf::image::Data;
+use project_wormhole_shared::glam::{U8Vec3, U8Vec4, U16Vec2, Vec2, Vec3, Vec4};
+
 use super::prelude::*;
 
 #[derive(Debug, Clone)]
 pub struct BSVertexData {
-    pub position: Option<Vec3<f32>>,
+    pub position: Option<Vec3>,
     pub bitangent_x: Option<f32>,
-    pub uv: Option<Vec2<f32>>,
-    pub normal: Option<Vec3<f32>>,
+    pub uv: Option<Vec2>,
+    pub normal: Option<Vec3>,
     pub bitangent_y: Option<f32>,
-    pub tangent: Option<Vec3<u8>>,
+    pub tangent: Option<U8Vec3>,
     pub bitangent_z: Option<f32>,
-    pub vertex_colors: Option<Vec4<u8>>,
-    pub bone_weights: Option<Vec4<f32>>,
-    pub bone_indices: Option<Vec4<u8>>,
+    pub vertex_colors: Option<U8Vec4>,
+    pub bone_weights: Option<Vec4>,
+    pub bone_indices: Option<U8Vec4>,
     pub eye_data: Option<f32>,
 }
 
@@ -41,7 +44,7 @@ impl BSVertexData {
             if flags.full_prescision() {
 
                 // Parse the vertex positions
-                let (i, positions) = Vec3::<f32>::parse(data)?;
+                let (i, positions) = parse_vec3(i)?;
 
                 // Parse the bitangent x
                 let (i, bita_x) = le_f32(i)?;
@@ -87,12 +90,15 @@ impl BSVertexData {
         if flags.has_uv() {
 
             // Parse the UVs, always half precision
-            let (i, value) = Vec2::<u16>::parse(data)?;
+            //let (i, value) = U16Vec2::parse(data)?;
+
+            let (i, v1) = le_u16(data)?;
+            let (i, v2) = le_u16(i)?;
 
             // Convert the half precision UVs to full precision
             let value = Vec2 { 
-                x: f16::from_le_bytes(value.x.to_le_bytes()).to_f32(), 
-                y: f16::from_le_bytes(value.y.to_le_bytes()).to_f32() 
+                x: f16::from_le_bytes(v1.to_le_bytes()).to_f32(), 
+                y: f16::from_le_bytes(v2.to_le_bytes()).to_f32() 
             };
 
             // Set the UVs
@@ -107,7 +113,13 @@ impl BSVertexData {
         if flags.has_normal() {
 
             // Parse the normals
-            let (i, packed_normals) = Vec3::<u8>::parse(data)?;
+            //let (i, packed_normals) = Vec3::<u8>::parse(data)?;
+
+            let (i, v1) = le_u8(i)?;
+            let (i, v2) = le_u8(i)?;
+            let (i, v3) = le_u8(i)?;
+
+            let packed_normals = U8Vec3 { x: v1, y: v2, z: v3 };
 
             // Parse the bitangent y
             let (i, bita_y) = le_u8(i)?;
@@ -125,13 +137,17 @@ impl BSVertexData {
             if flags.has_tangent() {
 
                 // Parse the tangents
-                let (i, tan) = Vec3::<u8>::parse(data)?;
+
+
+                let (i, v1) = le_u8(data)?;
+                let (i, v2) = le_u8(i)?;
+                let (i, v3) = le_u8(i)?;
 
                 // Parse the bitangent z
                 let (i, bita_z) = le_u8(i)?;
 
                 // Set the tangents
-                tangent = Some(tan);
+                tangent = Some(U8Vec3 { x: v1, y: v2, z: v3 });
 
                 // Set the bitangent z
                 bitangent_z = Some(bita_z as f32);
@@ -147,10 +163,15 @@ impl BSVertexData {
         if flags.has_vertex_colors() {
 
             // Parse the vertex colors
-            let (i, value) = Vec4::<u8>::parse(data)?;
+            //let (i, value) = Vec4::<u8>::parse(data)?;
+
+            let (i, v1) = le_u8(data)?;
+            let (i, v2) = le_u8(i)?;
+            let (i, v3) = le_u8(i)?;
+            let (i, v4) = le_u8(i)?;
 
             // Set the vertex colors
-            vertex_colors = Some(value);
+            vertex_colors = Some(U8Vec4 { x: v1, y: v2, z: v3, w: v4 });
 
             // Set the data to the next position
             data = i;
@@ -161,15 +182,20 @@ impl BSVertexData {
         if flags.has_skin_data() {
 
             // Parse the bone weights, always half precision
-            let (i, bw) = Vec4::<u16>::parse(data)?;
+            //let (i, bw) = Vec4::<u16>::parse(data)?;
+
+            let (i, v1) = le_u16(data)?;
+            let (i, v2) = le_u16(i)?;
+            let (i, v3) = le_u16(i)?;
+            let (i, v4) = le_u16(i)?;
 
             // Convert the half precision bone weights to full precision
-            let value = Vec4 {
-                x: f16::from_le_bytes(bw.x.to_le_bytes()).to_f32(),
-                y: f16::from_le_bytes(bw.y.to_le_bytes()).to_f32(),
-                z: f16::from_le_bytes(bw.z.to_le_bytes()).to_f32(),
-                w: f16::from_le_bytes(bw.w.to_le_bytes()).to_f32()
-            };
+            let value = Vec4::new(
+                f16::from_le_bytes(v1.to_le_bytes()).to_f32(),
+                f16::from_le_bytes(v2.to_le_bytes()).to_f32(),
+                f16::from_le_bytes(v3.to_le_bytes()).to_f32(),
+                f16::from_le_bytes(v4.to_le_bytes()).to_f32()
+            );
 
             // Set the bone weights
             bone_weights = Some(value);
@@ -178,10 +204,15 @@ impl BSVertexData {
             data = i;
 
             // Parse the bone indices
-            let (i, bid) = Vec4::<u8>::parse(data)?;
+            //let (i, bid) = Vec4::<u8>::parse(data)?;
+
+            let (i, v1) = le_u8(data)?;
+            let (i, v2) = le_u8(i)?;
+            let (i, v3) = le_u8(i)?;
+            let (i, v4) = le_u8(i)?;
 
             // Set the bone indices
-            bone_indices = Some(bid);
+            bone_indices = Some(U8Vec4::new(v1, v2, v3, v4));
 
             // Set the data to the next position
             data = i;
@@ -315,8 +346,8 @@ pub fn unpack_u8(value: u8) -> f32 {
     value as f32 / 255.0 * 2.0 - 1.0
 }
 
-/// Convert a packed Vec3<u8> to a Vec3<f32>
-pub fn from_packed_u8(value: Vec3<u8>) -> Vec3<f32> {
+/// Convert a packed U8Vec3 to a BSVec3
+pub fn from_packed_u8(value: U8Vec3) -> Vec3 {
     Vec3 {
         x: unpack_u8(value.x),
         y: unpack_u8(value.y),

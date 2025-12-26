@@ -1,4 +1,4 @@
-use crate::{dev::*, structs::{geometry::CellLoc, vectors::Vec2}};
+use crate::{dev::*, structs::geometry::CellLoc};
 
 
 define_record2! {
@@ -21,14 +21,14 @@ define_record2! {
             b"NAM4", LODWaterHeight, FormId;
             b"NAMA", DistantLODMultiplier, f32;
     
-            b"NAM0", SizeMin, Vec2<f32>;
-            b"NAM9", SizeMax, Vec2<f32>;
+            b"NAM0", SizeMin, [f32;2];
+            b"NAM9", SizeMax, [f32;2];
 
             b"OFST", AbsoluteData, u8; // TODO
             b"ONAM", WorldOffsetData, WorldOffsetData; //TODO
 
             b"PNAM", UseFlags, u16;
-            b"WCTR", CenterCell, Vec2<u16>;
+            b"WCTR", CenterCell, [u16;2];
             b"RNAM", LocIdRef, WorldRNAM; //TODO
             FullName;
             b"MHDT", MaxHeightData, MaxHeightDataWorld;
@@ -65,8 +65,8 @@ pub struct WorldIdLoc {
 
 #[derive(Debug, NomLE)]
 pub struct MaxHeightDataWorld {
-    pub min: Vec2<i16>,
-    pub max: Vec2<i16>,
+    pub min: [i16;2],
+    pub max: [i16;2],
     pub cell_data: WorldCellData
 }
 
@@ -100,6 +100,6 @@ pub struct WorldOffsetData {
 pub struct MapData {
     pub width: i32, 
     pub height: i32, 
-    pub top_left: Vec2<i16>, 
-    pub bottom_right: Vec2<i16>
+    pub top_left: [i16;2], 
+    pub bottom_right: [i16;2]
 }

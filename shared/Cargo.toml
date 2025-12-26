@@ -4,6 +4,8 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+bytemuck = { version = "1.24.0", features = ["derive"] }
 glam = { version = "0.30.9", features = ["bytemuck", "zerocopy"] }
 nom-derive = "0.10.1"
 serde = { version = "1.0.228", features = ["derive"] }
+zerocopy = { version = "0.8.31", features = ["derive"] }

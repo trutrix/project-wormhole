@@ -17,3 +17,6 @@ fbxcel = { version = "0.9.0", features = ["writer"] }
 
 project-wormhole-esm = { path = "../esm" }
 project-wormhole-ba2 = { path = "../ba2" }
+project-wormhole-shared = { path = "../shared" }
+zerocopy = "0.8.31"
+bytemuck = "1.24.0"

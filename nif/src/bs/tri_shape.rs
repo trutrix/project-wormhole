@@ -1,4 +1,5 @@
 use project_wormhole_ba2::dev::Bounds;
+use project_wormhole_shared::glam::{U8Vec4, U16Vec3, Vec2, Vec3, Vec4};
 
 use super::prelude::*;
 
@@ -14,7 +15,7 @@ pub struct BSTriShape {
     pub num_vertices: u16,
     pub data_size: u32,
     pub vertex_data: Vec<BSVertexData>,
-    pub triangles: Vec<Vec3<u16>>,
+    pub triangles: Vec<U16Vec3>,
 }
 
 impl Parse<&[u8]> for BSTriShape {
@@ -38,7 +39,7 @@ impl Parse<&[u8]> for BSTriShape {
             vertex_data.push(bsdata);
         }
         
-        let (i, triangles) = count(Vec3::<u16>::parse, num_triangles as usize)(data)?;
+        let (i, triangles) = count(parse_u16_vec3, num_triangles as usize)(data)?;
 
         Ok((i, BSTriShape {
             av,
@@ -87,11 +88,11 @@ impl BSTriShape {
     }
 
     // Get the min and max vertices from the vertex data
-    pub fn get_vertices_min_max(&self) -> (Vec3<f32>, Vec3<f32>) {
+    pub fn get_vertices_min_max(&self) -> (Vec3, Vec3) {
         
         // Initialize min and max to 0.0
-        let mut min = Vec3::zero();
-        let mut max = Vec3::zero();
+        let mut min = Vec3::ZERO;
+        let mut max = Vec3::ZERO;
 
         // Iterate through all vertices
         for vertex in &self.vertex_data {
@@ -260,7 +261,7 @@ impl BSTriShape {
         let mut weights = Vec::new();
         for vertex in &self.vertex_data {
             if let Some(bone_weights) = &vertex.bone_weights {
-                let lin: [f32; 4] = bone_weights.normalize_weights().into();
+                let lin: [f32; 4] = bone_weights.normalize().into();
                 weights.extend_from_slice(lin.as_slice());
             }
         }
@@ -276,7 +277,7 @@ impl BSTriShape {
         weights
     }
 
-    pub fn get_bone_indices(&self) -> Vec<&Vec4<u8>> {
+    pub fn get_bone_indices(&self) -> Vec<&U8Vec4> {
         let mut indices = Vec::new();
         for vertex in &self.vertex_data {
             if let Some(bone_indices) = &vertex.bone_indices {
@@ -297,7 +298,7 @@ impl BSTriShape {
     }
 
 
-    pub fn get_vertex_positions(&self) -> Vec<Vec3<f32>> {
+    pub fn get_vertex_positions(&self) -> Vec<Vec3> {
         let mut positions = Vec::new();
         for vertex in &self.vertex_data {
             if let Some(v) = vertex.position {
@@ -308,7 +309,7 @@ impl BSTriShape {
         positions
     }
 
-    pub fn get_vertex_normals(&self) -> Vec<Vec3<f32>> {
+    pub fn get_vertex_normals(&self) -> Vec<Vec3> {
         let mut normals = Vec::new();
         for vertex in &self.vertex_data {
             if let Some(n) = vertex.normal {
@@ -319,12 +320,12 @@ impl BSTriShape {
         normals
     }
 
-    pub fn get_triangle_indices(&self) -> Vec<Vec3<u16>> {
+    pub fn get_triangle_indices(&self) -> Vec<U16Vec3> {
         let halves = self.triangles.clone();
-        halves.iter().map(|x| Vec3 { x: x.x, y: x.y, z: x.z}).collect::<Vec<Vec3<u16>>>()
+        halves.iter().map(|x| U16Vec3 { x: x.x, y: x.y, z: x.z}).collect::<Vec<U16Vec3>>()
     }
 
-    pub fn get_vertex_uvs(&self) -> Vec<Vec2<f32>> {
+    pub fn get_vertex_uvs(&self) -> Vec<Vec2> {
         let mut uvs = Vec::new();
         for vertex in &self.vertex_data {
             if let Some(v) = vertex.uv {
@@ -335,18 +336,18 @@ impl BSTriShape {
         uvs
     }
 
-    pub fn get_vertex_weights(&self) -> Vec<Vec4<f32>> {
+    pub fn get_vertex_weights(&self) -> Vec<Vec4> {
         let mut weights = Vec::new();
         for vertex in &self.vertex_data {
             if let Some(w) = vertex.bone_weights {
-                weights.push(w.normalize_weights());
+                weights.push(w.normalize());
             }
         }
 
         weights
     }
 
-    pub fn get_vertex_joints(&self) -> Vec<Vec4<u8>> {
+    pub fn get_vertex_joints(&self) -> Vec<U8Vec4> {
         let mut joints = Vec::new();
         for vertex in &self.vertex_data {
             if let Some(j) = vertex.bone_indices {

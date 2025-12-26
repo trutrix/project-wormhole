@@ -1,16 +1,20 @@
+use project_wormhole_shared::glam::{self, Mat3};
+
 use super::dev::*;
 
 
 #[derive(Debug, NomLE, PartialEq, Clone)]
-pub struct NifRotation(pub Matrix3<f32>);
+pub struct NifRotation(pub BSMatrix3);
 
 impl Default for NifRotation {
     fn default() -> Self {
-        Self(Matrix3([
-            1.0, 0.0, 0.0,
-            0.0, 1.0, 0.0,
-            0.0, 0.0, 1.0
-        ]))
+        Self(BSMatrix3(
+            Mat3::from_cols_array(&[
+                1.0, 0.0, 0.0,
+                0.0, 1.0, 0.0,
+                0.0, 0.0, 1.0
+            ])
+        ))
     }
 }
 
@@ -32,10 +36,12 @@ impl From<NifScale> for [f32; 3] {
 
 
 #[derive(Debug, NomLE, PartialEq, Clone)]
-pub struct NifTranslation(pub Vec3<f32>);
+pub struct NifTranslation(pub BSVec3);
 
 impl Default for NifTranslation {
     fn default() -> Self {
-        Self(Vec3::zero())
+        Self(BSVec3(
+            glam::Vec3::ZERO
+        ))
     }
 }

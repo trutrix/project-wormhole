@@ -1,4 +1,4 @@
-use crate::{dev::*, structs::{geometry::LocationRotation, vectors::Vec2}};
+use crate::{dev::*, structs::geometry::LocationRotation};
 
 
 define_record2! {
@@ -23,7 +23,7 @@ define_record2! {
             b"XPPA", PatrolMarker, EmptyParser; // Unknown
             b"INAM", Idle, FormId;
             b"PDTO", Unknown1, EmptyParser; // Unknown - size 8 bytes
-            b"XPDD", ProjectedDecal, Vec2<f32>;
+            b"XPDD", ProjectedDecal, [f32;2];
             b"XATP", ActivationPoint, EmptyParser; // Unknown
             b"XATR", AttachmentReference, FormId;
             b"XESP", EnableParent, EmptyParser; // Shared field
@@ -52,7 +52,7 @@ define_record2! {
             b"XLCM", LevelModifier, i32;
             b"XHTW", HeadTrackingWeight, f32;
             b"XFVC", FavorCost, f32;
-            b"XALP", Alpha, Vec2<u8>;
+            b"XALP", Alpha, [u8;2];
             b"XAMC", AmmoCount, u32;
             b"XCNT", ItemCount, i32;
             b"XCVL", Unknown3, EmptyParser;

@@ -1,14 +1,16 @@
+use project_wormhole_shared::glam::{self, Mat3, Vec3};
+
 use crate::dev::*;
 
 #[derive(Debug, Clone)]
 pub struct SkeletalMesh {
     pub name: Option<String>,
     pub mesh: Option<super::all::StaticMesh>,
-    pub weights: Vec<Vec4<f32>>,
-    pub joints: Vec<Vec4<u8>>,
+    pub weights: Vec<glam::Vec4>,
+    pub joints: Vec<glam::u8::U8Vec4>,
     pub bones: BoneTree,
     pub skin: Vec<String>,
-    pub inverse_bind_matrices: Vec<Matrix4<f32>>
+    pub inverse_bind_matrices: Vec<BSMatrix4>
 }
 
 
@@ -58,7 +60,7 @@ impl SkeletalMesh {
     pub fn inverse_bind_matrices_as_bytes(&self) -> Vec<u8> {
         let mut bytes = Vec::new();
         for mat in &self.inverse_bind_matrices {
-            for val in &mat.0 {
+            for val in &mat.0.to_cols_array() {
                 bytes.extend(val.to_le_bytes().as_slice());
             }
         }
@@ -125,23 +127,23 @@ pub struct BoneData {
 #[derive(Debug, PartialEq, Clone)]
 #[derive(Default)]
 pub struct BoneTransform {
-    translation: Option<Vec3<f32>>,
-    rotation: Option<Matrix3<f32>>,
+    translation: Option<BSVec3>,
+    rotation: Option<BSMatrix3>,
     scale: Option<f32>
 }
 
 impl BoneTransform {
-    pub fn new(translation: Option<Vec3<f32>>, rotation: Option<Matrix3<f32>>, scale: Option<f32>) -> Self {
+    pub fn new(translation: Option<BSVec3>, rotation: Option<BSMatrix3>, scale: Option<f32>) -> Self {
 
         // Check if the values are default and set them to None
-        let checked_translation = if translation.as_ref().is_some_and(|x| x == &Vec3::zero()) {
+        let checked_translation = if translation.as_ref().is_some_and(|x| x == &BSVec3(Vec3::ZERO)) {
             None
         } else {
             translation
         };
 
         // Check if the values are default and set them to None
-        let checked_rotation = if rotation.as_ref().is_some_and(|x| x == &Matrix3::default()) {
+        let checked_rotation = if rotation.as_ref().is_some_and(|x| x == &BSMatrix3(Mat3::IDENTITY)) {
             None
         } else {
             rotation
@@ -161,11 +163,11 @@ impl BoneTransform {
         }
     }
 
-    pub fn get_translation(&self) -> Option<&Vec3<f32>> {
+    pub fn get_translation(&self) -> Option<&BSVec3> {
         self.translation.as_ref()
     }
 
-    pub fn get_rotation(&self) -> Option<&Matrix3<f32>> {
+    pub fn get_rotation(&self) -> Option<&BSMatrix3> {
         self.rotation.as_ref()
     }
 

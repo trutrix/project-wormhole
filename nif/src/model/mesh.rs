@@ -1,19 +1,21 @@
+use project_wormhole_shared::glam::{self, Vec3};
+
 use crate::dev::*;
 
 // Type aliases, used to make the code more readable
 
 /// A position in 3D space, 3 floats
-type Position = Vec3<f32>;
+type Position = BSVec3;
 /// A normal vector, 3 floats, optional
-type Normal = Vec3<f32>;
+type Normal = BSVec3;
 /// A UV coordinate, 2 floats, optional, used for texture mapping
-type UV = Vec2<f32>;
+type UV = BSVec2;
 /// A triangle, 3 unsigned integers, used to define a face between 3 vertices
-type Triangle = Vec3<u16>;
+type Triangle = glam::u16::U16Vec3;
 /// A set of weights, 4 floats, optional, used for skinning
-type Weights = Vec4<f32>;
+type Weights = BSVec4;
 /// A set of joints, 4 unsigned integers, optional (required for weights to function), used for skinning
-type Joints = Vec4<u8>;
+type Joints = glam::u8::U8Vec4;
 
 
 pub struct Mesh {
@@ -80,9 +82,9 @@ impl Mesh {
     pub fn vertex_positions_as_bytes(&self) -> Vec<u8> {
         let mut data = Vec::new();
         for vertex in &self.vertices {
-            data.extend_from_slice(&vertex.position.x.to_le_bytes());
-            data.extend_from_slice(&vertex.position.y.to_le_bytes());
-            data.extend_from_slice(&vertex.position.z.to_le_bytes());
+            data.extend_from_slice(&vertex.position.0.x.to_le_bytes());
+            data.extend_from_slice(&vertex.position.0.y.to_le_bytes());
+            data.extend_from_slice(&vertex.position.0.z.to_le_bytes());
         }
         data
     }
@@ -99,7 +101,7 @@ impl Mesh {
         let mut data = Vec::new();
         for vertex in &self.vertices {
             if let Some(normal) = vertex.normal {
-                let normal = normal.normalize();
+                let normal = normal.0.normalize();
                 data.extend_from_slice(&normal.x.to_le_bytes());
                 data.extend_from_slice(&normal.y.to_le_bytes());
                 data.extend_from_slice(&normal.z.to_le_bytes());
@@ -130,32 +132,33 @@ impl Mesh {
         let mut data = Vec::new();
         for vertex in &self.vertices {
             if let Some(uv) = vertex.uv {
-                data.extend_from_slice(&uv.x.to_le_bytes());
-                data.extend_from_slice(&uv.y.to_le_bytes());
+                data.extend_from_slice(&uv.0.x.to_le_bytes());
+                data.extend_from_slice(&uv.0.y.to_le_bytes());
             }
         }
         data
     }
 
     
-    pub fn get_positions_min_max(&self) -> (Vec3<f32>, Vec3<f32>) {
+    pub fn get_positions_min_max(&self) -> (BSVec3, BSVec3) {
         let positions = self.vertex_positions();
 
         if positions.len() == 0 {
-            return (Vec3::zero(), Vec3::zero());
+            return (BSVec3(glam::Vec3::ZERO), BSVec3(glam::Vec3::ZERO));
         }
 
-        let mut min = Vec3 { x: positions[0].x, y: positions[0].y, z: positions[0].z };
+        //let mut min = BSVec3 { x: positions[0].x, y: positions[0].y, z: positions[0].z };
+        let mut min = BSVec3(Vec3::new(positions[0].0.x, positions[0].0.y, positions[0].0.z));
         let mut max = min;
 
         for position in positions {
-            min.x = min.x.min(position.x);
-            min.y = min.y.min(position.y);
-            min.z = min.z.min(position.z);
+            min.0.x = min.0.x.min(position.0.x);
+            min.0.y = min.0.y.min(position.0.y);
+            min.0.z = min.0.z.min(position.0.z);
             
-            max.x = max.x.max(position.x);
-            max.y = max.y.max(position.y);
-            max.z = max.z.max(position.z);
+            max.0.x = max.0.x.max(position.0.x);
+            max.0.y = max.0.y.max(position.0.y);
+            max.0.z = max.0.z.max(position.0.z);
         }
 
         (min, max)
@@ -170,10 +173,10 @@ impl Mesh {
         for vertex in &self.vertices {
             if let Some(weights) = vertex.weights {
                 //let weights = weights.normalize();
-                data.extend_from_slice(&weights.x.to_le_bytes());
-                data.extend_from_slice(&weights.y.to_le_bytes());
-                data.extend_from_slice(&weights.z.to_le_bytes());
-                data.extend_from_slice(&weights.w.to_le_bytes());
+                data.extend_from_slice(&weights.0.x.to_le_bytes());
+                data.extend_from_slice(&weights.0.y.to_le_bytes());
+                data.extend_from_slice(&weights.0.z.to_le_bytes());
+                data.extend_from_slice(&weights.0.w.to_le_bytes());
             }
         }
         data
@@ -237,24 +240,24 @@ impl Vertex {
 
     pub fn is_valid(&self) -> Result<(), String> {
 
-        if self.position.x.is_nan() || self.position.y.is_nan() || self.position.z.is_nan() {
+        if self.position.0.x.is_nan() || self.position.0.y.is_nan() || self.position.0.z.is_nan() {
             return Err("Vertex position contains NaN".to_string());
         }
 
         if let Some(normal) = self.normal {
-            if normal.x.is_nan() || normal.y.is_nan() || normal.z.is_nan() {
+            if normal.0.x.is_nan() || normal.0.y.is_nan() || normal.0.z.is_nan() {
                 return Err("Vertex normal contains NaN".to_string());
             }
         }
 
         if let Some(uv) = self.uv {
-            if uv.x.is_nan() || uv.y.is_nan() {
+            if uv.0.x.is_nan() || uv.0.y.is_nan() {
                 return Err("Vertex uv contains NaN".to_string());
             }
         }
 
         if let Some(weights) = self.weights {
-            if weights.x.is_nan() || weights.y.is_nan() || weights.z.is_nan() || weights.w.is_nan() {
+            if weights.0.x.is_nan() || weights.0.y.is_nan() || weights.0.z.is_nan() || weights.0.w.is_nan() {
                 return Err("Vertex weights contain NaN".to_string());
             }
 
