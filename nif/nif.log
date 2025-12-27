@@ -1,10 +1,10 @@
-15:30:26 [WARN] 10 textures
-15:30:26 [WARN] 10 textures
-15:30:26 [WARN] 10 textures
-15:30:26 [WARN] Unknown texture type: textures/shared/cubemaps/eyecubemap.dds
-15:30:26 [WARN] 10 textures
-15:30:26 [WARN] 10 textures
-15:30:26 [DEBUG] (2) nif::tests: NifFileV3
+17:19:14 [WARN] 10 textures
+17:19:14 [WARN] 10 textures
+17:19:14 [WARN] 10 textures
+17:19:14 [WARN] Unknown texture type: textures/shared/cubemaps/eyecubemap.dds
+17:19:14 [WARN] 10 textures
+17:19:14 [WARN] 10 textures
+17:19:14 [DEBUG] (2) nif::tests: NifFileV3
 Header: NifHeader {
     file_desc: "Gamebryo File Format, Version 20.2.0.7",
     nif_version: 20.2.0.7 [335675399],
@@ -439,7 +439,7 @@ Skins: 8
 Materials: 5
 Shapes: 0
 SegShapes: 8
-15:30:26 [DEBUG] (2) nif::tests: BSShaderTextureSet {
+17:19:14 [DEBUG] (2) nif::tests: BSShaderTextureSet {
     diffuse: Some(
         "textures/effects/meattile01_d.dds",
     ),
@@ -453,7 +453,7 @@ SegShapes: 8
         "textures/effects/meattile01_s.dds",
     ),
 }
-15:30:26 [DEBUG] (2) nif::tests: BSShaderTextureSet {
+17:19:14 [DEBUG] (2) nif::tests: BSShaderTextureSet {
     diffuse: Some(
         "textures/effects/meattile01_d.dds",
     ),
@@ -465,7 +465,7 @@ SegShapes: 8
         "textures/effects/meattile01_s.dds",
     ),
 }
-15:30:26 [DEBUG] (2) nif::tests: BSShaderTextureSet {
+17:19:14 [DEBUG] (2) nif::tests: BSShaderTextureSet {
     diffuse: Some(
         "textures/effects/meattile01_d.dds",
     ),
@@ -479,7 +479,7 @@ SegShapes: 8
         "textures/effects/meattile01_s.dds",
     ),
 }
-15:30:26 [DEBUG] (2) nif::tests: BSShaderTextureSet {
+17:19:14 [DEBUG] (2) nif::tests: BSShaderTextureSet {
     diffuse: None,
     normal: Some(
         "textures/effects/darkswirlsinverttile_n.dds",
@@ -487,7 +487,7 @@ SegShapes: 8
     glow: None,
     specular: None,
 }
-15:30:26 [DEBUG] (2) nif::tests: BSShaderTextureSet {
+17:19:14 [DEBUG] (2) nif::tests: BSShaderTextureSet {
     diffuse: Some(
         "textures/actors/deathclaw/deathclaw_d.dds",
     ),

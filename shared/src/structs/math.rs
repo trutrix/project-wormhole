@@ -1,8 +1,11 @@
 
+use std::result;
+
 use glam::*;
 use nom_derive::nom::IResult;
 use nom_derive::Parse;
-use nom_derive::nom::number::complete::le_u16;
+use nom_derive::nom::multi::count;
+use nom_derive::nom::number::complete::{le_f32, le_u16};
 
 // ================================================================================
 
@@ -93,78 +96,40 @@ pub fn parse_quat(i: &[u8]) -> IResult<&[u8], Quat> {
 
 // ================================================================================
 
-
+/// These are stored in row-major order in files
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub struct BSMatrix3(pub Mat3);
 
 impl Parse<&[u8]> for BSMatrix3 {
     fn parse(i: &[u8]) -> IResult<&[u8], Self> {
-        // TODO: not sure these are stored in column-major order, verify (looking at you nif files)
-        let (i, c1) = BSVec3::parse_le(i)?;
-        let (i, c2) = BSVec3::parse_le(i)?;
-        let (i, c3) = BSVec3::parse_le(i)?;
-
-        Ok((i, BSMatrix3(Mat3::from_cols(c1.0, c2.0, c3.0))))
+        let (i, result) = parse_mat3(i)?;
+        Ok((i, BSMatrix3(result)))
     }
 }
 
+/// These are stored in row-major order in files
 pub fn parse_mat3(i: &[u8]) -> IResult<&[u8], Mat3> {
-    let (i, c1) = parse_vec3(i)?;
-    let (i, c2) = parse_vec3(i)?;
-    let (i, c3) = parse_vec3(i)?;
-    Ok((i, Mat3::from_cols(c1, c2, c3)))
+    let (i, floats) = count(le_f32, 9)(i)?;
+    Ok((i, Mat3::from_cols_slice(&floats).transpose()))
 }
 
 // ================================================================================
 
 
+/// These are stored in row-major order in files
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub struct BSMatrix4(pub Mat4);
 impl Parse<&[u8]> for BSMatrix4 {
     fn parse(i: &[u8]) -> IResult<&[u8], Self> {
-        // TODO: not sure these are stored in column-major order, verify (looking at you nif files)
-        let (i, c1) = BSVec4::parse_le(i)?;
-        let (i, c2) = BSVec4::parse_le(i)?;
-        let (i, c3) = BSVec4::parse_le(i)?;
-        let (i, c4) = BSVec4::parse_le(i)?;
-
-        Ok((i, BSMatrix4(Mat4::from_cols(c1.0, c2.0, c3.0, c4.0))))
-    
+        let (i, result) = parse_mat4(i)?;
+        Ok((i, BSMatrix4(result)))
     }
 }
 
+/// These are stored in row-major order in files
 pub fn parse_mat4(i: &[u8]) -> IResult<&[u8], Mat4> {
-    let (i, c1) = parse_vec4(i)?;
-    let (i, c2) = parse_vec4(i)?;
-    let (i, c3) = parse_vec4(i)?;
-    let (i, c4) = parse_vec4(i)?;
-    Ok((i, Mat4::from_cols(c1, c2, c3, c4)))
-}
-
-impl BSMatrix4 {
-    pub fn to_bytes_mc(&self) -> [u8; 64] {
-        let mut bytes = [0u8; 64];
-        for i in 0..4 {
-            for j in 0..4 {
-                let value = self.0.col(i)[j];
-                let byte_index = (j * 4 + i) * 4;
-                bytes[byte_index..byte_index + 4].copy_from_slice(&value.to_le_bytes());
-            }
-        }
-        bytes
-    }
-
-    pub fn to_bytes_mr(&self) -> [u8; 64] {
-        let mut bytes = [0u8; 64];
-        for i in 0..4 {
-            for j in 0..4 {
-                let value = self.0.row(i)[j];
-                let byte_index = (i * 4 + j) * 4;
-                bytes[byte_index..byte_index + 4].copy_from_slice(&value.to_le_bytes());
-            }
-        }
-        bytes
-    }
+    let (i, floats) = count(le_f32, 16)(i)?;
+    Ok((i, Mat4::from_cols_slice(&floats).transpose()))
 }
 
 // ================================================================================
