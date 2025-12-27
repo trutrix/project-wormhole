@@ -22,6 +22,7 @@ use gltf::json::validation::{Checked, USize64};
 use gltf::{json::*, Semantic};
 use project_wormhole_shared::glam;
 use project_wormhole_shared::glam::Mat4;
+use zerocopy::IntoBytes;
 
 use crate::model::all::*;
 
@@ -811,7 +812,7 @@ impl NifFileV3 {
                             //     bone_transform.scale,
                             // ]);
                             
-                            inverse_bind_data.extend_from_slice(bone_transform.into_matrix4().to_bytes_mr().as_slice());
+                            inverse_bind_data.extend_from_slice(bone_transform.into_matrix4().0.to_cols_array().as_slice().as_bytes());
     
                         }
                     }
