@@ -18,6 +18,18 @@ pub struct BSVertexData {
     pub eye_data: Option<f32>,
 }
 
+// pub position: Option<Vec3<f32>>,
+//     pub bitangent_x: Option<f32>,
+//     pub uv: Option<Vec2<f32>>,
+//     pub normal: Option<Vec3<f32>>,
+//     pub bitangent_y: Option<f32>,
+//     pub tangent: Option<Vec3<u8>>,
+//     pub bitangent_z: Option<f32>,
+//     pub vertex_colors: Option<Vec4<u8>>,
+//     pub bone_weights: Option<Vec4<f32>>,
+//     pub bone_indices: Option<Vec4<u8>>,
+//     pub eye_data: Option<f32>,
+
 impl BSVertexData {
     pub fn parse_with_flags<'a>(i: &'a [u8], flags: &BSVertexDesc) -> IResult<&'a[u8], Self, nom::error::Error<&'a[u8]>> {
 
@@ -44,7 +56,7 @@ impl BSVertexData {
             if flags.full_prescision() {
 
                 // Parse the vertex positions
-                let (i, positions) = parse_vec3(i)?;
+                let (i, positions) = parse_vec3(data)?;
 
                 // Parse the bitangent x
                 let (i, bita_x) = le_f32(i)?;
@@ -115,7 +127,7 @@ impl BSVertexData {
             // Parse the normals
             //let (i, packed_normals) = Vec3::<u8>::parse(data)?;
 
-            let (i, v1) = le_u8(i)?;
+            let (i, v1) = le_u8(data)?;
             let (i, v2) = le_u8(i)?;
             let (i, v3) = le_u8(i)?;
 

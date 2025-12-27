@@ -2,6 +2,7 @@
 use glam::*;
 use nom_derive::nom::IResult;
 use nom_derive::Parse;
+use nom_derive::nom::number::complete::le_u16;
 
 // ================================================================================
 
@@ -171,8 +172,8 @@ impl BSMatrix4 {
 
 
 pub fn parse_u16_vec3(i: &[u8]) -> IResult<&[u8], U16Vec3> {
-    let (i, x) = u16::parse_le(i)?;
-    let (i, y) = u16::parse_le(i)?;
-    let (i, z) = u16::parse_le(i)?;
+    let (i, x) = le_u16(i)?;
+    let (i, y) = le_u16(i)?;
+    let (i, z) = le_u16(i)?;
     Ok((i, U16Vec3::new(x, y, z)))
 }
