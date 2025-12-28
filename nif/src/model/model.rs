@@ -1,7 +1,8 @@
 use gltf::json::{
-    accessor::GenericComponentType, buffer::View, extensions::material::{PbrDiffuseFactor, PbrSpecularFactor}, material::{EmissiveFactor, NormalTexture, PbrBaseColorFactor, PbrMetallicRoughness, StrengthFactor}, texture::Info, validation::USize64
+    accessor::GenericComponentType, buffer::View, extensions::material::{PbrDiffuseFactor, PbrSpecularFactor}, material::{EmissiveFactor, NormalTexture, PbrBaseColorFactor, PbrMetallicRoughness, StrengthFactor}, scene::UnitQuaternion, texture::Info, validation::USize64
 };
 use nom::{AsBytes, Map};
+use project_wormhole_shared::glam;
 
 use crate::dev::*;
 use std::{io::Write, primitive};
@@ -73,15 +74,22 @@ impl Model {
                 let s = bone.transform.get_scale();
 
                 let translation = if t.is_some() {
-                    Some(t.unwrap().clone().into())
+                    Some(
+                        t.unwrap().0.to_array()
+                    )
+                    //Some(t.unwrap().clone().into())
                 } else {
                     None
                 };
 
                 let rotation = if r.is_some() {
-                    let r = r.unwrap().to_col_major();
-                    let q = project_wormhole_esm::structs::geometry::Quaternion::from(r);
-                    Some(q.into())
+                    let q = glam::Quat::from_mat3(&r.unwrap().0);
+                    Some(UnitQuaternion([
+                        q.x,
+                        q.y,
+                        q.z,
+                        q.w,
+                    ]))
                 } else {
                     None
                 };

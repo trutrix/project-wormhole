@@ -49,30 +49,6 @@ pub struct LocationRotation {
 }
 
 
-#[derive(Debug, PartialEq, Clone)]
+
 /// A quaternion in the form of [x, y, z, w]
-pub struct Quaternion(Vec4<f32>);
-
-impl Quaternion {
-    pub const fn x(&self) -> &f32 { &self.0.x }
-    pub const fn y(&self) -> &f32 { &self.0.y }
-    pub const fn z(&self) -> &f32 { &self.0.z }
-    pub const fn w(&self) -> &f32 { &self.0.w }
-
-    pub fn new(x: f32, y: f32, z: f32, w: f32) -> Self {
-        Quaternion(Vec4{x, y, z, w})
-    }
-}
-
-
-impl Default for Quaternion {
-    fn default() -> Self {
-        Quaternion(Vec4::empty())
-    }
-}
-
-impl From<Quaternion> for gltf::json::scene::UnitQuaternion {
-    fn from(q: Quaternion) -> Self {
-        gltf::json::scene::UnitQuaternion([q.0.x, q.0.y, q.0.z, q.0.w])
-    }
-}
+pub type Quaternion = glam::Quat;

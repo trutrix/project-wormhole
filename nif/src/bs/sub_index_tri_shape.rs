@@ -18,10 +18,13 @@ impl Parse<&[u8]> for BSSubIndexTriShape {
     fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
         
         let (i, bs_tri_shape) = BSTriShape::parse(i)?;
-        //debug!("{:#?}", bs_tri_shape);
+        //println!("{:#?}", bs_tri_shape);
         let (i, num_primitives) = le_u32(i)?;
         let (i, num_segments) = le_u32(i)?;
         let (i, total_segments) = le_u32(i)?;
+
+        println!("Primitives: {}, Segments: {}, Total: {}", num_primitives, num_segments, total_segments);
+
         let (i, segment) = count(BSGeometrySegmentData::parse, num_segments as usize)(i)?;
 
         let mut data = i;

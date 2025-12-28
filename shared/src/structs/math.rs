@@ -1,11 +1,15 @@
 
+use std::result;
+
 use glam::*;
 use nom_derive::nom::IResult;
 use nom_derive::Parse;
+use nom_derive::nom::multi::count;
+use nom_derive::nom::number::complete::{le_f32, le_u16};
 
 // ================================================================================
 
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 pub struct BSVec2(pub Vec2);
 
 impl Parse<&[u8]> for BSVec2 {
@@ -16,9 +20,15 @@ impl Parse<&[u8]> for BSVec2 {
     }
 }
 
+pub fn parse_vec2(i: &[u8]) -> IResult<&[u8], Vec2> {
+    let (i, x) = f32::parse_le(i)?;
+    let (i, y) = f32::parse_le(i)?;
+    Ok((i, Vec2::new(x, y)))
+}
+
 // ================================================================================
 
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 pub struct BSVec3(pub Vec3);
 
 impl Parse<&[u8]> for BSVec3 {
@@ -30,10 +40,17 @@ impl Parse<&[u8]> for BSVec3 {
     }
 }
 
+pub fn parse_vec3(i: &[u8]) -> IResult<&[u8], Vec3> {
+    let (i, x) = f32::parse_le(i)?;
+    let (i, y) = f32::parse_le(i)?;
+    let (i, z) = f32::parse_le(i)?;
+    Ok((i, Vec3::new(x, y, z)))
+}
+
 // ================================================================================
 
 
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 pub struct BSVec4(pub Vec4);
 
 impl Parse<&[u8]> for BSVec4 {
@@ -46,9 +63,17 @@ impl Parse<&[u8]> for BSVec4 {
     }
 }
 
+pub fn parse_vec4(i: &[u8]) -> IResult<&[u8], Vec4> {
+    let (i, x) = f32::parse_le(i)?;
+    let (i, y) = f32::parse_le(i)?;
+    let (i, z) = f32::parse_le(i)?;
+    let (i, w) = f32::parse_le(i)?;
+    Ok((i, Vec4::new(x, y, z, w)))
+}
+
 // ================================================================================
 
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 pub struct BSQuat(pub Quat);
 
 impl Parse<&[u8]> for BSQuat {
@@ -61,40 +86,59 @@ impl Parse<&[u8]> for BSQuat {
     }
 }
 
+pub fn parse_quat(i: &[u8]) -> IResult<&[u8], Quat> {
+    let (i, x) = f32::parse_le(i)?;
+    let (i, y) = f32::parse_le(i)?;
+    let (i, z) = f32::parse_le(i)?;
+    let (i, w) = f32::parse_le(i)?;
+    Ok((i, Quat::from_xyzw(x, y, z, w)))
+}
+
 // ================================================================================
 
-
-#[derive(Clone, Copy, PartialEq)]
+/// These are stored in row-major order in files
+#[derive(Clone, Copy, PartialEq, Debug)]
 pub struct BSMatrix3(pub Mat3);
 
 impl Parse<&[u8]> for BSMatrix3 {
     fn parse(i: &[u8]) -> IResult<&[u8], Self> {
-        // TODO: not sure these are stored in column-major order, verify (looking at you nif files)
-        let (i, c1) = BSVec3::parse_le(i)?;
-        let (i, c2) = BSVec3::parse_le(i)?;
-        let (i, c3) = BSVec3::parse_le(i)?;
-
-        Ok((i, BSMatrix3(Mat3::from_cols(c1.0, c2.0, c3.0))))
+        let (i, result) = parse_mat3(i)?;
+        Ok((i, BSMatrix3(result)))
     }
+}
+
+/// These are stored in row-major order in files
+pub fn parse_mat3(i: &[u8]) -> IResult<&[u8], Mat3> {
+    let (i, floats) = count(le_f32, 9)(i)?;
+    Ok((i, Mat3::from_cols_slice(&floats).transpose()))
 }
 
 // ================================================================================
 
 
-#[derive(Clone, Copy, PartialEq)]
+/// These are stored in row-major order in files
+#[derive(Clone, Copy, PartialEq, Debug)]
 pub struct BSMatrix4(pub Mat4);
 impl Parse<&[u8]> for BSMatrix4 {
     fn parse(i: &[u8]) -> IResult<&[u8], Self> {
-        // TODO: not sure these are stored in column-major order, verify (looking at you nif files)
-        let (i, c1) = BSVec4::parse_le(i)?;
-        let (i, c2) = BSVec4::parse_le(i)?;
-        let (i, c3) = BSVec4::parse_le(i)?;
-        let (i, c4) = BSVec4::parse_le(i)?;
-
-        Ok((i, BSMatrix4(Mat4::from_cols(c1.0, c2.0, c3.0, c4.0))))
-    
+        let (i, result) = parse_mat4(i)?;
+        Ok((i, BSMatrix4(result)))
     }
+}
+
+/// These are stored in row-major order in files
+pub fn parse_mat4(i: &[u8]) -> IResult<&[u8], Mat4> {
+    let (i, floats) = count(le_f32, 16)(i)?;
+    Ok((i, Mat4::from_cols_slice(&floats).transpose()))
 }
 
 // ================================================================================
 
+
+
+pub fn parse_u16_vec3(i: &[u8]) -> IResult<&[u8], U16Vec3> {
+    let (i, x) = le_u16(i)?;
+    let (i, y) = le_u16(i)?;
+    let (i, z) = le_u16(i)?;
+    Ok((i, U16Vec3::new(x, y, z)))
+}

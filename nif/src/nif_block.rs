@@ -1,4 +1,5 @@
 use project_wormhole_ba2::dev::{Bool, Bounds, MaxRef};
+use project_wormhole_shared::glam::{self, Vec3};
 
 use super::dev::*;
 
@@ -465,8 +466,8 @@ pub struct BSEffectShaderProperty {
     pub parent: NiObjectNET,
     pub shader_flags_1: Fallout4ShaderPropertyFlags1,
     pub shader_flags_2: Fallout4ShaderPropertyFlags2,
-    pub uv_offset: Vec2<f32>,
-    pub uv_scale: Vec2<f32>,
+    pub uv_offset: BSVec2,
+    pub uv_scale: BSVec2,
     pub source_texture: SizedString32,
     pub texture_clamp_mode: u8,
     pub lighting_influence: u8,
@@ -476,7 +477,7 @@ pub struct BSEffectShaderProperty {
     pub falloff_stop_angle: f32,
     pub falloff_start_opacity: f32,
     pub falloff_stop_opacity: f32,
-    pub base_color: Vec4<f32>,
+    pub base_color: BSVec4,
     pub base_color_scale: f32,
     pub soft_falloff_depth: f32,
     pub greyscale_texture: SizedString32,
@@ -517,17 +518,17 @@ pub struct BSLightingShaderProperty {
     pub ni_shader_property: NiProperty,
     pub shader_flags_1: Fallout4ShaderPropertyFlags1,
     pub shader_flags_2: Fallout4ShaderPropertyFlags2,
-    pub uv_offset: Vec2<f32>,
-    pub uv_scale: Vec2<f32>,
+    pub uv_offset: BSVec2,
+    pub uv_scale: BSVec2,
     pub texture_set: u32,
-    pub emissive_color: Vec3<f32>,
+    pub emissive_color: BSVec3,
     pub emissive_multiple: f32,
     pub root_material: u32,
     pub texture_clamp_mode: TexClampMode,
     pub alpha: f32,
     pub refraction_strength: f32,
     pub smoothness: f32,
-    pub specular_color: Vec3<f32>,
+    pub specular_color: BSVec3,
     pub specular_strength: f32,
     pub subsurface_rolloff: f32,
     pub rimlight_power: f32,
@@ -796,7 +797,7 @@ pub struct Key {
     pub value: f32,
     pub forward: Option<f32>,
     pub backward: Option<f32>,
-    pub tbc: Option<Vec3<f32>>
+    pub tbc: Option<BSVec3>
 }
 
 impl<'a> Key {
@@ -817,7 +818,7 @@ impl<'a> Key {
             KeyType::TbcKey => {
                 let (i, time) = le_f32(i)?;
                 let (i, value) = le_f32(i)?;
-                let (i, tbc) = Vec3::<f32>::parse(i)?;
+                let (i, tbc) = BSVec3::parse(i)?;
                 Ok((i, Key { time, value, forward: None, backward: None, tbc: Some(tbc) }))
             }
 
@@ -1132,23 +1133,24 @@ pub struct BSSkinBoneData {
 #[derive(Debug, NomLE)]
 pub struct BSSkinBoneTrans {
     pub bounding_sphere: Bounds,
-    pub rotation: Matrix3<f32>,
-    pub translation: Vec3<f32>,
+    pub rotation: BSMatrix3,
+    pub translation: BSVec3,
     pub scale: f32
 }
 
 impl BSSkinBoneTrans {
-    pub fn into_matrix4(&self) -> Matrix4<f32> {
-        let matrix = Matrix4([
-            self.rotation.0[0], self.rotation.0[1], self.rotation.0[2], 0.0,
-            self.rotation.0[3], self.rotation.0[4], self.rotation.0[5], 0.0,
-            self.rotation.0[6], self.rotation.0[7], self.rotation.0[8], 0.0,
-            self.translation.x, self.translation.y, self.translation.z, 1.0
-        ]);
+    pub fn into_matrix4(&self) -> BSMatrix4 {
+        // let matrix = BSMatrix4(Mat4 {
+        //     self.rotation.0[0], self.rotation.0[1], self.rotation.0[2], 0.0,
+        //     self.rotation.0[3], self.rotation.0[4], self.rotation.0[5], 0.0,
+        //     self.rotation.0[6], self.rotation.0[7], self.rotation.0[8], 0.0,
+        //     self.translation.x, self.translation.y, self.translation.z, 1.0
+        // });
 
 
-
-        matrix
+        let mut m4 = glam::Mat4::from_mat3(self.rotation.0);
+        m4.w_axis = glam::Vec4::new(self.translation.0.x, self.translation.0.y, self.translation.0.z, 1.0);
+        BSMatrix4(m4)
     }
 }
 
@@ -1166,7 +1168,7 @@ pub struct BSSkinInstance {
     pub bones: Vec<u32>,
     
     #[nom(LengthCount = "le_u32")]
-    pub scales: Vec<Vec3<f32>>
+    pub scales: Vec<BSVec3>
 }
 
 #[derive(Debug, NomLE)]

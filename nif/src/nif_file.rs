@@ -1,6 +1,7 @@
 use std::collections::BTreeSet;
 
 
+use gltf::json::scene::UnitQuaternion;
 use project_wormhole_ba2::dev::ensure_texture_parent;
 use project_wormhole_ba2::dev::normalize_esm_path;
 use project_wormhole_esm::structs::geometry::Quaternion;
@@ -19,6 +20,9 @@ use gltf::json::mesh::Primitive;
 use gltf::json::texture::Info;
 use gltf::json::validation::{Checked, USize64};
 use gltf::{json::*, Semantic};
+use project_wormhole_shared::glam;
+use project_wormhole_shared::glam::Mat4;
+use zerocopy::IntoBytes;
 
 use crate::model::all::*;
 
@@ -293,25 +297,7 @@ pub fn nif_to_model(nif: &NifFile, skeleton: Option<&NifFile>) -> Result<Model, 
                 match &nif.blocks[skin.data as usize] {
                     NifBlock::BSSkinBoneData(bone_data) => {
                         for bone_transform in &bone_data.bone_list {
-                            let rotation = bone_transform.rotation.to_col_major();
-                            inverse_bind_matrices.push(Matrix4::<f32>([
-                                rotation.0[0],
-                                rotation.0[1],
-                                rotation.0[2],
-                                0.0,
-                                rotation.0[3],
-                                rotation.0[4],
-                                rotation.0[5],
-                                0.0,
-                                rotation.0[6],
-                                rotation.0[7],
-                                rotation.0[8],
-                                0.0,
-                                bone_transform.translation.x,
-                                bone_transform.translation.y,
-                                bone_transform.translation.z,
-                                bone_transform.scale,
-                            ]));
+                            inverse_bind_matrices.push(bone_transform.into_matrix4());
                         }
                     }
                     _ => {
@@ -805,28 +791,28 @@ impl NifFileV3 {
                 match self.raw_blocks[skin.data as usize] {
                     NifBlock::BSSkinBoneData(ref bone_data) => {
                         for bone_transform in &bone_data.bone_list {
-                            let rotation = bone_transform.rotation.to_col_major();
+                            // let rotation = bone_transform.rotation.to_col_major();
                             
-                            let rotation = Matrix4([
-                                rotation.0[0],
-                                rotation.0[1],
-                                rotation.0[2],
-                                0.0,
-                                rotation.0[3],
-                                rotation.0[4],
-                                rotation.0[5],
-                                0.0,
-                                rotation.0[6],
-                                rotation.0[7],
-                                rotation.0[8],
-                                0.0,
-                                bone_transform.translation.x,
-                                bone_transform.translation.y,
-                                bone_transform.translation.z,
-                                bone_transform.scale,
-                            ]);
+                            // let rotation = Matrix4([
+                            //     rotation.0[0],
+                            //     rotation.0[1],
+                            //     rotation.0[2],
+                            //     0.0,
+                            //     rotation.0[3],
+                            //     rotation.0[4],
+                            //     rotation.0[5],
+                            //     0.0,
+                            //     rotation.0[6],
+                            //     rotation.0[7],
+                            //     rotation.0[8],
+                            //     0.0,
+                            //     bone_transform.translation.x,
+                            //     bone_transform.translation.y,
+                            //     bone_transform.translation.z,
+                            //     bone_transform.scale,
+                            // ]);
                             
-                            inverse_bind_data.extend_from_slice(&rotation.as_bytes());
+                            inverse_bind_data.extend_from_slice(bone_transform.into_matrix4().0.to_cols_array().as_slice().as_bytes());
     
                         }
                     }
@@ -1019,17 +1005,24 @@ impl Parse<&[u8]> for NifFileV3 {
     fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
         let (i, header) = NifHeader::parse(i)?;
 
+        //println!("NIF Header: {:#?}", header);
+
+        println!("Parsing NIF v3 file with {} blocks.", header.block_count);
         let mut raw_blocks = Vec::new();
         let mut data = i;
 
+
         for index in 0..header.block_count as usize {
+            println!("Parsing block {}/{} as {}", index, header.block_count, header.get_block_type(index).unwrap().to_string());
             let (i, raw) = nom::bytes::complete::take(header.block_size_index[index])(data)?;
             data = i;
-            let (_, block) =
-                NifBlock::parse(raw, header.get_block_type(index).unwrap().to_string())?;
+            let (_, block) = NifBlock::parse(raw, header.get_block_type(index).unwrap().to_string())?;
+            println!("Parsed block type: {:?}", header.get_block_type(index).unwrap().to_string());
             raw_blocks.push(block);
         }
 
+
+        println!("Parsing nodes...");
         let mut nodes = BTreeMap::new();
 
         for (index, block) in raw_blocks.iter().enumerate() {
@@ -1150,17 +1143,27 @@ pub fn push_nodes_to_root(root: &mut Root, nif: &NifFileV3) -> Result<(), String
             None
         } else {
             Some([
-                node.av.translation.0.x,
-                node.av.translation.0.y,
-                node.av.translation.0.z,
+                node.av.translation.0.0.x,
+                node.av.translation.0.0.y,
+                node.av.translation.0.0.z,
             ])
         };
 
         let rotation = if node.av.rotation == NifRotation::default() {
             None
         } else {
-            let q = Quaternion::from(node.av.rotation.0.to_col_major());
-            Some(q.into())
+
+            let q = glam::Quat::from_mat3(&node.av.rotation.0.0);
+
+            Some(UnitQuaternion([
+                q.x,
+                q.y,
+                q.z,
+                q.w,
+            ]))
+
+            // let q = Quaternion::from(node.av.rotation.0.to_col_major());
+            // Some(q.into())
         };
 
         root.nodes.push(Node {

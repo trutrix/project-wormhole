@@ -21,10 +21,8 @@ mod dev {
     pub use log::*;
     pub use half::prelude::*;
     pub use std::collections::{BTreeMap, HashSet};
-    pub use project_wormhole_esm::structs::vectors::*;
     pub use project_wormhole_esm::structs::strings::*;
-    pub use project_wormhole_esm::structs::matrix::*;
-    
+    pub use project_wormhole_shared::prelude::*;   
 
     pub use super::nif_header::*;
     pub use super::nif_file::*;

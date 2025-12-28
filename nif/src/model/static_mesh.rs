@@ -1,13 +1,15 @@
+use project_wormhole_shared::glam::{self, Vec3};
+
 use crate::dev::*;
 
 #[derive(Debug, Clone)]
 pub struct StaticMesh {
     pub name: Option<String>,
-    pub positions: Vec<Vec3<f32>>,
-    pub normals: Vec<Vec3<f32>>,
-    pub uvs: Vec<Vec2<f32>>,
-    pub triangles: Vec<Vec3<u16>>,
-    pub colors: Vec<Vec4<f32>>
+    pub positions: Vec<Vec3>,
+    pub normals: Vec<Vec3>,
+    pub uvs: Vec<glam::Vec2>,
+    pub triangles: Vec<glam::u16::U16Vec3>,
+    pub colors: Vec<BSVec4>
 }
 
 
@@ -42,7 +44,7 @@ impl StaticMesh {
         bytes
     }
 
-    pub fn positions_min_max(&self) -> (Vec3<f32>, Vec3<f32>) {
+    pub fn positions_min_max(&self) -> (Vec3, Vec3) {
         let mut min = Vec3::new(f32::MAX, f32::MAX, f32::MAX);
         let mut max = Vec3::new(f32::MIN, f32::MIN, f32::MIN);
         for pos in &self.positions {
@@ -88,10 +90,10 @@ impl StaticMesh {
     pub fn colors_as_bytes(&self) -> Vec<u8> {
         let mut bytes = Vec::new();
         for color in &self.colors {
-            bytes.extend(color.x.to_le_bytes().as_slice());
-            bytes.extend(color.y.to_le_bytes().as_slice());
-            bytes.extend(color.z.to_le_bytes().as_slice());
-            bytes.extend(color.w.to_le_bytes().as_slice());
+            bytes.extend(color.0.x.to_le_bytes().as_slice());
+            bytes.extend(color.0.y.to_le_bytes().as_slice());
+            bytes.extend(color.0.z.to_le_bytes().as_slice());
+            bytes.extend(color.0.w.to_le_bytes().as_slice());
         }
         bytes
     }

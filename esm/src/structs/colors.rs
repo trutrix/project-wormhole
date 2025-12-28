@@ -1,6 +1,25 @@
-use crate::structs::vectors::*;
+use crate::dev::*;
 
 
-pub type Color4 = Vec4<u8>;
-pub type Color3 = Vec3<u8>;
-pub type Color2 = Vec2<u8>;
+#[derive(Debug, NomLE)]
+pub struct Color4 {
+    r: u8,
+    g: u8,
+    b: u8,
+    a: u8
+}
+
+
+#[derive(Debug, NomLE)]
+pub struct Color3 {
+    r: u8,
+    g: u8,
+    b: u8
+}
+
+
+#[derive(Debug, NomLE)]
+pub struct Color2 {
+    r: u8,
+    g: u8
+}

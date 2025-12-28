@@ -21,8 +21,8 @@ pub fn dev_test() {
     ).unwrap();
 
 
-    const PATH: &str = "D:\\fo4_assets\\Meshes\\Actors\\Deathclaw\\Deathclaw.nif";
-    const SKEL: &str = "D:\\fo4_assets\\Meshes\\Actors\\Deathclaw\\CharacterAssets\\skeleton.nif";
+    const PATH: &str = ".\\Meshes\\Actors\\Deathclaw\\Deathclaw.nif";
+    const SKEL: &str = ".\\Meshes\\Actors\\Deathclaw\\CharacterAssets\\skeleton.nif";
 
     let mut file = NifFileV3::open(PATH).unwrap();
     
