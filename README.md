@@ -74,3 +74,7 @@
 # Texture Notes
 - Textures that end with s have only a r and g channel, not the standard alpha for roughness
   - Unsure which channel is for spec and glossy
+
+
+# GLTF Notes
+- Unreal Engine 5.4 will not import the GLTF files correctly, but exporting from blender as fbx works
