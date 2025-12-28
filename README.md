@@ -68,3 +68,9 @@
 - `nom_derive` works thusfar but seems poorly suited for versioned files, if we ever want to support all the games this must be addressed
 - I want to implement `zerocopy` at some point for transmutations
 - Unfortunately I did not account for serializing data back down, making a lot of this project unusable for editing
+
+
+
+# Texture Notes
+- Textures that end with s have only a r and g channel, not the standard alpha for roughness
+  - Unsure which channel is for spec and glossy
