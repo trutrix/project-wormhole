@@ -68,7 +68,7 @@ impl ParseVersioned<i16> for VMADScriptEntry {
         } else {
             (i, VMADScriptFlags::empty())
         };
-        let (i, property_count) = u16::parse_le(i)?;
+        let (i, property_count) = le_u16(i)?;
         if property_count == 0 {
             return Ok((i, VMADScriptEntry { script_name, flags, property_count, properties: Vec::new(), fragments: Vec::new() }) )
         }
@@ -87,7 +87,7 @@ impl ParseVersioned<i16> for VMADScriptEntry {
         };
         
 
-        let (i, property_count) = u16::parse_le(i)?;
+        let (i, property_count) = le_u16(i)?;
 
         println!("{}VMAD Script Entry: name: {}, flags: {:?}, property_count: {}", depth_to_space(depth), script_name, flags, property_count);
 
@@ -116,8 +116,8 @@ impl ParseVersioned<i16> for VMADScriptEntry {
 //     fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
 //         let (i, script_name) = SizedString16::parse(i)?;
 //         //println!("Parsed VMAD script name: {}", script_name);
-//         let (i, status) = u8::parse_le(i)?;
-//         let (i, property_count) = u16::parse_le(i)?;
+//         let (i, status) = le_u8(i)?;
+//         let (i, property_count) = le_u16(i)?;
 //         let (i, properties) = nom::multi::count(VMADPropertyEntry::parse, property_count as usize)(i)?;
 
 //         Ok((i, VMADScriptEntry { script_name, status, property_count, properties, fragments: Vec::new() }) )
@@ -148,7 +148,7 @@ impl Parse<&[u8]> for VMADPropertyEntry {
                 // Object
                 let (i, v1) = le_u16(i)?;
                 let (i, v2) = le_u16(i)?;
-                let (i, v3) = FormId::parse_le(i)?;
+                let (i, v3) = FormId::parse(i)?;
                 Ok((i, VMADPropertyEntry { name, type_, flags, value: VMADPropertyValue::Object(VMADObjectRef::V2((v1, v2, v3))) }))
             },
             VMADPropertyType::String => {
@@ -448,7 +448,7 @@ bitflags::bitflags! {
 
 impl Parse<&[u8]> for VMADScriptFlags {
     fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
-        let (i, raw) = u8::parse_le(i)?;
+        let (i, raw) = le_u8(i)?;
         Ok((i, VMADScriptFlags::from_bits_truncate(raw)))
     }
 }
