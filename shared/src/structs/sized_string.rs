@@ -1,51 +1,51 @@
-
-
 use nom_derive::{Parse, nom::{IResult, bytes::complete::take, number::complete::{le_u8, le_u16, le_u32}}};
 
-pub struct SizedString<T> {
-    pub size: T,
-    pub value: String
-}
+// ESM strings are a hybrid of a sized string and a null-terminated string.
+
+// pub struct SizedString<T> {
+//     pub size: T,
+//     pub value: String
+// }
 
 
-impl nom_derive::Parse<&[u8]> for SizedString<u32> {
-    fn parse(i: &[u8]) -> IResult<&[u8], Self, nom_derive::nom::error::Error<&[u8]>> {
-        let (i, size) = le_u32(i)?;
-        let (i, value) = take(size)(i)?;
+// impl nom_derive::Parse<&[u8]> for SizedString<u32> {
+//     fn parse(i: &[u8]) -> IResult<&[u8], Self, nom_derive::nom::error::Error<&[u8]>> {
+//         let (i, size) = le_u32(i)?;
+//         let (i, value) = take(size)(i)?;
 
-        if let Ok(s) = String::from_utf8(value.to_vec()) {
-            Ok((i, SizedString { size, value: s }))
-        } else {
-            Err(nom_derive::nom::Err::Error(nom_derive::nom::error::Error::new(i, nom_derive::nom::error::ErrorKind::MapRes)))
-        }
-    }
-}
+//         if let Ok(s) = String::from_utf8(value.to_vec()) {
+//             Ok((i, SizedString { size, value: s }))
+//         } else {
+//             Err(nom_derive::nom::Err::Error(nom_derive::nom::error::Error::new(i, nom_derive::nom::error::ErrorKind::MapRes)))
+//         }
+//     }
+// }
 
-impl nom_derive::Parse<&[u8]> for SizedString<u16> {
-    fn parse(i: &[u8]) -> IResult<&[u8], Self, nom_derive::nom::error::Error<&[u8]>> {
-        let (i, size) = le_u16(i)?;
-        let (i, value) = take(size)(i)?;
+// impl nom_derive::Parse<&[u8]> for SizedString<u16> {
+//     fn parse(i: &[u8]) -> IResult<&[u8], Self, nom_derive::nom::error::Error<&[u8]>> {
+//         let (i, size) = le_u16(i)?;
+//         let (i, value) = take(size)(i)?;
 
-        if let Ok(s) = String::from_utf8(value.to_vec()) {
-            Ok((i, SizedString { size, value: s }))
-        } else {
-            Err(nom_derive::nom::Err::Error(nom_derive::nom::error::Error::new(i, nom_derive::nom::error::ErrorKind::MapRes)))
-        }
-    }
-}
+//         if let Ok(s) = String::from_utf8(value.to_vec()) {
+//             Ok((i, SizedString { size, value: s }))
+//         } else {
+//             Err(nom_derive::nom::Err::Error(nom_derive::nom::error::Error::new(i, nom_derive::nom::error::ErrorKind::MapRes)))
+//         }
+//     }
+// }
 
-impl nom_derive::Parse<&[u8]> for SizedString<u8> {
-    fn parse(i: &[u8]) -> IResult<&[u8], Self, nom_derive::nom::error::Error<&[u8]>> {
-        let (i, size) = le_u8(i)?;
-        let (i, value) = take(size)(i)?;
+// impl nom_derive::Parse<&[u8]> for SizedString<u8> {
+//     fn parse(i: &[u8]) -> IResult<&[u8], Self, nom_derive::nom::error::Error<&[u8]>> {
+//         let (i, size) = le_u8(i)?;
+//         let (i, value) = take(size)(i)?;
 
-        if let Ok(s) = String::from_utf8(value.to_vec()) {
-            Ok((i, SizedString { size, value: s }))
-        } else {
-            Err(nom_derive::nom::Err::Error(nom_derive::nom::error::Error::new(i, nom_derive::nom::error::ErrorKind::MapRes)))
-        }
-    }
-}
+//         if let Ok(s) = String::from_utf8(value.to_vec()) {
+//             Ok((i, SizedString { size, value: s }))
+//         } else {
+//             Err(nom_derive::nom::Err::Error(nom_derive::nom::error::Error::new(i, nom_derive::nom::error::ErrorKind::MapRes)))
+//         }
+//     }
+// }
 
 
 // ================================================================================
@@ -71,6 +71,7 @@ impl Parse<&[u8]> for U8ESMString {
             #[cfg(debug_assertions)]
             panic!("Failed to parse U32ESMString: Invalid UTF-8 sequence");
 
+            #[cfg(not(debug_assertions))]
             Err(nom_derive::nom::Err::Error(nom_derive::nom::error::Error::new(i, nom_derive::nom::error::ErrorKind::MapRes)))
         }
     }
@@ -99,6 +100,7 @@ impl Parse<&[u8]> for U16ESMString {
             #[cfg(debug_assertions)]
             panic!("Failed to parse U32ESMString: Invalid UTF-8 sequence");
 
+            #[cfg(not(debug_assertions))]
             Err(nom_derive::nom::Err::Error(nom_derive::nom::error::Error::new(i, nom_derive::nom::error::ErrorKind::MapRes)))
         }
     }
@@ -127,6 +129,7 @@ impl Parse<&[u8]> for U32ESMString {
             #[cfg(debug_assertions)]
             panic!("Failed to parse U32ESMString: Invalid UTF-8 sequence");
 
+            #[cfg(not(debug_assertions))]
             Err(nom_derive::nom::Err::Error(nom_derive::nom::error::Error::new(i, nom_derive::nom::error::ErrorKind::MapRes)))
         }
     }
