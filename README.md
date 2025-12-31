@@ -77,4 +77,7 @@
 
 
 # GLTF Notes
-- Unreal Engine 5.4 will not import the GLTF files correctly, but exporting from blender as fbx works
+- Unreal Engine 5.4 will not import the GLTF files correctly (yet)
+  - Exact problem found: [here](https://github.com/EpicGames/UnrealEngine/blob/684b4c133ed87e8050d1fdaa287242f0fe2c1153/Engine/Plugins/Interchange/Runtime/Source/Parsers/GLTFCore/Public/GLTFNode.h#L88)
+- Blender appears to import correctly
+- Needs a ton of debugging
