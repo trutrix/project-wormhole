@@ -690,7 +690,7 @@ impl NifFileV3 {
                     byte_offset: Some(USize64(bin_data.len() as u64)),
                     byte_stride: None,
                     name: Some(format!("WEIGHTS:{}", root.meshes.len())),
-                    target: None,
+                    target: Some(Checked::Valid(buffer::Target::ArrayBuffer)),
                     extensions: None,
                     extras: Extras::default(),
                 });
@@ -722,7 +722,7 @@ impl NifFileV3 {
                     byte_offset: Some(USize64(bin_data.len() as u64)),
                     byte_stride: None,
                     name: Some(format!("JOINTS:{}", root.meshes.len())),
-                    target: None,
+                    target: Some(Checked::Valid(buffer::Target::ArrayBuffer)),
                     extensions: None,
                     extras: Extras::default(),
                 });
@@ -1240,7 +1240,7 @@ pub fn push_positions_to_root(root: &mut Root, positions: Vec<u8>, bin_data: &mu
         byte_offset: Some(USize64(bin_data.len() as u64)),
         byte_stride: None,
         name: Some(format!("POSITIONS:{}", root.meshes.len())),
-        target: None,
+        target: Some(Checked::Valid(buffer::Target::ArrayBuffer)),
         extensions: None,
         extras: Extras::default(),
     });
@@ -1272,7 +1272,7 @@ pub fn push_normals_to_root(root: &mut Root, normals: Vec<u8>, bin_data: &mut Ve
         byte_offset: Some(USize64(bin_data.len() as u64)),
         byte_stride: None,
         name: Some(format!("NORMALS:{}", root.meshes.len())),
-        target: None,
+        target: Some(Checked::Valid(buffer::Target::ArrayBuffer)),
         extensions: None,
         extras: Extras::default(),
     });
@@ -1305,7 +1305,7 @@ pub fn push_uvs_to_root(root: &mut Root, uvs: Vec<u8>, bin_data: &mut Vec<u8>) {
         byte_offset: Some(USize64(bin_data.len() as u64)),
         byte_stride: None,
         name: Some(format!("UVS:{}", root.meshes.len())),
-        target: None,
+        target: Some(Checked::Valid(buffer::Target::ArrayBuffer)),
         extensions: None,
         extras: Extras::default(),
     });
@@ -1337,7 +1337,7 @@ pub fn push_indices_to_root(root: &mut Root, indices: Vec<u8>, bin_data: &mut Ve
         byte_offset: Some(USize64(bin_data.len() as u64)),
         byte_stride: None,
         name: Some(format!("INDICES:{}", root.meshes.len())),
-        target: None,
+        target: Some(Checked::Valid(buffer::Target::ElementArrayBuffer)),
         extensions: None,
         extras: Extras::default(),
     });
