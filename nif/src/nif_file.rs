@@ -31,7 +31,7 @@ use super::dev::*;
 #[derive(Debug)]
 pub struct NifFile {
     pub header: NifHeader,
-    blocks: Vec<NifBlock>,
+    pub blocks: Vec<NifBlock>,
 }
 
 impl NifFile {
