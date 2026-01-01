@@ -69,7 +69,7 @@ impl Parse<&[u8]> for U8ESMString {
         } else {
 
             #[cfg(debug_assertions)]
-            panic!("Failed to parse U32ESMString: Invalid UTF-8 sequence");
+            panic!("Failed to parse U8ESMString: Invalid UTF-8 sequence");
 
             #[cfg(not(debug_assertions))]
             Err(nom_derive::nom::Err::Error(nom_derive::nom::error::Error::new(i, nom_derive::nom::error::ErrorKind::MapRes)))
@@ -98,7 +98,7 @@ impl Parse<&[u8]> for U16ESMString {
         } else {
 
             #[cfg(debug_assertions)]
-            panic!("Failed to parse U32ESMString: Invalid UTF-8 sequence");
+            panic!("Failed to parse U16ESMString: Invalid UTF-8 sequence");
 
             #[cfg(not(debug_assertions))]
             Err(nom_derive::nom::Err::Error(nom_derive::nom::error::Error::new(i, nom_derive::nom::error::ErrorKind::MapRes)))
