@@ -137,7 +137,7 @@ impl BSVertexData {
             let (i, bita_y) = le_u8(i)?;
 
             // Set the normals, converting from packed u8 to f32
-            normal = Some(from_packed_u8(packed_normals));
+            normal = Some(unpack_u8_normal_vector(packed_normals));
 
             // Set the bitangent y
             bitangent_y = Some(bita_y as f32);
@@ -354,15 +354,17 @@ impl std::fmt::Debug for BSVertexDesc {
 
 /// Dumb way to save a little storage space, quality of games will suffer for it.  
 /// Makes shading in games have artifacts
-pub fn unpack_u8(value: u8) -> f32 {
+#[inline]
+pub fn unpack_u8_normal(value: u8) -> f32 {
     value as f32 / 255.0 * 2.0 - 1.0
 }
 
 /// Convert a packed U8Vec3 to a BSVec3
-pub fn from_packed_u8(value: U8Vec3) -> Vec3 {
+#[inline]
+pub fn unpack_u8_normal_vector(value: U8Vec3) -> Vec3 {
     Vec3 {
-        x: unpack_u8(value.x),
-        y: unpack_u8(value.y),
-        z: unpack_u8(value.z)
+        x: unpack_u8_normal(value.x),
+        y: unpack_u8_normal(value.y),
+        z: unpack_u8_normal(value.z)
     }
 }
