@@ -1,3 +1,4 @@
+pub mod u8_bool;
 pub mod math;
 pub mod sized_string;
 pub mod fourcc;
