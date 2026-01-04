@@ -63,6 +63,7 @@ impl Parse<&[u8]> for U8ESMString {
 
         // Discard the trailing null byte
         let (i, value) = take(size-1)(i)?;
+        let (i, _) = take(1usize)(i)?; // null terminator
 
         if let Ok(s) = String::from_utf8(value.to_vec()) {
             Ok((i, U8ESMString(s)))
@@ -92,6 +93,7 @@ impl Parse<&[u8]> for U16ESMString {
         
         // Discard the trailing null byte
         let (i, value) = take(size-1)(i)?;
+        let (i, _) = take(1usize)(i)?; // null terminator
 
         if let Ok(s) = String::from_utf8(value.to_vec()) {
             Ok((i, U16ESMString(s)))
@@ -113,25 +115,32 @@ pub struct U32ESMString(pub String);
 
 impl Parse<&[u8]> for U32ESMString {
     fn parse(i: &[u8]) -> IResult<&[u8], Self, nom_derive::nom::error::Error<&[u8]>> {
-        let (i, size) = le_u32(i)?;
+        let (i, s) = parse_u32_esm_string(i)?;
+        Ok((i, U32ESMString(s)))
+    }
+}
 
-        if size == 0 {
-            return Ok((i, U32ESMString(String::new())));
-        }
 
-        // Discard the trailing null byte
-        let (i, value) = take(size-1)(i)?;
+pub fn parse_u32_esm_string(i: &[u8]) -> IResult<&[u8], String, nom_derive::nom::error::Error<&[u8]>> {
+    let (i, size) = le_u32(i)?;
 
-        if let Ok(s) = String::from_utf8(value.to_vec()) {
-            Ok((i, U32ESMString(s)))
-        } else {
+    if size == 0 {
+        return Ok((i, String::new()));
+    }
 
-            #[cfg(debug_assertions)]
-            panic!("Failed to parse U32ESMString: Invalid UTF-8 sequence");
+    // Discard the trailing null byte
+    let (i, value) = take(size-1)(i)?;
+    let (i, _) = take(1usize)(i)?; // null terminator
 
-            #[cfg(not(debug_assertions))]
-            Err(nom_derive::nom::Err::Error(nom_derive::nom::error::Error::new(i, nom_derive::nom::error::ErrorKind::MapRes)))
-        }
+    if let Ok(s) = String::from_utf8(value.to_vec()) {
+        Ok((i, s))
+    } else {
+
+        #[cfg(debug_assertions)]
+        panic!("Failed to parse U32ESMString: Invalid UTF-8 sequence");
+
+        #[cfg(not(debug_assertions))]
+        Err(nom_derive::nom::Err::Error(nom_derive::nom::error::Error::new(i, nom_derive::nom::error::ErrorKind::MapRes)))
     }
 }
 
