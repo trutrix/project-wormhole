@@ -1585,6 +1585,10 @@ dependencies = [
 [[package]]
 name = "bgsm"
 version = "0.1.0"
+dependencies = [
+ "nom-derive",
+ "project-wormhole-shared",
+]
 
 [[package]]
 name = "bindgen"
