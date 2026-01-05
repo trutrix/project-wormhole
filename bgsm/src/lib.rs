@@ -5,7 +5,7 @@ use project_wormhole_shared::{prelude::{U32ESMString, parse_u32_esm_string}, str
 // Link to info about bgsm
 // https://github.com/ousnius/Material-Editor/blob/master/MaterialLib/BGSM.cs
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct BaseMaterialFile {
     pub magic: FourCC,
     pub version: u32,
@@ -146,7 +146,7 @@ impl Parse<&[u8]> for BaseMaterialFile {
 
 
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct BGSM {
     pub base: BaseMaterialFile,
     pub diffuse_texture: Option<String>,
@@ -364,7 +364,7 @@ impl Parse<&[u8]> for BGSM {
             normal_texture: Some(normal_texture),
             smoothness_specular_texture: Some(smoothness_specular_texture),
             emissive_texture: Some(emissive_texture),
-            glow_texture: Some(glow_texture),
+            glow_texture: None,
         }))
     }
 }
