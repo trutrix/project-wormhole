@@ -21,6 +21,12 @@ impl std::fmt::Display for FourCC {
     }
 }
 
+impl Default for FourCC {
+    fn default() -> Self {
+        FourCC(*b"DFLT")
+    }
+}
+
 
 // ================================================================================
 
