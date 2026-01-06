@@ -5,7 +5,7 @@ use nom_derive::nom;
 
 
 
-#[derive(Clone, Copy, PartialEq, Eq, NomLE)]
+#[derive(Clone, Copy, PartialEq, Eq, NomLE, Default)]
 pub struct Color4<T>([T; 4]);
 
 impl<T> Color4<T> {
@@ -35,7 +35,7 @@ where T: Debug
 
 // ================================================================================
 
-#[derive(Clone, Copy, PartialEq, Eq, NomLE)]
+#[derive(Clone, Copy, PartialEq, Eq, NomLE, Default)]
 pub struct Color3<T>([T; 3]);
 
 impl<T> Color3<T> {

@@ -148,3 +148,10 @@ pub fn parse_u32_esm_string(i: &[u8]) -> IResult<&[u8], String, nom_derive::nom:
 // ================================================================================
 
 
+pub fn empty_string_to_none(s: String) -> Option<String> {
+    if s.is_empty() {
+        None
+    } else {
+        Some(s)
+    }
+}
