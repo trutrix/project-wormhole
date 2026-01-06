@@ -1,6 +1,7 @@
 mod test;
-use nom_derive::{Parse, nom::{error::{Error, ErrorKind}, number::complete::{le_f32, le_u8, le_u16, le_u32}}};
-use project_wormhole_shared::{prelude::{U32ESMString, parse_u32_esm_string}, structs::{fourcc::FourCC, u8_bool::parse_u8_bool}};
+use nom_derive::{NomLE, Parse, nom::{error::{Error, ErrorKind}, number::complete::{le_f32, le_i32, le_u8, le_u16, le_u32}}};
+use nom_derive::nom;
+use project_wormhole_shared::{prelude::{ParseVersioned, U32ESMString, empty_string_to_none, parse_u32_esm_string}, structs::{color::{Color3, Color4}, fourcc::FourCC, u8_bool::parse_u8_bool}};
 
 // Link to info about bgsm
 // https://github.com/ousnius/Material-Editor/blob/master/MaterialLib/BGSM.cs
@@ -154,6 +155,31 @@ pub struct BGSM {
     pub smoothness_specular_texture: Option<String>,
     pub emissive_texture: Option<String>,
     pub glow_texture: Option<String>,
+    pub wrinkles_texture: Option<String>,
+    pub specular_texture: Option<String>,
+    pub lighting_texture: Option<String>,
+    pub flow_texture: Option<String>,
+    pub distance_field_alpha_texture: Option<String>,
+    pub envmap_texture: Option<String>,
+    pub inner_layer_texture: Option<String>,
+    pub displacement_texture: Option<String>,
+    pub enable_editor_alpha_ref: bool,
+    pub translucency_options: Option<TranslucencyOptions>,
+    pub lighting_options: Option<LightingOptions>,
+    pub specular_enabled: bool,
+    pub specular_color: Color3<f32>,
+    pub specular_mult: f32,
+    pub smoothness: f32,
+    pub fresnel_power: f32,
+    pub wetness: Wetness,
+    pub pbr: Option<bool>,
+    pub custom_porosity: Option<bool>,
+    pub porosity_value: Option<f32>,
+    pub root_material_path: Option<String>,
+    pub aniso_lighting: bool,
+    pub emit_enabled: bool,
+    pub emittance_color: Option<Color4<u8>>,
+    pub emittance_mult: f32
 }
 
 
@@ -167,110 +193,130 @@ impl Parse<&[u8]> for BGSM {
         }
 
         let (i, diffuse_texture) = parse_u32_esm_string(i)?;
+        let diffuse_texture = empty_string_to_none(diffuse_texture);
+
         let (i, normal_texture) = parse_u32_esm_string(i)?;
+        let normal_texture = empty_string_to_none(normal_texture);
+
         let (i, smoothness_specular_texture) = parse_u32_esm_string(i)?;
+        let smoothness_specular_texture = empty_string_to_none(smoothness_specular_texture);
+
         let (i, emissive_texture) = parse_u32_esm_string(i)?;
+        let emissive_texture = empty_string_to_none(emissive_texture);
 
-        // if (Version > 2)
-        //     {
-        //         GlowTexture = ReadString(input);
-        //         WrinklesTexture = ReadString(input);
-        //         SpecularTexture = ReadString(input);
-        //         LightingTexture = ReadString(input);
-        //         FlowTexture = ReadString(input);
-
-        //         if (Version >= 17)
-        //         {
-        //             DistanceFieldAlphaTexture = ReadString(input);
-        //         }
-        //     }
-        //     else
-        //     {
-        //         EnvmapTexture = ReadString(input);
-        //         GlowTexture = ReadString(input);
-        //         InnerLayerTexture = ReadString(input);
-        //         WrinklesTexture = ReadString(input);
-        //         DisplacementTexture = ReadString(input);
-        //     }
+        let glow_texture;
+        let wrinkles_texture;
+        let mut specular_texture = None;
+        let mut lighting_texture = None;
+        let mut flow_texture = None;
+        let mut distance_field_alpha_texture = None;
+        let mut envmap_texture = None;
+        let mut inner_layer_texture = None;
+        let mut displacement_texture = None;
 
         let mut data = i;
 
         if base.version > 2 {
-            let (i, glow_texture) = parse_u32_esm_string(i)?;
-            let (i, wrinkles_texture) = parse_u32_esm_string(i)?;
-            let (i, specular_texture) = parse_u32_esm_string(i)?;
-            let (i, lighting_texture) = parse_u32_esm_string(i)?;
-            let (i, flow_texture) = parse_u32_esm_string(i)?;
+            let (i, gt) = parse_u32_esm_string(data)?;
+            glow_texture = empty_string_to_none(gt);
+
+            let (i, wt) = parse_u32_esm_string(i)?;
+            wrinkles_texture = empty_string_to_none(wt);
+
+            let (i, st) = parse_u32_esm_string(i)?;
+            specular_texture = empty_string_to_none(st);
+
+            let (i, lt) = parse_u32_esm_string(i)?;
+            lighting_texture = empty_string_to_none(lt);
+
+            let (i, ft) = parse_u32_esm_string(i)?;
+            flow_texture = empty_string_to_none(ft);
 
             data = i;
 
             if base.version >= 17 {
-                let (i, distance_field_alpha_texture) = parse_u32_esm_string(i)?;
+                let (i, dfas) = parse_u32_esm_string(data)?;
+                distance_field_alpha_texture = empty_string_to_none(dfas);
                 data = i;
             }
         } else {
-            let (i, envmap_texture) = parse_u32_esm_string(i)?;
-            let (i, glow_texture) = parse_u32_esm_string(i)?;
-            let (i, inner_layer_texture) = parse_u32_esm_string(i)?;
-            let (i, wrinkles_texture) = parse_u32_esm_string(i)?;
-            let (i, displacement_texture) = parse_u32_esm_string(i)?;
+            let (i, et) = parse_u32_esm_string(data)?;
+            envmap_texture = empty_string_to_none(et);
+
+            let (i, gt) = parse_u32_esm_string(i)?;
+            glow_texture = empty_string_to_none(gt);
+
+            let (i, ilt) = parse_u32_esm_string(i)?;
+            inner_layer_texture = empty_string_to_none(ilt);
+
+            let (i, wt) = parse_u32_esm_string(i)?;
+            wrinkles_texture = empty_string_to_none(wt);
+
+            let (i, dt) = parse_u32_esm_string(i)?;
+            displacement_texture = empty_string_to_none(dt);
+
             data = i;
         }
 
 
-        //     EnableEditorAlphaRef = input.ReadBoolean();
-
         let (i, enable_editor_alpha_ref) = parse_u8_bool(data)?;
 
-        //     if (Version >= 8)
-        //     {
-        //         Translucency = input.ReadBoolean();
-        //         TranslucencyThickObject = input.ReadBoolean();
-        //         TranslucencyMixAlbedoWithSubsurfaceColor = input.ReadBoolean();
-        //         TranslucencySubsurfaceColor = Color.Read(input).ToUInt32();
-        //         TranslucencyTransmissiveScale = input.ReadSingle();
-        //         TranslucencyTurbulence = input.ReadSingle();
-        //     }
-        //     else
-        //     {
-        //         RimLighting = input.ReadBoolean();
-        //         RimPower = input.ReadSingle();
-        //         BackLightPower = input.ReadSingle();
 
-        //         SubsurfaceLighting = input.ReadBoolean();
-        //         SubsurfaceLightingRolloff = input.ReadSingle();
-        //     }
+        let mut translucency_options = None;
+        let mut lighting_options = None;
 
-        //     SpecularEnabled = input.ReadBoolean();
-        //     SpecularColor = Color.Read(input).ToUInt32();
-        //     SpecularMult = input.ReadSingle();
-        //     Smoothness = input.ReadSingle();
+        if base.version >= 8 {
+            let (i, to) = TranslucencyOptions::parse(i)?;
+            translucency_options = Some(to);
+            data = i;
+        } else {
+            let (i, lo) = LightingOptions::parse(i)?;
+            println!("Parsed lighting options: {:?}", lo);
+            lighting_options = Some(lo);
+            
+            data = i;
+        }
 
-        //     FresnelPower = input.ReadSingle();
-        //     WetnessControlSpecScale = input.ReadSingle();
-        //     WetnessControlSpecPowerScale = input.ReadSingle();
-        //     WetnessControlSpecMinvar = input.ReadSingle();
+        let (i, specular_enabled) = parse_u8_bool(data)?;
+        let (i, specular_color) = Color3::<f32>::parse(i)?;
+        let (i, specular_mult) = le_f32(i)?;
+        let (i, smoothness) = le_f32(i)?;
+        let (i, fresnel_power) = le_f32(i)?;
+        let (i, wetness) = Wetness::parse_versioned(i, base.version)?;
+        println!("Parsed wetness: {:?}", wetness);
 
-        //     if (Version < 10)
-        //     {
-        //         WetnessControlEnvMapScale = input.ReadSingle();
-        //     }
 
-        //     WetnessControlFresnelPower = input.ReadSingle();
-        //     WetnessControlMetalness = input.ReadSingle();
 
-        //     if (Version > 2)
-        //     {
-        //         PBR = input.ReadBoolean();
+        let (i, pbr) = if base.version > 2 {
+            let (i, pbr) = parse_u8_bool(i)?;
+            (i, Some(pbr))
+        } else {
+            println!("Skipping PBR parsing for version {}", base.version);
+            (i, None)
+        };
 
-        //         if (Version >= 9)
-        //         {
-        //             CustomPorosity = input.ReadBoolean();
-        //             PorosityValue = input.ReadSingle();
-        //         }
-        //     }
+        let mut custom_porosity = None;
+        let mut porosity_value = None;
 
-        //     RootMaterialPath = ReadString(input);
+        if base.version >= 9 {
+            let (i, cp) = parse_u8_bool(i)?;
+            custom_porosity = Some(cp);
+
+            let (i, pv) = le_f32(i)?;
+            porosity_value = Some(pv);
+
+            data = i;
+        } else {
+            println!("Skipping porosity parsing for version {}", base.version);
+        }
+
+        let (_, next_value) = le_u32(data)?;
+        println!("Next value after porosity (if applicable): {}", next_value);
+
+        let (i, rmp) = parse_u32_esm_string(data)?;
+        let root_material_path = empty_string_to_none(rmp);
+
+        // s
 
         //     AnisoLighting = input.ReadBoolean();
         //     EmitEnabled = input.ReadBoolean();
@@ -360,11 +406,140 @@ impl Parse<&[u8]> for BGSM {
 
         Ok((i, Self {
             base,
-            diffuse_texture: Some(diffuse_texture),
-            normal_texture: Some(normal_texture),
-            smoothness_specular_texture: Some(smoothness_specular_texture),
-            emissive_texture: Some(emissive_texture),
-            glow_texture: None,
+            diffuse_texture,
+            normal_texture,
+            smoothness_specular_texture,
+            emissive_texture,
+            glow_texture,
+            wrinkles_texture,
+            specular_texture,
+            lighting_texture,
+            flow_texture,
+            distance_field_alpha_texture,
+            envmap_texture,
+            inner_layer_texture,
+            displacement_texture,
+            enable_editor_alpha_ref,
+            translucency_options,
+            lighting_options,
+            specular_enabled,
+            specular_color,
+            specular_mult,
+            smoothness,
+            fresnel_power,
+            wetness,
+            pbr,
+            custom_porosity,
+            porosity_value,
+            root_material_path,
+            aniso_lighting: false,
+            emit_enabled: false,
+            emittance_color: None,
+            emittance_mult: 0.0,
+        }))
+    }
+}
+
+
+// ================================================================================
+
+
+#[derive(Debug)]
+pub struct TranslucencyOptions {
+    pub translucency: bool,
+    pub translucency_thick_object: bool,
+    pub translucency_mix_albedo_with_subsurface_color: bool,
+    pub translucency_subsurface_color: Color4<u8>,
+    pub translucency_transmissive_scale: f32,
+    pub translucency_turbulence: f32,
+}
+
+impl Parse<&[u8]> for TranslucencyOptions {
+    fn parse(i: &[u8]) -> nom_derive::nom::IResult<&[u8], Self, Error<&[u8]>> {
+        let (i, translucency) = parse_u8_bool(i)?;
+        let (i, translucency_thick_object) = parse_u8_bool(i)?;
+        let (i, translucency_mix_albedo_with_subsurface_color) = parse_u8_bool(i)?;
+        let (i, translucency_subsurface_color) = Color4::<u8>::parse(i)?;
+        let (i, translucency_transmissive_scale) = le_f32(i)?;
+        let (i, translucency_turbulence) = le_f32(i)?;
+        Ok((i, Self {
+            translucency,
+            translucency_thick_object,
+            translucency_mix_albedo_with_subsurface_color,
+            translucency_subsurface_color,
+            translucency_transmissive_scale,
+            translucency_turbulence,
+        }))
+    }
+}
+
+
+// ================================================================================
+
+#[derive(Debug)]
+pub struct LightingOptions {
+    pub rim_lighting: bool,
+    pub rim_power: f32,
+    pub back_light_power: f32,
+    pub subsurface_lighting: bool,
+    pub subsurface_lighting_rolloff: f32,
+}
+
+impl Parse<&[u8]> for LightingOptions {
+    fn parse(i: &[u8]) -> nom_derive::nom::IResult<&[u8], Self, Error<&[u8]>> {
+        let (i, rim_lighting) = parse_u8_bool(i)?;
+        let (i, rim_power) = le_f32(i)?;
+        let (i, back_light_power) = le_f32(i)?;
+        let (i, subsurface_lighting) = parse_u8_bool(i)?;
+        let (i, subsurface_lighting_rolloff) = le_f32(i)?;
+
+        Ok((i, Self {
+            rim_lighting,
+            rim_power,
+            back_light_power,
+            subsurface_lighting,
+            subsurface_lighting_rolloff,
+        }))
+    }
+}
+
+
+// ================================================================================
+
+#[derive(Debug, Default)]
+pub struct Wetness {
+    pub spec_scale: f32,
+    pub spec_power_scale: f32,
+    pub spec_minvar: f32,
+    pub env_map_scale: Option<f32>,
+    pub fresnel_power: f32,
+    pub metalness: f32,
+}
+
+
+impl ParseVersioned<u32> for Wetness {
+    fn parse_versioned(i: &[u8], version: u32) -> nom::IResult<&[u8], Self> {
+        let (i, spec_scale) = le_f32(i)?;
+        let (i, spec_power_scale) = le_f32(i)?;
+        let (i, spec_minvar) = le_f32(i)?;
+
+        let (i, env_map_scale) = if version < 10 {
+            let (i, scale) = le_f32(i)?;
+            (i, Some(scale))
+        } else {
+            (i, None)
+        };
+
+        let (i, fresnel_power) = le_f32(i)?;
+        let (i, metalness) = le_f32(i)?;
+
+        Ok((i, Self {
+            spec_scale,
+            spec_power_scale,
+            spec_minvar,
+            env_map_scale,
+            fresnel_power,
+            metalness,
         }))
     }
 }
