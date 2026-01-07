@@ -54,6 +54,6 @@ impl<T> Debug for Color3<T>
 where T: Debug
 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Color4(R: {:?}, G: {:?}, B: {:?})", self.r(), self.g(), self.b())
+        write!(f, "Color3(R: {:?}, G: {:?}, B: {:?})", self.r(), self.g(), self.b())
     }
 }
