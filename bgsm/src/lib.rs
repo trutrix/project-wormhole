@@ -406,25 +406,6 @@ impl Parse<&[u8]> for BGSM {
             (i, None)
         };
 
-        
-
-        //     if (Version >= 3)
-        //     {
-        //         Terrain = input.ReadBoolean();
-
-        //         if (Terrain)
-        //         {
-        //             if (Version == 3)
-        //             {
-        //                 UnkInt1 = input.ReadUInt32();
-        //             }
-
-        //             TerrainThresholdFalloff = input.ReadSingle();
-        //             TerrainTilingDistance = input.ReadSingle();
-        //             TerrainRotationAngle = input.ReadSingle();
-        //         }
-        //     }
-
         let (i, terrain_info) = if base.version >= 3 && terrain == Some(true) {
             let (i, ti) = TerrainInfo::parse_versioned(i, base.version)?;
             (i, Some(ti))
