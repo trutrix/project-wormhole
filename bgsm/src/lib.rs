@@ -15,13 +15,11 @@ pub struct BaseMaterialFile {
     pub v_offset: f32,
     pub u_scale: f32,
     pub v_scale: f32,
-
     pub alpha: f32,
     pub alpha_blend_mode_0: u8,
     pub alpha_blend_mode_1: u32,
     pub alpha_blend_mode_2: u32,
     pub alpha_test_ref: u8,
-
     pub alpha_test: bool,
     pub z_buffer_write: bool,
     pub z_buffer_test: bool,
@@ -31,18 +29,13 @@ pub struct BaseMaterialFile {
     pub two_sided: bool,
     pub decal_no_fade: bool,
     pub non_occluder: bool,
-
     pub refraction: bool,
     pub refraction_falloff: bool,
     pub refraction_power: f32,
-
     pub environment_mapping: Option<bool>,
     pub environment_mapping_mask_scale: Option<f32>,
-
     pub depth_bias: Option<bool>,
-
     pub grayscale_to_palette_color: bool,
-
     pub mask_writes: Option<u8>,
 }
 
@@ -178,8 +171,31 @@ pub struct BGSM {
     pub root_material_path: Option<String>,
     pub aniso_lighting: bool,
     pub emit_enabled: bool,
-    pub emittance_color: Option<Color4<u8>>,
-    pub emittance_mult: f32
+    pub emittance_color: Option<Color3<f32>>,
+    pub emittance_mult: f32,
+    pub model_space_normals: bool,
+    pub external_emittance: bool,
+    pub lum_emittance: Option<f32>,
+    pub back_lighting: Option<bool>,
+    pub adaptive_emissive: Option<AdaptiveEmissive>,
+    pub receive_shadows: bool,
+    pub hide_secret: bool,
+    pub cast_shadows: bool,
+    pub dissolve_fade: bool,
+    pub assume_shadowmask: bool,
+    pub glowmap: bool,
+    pub enviroment_mapping: Option<EnvironmentMapping>,
+    pub hair: bool,
+    pub hair_tint_color: Color3<f32>,
+    pub tree: bool,
+    pub facegen: bool,
+    pub skin_tint: bool,
+    pub tessellate: bool,
+    pub displacement_tessellation: Option<DisplacementTessellation>,
+    pub grayscale_to_pallette_scale: f32,
+    pub skew_specular_alpha: Option<bool>,
+    pub terrain: Option<bool>,
+    pub terrain_info: Option<TerrainInfo>,
 }
 
 
@@ -271,7 +287,6 @@ impl Parse<&[u8]> for BGSM {
             data = i;
         } else {
             let (i, lo) = LightingOptions::parse(i)?;
-            println!("Parsed lighting options: {:?}", lo);
             lighting_options = Some(lo);
             
             data = i;
@@ -283,15 +298,13 @@ impl Parse<&[u8]> for BGSM {
         let (i, smoothness) = le_f32(i)?;
         let (i, fresnel_power) = le_f32(i)?;
         let (i, wetness) = Wetness::parse_versioned(i, base.version)?;
-        println!("Parsed wetness: {:?}", wetness);
 
-
+        data = i;
 
         let (i, pbr) = if base.version > 2 {
             let (i, pbr) = parse_u8_bool(i)?;
             (i, Some(pbr))
         } else {
-            println!("Skipping PBR parsing for version {}", base.version);
             (i, None)
         };
 
@@ -306,85 +319,94 @@ impl Parse<&[u8]> for BGSM {
             porosity_value = Some(pv);
 
             data = i;
-        } else {
-            println!("Skipping porosity parsing for version {}", base.version);
         }
-
-        let (_, next_value) = le_u32(data)?;
-        println!("Next value after porosity (if applicable): {}", next_value);
 
         let (i, rmp) = parse_u32_esm_string(data)?;
         let root_material_path = empty_string_to_none(rmp);
 
-        // s
 
-        //     AnisoLighting = input.ReadBoolean();
-        //     EmitEnabled = input.ReadBoolean();
+        let (i, aniso_lighting) = parse_u8_bool(i)?;
+        let (i, emit_enabled) = parse_u8_bool(i)?;
 
-        //     if (EmitEnabled)
-        //     {
-        //         EmittanceColor = Color.Read(input).ToUInt32();
-        //     }
+        let (i, emittance_color) = if emit_enabled {
+            let (i, ec) = Color3::<f32>::parse(i)?;
+            (i, Some(ec))
+        } else {
+            (i, None)
+        };
 
-        //     EmittanceMult = input.ReadSingle();
-        //     ModelSpaceNormals = input.ReadBoolean();
-        //     ExternalEmittance = input.ReadBoolean();
+        let (i, emittance_mult) = le_f32(i)?;
+        let (i, model_space_normals) = parse_u8_bool(i)?;
+        let (i, external_emittance) = parse_u8_bool(i)?;
 
-        //     if (Version >= 12)
-        //     {
-        //         LumEmittance = input.ReadSingle();
-        //     }
+        let (i, lum_emittance) = if base.version >= 12 {
+            let (i, le) = le_f32(i)?;
+            (i, Some(le))
+        } else {
+            (i, None)
+        };
 
-        //     if (Version >= 13)
-        //     {
-        //         UseAdaptativeEmissive = input.ReadBoolean();
-        //         AdaptativeEmissive_ExposureOffset = input.ReadSingle();
-        //         AdaptativeEmissive_FinalExposureMin = input.ReadSingle();
-        //         AdaptativeEmissive_FinalExposureMax = input.ReadSingle();
-        //     }
+        let (i, adaptive_emissive) = if base.version >= 13 {
+            let (i, adaptive_emissive) = AdaptiveEmissive::parse(i)?;
+            (i,Some(adaptive_emissive))
+        } else {
+            (i,None)
+        };
 
-        //     if (Version < 8)
-        //     {
-        //         BackLighting = input.ReadBoolean();
-        //     }
+        let (i, back_lighting) = if base.version < 8 {
+            let (i, bl) = parse_u8_bool(i)?;
+            (i, Some(bl))
+        } else {
+            (i, None)
+        };
 
-        //     ReceiveShadows = input.ReadBoolean();
-        //     HideSecret = input.ReadBoolean();
-        //     CastShadows = input.ReadBoolean();
-        //     DissolveFade = input.ReadBoolean();
-        //     AssumeShadowmask = input.ReadBoolean();
+        let (i, receive_shadows) = parse_u8_bool(i)?;
+        let (i, hide_secret) = parse_u8_bool(i)?;
+        let (i, cast_shadows) = parse_u8_bool(i)?;
+        let (i, dissolve_fade) = parse_u8_bool(i)?;
+        let (i, assume_shadowmask) = parse_u8_bool(i)?;
+        let (i, glowmap) = parse_u8_bool(i)?;
 
-        //     Glowmap = input.ReadBoolean();
 
-        //     if (Version < 7)
-        //     {
-        //         EnvironmentMappingWindow = input.ReadBoolean();
-        //         EnvironmentMappingEye = input.ReadBoolean();
-        //     }
+        let (i, enviroment_mapping) = if base.version < 7 {
+            let (i, em) = EnvironmentMapping::parse(i)?;
+            (i, Some(em))
+        } else {
+            (i, None)
+        };
 
-        //     Hair = input.ReadBoolean();
-        //     HairTintColor = Color.Read(input).ToUInt32();
+        let (i, hair) = parse_u8_bool(i)?;
+        let (i, hair_tint_color) = Color3::<f32>::parse(i)?;
 
-        //     Tree = input.ReadBoolean();
-        //     Facegen = input.ReadBoolean();
-        //     SkinTint = input.ReadBoolean();
-        //     Tessellate = input.ReadBoolean();
+        let (i, tree) = parse_u8_bool(i)?;
+        let (i, facegen) = parse_u8_bool(i)?;
+        let (i, skin_tint) = parse_u8_bool(i)?;
+        let (i, tessellate) = parse_u8_bool(i)?;
 
-        //     if (Version < 3)
-        //     {
-        //         DisplacementTextureBias = input.ReadSingle();
-        //         DisplacementTextureScale = input.ReadSingle();
-        //         TessellationPnScale = input.ReadSingle();
-        //         TessellationBaseFactor = input.ReadSingle();
-        //         TessellationFadeDistance = input.ReadSingle();
-        //     }
+        let (i, displacement_tessellation) = if base.version < 3 {
+            let (i, dt) = DisplacementTessellation::parse(i)?;
+            (i, Some(dt))
+        } else {
+            (i, None)
+        };
 
-        //     GrayscaleToPaletteScale = input.ReadSingle();
+        let (i, grayscale_to_pallette_scale) = le_f32(i)?;
 
-        //     if (Version >= 1)
-        //     {
-        //         SkewSpecularAlpha = input.ReadBoolean();
-        //     }
+        let (i, skew_specular_alpha) = if base.version >= 1 {
+            let (i, ssa) = parse_u8_bool(i)?;
+            (i, Some(ssa))
+        } else {
+            (i, None)
+        };
+
+        let (i, terrain) = if base.version >= 3 {
+            let (i, t) = parse_u8_bool(i)?;
+            (i, Some(t))
+        } else {
+            (i, None)
+        };
+
+        
 
         //     if (Version >= 3)
         //     {
@@ -402,6 +424,13 @@ impl Parse<&[u8]> for BGSM {
         //             TerrainRotationAngle = input.ReadSingle();
         //         }
         //     }
+
+        let (i, terrain_info) = if base.version >= 3 && terrain == Some(true) {
+            let (i, ti) = TerrainInfo::parse_versioned(i, base.version)?;
+            (i, Some(ti))
+        } else {
+            (i, None)
+        };
 
 
         Ok((i, Self {
@@ -432,10 +461,33 @@ impl Parse<&[u8]> for BGSM {
             custom_porosity,
             porosity_value,
             root_material_path,
-            aniso_lighting: false,
-            emit_enabled: false,
-            emittance_color: None,
-            emittance_mult: 0.0,
+            aniso_lighting,
+            emit_enabled,
+            emittance_color,
+            emittance_mult,
+            model_space_normals,
+            external_emittance,
+            lum_emittance,
+            back_lighting,
+            adaptive_emissive,
+            receive_shadows,
+            hide_secret,
+            cast_shadows,
+            dissolve_fade,
+            assume_shadowmask,
+            glowmap,
+            enviroment_mapping,
+            hair,
+            hair_tint_color,
+            tree,
+            facegen,
+            skin_tint,
+            tessellate,
+            displacement_tessellation,
+            grayscale_to_pallette_scale,
+            skew_specular_alpha,
+            terrain,
+            terrain_info
         }))
     }
 }
@@ -449,7 +501,7 @@ pub struct TranslucencyOptions {
     pub translucency: bool,
     pub translucency_thick_object: bool,
     pub translucency_mix_albedo_with_subsurface_color: bool,
-    pub translucency_subsurface_color: Color4<u8>,
+    pub translucency_subsurface_color: Color3<f32>,
     pub translucency_transmissive_scale: f32,
     pub translucency_turbulence: f32,
 }
@@ -459,7 +511,7 @@ impl Parse<&[u8]> for TranslucencyOptions {
         let (i, translucency) = parse_u8_bool(i)?;
         let (i, translucency_thick_object) = parse_u8_bool(i)?;
         let (i, translucency_mix_albedo_with_subsurface_color) = parse_u8_bool(i)?;
-        let (i, translucency_subsurface_color) = Color4::<u8>::parse(i)?;
+        let (i, translucency_subsurface_color) = Color3::<f32>::parse(i)?;
         let (i, translucency_transmissive_scale) = le_f32(i)?;
         let (i, translucency_turbulence) = le_f32(i)?;
         Ok((i, Self {
@@ -540,6 +592,96 @@ impl ParseVersioned<u32> for Wetness {
             env_map_scale,
             fresnel_power,
             metalness,
+        }))
+    }
+}
+
+// ================================================================================
+
+#[derive(Debug, Default)]
+pub struct AdaptiveEmissive {
+    pub adaptive_emissive: bool,
+    pub adaptive_emissive_exposure_offset: f32,
+    pub adaptive_emissive_final_exposure_min: f32,
+    pub adaptive_emissive_final_exposure_max: f32,
+}
+
+impl Parse<&[u8]> for AdaptiveEmissive {
+    fn parse(i: &[u8]) -> nom::IResult<&[u8], Self> {
+        let (i, adaptive_emissive) = parse_u8_bool(i)?;
+        let (i, adaptive_emissive_exposure_offset) = le_f32(i)?;
+        let (i, adaptive_emissive_final_exposure_min) = le_f32(i)?;
+        let (i, adaptive_emissive_final_exposure_max) = le_f32(i)?;
+
+        Ok((i, Self {
+            adaptive_emissive,
+            adaptive_emissive_exposure_offset,
+            adaptive_emissive_final_exposure_min,
+            adaptive_emissive_final_exposure_max,
+        }))
+    }
+}
+
+// ================================================================================
+
+#[derive(Debug, Default)]
+pub struct EnvironmentMapping {
+    pub window: bool,
+    pub eye: bool,
+}
+
+impl Parse<&[u8]> for EnvironmentMapping {
+    fn parse(i: &[u8]) -> nom::IResult<&[u8], Self> {
+        let (i, window) = parse_u8_bool(i)?;
+        let (i, eye) = parse_u8_bool(i)?;
+
+        Ok((i, Self {
+            window,
+            eye,
+        }))
+    }
+}
+
+// ================================================================================
+
+#[derive(Debug, Default, NomLE)]
+pub struct DisplacementTessellation {
+    pub displacement_texture_bias: f32,
+    pub displacement_texture_scale: f32,
+    pub tessellation_pn_scale: f32,
+    pub tessellation_base_factor: f32,
+    pub tessellation_fade_distance: f32,
+}
+
+// ================================================================================
+
+#[derive(Debug, Default)]
+pub struct TerrainInfo {
+    pub unk_int_1: Option<u32>,
+    pub terrain_threshold_falloff: f32,
+    pub terrain_tiling_distance: f32,
+    pub terrain_rotation_angle: f32,
+}
+
+impl ParseVersioned<u32> for TerrainInfo {
+    fn parse_versioned(i: &[u8], version: u32) -> nom::IResult<&[u8], Self> {
+        
+        let (i, unk_int_1) = if version == 3 {
+            let (i, unk) = le_u32(i)?;
+            (i, Some(unk))
+        } else {
+            (i, None)
+        };
+
+        let (i, terrain_threshold_falloff) = le_f32(i)?;
+        let (i, terrain_tiling_distance) = le_f32(i)?;
+        let (i, terrain_rotation_angle) = le_f32(i)?;
+
+        Ok((i, Self {
+            unk_int_1,
+            terrain_threshold_falloff,
+            terrain_tiling_distance,
+            terrain_rotation_angle,
         }))
     }
 }
