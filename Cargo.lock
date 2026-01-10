@@ -1377,6 +1377,28 @@ dependencies = [
 ]
 
 [[package]]
+name = "bevy_tailwind"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4a31d2d5a9520f3c925a918c3a998ace81262289712ba0eb9c046bdbff54ac49"
+dependencies = [
+ "bevy",
+ "bevy_tailwind_macro",
+]
+
+[[package]]
+name = "bevy_tailwind_macro"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ca22a76ba4af451e5e89ae0cd10866e4172a40c7ca679fbf804282d43a7e44f1"
+dependencies = [
+ "indexmap",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.112",
+]
+
+[[package]]
 name = "bevy_tasks"
 version = "0.17.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1516,6 +1538,25 @@ dependencies = [
  "bytemuck",
  "derive_more",
  "tracing",
+]
+
+[[package]]
+name = "bevy_ui_widgets"
+version = "0.17.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d101911f24ad248701104490114e6933bdf016b2cca849cdb970ea62562b10ef"
+dependencies = [
+ "accesskit",
+ "bevy_a11y",
+ "bevy_app",
+ "bevy_ecs",
+ "bevy_input",
+ "bevy_input_focus",
+ "bevy_log",
+ "bevy_math",
+ "bevy_picking",
+ "bevy_reflect",
+ "bevy_ui",
 ]
 
 [[package]]
@@ -2301,6 +2342,8 @@ name = "editor"
 version = "0.1.0"
 dependencies = [
  "bevy",
+ "bevy_tailwind",
+ "bevy_ui_widgets",
 ]
 
 [[package]]
