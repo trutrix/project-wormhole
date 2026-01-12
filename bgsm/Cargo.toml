@@ -1,5 +1,5 @@
 [package]
-name = "bgsm"
+name = "project-wormhole-bgsm"
 version = "0.1.0"
 edition = "2024"
 

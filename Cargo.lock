@@ -1624,14 +1624,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "bgsm"
-version = "0.1.0"
-dependencies = [
- "nom-derive",
- "project-wormhole-shared",
-]
-
-[[package]]
 name = "bindgen"
 version = "0.72.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2344,6 +2336,11 @@ dependencies = [
  "bevy",
  "bevy_tailwind",
  "bevy_ui_widgets",
+ "project-wormhole-ba2",
+ "project-wormhole-bgsm",
+ "project-wormhole-esm",
+ "project-wormhole-nif",
+ "project-wormhole-shared",
 ]
 
 [[package]]
@@ -3481,25 +3478,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "nif"
-version = "0.1.0"
-dependencies = [
- "bytemuck",
- "fbxcel",
- "gltf",
- "half",
- "log",
- "nom-derive",
- "project-wormhole-ba2",
- "project-wormhole-esm",
- "project-wormhole-shared",
- "serde",
- "serde_json",
- "simplelog",
- "zerocopy",
-]
-
-[[package]]
 name = "nix"
 version = "0.30.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4202,6 +4180,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "project-wormhole-bgsm"
+version = "0.1.0"
+dependencies = [
+ "nom-derive",
+ "project-wormhole-shared",
+]
+
+[[package]]
 name = "project-wormhole-esm"
 version = "0.1.0"
 dependencies = [
@@ -4215,6 +4201,25 @@ dependencies = [
  "rayon",
  "serde",
  "serde_json",
+]
+
+[[package]]
+name = "project-wormhole-nif"
+version = "0.1.0"
+dependencies = [
+ "bytemuck",
+ "fbxcel",
+ "gltf",
+ "half",
+ "log",
+ "nom-derive",
+ "project-wormhole-ba2",
+ "project-wormhole-esm",
+ "project-wormhole-shared",
+ "serde",
+ "serde_json",
+ "simplelog",
+ "zerocopy",
 ]
 
 [[package]]

@@ -8,4 +8,8 @@ bevy = "0.17.3"
 bevy_tailwind = "0.4.0"
 bevy_ui_widgets = "0.17.3"
 
-
+project-wormhole-shared = { path = "../shared" }
+project-wormhole-esm = { path = "../esm" }
+project-wormhole-bgsm = { path = "../bgsm" }
+project-wormhole-nif = { path = "../nif" }
+project-wormhole-ba2 = { path = "../ba2" }

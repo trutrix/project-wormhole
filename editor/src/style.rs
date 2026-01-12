@@ -22,3 +22,8 @@ pub const SLIDER_THUMB: Color = Color::srgb(0.35, 0.75, 0.35);
 pub const ELEMENT_OUTLINE: Color = Color::srgb(0.45, 0.45, 0.45);
 pub const ELEMENT_FILL: Color = Color::srgb(0.35, 0.75, 0.35);
 pub const ELEMENT_FILL_DISABLED: Color = Color::srgb(0.5019608, 0.5019608, 0.5019608);
+
+
+
+pub const NAVBAR_COLOR_BG: Color = Color::srgb(0.1, 0.1, 0.12);
+pub const NAVBAR_TEXT_SIZE_DEFAULT: f32 = 14.0;

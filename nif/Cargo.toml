@@ -1,5 +1,5 @@
 [package]
-name = "nif"
+name = "project-wormhole-nif"
 version = "0.1.0"
 edition = "2021"
 
