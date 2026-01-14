@@ -18,16 +18,15 @@ use bevy::{
 };
 use bevy_ui_widgets::{Activate, Checkbox, CoreSliderDragState, RadioButton, RadioGroup, Slider, SliderRange, SliderThumb, SliderValue, TrackClick, UiWidgetsPlugins, ValueChange, checkbox_self_update, observe};
 
-mod style;
-use style::*;
 
 mod ui;
 use ui::*;
 use main_menu::main_menu;
+use ui::style::*;
 
 
 
-use crate::ui::button::{EditorButton, editor_button};
+use crate::ui::{button::{EditorButton, editor_button}, navbar::navbar_button::update_navbar_button_style};
 
 fn main() {
     App::new()
@@ -53,6 +52,7 @@ fn main() {
                 update_checkbox_or_radio_style.after(update_widget_values),
                 update_checkbox_or_radio_style2.after(update_widget_values),
                 toggle_disabled,
+                update_navbar_button_style,
             ),
         )
         .run();

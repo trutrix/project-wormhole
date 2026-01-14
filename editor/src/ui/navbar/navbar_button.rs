@@ -1,5 +1,8 @@
-use bevy::prelude::*;
+use bevy::{picking::hover::Hovered, prelude::*};
 use crate::style::*;
+
+#[derive(Component)]
+pub struct NavbarButton;
 
 pub fn navbar_button(asset_server: &AssetServer, label: &str) -> impl Bundle {
     (
@@ -9,6 +12,8 @@ pub fn navbar_button(asset_server: &AssetServer, label: &str) -> impl Bundle {
             ..default()
         },
         Button,
+        NavbarButton,
+        Hovered::default(),
         children![(
             Text::new(label),
             TextFont {
@@ -20,4 +25,31 @@ pub fn navbar_button(asset_server: &AssetServer, label: &str) -> impl Bundle {
             TextShadow::default(),
         )],
     )
+}
+
+
+pub fn update_navbar_button_style(
+    mut query: Query<
+        (
+            &Interaction,
+            &mut BackgroundColor,
+            &mut BorderColor,
+        ),
+        With<NavbarButton>,
+    >,
+) {
+    for (interaction, mut bg_color, mut border_color) in query.iter_mut() {
+        match *interaction {
+            Interaction::None => {
+                *bg_color = BackgroundColor(DEFAULT_BUTTON_BG);
+                *border_color = BorderColor::all(DEFAULT_BUTTON_BORDER_COLOR);
+            }
+            Interaction::Hovered => {
+                *bg_color = BackgroundColor(HOVERED_BUTTON);
+            }
+            Interaction::Pressed => {
+                *bg_color = BackgroundColor(PRESSED_BUTTON);
+            }
+        }
+    }
 }
