@@ -1,7 +1,5 @@
 //! This experimental example illustrates how to create widgets using the `bevy_ui_widgets` widget set.
 //!
-//! These widgets have no inherent styling, so this example also shows how to implement custom styles.
-//!
 //! The patterns shown here are likely to change substantially as the `bevy_ui_widgets` crate
 //! matures, so please exercise caution if you are using this as a reference for your own code,
 //! and note that there are still "user experience" issues with this API.
@@ -14,19 +12,14 @@ use bevy::{
     },
     picking::hover::Hovered,
     prelude::*,
+    reflect::Is,
     ui::{Checked, InteractionDisabled, Pressed}
 };
-use bevy_ui_widgets::{Activate, Checkbox, CoreSliderDragState, RadioButton, RadioGroup, Slider, SliderRange, SliderThumb, SliderValue, TrackClick, UiWidgetsPlugins, ValueChange, checkbox_self_update, observe};
 
-
-mod ui;
-use ui::*;
-use main_menu::main_menu;
-use ui::style::*;
-
-
-
-use crate::ui::{button::{EditorButton, editor_button}, navbar::navbar_button::update_navbar_button_style};
+use bevy_ui_widgets::{
+        checkbox_self_update, observe, Activate, Button, Checkbox, Slider, SliderRange,
+        SliderThumb, SliderValue, UiWidgetsPlugins, ValueChange,
+    };
 
 fn main() {
     App::new()
@@ -36,29 +29,38 @@ fn main() {
             InputDispatchPlugin,
             TabNavigationPlugin,
         ))
-        .insert_resource(DemoWidgetStates {
-            slider_value: 50.0,
-            slider_click: TrackClick::Snap,
-        })
+        .insert_resource(DemoWidgetStates { slider_value: 50.0 })
         .add_systems(Startup, setup)
-        .add_systems(
-            Update,
-            (
-                update_widget_values,
-                update_button_style,
-                update_button_style2,
-                update_slider_style.after(update_widget_values),
-                update_slider_style2.after(update_widget_values),
-                update_checkbox_or_radio_style.after(update_widget_values),
-                update_checkbox_or_radio_style2.after(update_widget_values),
-                toggle_disabled,
-                update_navbar_button_style,
-            ),
-        )
+        .add_observer(button_on_interaction::<Add, Pressed>)
+        .add_observer(button_on_interaction::<Remove, Pressed>)
+        .add_observer(button_on_interaction::<Add, InteractionDisabled>)
+        .add_observer(button_on_interaction::<Remove, InteractionDisabled>)
+        .add_observer(button_on_interaction::<Insert, Hovered>)
+        .add_observer(slider_on_interaction::<Add, InteractionDisabled>)
+        .add_observer(slider_on_interaction::<Remove, InteractionDisabled>)
+        .add_observer(slider_on_interaction::<Insert, Hovered>)
+        .add_observer(slider_on_change_value::<SliderValue>)
+        .add_observer(slider_on_change_value::<SliderRange>)
+        .add_observer(checkbox_on_interaction::<Add, InteractionDisabled>)
+        .add_observer(checkbox_on_interaction::<Remove, InteractionDisabled>)
+        .add_observer(checkbox_on_interaction::<Insert, Hovered>)
+        .add_observer(checkbox_on_interaction::<Add, Checked>)
+        .add_observer(checkbox_on_interaction::<Remove, Checked>)
+        .add_systems(Update, (update_widget_values, toggle_disabled))
         .run();
 }
 
+const NORMAL_BUTTON: Color = Color::srgb(0.15, 0.15, 0.15);
+const HOVERED_BUTTON: Color = Color::srgb(0.25, 0.25, 0.25);
+const PRESSED_BUTTON: Color = Color::srgb(0.35, 0.75, 0.35);
+const SLIDER_TRACK: Color = Color::srgb(0.05, 0.05, 0.05);
+const SLIDER_THUMB: Color = Color::srgb(0.35, 0.75, 0.35);
+const CHECKBOX_OUTLINE: Color = Color::srgb(0.45, 0.45, 0.45);
+const CHECKBOX_CHECK: Color = Color::srgb(0.35, 0.75, 0.35);
 
+/// Marker which identifies buttons with a particular style, in this case the "Demo style".
+#[derive(Component)]
+struct DemoButton;
 
 /// Marker which identifies sliders with a particular style.
 #[derive(Component, Default)]
@@ -72,11 +74,6 @@ struct DemoSliderThumb;
 #[derive(Component, Default)]
 struct DemoCheckbox;
 
-/// Marker which identifies a styled radio button. We'll use this to change the track click
-/// behavior.
-#[derive(Component, Default)]
-struct DemoRadio(TrackClick);
-
 /// A struct to hold the state of various widgets shown in the demo.
 ///
 /// While it is possible to use the widget's own state components as the source of truth,
@@ -86,41 +83,12 @@ struct DemoRadio(TrackClick);
 #[derive(Resource)]
 struct DemoWidgetStates {
     slider_value: f32,
-    slider_click: TrackClick,
-}
-
-/// Update the widget states based on the changing resource.
-fn update_widget_values(
-    res: Res<DemoWidgetStates>,
-    mut sliders: Query<(Entity, &mut Slider), With<DemoSlider>>,
-    radios: Query<(Entity, &DemoRadio, Has<Checked>)>,
-    mut commands: Commands,
-) {
-    if res.is_changed() {
-        for (slider_ent, mut slider) in sliders.iter_mut() {
-            commands
-                .entity(slider_ent)
-                .insert(SliderValue(res.slider_value));
-            slider.track_click = res.slider_click;
-        }
-
-        for (radio_id, radio_value, checked) in radios.iter() {
-            let will_be_checked = radio_value.0 == res.slider_click;
-            if will_be_checked != checked {
-                if will_be_checked {
-                    commands.entity(radio_id).insert(Checked);
-                } else {
-                    commands.entity(radio_id).remove::<Checked>();
-                }
-            }
-        }
-    }
 }
 
 fn setup(mut commands: Commands, assets: Res<AssetServer>) {
     // ui camera
     commands.spawn(Camera2d);
-    commands.spawn(main_menu(&assets));
+    commands.spawn(demo_root(&assets));
 }
 
 fn demo_root(asset_server: &AssetServer) -> impl Bundle {
@@ -138,7 +106,7 @@ fn demo_root(asset_server: &AssetServer) -> impl Bundle {
         TabGroup::default(),
         children![
             (
-                editor_button(asset_server),
+                button(asset_server),
                 observe(|_activate: On<Activate>| {
                     info!("Button clicked!");
                 }),
@@ -154,133 +122,100 @@ fn demo_root(asset_server: &AssetServer) -> impl Bundle {
             ),
             (
                 checkbox(asset_server, "Checkbox"),
-                observe(checkbox_self_update)
-            ),
-            (
-                radio_group(asset_server),
-                observe(
-                    |value_change: On<ValueChange<Entity>>,
-                     mut widget_states: ResMut<DemoWidgetStates>,
-                     q_radios: Query<&DemoRadio>| {
-                        if let Ok(radio) = q_radios.get(value_change.value) {
-                            widget_states.slider_click = radio.0;
-                        }
-                    },
-                )
+                observe(checkbox_self_update),
             ),
             Text::new("Press 'D' to toggle widget disabled states"),
         ],
     )
 }
 
-
-
-fn update_button_style(
-    mut buttons: Query<
-        (
-            Has<Pressed>,
-            &Hovered,
-            Has<InteractionDisabled>,
-            &mut BackgroundColor,
-            &mut BorderColor,
-            &Children,
-        ),
-        (
-            Or<(
-                Changed<Pressed>,
-                Changed<Hovered>,
-                Added<InteractionDisabled>,
-            )>,
-            With<EditorButton>,
-        ),
-    >,
-    mut text_query: Query<&mut Text>,
-) {
-    for (pressed, hovered, disabled, mut color, mut border_color, children) in &mut buttons {
-        let mut text = text_query.get_mut(children[0]).unwrap();
-        set_button_style(
-            disabled,
-            hovered.get(),
-            pressed,
-            &mut color,
-            &mut border_color,
-            &mut text,
-        );
-    }
+fn button(asset_server: &AssetServer) -> impl Bundle {
+    (
+        Node {
+            width: px(150),
+            height: px(65),
+            border: UiRect::all(px(5)),
+            justify_content: JustifyContent::Center,
+            align_items: AlignItems::Center,
+            border_radius: BorderRadius::MAX,
+            ..default()
+        },
+        DemoButton,
+        Button,
+        Hovered::default(),
+        TabIndex(0),
+        BorderColor::all(Color::BLACK),
+        BackgroundColor(NORMAL_BUTTON),
+        children![(
+            Text::new("Button"),
+            TextFont {
+                font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                font_size: 33.0,
+                ..default()
+            },
+            TextColor(Color::srgb(0.9, 0.9, 0.9)),
+            TextShadow::default(),
+        )],
+    )
 }
 
-/// Supplementary system to detect removed marker components
-fn update_button_style2(
+fn button_on_interaction<E: EntityEvent, C: Component>(
+    event: On<E, C>,
     mut buttons: Query<
         (
-            Has<Pressed>,
             &Hovered,
             Has<InteractionDisabled>,
+            Has<Pressed>,
             &mut BackgroundColor,
             &mut BorderColor,
             &Children,
         ),
-        With<EditorButton>,
+        With<DemoButton>,
     >,
-    mut removed_depressed: RemovedComponents<Pressed>,
-    mut removed_disabled: RemovedComponents<InteractionDisabled>,
     mut text_query: Query<&mut Text>,
 ) {
-    removed_depressed
-        .read()
-        .chain(removed_disabled.read())
-        .for_each(|entity| {
-            if let Ok((pressed, hovered, disabled, mut color, mut border_color, children)) =
-                buttons.get_mut(entity)
-            {
-                let mut text = text_query.get_mut(children[0]).unwrap();
-                set_button_style(
-                    disabled,
-                    hovered.get(),
-                    pressed,
-                    &mut color,
-                    &mut border_color,
-                    &mut text,
-                );
+    if let Ok((hovered, disabled, pressed, mut color, mut border_color, children)) =
+        buttons.get_mut(event.event_target())
+    {
+        if children.is_empty() {
+            return;
+        }
+        let Ok(mut text) = text_query.get_mut(children[0]) else {
+            return;
+        };
+        let hovered = hovered.get();
+        // These "removal event checks" exist because the `Remove` event is triggered _before_ the component is actually
+        // removed, meaning it still shows up in the query. We're investigating the best way to improve this scenario.
+        let pressed = pressed && !(E::is::<Remove>() && C::is::<Pressed>());
+        let disabled = disabled && !(E::is::<Remove>() && C::is::<InteractionDisabled>());
+        match (disabled, hovered, pressed) {
+            // Disabled button
+            (true, _, _) => {
+                **text = "Disabled".to_string();
+                *color = NORMAL_BUTTON.into();
+                border_color.set_all(GRAY);
             }
-        });
-}
 
-fn set_button_style(
-    disabled: bool,
-    hovered: bool,
-    pressed: bool,
-    color: &mut BackgroundColor,
-    border_color: &mut BorderColor,
-    text: &mut Text,
-) {
-    match (disabled, hovered, pressed) {
-        // Disabled button
-        (true, _, _) => {
-            **text = "Disabled".to_string();
-            *color = DEFAULT_BUTTON_BG.into();
-            border_color.set_all(GRAY);
-        }
+            // Pressed and hovered button
+            (false, true, true) => {
+                **text = "Press".to_string();
+                *color = PRESSED_BUTTON.into();
+                border_color.set_all(RED);
+            }
 
-        // Pressed and hovered button
-        (false, true, true) => {
-            **text = "Press".to_string();
-            *color = PRESSED_BUTTON.into();
-            border_color.set_all(RED);
-        }
+            // Hovered, unpressed button
+            (false, true, false) => {
+                **text = "Hover".to_string();
+                *color = HOVERED_BUTTON.into();
+                border_color.set_all(WHITE);
+            }
 
-        // Hovered, unpressed button
-        (false, true, false) => {
-            **text = "Hover".to_string();
-            *color = HOVERED_BUTTON.into();
-            border_color.set_all(WHITE);
-        }
-
-        // Unhovered button (either pressed or not).
-        (false, false, _) => {
-            **text = "Button".to_string();
-            *color = DEFAULT_BUTTON_BG.into();
-            border_color.set_all(BLACK);
+            // Unhovered button (either pressed or not).
+            (false, false, _) => {
+                **text = "Button".to_string();
+                *color = NORMAL_BUTTON.into();
+                border_color.set_all(BLACK);
+            }
         }
     }
 }
@@ -302,9 +237,7 @@ fn slider(min: f32, max: f32, value: f32) -> impl Bundle {
         Name::new("Slider"),
         Hovered::default(),
         DemoSlider,
-        Slider {
-            track_click: TrackClick::Snap,
-        },
+        Slider::default(),
         SliderValue(value),
         SliderRange::new(min, max),
         TabIndex(0),
@@ -313,10 +246,10 @@ fn slider(min: f32, max: f32, value: f32) -> impl Bundle {
             Spawn((
                 Node {
                     height: px(6),
+                    border_radius: BorderRadius::all(px(3)),
                     ..default()
                 },
-                BackgroundColor(SLIDER_TRACK), // Border color for the slider
-                BorderRadius::all(px(3)),
+                BackgroundColor(SLIDER_TRACK), // Border color for the checkbox
             )),
             // Invisible track to allow absolute placement of thumb entity. This is narrower than
             // the actual slider, which allows us to position the thumb entity using simple
@@ -342,9 +275,9 @@ fn slider(min: f32, max: f32, value: f32) -> impl Bundle {
                         height: px(12),
                         position_type: PositionType::Absolute,
                         left: percent(0), // This will be updated by the slider's value
+                        border_radius: BorderRadius::MAX,
                         ..default()
                     },
-                    BorderRadius::MAX,
                     BackgroundColor(SLIDER_THUMB),
                 )],
             )),
@@ -352,73 +285,46 @@ fn slider(min: f32, max: f32, value: f32) -> impl Bundle {
     )
 }
 
-/// Update the visuals of the slider based on the slider state.
-fn update_slider_style(
-    sliders: Query<
-        (
-            Entity,
-            &SliderValue,
-            &SliderRange,
-            &Hovered,
-            &CoreSliderDragState,
-            Has<InteractionDisabled>,
-        ),
-        (
-            Or<(
-                Changed<SliderValue>,
-                Changed<SliderRange>,
-                Changed<Hovered>,
-                Changed<CoreSliderDragState>,
-                Added<InteractionDisabled>,
-            )>,
-            With<DemoSlider>,
-        ),
-    >,
+fn slider_on_interaction<E: EntityEvent, C: Component>(
+    event: On<E, C>,
+    sliders: Query<(Entity, &Hovered, Has<InteractionDisabled>), With<DemoSlider>>,
     children: Query<&Children>,
-    mut thumbs: Query<(&mut Node, &mut BackgroundColor, Has<DemoSliderThumb>), Without<DemoSlider>>,
+    mut thumbs: Query<(&mut BackgroundColor, Has<DemoSliderThumb>), Without<DemoSlider>>,
 ) {
-    for (slider_ent, value, range, hovered, drag_state, disabled) in sliders.iter() {
+    if let Ok((slider_ent, hovered, disabled)) = sliders.get(event.event_target()) {
+        // These "removal event checks" exist because the `Remove` event is triggered _before_ the component is actually
+        // removed, meaning it still shows up in the query. We're investigating the best way to improve this scenario.
+        let disabled = disabled && !(E::is::<Remove>() && C::is::<InteractionDisabled>());
         for child in children.iter_descendants(slider_ent) {
-            if let Ok((mut thumb_node, mut thumb_bg, is_thumb)) = thumbs.get_mut(child)
+            if let Ok((mut thumb_bg, is_thumb)) = thumbs.get_mut(child)
                 && is_thumb
             {
-                thumb_node.left = percent(range.thumb_position(value.0) * 100.0);
-                thumb_bg.0 = thumb_color(disabled, hovered.0 | drag_state.dragging);
+                thumb_bg.0 = thumb_color(disabled, hovered.0);
             }
         }
     }
 }
 
-fn update_slider_style2(
-    sliders: Query<
-        (
-            Entity,
-            &Hovered,
-            &CoreSliderDragState,
-            Has<InteractionDisabled>,
-        ),
-        With<DemoSlider>,
-    >,
+fn slider_on_change_value<C: Component>(
+    insert: On<Insert, C>,
+    sliders: Query<(Entity, &SliderValue, &SliderRange), With<DemoSlider>>,
     children: Query<&Children>,
-    mut thumbs: Query<(&mut BackgroundColor, Has<DemoSliderThumb>), Without<DemoSlider>>,
-    mut removed_disabled: RemovedComponents<InteractionDisabled>,
+    mut thumbs: Query<(&mut Node, Has<DemoSliderThumb>), Without<DemoSlider>>,
 ) {
-    removed_disabled.read().for_each(|entity| {
-        if let Ok((slider_ent, hovered, drag_state, disabled)) = sliders.get(entity) {
-            for child in children.iter_descendants(slider_ent) {
-                if let Ok((mut thumb_bg, is_thumb)) = thumbs.get_mut(child)
-                    && is_thumb
-                {
-                    thumb_bg.0 = thumb_color(disabled, hovered.0 | drag_state.dragging);
-                }
+    if let Ok((slider_ent, value, range)) = sliders.get(insert.entity) {
+        for child in children.iter_descendants(slider_ent) {
+            if let Ok((mut thumb_node, is_thumb)) = thumbs.get_mut(child)
+                && is_thumb
+            {
+                thumb_node.left = percent(range.thumb_position(value.0) * 100.0);
             }
         }
-    });
+    }
 }
 
 fn thumb_color(disabled: bool, hovered: bool) -> Color {
     match (disabled, hovered) {
-        (true, _) => ELEMENT_FILL_DISABLED,
+        (true, _) => GRAY.into(),
 
         (false, true) => SLIDER_THUMB.lighter(0.3),
 
@@ -451,10 +357,10 @@ fn checkbox(asset_server: &AssetServer, caption: &str) -> impl Bundle {
                     width: px(16),
                     height: px(16),
                     border: UiRect::all(px(2)),
+                    border_radius: BorderRadius::all(px(3)),
                     ..default()
                 },
-                BorderColor::all(ELEMENT_OUTLINE), // Border color for the checkbox
-                BorderRadius::all(px(3)),
+                BorderColor::all(CHECKBOX_OUTLINE), // Border color for the checkbox
                 children![
                     // Checkbox inner
                     (
@@ -467,7 +373,7 @@ fn checkbox(asset_server: &AssetServer, caption: &str) -> impl Bundle {
                             top: px(2),
                             ..default()
                         },
-                        BackgroundColor(ELEMENT_FILL),
+                        BackgroundColor(Srgba::NONE.into()),
                     ),
                 ],
             )),
@@ -483,229 +389,87 @@ fn checkbox(asset_server: &AssetServer, caption: &str) -> impl Bundle {
     )
 }
 
-// Update the element's styles.
-fn update_checkbox_or_radio_style(
-    mut q_checkbox: Query<
-        (Has<Checked>, &Hovered, Has<InteractionDisabled>, &Children),
-        (
-            Or<(With<DemoCheckbox>, With<DemoRadio>)>,
-            Or<(
-                Added<DemoCheckbox>,
-                Changed<Hovered>,
-                Added<Checked>,
-                Added<InteractionDisabled>,
-            )>,
-        ),
+fn checkbox_on_interaction<E: EntityEvent, C: Component>(
+    event: On<E, C>,
+    checkboxes: Query<
+        (&Hovered, Has<InteractionDisabled>, Has<Checked>, &Children),
+        With<DemoCheckbox>,
     >,
-    mut q_border_color: Query<
-        (&mut BorderColor, &mut Children),
-        (Without<DemoCheckbox>, Without<DemoRadio>),
-    >,
-    mut q_bg_color: Query<&mut BackgroundColor, (Without<DemoCheckbox>, Without<Children>)>,
+    mut borders: Query<(&mut BorderColor, &mut Children), Without<DemoCheckbox>>,
+    mut marks: Query<&mut BackgroundColor, (Without<DemoCheckbox>, Without<Children>)>,
 ) {
-    for (checked, Hovered(is_hovering), is_disabled, children) in q_checkbox.iter_mut() {
+    if let Ok((hovered, disabled, checked, children)) = checkboxes.get(event.event_target()) {
+        let hovered = hovered.get();
+        // These "removal event checks" exist because the `Remove` event is triggered _before_ the component is actually
+        // removed, meaning it still shows up in the query. We're investigating the best way to improve this scenario.
+        let checked = checked && !(E::is::<Remove>() && C::is::<Checked>());
+        let disabled = disabled && !(E::is::<Remove>() && C::is::<InteractionDisabled>());
+
         let Some(border_id) = children.first() else {
-            continue;
+            return;
         };
 
-        let Ok((mut border_color, border_children)) = q_border_color.get_mut(*border_id) else {
-            continue;
+        let Ok((mut border_color, border_children)) = borders.get_mut(*border_id) else {
+            return;
         };
 
         let Some(mark_id) = border_children.first() else {
             warn!("Checkbox does not have a mark entity.");
-            continue;
+            return;
         };
 
-        let Ok(mut mark_bg) = q_bg_color.get_mut(*mark_id) else {
+        let Ok(mut mark_bg) = marks.get_mut(*mark_id) else {
             warn!("Checkbox mark entity lacking a background color.");
-            continue;
+            return;
         };
 
-        set_checkbox_or_radio_style(
-            is_disabled,
-            *is_hovering,
-            checked,
-            &mut border_color,
-            &mut mark_bg,
-        );
+        let color: Color = if disabled {
+            // If the checkbox is disabled, use a lighter color
+            CHECKBOX_OUTLINE.with_alpha(0.2)
+        } else if hovered {
+            // If hovering, use a lighter color
+            CHECKBOX_OUTLINE.lighter(0.2)
+        } else {
+            // Default color for the checkbox
+            CHECKBOX_OUTLINE
+        };
+
+        // Update the background color of the check mark
+        border_color.set_all(color);
+
+        let mark_color: Color = match (disabled, checked) {
+            (true, true) => CHECKBOX_CHECK.with_alpha(0.5),
+            (false, true) => CHECKBOX_CHECK,
+            (_, false) => Srgba::NONE.into(),
+        };
+
+        if mark_bg.0 != mark_color {
+            // Update the color of the check mark
+            mark_bg.0 = mark_color;
+        }
     }
 }
 
-fn update_checkbox_or_radio_style2(
-    mut q_checkbox: Query<
-        (Has<Checked>, &Hovered, Has<InteractionDisabled>, &Children),
-        Or<(With<DemoCheckbox>, With<DemoRadio>)>,
-    >,
-    mut q_border_color: Query<
-        (&mut BorderColor, &mut Children),
-        (Without<DemoCheckbox>, Without<DemoRadio>),
-    >,
-    mut q_bg_color: Query<
-        &mut BackgroundColor,
-        (Without<DemoCheckbox>, Without<DemoRadio>, Without<Children>),
-    >,
-    mut removed_checked: RemovedComponents<Checked>,
-    mut removed_disabled: RemovedComponents<InteractionDisabled>,
+/// Update the widget states based on the changing resource.
+fn update_widget_values(
+    res: Res<DemoWidgetStates>,
+    mut sliders: Query<Entity, With<DemoSlider>>,
+    mut commands: Commands,
 ) {
-    removed_checked
-        .read()
-        .chain(removed_disabled.read())
-        .for_each(|entity| {
-            if let Ok((checked, Hovered(is_hovering), is_disabled, children)) =
-                q_checkbox.get_mut(entity)
-            {
-                let Some(border_id) = children.first() else {
-                    return;
-                };
-
-                let Ok((mut border_color, border_children)) = q_border_color.get_mut(*border_id)
-                else {
-                    return;
-                };
-
-                let Some(mark_id) = border_children.first() else {
-                    warn!("Checkbox does not have a mark entity.");
-                    return;
-                };
-
-                let Ok(mut mark_bg) = q_bg_color.get_mut(*mark_id) else {
-                    warn!("Checkbox mark entity lacking a background color.");
-                    return;
-                };
-
-                set_checkbox_or_radio_style(
-                    is_disabled,
-                    *is_hovering,
-                    checked,
-                    &mut border_color,
-                    &mut mark_bg,
-                );
-            }
-        });
-}
-
-fn set_checkbox_or_radio_style(
-    disabled: bool,
-    hovering: bool,
-    checked: bool,
-    border_color: &mut BorderColor,
-    mark_bg: &mut BackgroundColor,
-) {
-    let color: Color = if disabled {
-        // If the element is disabled, use a lighter color
-        ELEMENT_OUTLINE.with_alpha(0.2)
-    } else if hovering {
-        // If hovering, use a lighter color
-        ELEMENT_OUTLINE.lighter(0.2)
-    } else {
-        // Default color for the element
-        ELEMENT_OUTLINE
-    };
-
-    // Update the background color of the element
-    border_color.set_all(color);
-
-    let mark_color: Color = match (disabled, checked) {
-        (true, true) => ELEMENT_FILL_DISABLED,
-        (false, true) => ELEMENT_FILL,
-        (_, false) => Srgba::NONE.into(),
-    };
-
-    if mark_bg.0 != mark_color {
-        // Update the color of the element
-        mark_bg.0 = mark_color;
+    if res.is_changed() {
+        for slider_ent in sliders.iter_mut() {
+            commands
+                .entity(slider_ent)
+                .insert(SliderValue(res.slider_value));
+        }
     }
-}
-
-/// Create a demo radio group
-fn radio_group(asset_server: &AssetServer) -> impl Bundle {
-    (
-        Node {
-            display: Display::Flex,
-            flex_direction: FlexDirection::Column,
-            align_items: AlignItems::Start,
-            column_gap: px(4),
-            ..default()
-        },
-        Name::new("RadioGroup"),
-        RadioGroup,
-        TabIndex::default(),
-        children![
-            (radio(asset_server, TrackClick::Drag, "Slider Drag"),),
-            (radio(asset_server, TrackClick::Step, "Slider Step"),),
-            (radio(asset_server, TrackClick::Snap, "Slider Snap"),)
-        ],
-    )
-}
-
-/// Create a demo radio button
-fn radio(asset_server: &AssetServer, value: TrackClick, caption: &str) -> impl Bundle {
-    (
-        Node {
-            display: Display::Flex,
-            flex_direction: FlexDirection::Row,
-            justify_content: JustifyContent::FlexStart,
-            align_items: AlignItems::Center,
-            align_content: AlignContent::Center,
-            column_gap: px(4),
-            ..default()
-        },
-        Name::new("RadioButton"),
-        Hovered::default(),
-        DemoRadio(value),
-        RadioButton,
-        Children::spawn((
-            Spawn((
-                // Radio outer
-                Node {
-                    display: Display::Flex,
-                    width: px(16),
-                    height: px(16),
-                    border: UiRect::all(px(2)),
-                    ..default()
-                },
-                BorderColor::all(ELEMENT_OUTLINE), // Border color for the radio button
-                BorderRadius::MAX,
-                children![
-                    // Radio inner
-                    (
-                        Node {
-                            display: Display::Flex,
-                            width: px(8),
-                            height: px(8),
-                            position_type: PositionType::Absolute,
-                            left: px(2),
-                            top: px(2),
-                            ..default()
-                        },
-                        BorderRadius::MAX,
-                        BackgroundColor(ELEMENT_FILL),
-                    ),
-                ],
-            )),
-            Spawn((
-                Text::new(caption),
-                TextFont {
-                    font: asset_server.load("fonts/FiraSans-Bold.ttf"),
-                    font_size: 20.0,
-                    ..default()
-                },
-            )),
-        )),
-    )
 }
 
 fn toggle_disabled(
     input: Res<ButtonInput<KeyCode>>,
     mut interaction_query: Query<
         (Entity, Has<InteractionDisabled>),
-        Or<(
-            With<Button>,
-            With<Slider>,
-            With<Checkbox>,
-            With<RadioButton>,
-        )>,
+        Or<(With<Button>, With<Slider>, With<Checkbox>)>,
     >,
     mut commands: Commands,
 ) {
