@@ -4,6 +4,8 @@
 //! matures, so please exercise caution if you are using this as a reference for your own code,
 //! and note that there are still "user experience" issues with this API.
 
+mod ui;
+
 use bevy::{
     color::palettes::basic::*,
     input_focus::{
@@ -20,6 +22,8 @@ use bevy_ui_widgets::{
         checkbox_self_update, observe, Activate, Button, Checkbox, Slider, SliderRange,
         SliderThumb, SliderValue, UiWidgetsPlugins, ValueChange,
     };
+
+use crate::ui::{components::button::ButtonNormal, pages::landing::landing_page};
 
 fn main() {
     App::new()
@@ -88,7 +92,7 @@ struct DemoWidgetStates {
 fn setup(mut commands: Commands, assets: Res<AssetServer>) {
     // ui camera
     commands.spawn(Camera2d);
-    commands.spawn(demo_root(&assets));
+    commands.spawn(landing_page(&assets));
 }
 
 fn demo_root(asset_server: &AssetServer) -> impl Bundle {

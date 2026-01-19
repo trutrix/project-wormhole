@@ -2,7 +2,7 @@ pub mod navbar_button;
 use bevy_ui_widgets::{Activate, observe};
 use navbar_button::navbar_button;
 
-use crate::style::*;
+use crate::ui::style::*;
 use bevy::{prelude::*};
 
 

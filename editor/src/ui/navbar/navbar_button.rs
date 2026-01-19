@@ -1,5 +1,5 @@
 use bevy::{picking::hover::Hovered, prelude::*};
-use crate::style::*;
+use crate::ui::style::*;
 
 #[derive(Component)]
 pub struct NavbarButton;
