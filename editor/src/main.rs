@@ -1,491 +1,245 @@
-//! This experimental example illustrates how to create widgets using the `bevy_ui_widgets` widget set.
-//!
-//! The patterns shown here are likely to change substantially as the `bevy_ui_widgets` crate
-//! matures, so please exercise caution if you are using this as a reference for your own code,
-//! and note that there are still "user experience" issues with this API.
+use bevy::{image::ImageSamplerDescriptor, input::mouse::MouseWheel, prelude::*};
+use bevy_aseprite_ultra::prelude::*;
+use bevy_hui::prelude::*;
 
-mod ui;
-
-use bevy::{
-    color::palettes::basic::*,
-    input_focus::{
-        tab_navigation::{TabGroup, TabIndex, TabNavigationPlugin},
-        InputDispatchPlugin,
-    },
-    picking::hover::Hovered,
-    prelude::*,
-    reflect::Is,
-    ui::{Checked, InteractionDisabled, Pressed}
-};
-
-use bevy_ui_widgets::{
-        checkbox_self_update, observe, Activate, Button, Checkbox, Slider, SliderRange,
-        SliderThumb, SliderValue, UiWidgetsPlugins, ValueChange,
-    };
-
-use crate::ui::{components::button::ButtonNormal, pages::landing::landing_page};
 
 fn main() {
     App::new()
         .add_plugins((
             DefaultPlugins,
-            UiWidgetsPlugins,
-            InputDispatchPlugin,
-            TabNavigationPlugin,
+            AsepriteUltraPlugin,
+            HuiPlugin,
+            HuiAutoLoadPlugin::new(&["components"])
         ))
-        .insert_resource(DemoWidgetStates { slider_value: 50.0 })
-        .add_systems(Startup, setup)
-        .add_observer(button_on_interaction::<Add, Pressed>)
-        .add_observer(button_on_interaction::<Remove, Pressed>)
-        .add_observer(button_on_interaction::<Add, InteractionDisabled>)
-        .add_observer(button_on_interaction::<Remove, InteractionDisabled>)
-        .add_observer(button_on_interaction::<Insert, Hovered>)
-        .add_observer(slider_on_interaction::<Add, InteractionDisabled>)
-        .add_observer(slider_on_interaction::<Remove, InteractionDisabled>)
-        .add_observer(slider_on_interaction::<Insert, Hovered>)
-        .add_observer(slider_on_change_value::<SliderValue>)
-        .add_observer(slider_on_change_value::<SliderRange>)
-        .add_observer(checkbox_on_interaction::<Add, InteractionDisabled>)
-        .add_observer(checkbox_on_interaction::<Remove, InteractionDisabled>)
-        .add_observer(checkbox_on_interaction::<Insert, Hovered>)
-        .add_observer(checkbox_on_interaction::<Add, Checked>)
-        .add_observer(checkbox_on_interaction::<Remove, Checked>)
-        .add_systems(Update, (update_widget_values, toggle_disabled))
+        
+        .add_systems(OnEnter(AutoLoadState::Finished), setup)
+        .add_systems(
+            Update,
+            (update_puls, update_collapse, update_scroll, cleaner),
+        )
         .run();
 }
 
-const NORMAL_BUTTON: Color = Color::srgb(0.15, 0.15, 0.15);
-const HOVERED_BUTTON: Color = Color::srgb(0.25, 0.25, 0.25);
-const PRESSED_BUTTON: Color = Color::srgb(0.35, 0.75, 0.35);
-const SLIDER_TRACK: Color = Color::srgb(0.05, 0.05, 0.05);
-const SLIDER_THUMB: Color = Color::srgb(0.35, 0.75, 0.35);
-const CHECKBOX_OUTLINE: Color = Color::srgb(0.45, 0.45, 0.45);
-const CHECKBOX_CHECK: Color = Color::srgb(0.35, 0.75, 0.35);
 
-/// Marker which identifies buttons with a particular style, in this case the "Demo style".
+fn setup(
+    mut cmd: Commands,
+    server: Res<AssetServer>,
+
+    mut html_funcs: HtmlFunctions,
+    mut html_comps: HtmlComponents,
+) {
+    cmd.spawn(Camera2d);
+
+
+    cmd.spawn((
+        HtmlNode(server.load("components/navbar.html")),
+        TemplateProperties::default().with("title", "Editor"),
+    ));
+
+    // register function bindings
+    html_funcs.register("greet", greet);
+    html_funcs.register("inventory", init_inventory);
+    html_funcs.register("scrollable", init_scrollable);
+    html_funcs.register("play_beep", play_beep);
+    html_funcs.register("collapse", |In(entity), mut cmd: Commands| {
+        cmd.entity(entity).insert(Collapse(true));
+    });
+
+    html_comps.register("gb", server.load("components/general-button.html"));
+
+    html_funcs.register(
+        "attach_aseprite",
+        |In(entity), tags: Query<&Tags>, mut cmd: Commands, server: Res<AssetServer>| {
+            let Ok(tags) = tags.get(entity) else {
+                return;
+            };
+
+            let Some(ase_path) = tags.get("source") else {
+                warn!("missing `source` for aseprite component {entity}");
+                return;
+            };
+
+            let animation = tags
+                .get("animation")
+                .map(|s| Animation::tag(s))
+                .unwrap_or(Animation::default());
+
+            cmd.entity(entity).insert(AseAnimation {
+                aseprite: server.load(ase_path),
+                animation,
+            });
+        },
+    );
+
+    // register custom node by passing a template handle
+    html_comps.register_with_spawn_fn("panel", server.load("demo/panel.html"), |mut cmd| {
+        cmd.insert(Name::new("Panel"));
+    });
+
+    html_comps.register("aseprite", server.load("demo/aseprite.html"));
+
+    // a function that updates a property and triggers a recompile
+    html_funcs.register(
+        "debug",
+        |In(entity),
+         mut cmd: Commands,
+         mut template_props: Query<&mut TemplateProperties>,
+         scopes: Query<&TemplateScope>| {
+            let Ok(scope) = scopes.get(entity) else {
+                return;
+            };
+
+            let Ok(mut props) = template_props.get_mut(**scope) else {
+                return;
+            };
+
+            let rng = rand::random::<u32>();
+            props.insert("title".to_string(), format!("{}", rng));
+            cmd.trigger(CompileContextEvent { entity: **scope });
+        },
+    );
+}
+
+
+#[derive(Component, Deref, DerefMut, Default)]
+pub struct Collapse(pub bool);
+
+fn update_collapse(
+    mut interactions: Query<(&Interaction, &UiTarget, &mut Collapse), Changed<Interaction>>,
+    mut style: Query<&mut HtmlStyle>,
+) {
+    interactions
+        .iter_mut()
+        .for_each(|(interaction, target, mut collapse)| {
+            let Interaction::Pressed = interaction else {
+                return;
+            };
+
+            let display = match **collapse {
+                true => {
+                    **collapse = false;
+                    Display::None
+                }
+                false => {
+                    **collapse = true;
+                    Display::Flex
+                }
+            };
+
+            if let Ok(mut style) = style.get_mut(**target) {
+                style.computed.node.display = display;
+            }
+        });
+}
+
 #[derive(Component)]
-struct DemoButton;
-
-/// Marker which identifies sliders with a particular style.
-#[derive(Component, Default)]
-struct DemoSlider;
-
-/// Marker which identifies the slider's thumb element.
-#[derive(Component, Default)]
-struct DemoSliderThumb;
-
-/// Marker which identifies checkboxes with a particular style.
-#[derive(Component, Default)]
-struct DemoCheckbox;
-
-/// A struct to hold the state of various widgets shown in the demo.
-///
-/// While it is possible to use the widget's own state components as the source of truth,
-/// in many cases widgets will be used to display dynamic data coming from deeper within the app,
-/// using some kind of data-binding. This example shows how to maintain an external source of
-/// truth for widget states.
-#[derive(Resource)]
-struct DemoWidgetStates {
-    slider_value: f32,
+pub struct Scrollable {
+    offset: f32,
+    speed: f32,
 }
 
-fn setup(mut commands: Commands, assets: Res<AssetServer>) {
-    // ui camera
-    commands.spawn(Camera2d);
-    commands.spawn(landing_page(&assets));
+fn init_scrollable(In(entity): In<Entity>, mut cmd: Commands, tags: Query<&Tags>) {
+    let scrollble = tags
+        .get(entity)
+        .ok()
+        .and_then(|tags| tags.get("scrollable"))
+        .map(|s| s == "true")
+        .unwrap_or(false);
+    if !scrollble {
+        return;
+    }
+    let speed = tags
+        .get(entity)
+        .ok()
+        .and_then(|tags| {
+            tags.get("scroll_speed")
+                .and_then(|fstr| fstr.parse::<f32>().ok())
+        })
+        .unwrap_or(10.);
+
+    cmd.entity(entity).insert(Scrollable { speed, offset: 0. });
 }
 
-fn demo_root(asset_server: &AssetServer) -> impl Bundle {
-    (
-        Node {
-            width: percent(100),
-            height: percent(100),
-            align_items: AlignItems::Center,
-            justify_content: JustifyContent::Center,
-            display: Display::Flex,
-            flex_direction: FlexDirection::Column,
-            row_gap: px(10),
-            ..default()
-        },
-        TabGroup::default(),
-        children![
-            (
-                button(asset_server),
-                observe(|_activate: On<Activate>| {
-                    info!("Button clicked!");
-                }),
-            ),
-            (
-                slider(0.0, 100.0, 50.0),
-                observe(
-                    |value_change: On<ValueChange<f32>>,
-                     mut widget_states: ResMut<DemoWidgetStates>| {
-                        widget_states.slider_value = value_change.value;
-                    },
-                )
-            ),
-            (
-                checkbox(asset_server, "Checkbox"),
-                observe(checkbox_self_update),
-            ),
-            Text::new("Press 'D' to toggle widget disabled states"),
-        ],
-    )
-}
-
-fn button(asset_server: &AssetServer) -> impl Bundle {
-    (
-        Node {
-            width: px(150),
-            height: px(65),
-            border: UiRect::all(px(5)),
-            justify_content: JustifyContent::Center,
-            align_items: AlignItems::Center,
-            border_radius: BorderRadius::MAX,
-            ..default()
-        },
-        DemoButton,
-        Button,
-        Hovered::default(),
-        TabIndex(0),
-        BorderColor::all(Color::BLACK),
-        BackgroundColor(NORMAL_BUTTON),
-        children![(
-            Text::new("Button"),
-            TextFont {
-                font: asset_server.load("fonts/FiraSans-Bold.ttf"),
-                font_size: 33.0,
-                ..default()
-            },
-            TextColor(Color::srgb(0.9, 0.9, 0.9)),
-            TextShadow::default(),
-        )],
-    )
-}
-
-fn button_on_interaction<E: EntityEvent, C: Component>(
-    event: On<E, C>,
-    mut buttons: Query<
-        (
-            &Hovered,
-            Has<InteractionDisabled>,
-            Has<Pressed>,
-            &mut BackgroundColor,
-            &mut BorderColor,
-            &Children,
-        ),
-        With<DemoButton>,
-    >,
-    mut text_query: Query<&mut Text>,
+fn update_scroll(
+    mut events: MessageReader<MouseWheel>,
+    mut scrollables: Query<(&mut Scrollable, &mut HtmlStyle)>,
+    time: Res<Time>,
 ) {
-    if let Ok((hovered, disabled, pressed, mut color, mut border_color, children)) =
-        buttons.get_mut(event.event_target())
-    {
-        if children.is_empty() {
-            return;
-        }
-        let Ok(mut text) = text_query.get_mut(children[0]) else {
-            return;
-        };
-        let hovered = hovered.get();
-        // These "removal event checks" exist because the `Remove` event is triggered _before_ the component is actually
-        // removed, meaning it still shows up in the query. We're investigating the best way to improve this scenario.
-        let pressed = pressed && !(E::is::<Remove>() && C::is::<Pressed>());
-        let disabled = disabled && !(E::is::<Remove>() && C::is::<InteractionDisabled>());
-        match (disabled, hovered, pressed) {
-            // Disabled button
-            (true, _, _) => {
-                **text = "Disabled".to_string();
-                *color = NORMAL_BUTTON.into();
-                border_color.set_all(GRAY);
-            }
-
-            // Pressed and hovered button
-            (false, true, true) => {
-                **text = "Press".to_string();
-                *color = PRESSED_BUTTON.into();
-                border_color.set_all(RED);
-            }
-
-            // Hovered, unpressed button
-            (false, true, false) => {
-                **text = "Hover".to_string();
-                *color = HOVERED_BUTTON.into();
-                border_color.set_all(WHITE);
-            }
-
-            // Unhovered button (either pressed or not).
-            (false, false, _) => {
-                **text = "Button".to_string();
-                *color = NORMAL_BUTTON.into();
-                border_color.set_all(BLACK);
-            }
-        }
-    }
+    // whatever
+    events.read().for_each(|ev| {
+        scrollables.iter_mut().for_each(|(mut scroll, mut style)| {
+            scroll.offset += ev.y.signum() * scroll.speed * time.delta_secs() * 1000.0;
+            style.computed.node.top = Val::Px(scroll.offset);
+        });
+    });
 }
 
-/// Create a demo slider
-fn slider(min: f32, max: f32, value: f32) -> impl Bundle {
-    (
-        Node {
-            display: Display::Flex,
-            flex_direction: FlexDirection::Column,
-            justify_content: JustifyContent::Center,
-            align_items: AlignItems::Stretch,
-            justify_items: JustifyItems::Center,
-            column_gap: px(4),
-            height: px(12),
-            width: percent(30),
-            ..default()
-        },
-        Name::new("Slider"),
-        Hovered::default(),
-        DemoSlider,
-        Slider::default(),
-        SliderValue(value),
-        SliderRange::new(min, max),
-        TabIndex(0),
-        Children::spawn((
-            // Slider background rail
-            Spawn((
-                Node {
-                    height: px(6),
-                    border_radius: BorderRadius::all(px(3)),
-                    ..default()
-                },
-                BackgroundColor(SLIDER_TRACK), // Border color for the checkbox
-            )),
-            // Invisible track to allow absolute placement of thumb entity. This is narrower than
-            // the actual slider, which allows us to position the thumb entity using simple
-            // percentages, without having to measure the actual width of the slider thumb.
-            Spawn((
-                Node {
-                    display: Display::Flex,
-                    position_type: PositionType::Absolute,
-                    left: px(0),
-                    // Track is short by 12px to accommodate the thumb.
-                    right: px(12),
-                    top: px(0),
-                    bottom: px(0),
-                    ..default()
-                },
-                children![(
-                    // Thumb
-                    DemoSliderThumb,
-                    SliderThumb,
-                    Node {
-                        display: Display::Flex,
-                        width: px(12),
-                        height: px(12),
-                        position_type: PositionType::Absolute,
-                        left: percent(0), // This will be updated by the slider's value
-                        border_radius: BorderRadius::MAX,
-                        ..default()
-                    },
-                    BackgroundColor(SLIDER_THUMB),
-                )],
-            )),
-        )),
-    )
+#[derive(Component)]
+pub struct Puls(f32);
+
+fn update_puls(mut query: Query<(&mut Node, &Puls)>, time: Res<Time>, mut elapsed: Local<f32>) {
+    *elapsed += time.delta_secs();
+
+    query.iter_mut().for_each(|(mut style, rotatethis)| {
+        style.width = Val::Percent((*elapsed * rotatethis.0).sin() * 5. + 90.);
+        style.height = Val::Percent((*elapsed * rotatethis.0).sin() * 5. + 90.);
+    });
 }
 
-fn slider_on_interaction<E: EntityEvent, C: Component>(
-    event: On<E, C>,
-    sliders: Query<(Entity, &Hovered, Has<InteractionDisabled>), With<DemoSlider>>,
-    children: Query<&Children>,
-    mut thumbs: Query<(&mut BackgroundColor, Has<DemoSliderThumb>), Without<DemoSlider>>,
+fn init_inventory(In(entity): In<Entity>, mut cmd: Commands, server: Res<AssetServer>) {
+    cmd.entity(entity).with_children(|cmd| {
+        for i in 0..200 {
+            cmd.spawn((
+                HtmlNode(server.load("demo/card.html")),
+                TemplateProperties::default()
+                    .with("title", &format!("item {i}"))
+                    .with("bordercolor", if i % 2 == 0 { "#FFF" } else { "#F88" }),
+            ));
+        }
+    });
+}
+
+fn play_beep(
+    In(entity): In<Entity>,
+    tags: Query<&Tags>,
+    mut cmd: Commands,
+    server: Res<AssetServer>,
 ) {
-    if let Ok((slider_ent, hovered, disabled)) = sliders.get(event.event_target()) {
-        // These "removal event checks" exist because the `Remove` event is triggered _before_ the component is actually
-        // removed, meaning it still shows up in the query. We're investigating the best way to improve this scenario.
-        let disabled = disabled && !(E::is::<Remove>() && C::is::<InteractionDisabled>());
-        for child in children.iter_descendants(slider_ent) {
-            if let Ok((mut thumb_bg, is_thumb)) = thumbs.get_mut(child)
-                && is_thumb
-            {
-                thumb_bg.0 = thumb_color(disabled, hovered.0);
-            }
+    let Some(path) = tags
+        .get(entity)
+        .ok()
+        .and_then(|t| t.get("source").map(|s| s.to_string()))
+    else {
+        return;
+    };
+
+    let beep: Handle<AudioSource> = server.load(&path);
+    cmd.spawn((
+        AudioPlayer(beep),
+        PlaybackSettings::ONCE,
+        LifeTime::new(0.5),
+    ));
+}
+
+#[derive(Component, Deref, DerefMut)]
+struct LifeTime(Timer);
+impl LifeTime {
+    pub fn new(s: f32) -> Self {
+        LifeTime(Timer::new(
+            std::time::Duration::from_secs_f32(s),
+            TimerMode::Once,
+        ))
+    }
+}
+
+fn cleaner(mut expired: Query<(Entity, &mut LifeTime)>, mut cmd: Commands, time: Res<Time>) {
+    expired.iter_mut().for_each(|(entity, mut lifetime)| {
+        if lifetime.tick(time.delta()).is_finished() {
+            cmd.entity(entity).despawn();
         }
-    }
+    });
 }
 
-fn slider_on_change_value<C: Component>(
-    insert: On<Insert, C>,
-    sliders: Query<(Entity, &SliderValue, &SliderRange), With<DemoSlider>>,
-    children: Query<&Children>,
-    mut thumbs: Query<(&mut Node, Has<DemoSliderThumb>), Without<DemoSlider>>,
-) {
-    if let Ok((slider_ent, value, range)) = sliders.get(insert.entity) {
-        for child in children.iter_descendants(slider_ent) {
-            if let Ok((mut thumb_node, is_thumb)) = thumbs.get_mut(child)
-                && is_thumb
-            {
-                thumb_node.left = percent(range.thumb_position(value.0) * 100.0);
-            }
-        }
-    }
-}
-
-fn thumb_color(disabled: bool, hovered: bool) -> Color {
-    match (disabled, hovered) {
-        (true, _) => GRAY.into(),
-
-        (false, true) => SLIDER_THUMB.lighter(0.3),
-
-        _ => SLIDER_THUMB,
-    }
-}
-
-/// Create a demo checkbox
-fn checkbox(asset_server: &AssetServer, caption: &str) -> impl Bundle {
-    (
-        Node {
-            display: Display::Flex,
-            flex_direction: FlexDirection::Row,
-            justify_content: JustifyContent::FlexStart,
-            align_items: AlignItems::Center,
-            align_content: AlignContent::Center,
-            column_gap: px(4),
-            ..default()
-        },
-        Name::new("Checkbox"),
-        Hovered::default(),
-        DemoCheckbox,
-        Checkbox,
-        TabIndex(0),
-        Children::spawn((
-            Spawn((
-                // Checkbox outer
-                Node {
-                    display: Display::Flex,
-                    width: px(16),
-                    height: px(16),
-                    border: UiRect::all(px(2)),
-                    border_radius: BorderRadius::all(px(3)),
-                    ..default()
-                },
-                BorderColor::all(CHECKBOX_OUTLINE), // Border color for the checkbox
-                children![
-                    // Checkbox inner
-                    (
-                        Node {
-                            display: Display::Flex,
-                            width: px(8),
-                            height: px(8),
-                            position_type: PositionType::Absolute,
-                            left: px(2),
-                            top: px(2),
-                            ..default()
-                        },
-                        BackgroundColor(Srgba::NONE.into()),
-                    ),
-                ],
-            )),
-            Spawn((
-                Text::new(caption),
-                TextFont {
-                    font: asset_server.load("fonts/FiraSans-Bold.ttf"),
-                    font_size: 20.0,
-                    ..default()
-                },
-            )),
-        )),
-    )
-}
-
-fn checkbox_on_interaction<E: EntityEvent, C: Component>(
-    event: On<E, C>,
-    checkboxes: Query<
-        (&Hovered, Has<InteractionDisabled>, Has<Checked>, &Children),
-        With<DemoCheckbox>,
-    >,
-    mut borders: Query<(&mut BorderColor, &mut Children), Without<DemoCheckbox>>,
-    mut marks: Query<&mut BackgroundColor, (Without<DemoCheckbox>, Without<Children>)>,
-) {
-    if let Ok((hovered, disabled, checked, children)) = checkboxes.get(event.event_target()) {
-        let hovered = hovered.get();
-        // These "removal event checks" exist because the `Remove` event is triggered _before_ the component is actually
-        // removed, meaning it still shows up in the query. We're investigating the best way to improve this scenario.
-        let checked = checked && !(E::is::<Remove>() && C::is::<Checked>());
-        let disabled = disabled && !(E::is::<Remove>() && C::is::<InteractionDisabled>());
-
-        let Some(border_id) = children.first() else {
-            return;
-        };
-
-        let Ok((mut border_color, border_children)) = borders.get_mut(*border_id) else {
-            return;
-        };
-
-        let Some(mark_id) = border_children.first() else {
-            warn!("Checkbox does not have a mark entity.");
-            return;
-        };
-
-        let Ok(mut mark_bg) = marks.get_mut(*mark_id) else {
-            warn!("Checkbox mark entity lacking a background color.");
-            return;
-        };
-
-        let color: Color = if disabled {
-            // If the checkbox is disabled, use a lighter color
-            CHECKBOX_OUTLINE.with_alpha(0.2)
-        } else if hovered {
-            // If hovering, use a lighter color
-            CHECKBOX_OUTLINE.lighter(0.2)
-        } else {
-            // Default color for the checkbox
-            CHECKBOX_OUTLINE
-        };
-
-        // Update the background color of the check mark
-        border_color.set_all(color);
-
-        let mark_color: Color = match (disabled, checked) {
-            (true, true) => CHECKBOX_CHECK.with_alpha(0.5),
-            (false, true) => CHECKBOX_CHECK,
-            (_, false) => Srgba::NONE.into(),
-        };
-
-        if mark_bg.0 != mark_color {
-            // Update the color of the check mark
-            mark_bg.0 = mark_color;
-        }
-    }
-}
-
-/// Update the widget states based on the changing resource.
-fn update_widget_values(
-    res: Res<DemoWidgetStates>,
-    mut sliders: Query<Entity, With<DemoSlider>>,
-    mut commands: Commands,
-) {
-    if res.is_changed() {
-        for slider_ent in sliders.iter_mut() {
-            commands
-                .entity(slider_ent)
-                .insert(SliderValue(res.slider_value));
-        }
-    }
-}
-
-fn toggle_disabled(
-    input: Res<ButtonInput<KeyCode>>,
-    mut interaction_query: Query<
-        (Entity, Has<InteractionDisabled>),
-        Or<(With<Button>, With<Slider>, With<Checkbox>)>,
-    >,
-    mut commands: Commands,
-) {
-    if input.just_pressed(KeyCode::KeyD) {
-        for (entity, disabled) in &mut interaction_query {
-            if disabled {
-                info!("Widget enabled");
-                commands.entity(entity).remove::<InteractionDisabled>();
-            } else {
-                info!("Widget disabled");
-                commands.entity(entity).insert(InteractionDisabled);
-            }
-        }
-    }
+fn greet(In(entity): In<Entity>, mut _cmd: Commands) {
+    info!("greetings from `{entity}`");
 }
