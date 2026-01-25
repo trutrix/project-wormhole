@@ -1,5 +1,6 @@
 <template>
     <property name="text">Text</property>
+    <property name="w">75px</property>
     <button
         padding="5px"
         background="#222"
@@ -8,7 +9,9 @@
         border_color="#444"
         hover:border_color="#FFF"
         justify_content="center"
+        width="{w}"
     >
+        
         <text>{text}</text>
     </button>
 </template>
