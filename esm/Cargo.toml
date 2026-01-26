@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2024"
 description = "ESM file format parser for Project Wormhole"
 license = "GPL-3.0-or-later"
+keywords = ["esm", "bethesda", "esp", "fallout"]
 
 [dependencies]
 bitflags = "2.10.0"
