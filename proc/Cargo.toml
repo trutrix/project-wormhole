@@ -2,6 +2,8 @@
 name = "project-wormhole-proc"
 version = "0.1.0"
 edition = "2021"
+description = "Procedural macros for Project Wormhole"
+license = "GPL-3.0-or-later"
 
 [lib]
 proc-macro = true
