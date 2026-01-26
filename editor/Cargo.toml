@@ -2,6 +2,8 @@
 name = "editor"
 version = "0.1.0"
 edition = "2024"
+license = "GPL-3.0-or-later"
+description = "Editor application for Project Wormhole"
 
 [dependencies]
 bevy = "0.17.3"
