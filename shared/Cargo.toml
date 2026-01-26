@@ -2,6 +2,8 @@
 name = "project-wormhole-shared"
 version = "0.1.0"
 edition = "2024"
+description = "Shared utilities and types for Project Wormhole"
+license = "GPL-3.0-or-later"
 
 [dependencies]
 bytemuck = { version = "1.24.0", features = ["derive"] }
