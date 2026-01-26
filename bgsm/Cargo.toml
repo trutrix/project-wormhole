@@ -8,4 +8,4 @@ license = "GPL-3.0-or-later"
 [dependencies]
 nom-derive = "0.10.1"
 
-project-wormhole-shared = { path = "../shared" }
+project-wormhole-shared = { path = "../shared", version = "0.1.0"  }
