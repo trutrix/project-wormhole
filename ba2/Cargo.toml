@@ -1,7 +1,7 @@
 [package]
 name = "project-wormhole-ba2"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 description = "BA2 file format parser for Project Wormhole"
 license = "GPL-3.0-or-later"
 
