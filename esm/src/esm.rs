@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, path::PathBuf};
 
 use rayon::iter::{IndexedParallelIterator, IntoParallelRefIterator, ParallelIterator};
 
@@ -261,4 +261,62 @@ impl From<std::io::Error> for ESMError {
     fn from(err: std::io::Error) -> Self {
         ESMError::IO(err)
     }
+}
+
+
+// ====================================================================================================
+
+#[derive(Debug)]
+pub struct RobustESM {
+    mode: ESMMode,
+}
+
+
+impl RobustESM {
+    pub fn new(mode: ESMMode, path: &str) -> Self {
+        let path = std::path::Path::new(path);
+        let mut is_dir = false;
+        let mut files: Vec<PathBuf> = Vec::new();
+        
+        if !path.exists() {
+            panic!("File does not exist: {}", path.display());
+        } else if path.is_dir() {
+            is_dir = true;
+
+            let dir_entries = std::fs::read_dir(path).expect("Failed to read directory");
+            for entry in dir_entries {
+                let entry = entry.expect("Failed to read directory entry");
+                let file_path = entry.path();
+                if file_path.is_file() {
+                    if let Some(ext) = file_path.extension() {
+                        if ext == "esm" || ext == "esp" {
+                            files.push(file_path);
+                        }
+                    }
+                }
+            }
+        }
+
+        match mode {
+            ESMMode::OnDemand => {
+
+            },
+            ESMMode::Full => {
+
+            },
+        }
+
+        RobustESM { mode }
+    }
+}
+
+
+
+/// ESM loading modes
+#[derive(Debug)]
+pub enum ESMMode {
+    /// Only load headers, convert data as needed
+    OnDemand,
+    /// Load and parse all data into memory
+    Full
 }

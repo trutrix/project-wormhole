@@ -3,7 +3,7 @@ use std::{collections::{HashMap, HashSet}, io::Read, path::Path};
 use project_wormhole_shared::structs::fourcc::FourCC;
 
 
-
+#[deprecated]
 pub fn dump_esm_fields(path: &Path) {
     let mut file = std::fs::File::open(path).expect("Failed to open file");
     let mut buf = Vec::new();

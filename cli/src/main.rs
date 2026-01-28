@@ -1,12 +1,8 @@
-mod dumper;
-mod report;
-mod extract;
-mod view;
-
 use clap::{Parser, Subcommand};
-use extract::ExtractMode;
 
-use crate::view::ViewMode;
+use crate::{group::GroupCommands, record::{RecordCommands, handle_record_command}};
+mod record;
+mod group;
 
 /// Simple program to greet a person
 #[derive(Parser, Debug)]
@@ -22,17 +18,15 @@ struct Args {
 
 #[derive(Subcommand, Debug)]
 pub enum TopCommands {
-    /// Write data to disk
-    Extract {
+    Record {
         #[command(subcommand)]
-        extract_command: ExtractMode,
-        #[arg(short, long)]
-        output: String
+        record_command: RecordCommands,
+        #[arg(short)]
+        record_id: Option<u32>
     },
-    /// View data
-    View {
+    Group {
         #[command(subcommand)]
-        view_command: ViewMode
+        group_command: GroupCommands
     }
 }
 
@@ -43,13 +37,15 @@ fn main() {
     if !path.exists() {
         eprintln!("File does not exist: {}", args.esm_path);
         std::process::exit(1);
+    } else if path.is_dir() {
+        panic!("Directories not supported yet");
     }
 
     match args.command {
         Some(c) => {
             match c {
-                TopCommands::Extract { extract_command, output } => todo!(),
-                TopCommands::View { view_command } => todo!(),
+                TopCommands::Group { group_command } => todo!(),
+                TopCommands::Record { record_command, record_id } => handle_record_command(&record_command, &path, record_id),
             }
         },
         None => {
