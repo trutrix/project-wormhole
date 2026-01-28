@@ -1,4 +1,4 @@
-use std::{collections::HashMap, path::PathBuf};
+use std::{collections::HashMap, io::Read, path::PathBuf};
 
 use rayon::iter::{IndexedParallelIterator, IntoParallelRefIterator, ParallelIterator};
 
@@ -147,6 +147,7 @@ impl<'esm> RawESM<'esm> {
 
 /// A more fully-featured ESM parser that attempts to interpret records and fields
 /// This is still a work in progress and is not yet complete
+#[deprecated]
 pub struct SmartESM {
     pub header: FileHeader,
     // pub chunks: Vec<TopGroup>,
@@ -267,46 +268,50 @@ impl From<std::io::Error> for ESMError {
 // ====================================================================================================
 
 #[derive(Debug)]
-pub struct RobustESM {
-    mode: ESMMode,
+pub struct SmartESM2<'esm> {
+    pub raw: RawESM<'esm>
 }
 
 
-impl RobustESM {
-    pub fn new(mode: ESMMode, path: &str) -> Self {
-        let path = std::path::Path::new(path);
-        let mut is_dir = false;
-        let mut files: Vec<PathBuf> = Vec::new();
+impl<'esm> SmartESM2<'esm> {
+    pub fn load_file(path: &'esm str, verify: bool) -> Result<Self, ESMError> {
+        let file_path = PathBuf::from(path);
+
+        // Check if file exists
+        if verify && !file_path.exists() {
+            return Err(ESMError::IO(std::io::Error::new(std::io::ErrorKind::NotFound, "File not found")));
+        }
+
+        // Check if path is a file
+        if verify && !file_path.is_file() {
+            return Err(ESMError::IO(std::io::Error::new(std::io::ErrorKind::InvalidInput, "Path is not a file")));
+        }
+
+        let mut buf = Vec::new();
+        let mut data = std::fs::File::open(file_path)?;
+        data.read_to_end(&mut buf)?;
         
-        if !path.exists() {
-            panic!("File does not exist: {}", path.display());
-        } else if path.is_dir() {
-            is_dir = true;
+        let (_, raw) = Self::parse(&buf).unwrap();
 
-            let dir_entries = std::fs::read_dir(path).expect("Failed to read directory");
-            for entry in dir_entries {
-                let entry = entry.expect("Failed to read directory entry");
-                let file_path = entry.path();
-                if file_path.is_file() {
-                    if let Some(ext) = file_path.extension() {
-                        if ext == "esm" || ext == "esp" {
-                            files.push(file_path);
-                        }
-                    }
-                }
-            }
+        Ok(raw)
+
+    }
+
+    pub fn load_dir(path: &str) -> Self {
+
+        Self {  }
+    }
+
+    pub fn append_file(&mut self, path: &str) {
+
+    }
+
+    pub fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
+        if let Ok((i, raw)) = RawESM::parse(i) {
+            return Ok((i, Self { raw }));
+        } else {
+            Err(nom::Err::Error(nom::error::Error::new(i, nom::error::ErrorKind::Fail)))
         }
-
-        match mode {
-            ESMMode::OnDemand => {
-
-            },
-            ESMMode::Full => {
-
-            },
-        }
-
-        RobustESM { mode }
     }
 }
 
