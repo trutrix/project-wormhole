@@ -1,8 +1,8 @@
-use std::{collections::HashMap, io::Read, path::PathBuf};
+use std::{collections::HashMap, io::{Read, Seek}, path::PathBuf};
 
 use rayon::iter::{IndexedParallelIterator, IntoParallelRefIterator, ParallelIterator};
 
-use crate::{dev::*, records::TES4::FileHeader, structs::{chunk::{get_file_chunks, get_file_chunks2}, group::TopGroup, record::RawRecord}};
+use crate::{dev::*, records::TES4::FileHeader, structs::{chunk::{get_file_chunks, get_file_chunks2}, group::TopGroup, record::RawRecord, world::WorldEntry}};
 
 
 
@@ -178,7 +178,7 @@ impl Parse<&[u8]> for SmartESM {
         rayon::scope(|s|{
             // Data thread
             s.spawn(|_|{
-                let start = std::time::Instant::now();
+                //let start = std::time::Instant::now();
                 for chunk in chunks.iter().skip(1) {
                     parsed_data.push(TopGroup::parse(chunk.data));
                 }
@@ -187,7 +187,7 @@ impl Parse<&[u8]> for SmartESM {
 
             //Refr thread
             s.spawn(|_|{
-                let start = std::time::Instant::now();
+                //let start = std::time::Instant::now();
                 for rchunk in rchunks {
                     parsed_refr.push(TopGroup::parse(rchunk.data));
                 }
@@ -265,63 +265,5 @@ impl From<std::io::Error> for ESMError {
 }
 
 
-// ====================================================================================================
 
-#[derive(Debug)]
-pub struct SmartESM2<'esm> {
-    pub raw: RawESM<'esm>
-}
-
-
-impl<'esm> SmartESM2<'esm> {
-    pub fn load_file(path: &'esm str, verify: bool) -> Result<Self, ESMError> {
-        let file_path = PathBuf::from(path);
-
-        // Check if file exists
-        if verify && !file_path.exists() {
-            return Err(ESMError::IO(std::io::Error::new(std::io::ErrorKind::NotFound, "File not found")));
-        }
-
-        // Check if path is a file
-        if verify && !file_path.is_file() {
-            return Err(ESMError::IO(std::io::Error::new(std::io::ErrorKind::InvalidInput, "Path is not a file")));
-        }
-
-        let mut buf = Vec::new();
-        let mut data = std::fs::File::open(file_path)?;
-        data.read_to_end(&mut buf)?;
-        
-        let (_, raw) = Self::parse(&buf).unwrap();
-
-        Ok(raw)
-
-    }
-
-    pub fn load_dir(path: &str) -> Self {
-
-        Self {  }
-    }
-
-    pub fn append_file(&mut self, path: &str) {
-
-    }
-
-    pub fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
-        if let Ok((i, raw)) = RawESM::parse(i) {
-            return Ok((i, Self { raw }));
-        } else {
-            Err(nom::Err::Error(nom::error::Error::new(i, nom::error::ErrorKind::Fail)))
-        }
-    }
-}
-
-
-
-/// ESM loading modes
-#[derive(Debug)]
-pub enum ESMMode {
-    /// Only load headers, convert data as needed
-    OnDemand,
-    /// Load and parse all data into memory
-    Full
-}
+// ================================================================================
