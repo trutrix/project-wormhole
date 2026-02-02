@@ -1,9 +1,18 @@
-use std::{collections::HashMap, io::{Read, Seek}, path::PathBuf};
+use std::{collections::HashMap, fs::File, io::{Read, Seek}, path::PathBuf};
 
 use rayon::iter::{IndexedParallelIterator, IntoParallelRefIterator, ParallelIterator};
 
 use crate::{dev::*, records::TES4::FileHeader, structs::{chunk::{get_file_chunks, get_file_chunks2}, group::TopGroup, record::RawRecord, world::WorldEntry}};
 
+
+// ====================================================================================================
+
+
+pub trait ESMUtils {
+    fn load_file(file_path: &str) -> Result<Self, ESMError> where Self: Sized;
+    fn load_dir(dir_path: &str) -> Result<Self, ESMError> where Self: Sized;
+    fn append<T>(&mut self, other: &T);
+}
 
 
 // ====================================================================================================
@@ -267,3 +276,34 @@ impl From<std::io::Error> for ESMError {
 
 
 // ================================================================================
+
+
+
+pub struct SmartESM2 {
+    data: Vec<u8>,
+    pub header: FileHeader,
+}
+
+
+impl SmartESM2 {
+
+    pub fn load_file(file_path: &str) -> Result<Self, ESMError> {
+        let mut file = File::open(file_path)?;
+        let mut buf = Vec::new();
+        file.read_to_end(&mut buf)?;
+
+        let (_, header) = FileHeader::parse(&buf).map_err(|_| ESMError::InvalidHeader)?;
+
+        Ok(SmartESM2 { data: buf, header })
+    }
+
+    pub fn parse_raw(&'_ self) -> Result<RawESM<'_>, ESMError> {
+        let (_, raw) = RawESM::parse(&self.data).map_err(|_| ESMError::InvalidData)?;
+        Ok(raw)
+    }
+
+    pub fn parse_full(&self) -> Result<ESMFull, ESMError> {
+        let (_, full) = ESMFull::parse_mt(&self.data).map_err(|_| ESMError::InvalidData)?;
+        Ok(full)
+    }
+}
