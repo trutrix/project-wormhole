@@ -57,8 +57,8 @@ pub fn esm_benchmarks() {
     let start = std::time::Instant::now();
     let (_, esm) = RawESM::parse(&buf).unwrap();
     println!("RawESM (Single Thread): {:?}", start.elapsed());
-    println!("Expected records: {:?}", esm.header.fields);
-    println!("Record count: {}", esm.records.len());
+    //println!("Expected records: {:?}", esm.header.fields);
+    //println!("Record count: {}", esm.records.len());
 
     let start = std::time::Instant::now();
     let (_, esm) = ESMFull::parse(&buf).unwrap();
@@ -70,21 +70,14 @@ pub fn esm_benchmarks() {
 
 
     let start = std::time::Instant::now();
-    let (_, esm) = SmartESM::parse(&buf).unwrap();
-    println!("SmartESM (2 assigned Threads): {:?}", start.elapsed());
+    let esm = MappedESM::from(esm);
+    println!("MappedESM: {:?}", start.elapsed());
 
-    let start = std::time::Instant::now();
-    let esm = SmartESM2::load_file(ESM_PATH).unwrap();
-    println!("SmartESM2: {:?}", start.elapsed());
+    // let start = std::time::Instant::now();
+    // let esm = SmartESM2::load_file(ESM_PATH).unwrap();
+    // println!("SmartESM2: {:?}", start.elapsed());
 
-    let start = std::time::Instant::now();
-    esm.parse_raw().unwrap();
-    println!("SmartESM2 Raw: {:?}", start.elapsed());
-
-    
-    let start = std::time::Instant::now();
-    esm.parse_full().unwrap();
-    println!("SmartESM2 Full: {:?}", start.elapsed());
+    // println!("Record count: {}", esm.records.len());
 
 
     // println!("Counted {:?} chunks", chunks.len());

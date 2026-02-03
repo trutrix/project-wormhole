@@ -10,7 +10,7 @@ define_record2! {
 }
 
 impl RecordParser<GameSettingField> for GameSetting {}
-impl GroupParser<GameSetting> for Group<Record<GameSettingField>> {}
+impl GroupParser<GameSetting> for GroupVec<Record<GameSettingField>> {}
 
 // impl GameSetting {
 //     fn get_value(&self) -> Result<GameSettingValue, ESMError> {

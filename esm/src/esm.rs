@@ -2,7 +2,7 @@ use std::{collections::HashMap, fs::File, io::{Read, Seek}, path::PathBuf};
 
 use rayon::iter::{IndexedParallelIterator, IntoParallelRefIterator, ParallelIterator};
 
-use crate::{dev::*, records::TES4::FileHeader, structs::{chunk::{get_file_chunks, get_file_chunks2}, group::TopGroup, record::RawRecord, world::WorldEntry}};
+use crate::{dev::*, records::{self, SingleRecord, SingleRecordRef, all::*}, structs::{chunk::{get_file_chunks, get_file_chunks2}, group::TopGroup, record::RawRecord, world::WorldEntry}};
 
 
 // ====================================================================================================
@@ -12,6 +12,7 @@ pub trait ESMUtils {
     fn load_file(file_path: &str) -> Result<Self, ESMError> where Self: Sized;
     fn load_dir(dir_path: &str) -> Result<Self, ESMError> where Self: Sized;
     fn append<T>(&mut self, other: &T);
+    fn parse(i: &[u8]) -> Result<Self, ESMError> where Self: Sized;
 }
 
 
@@ -277,33 +278,131 @@ impl From<std::io::Error> for ESMError {
 
 // ================================================================================
 
-
+use std::rc::Rc;
 
 pub struct SmartESM2 {
-    data: Vec<u8>,
     pub header: FileHeader,
+    pub records: HashMap<FormId, SingleRecord>
 }
 
-
-impl SmartESM2 {
-
-    pub fn load_file(file_path: &str) -> Result<Self, ESMError> {
+impl ESMUtils for SmartESM2 {
+    fn load_file(file_path: &str) -> Result<Self, ESMError> where Self: Sized {
         let mut file = File::open(file_path)?;
         let mut buf = Vec::new();
         file.read_to_end(&mut buf)?;
+        Ok(SmartESM2::parse(&buf)?)
+    }
+    
+    fn load_dir(dir_path: &str) -> Result<Self, ESMError> where Self: Sized {
+        todo!()
+    }
+    
+    fn append<T>(&mut self, other: &T) {
+        todo!()
+    }
+    
+    fn parse(i: &[u8]) -> Result<Self, ESMError> where Self: Sized {
+        let (_, esm) = ESMFull::parse_mt(i).map_err(|_| ESMError::InvalidGroup)?;
 
-        let (_, header) = FileHeader::parse(&buf).map_err(|_| ESMError::InvalidHeader)?;
+        let mut records: HashMap<FormId, SingleRecord> = HashMap::new();
 
-        Ok(SmartESM2 { data: buf, header })
+        for group in esm.groups {
+
+            match group {
+                TopGroup::Unhandled(group) => {
+                    //println!("Unhandled group: {:?}", group.header.label);
+                },
+                TopGroup::AACT(group) => { 
+                    for item in group.data {
+                        records.insert(item.header.form_id.clone(), SingleRecord::AACT(item)).unwrap();
+                    }
+                },
+                TopGroup::ACTI(group) => { 
+                    for item in group.data {
+                        records.insert(item.header.form_id.clone(), SingleRecord::ACTI(item)).unwrap();
+                    }
+                },
+                TopGroup::ADDN(group) => { 
+                    for item in group.data {
+                        records.insert(item.header.form_id.clone(), SingleRecord::ADDN(item)).unwrap();
+                    }
+                },
+                TopGroup::AECH(group) => {
+                    for item in group.data {
+                        records.insert(item.header.form_id.clone(), SingleRecord::AECH(item));
+                    }
+                }
+                TopGroup::ALCH(group) => {
+                    for item in group.data {
+                        records.insert(item.header.form_id.clone(), SingleRecord::ALCH(item));
+                    }
+                }
+                TopGroup::AMDL(group) => {
+                    for item in group.data {
+                        records.insert(item.header.form_id.clone(), SingleRecord::AMDL(item));
+                    }
+                }
+                TopGroup::AMMO(group) => {
+                    for item in group.data {
+                        records.insert(item.header.form_id.clone(), SingleRecord::AMMO(item));
+                    }
+                }
+                TopGroup::ANIO(group) => {
+                    for item in group.data {
+                        records.insert(item.header.form_id.clone(), SingleRecord::ANIO(item));
+                    }
+                }
+
+                _ => {
+                    println!("Unhandled group variant");
+                }
+
+            }
+        }
+
+        Ok( Self { header: esm.header, records} )
     }
 
-    pub fn parse_raw(&'_ self) -> Result<RawESM<'_>, ESMError> {
-        let (_, raw) = RawESM::parse(&self.data).map_err(|_| ESMError::InvalidData)?;
-        Ok(raw)
-    }
+}
 
-    pub fn parse_full(&self) -> Result<ESMFull, ESMError> {
-        let (_, full) = ESMFull::parse_mt(&self.data).map_err(|_| ESMError::InvalidData)?;
-        Ok(full)
+
+// ================================================================================
+
+
+
+pub struct MappedESM {
+    pub header: FileHeader,
+    pub indices: HashMap<FormId, SingleRecordRef>,
+    pub game_settings: HashMap<FormId, Rc<GameSetting>>,
+}
+
+
+impl From<ESMFull> for MappedESM {
+    fn from(value: ESMFull) -> Self {
+        
+        let header = value.header;
+        let mut indices = HashMap::new();
+        let mut game_settings = HashMap::new();
+
+
+        for group in value.groups {
+
+            match group {
+                TopGroup::GMST(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gs = Rc::new(record);
+                        let gr = SingleRecordRef::GMST(gs.clone());
+                        game_settings.insert(form_id.clone(), gs);
+                        indices.insert(form_id.clone(), gr);
+                    }
+                }
+
+                _ => {}
+                
+            }
+        }
+
+        Self { header, indices, game_settings}
     }
 }
