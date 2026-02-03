@@ -2,7 +2,7 @@ use std::{collections::HashMap, fs::File, io::{Read, Seek}, path::PathBuf};
 
 use rayon::iter::{IndexedParallelIterator, IntoParallelRefIterator, ParallelIterator};
 
-use crate::{dev::*, records::{self, SingleRecord, SingleRecordRef, all::*}, structs::{chunk::{get_file_chunks, get_file_chunks2}, group::TopGroup, record::RawRecord, world::WorldEntry}};
+use crate::{dev::*, records::{self, SingleRecord, all::*}, structs::{chunk::{get_file_chunks, get_file_chunks2}, group::TopGroup, record::RawRecord, world::WorldEntry}};
 
 
 // ====================================================================================================
@@ -372,8 +372,7 @@ impl ESMUtils for SmartESM2 {
 
 pub struct MappedESM {
     pub header: FileHeader,
-    pub indices: HashMap<FormId, SingleRecordRef>,
-    pub game_settings: HashMap<FormId, Rc<GameSetting>>,
+    pub indices: HashMap<FormId, SingleRecord>,
 }
 
 
@@ -382,27 +381,699 @@ impl From<ESMFull> for MappedESM {
         
         let header = value.header;
         let mut indices = HashMap::new();
-        let mut game_settings = HashMap::new();
 
 
         for group in value.groups {
 
             match group {
+                TopGroup::AACT(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::AACT(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::ACTI(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::ACTI(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::ADDN(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::ADDN(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::AECH(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::AECH(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::ALCH(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::ALCH(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::AMDL(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::AMDL(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::AMMO(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::AMMO(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::ANIO(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::ANIO(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::AORU(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::AORU(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::ARMA(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::ARMA(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::ARMO(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::ARMO(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::ARTO(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::ARTO(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::ASPC(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::ASPC(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::ASTP(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::ASTP(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::AVIF(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::AVIF(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::BNDS(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::BNDS(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::BOOK(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::BOOK(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::BPTD(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::BPTD(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::CAMS(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::CAMS(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::CELL(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::CELL(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::CLAS(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::CLAS(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::CLFM(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::CLFM(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::CLMT(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::CLMT(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::CMPO(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::CMPO(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::COBJ(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::COBJ(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::COLL(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::COLL(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::CONT(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::CONT(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::CPTH(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::CPTH(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::CSTY(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::CSTY(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::DEBR(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::DEBR(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::DFOB(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::DFOB(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::DLVW(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::DLVW(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::DMGT(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::DMGT(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::DOBJ(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::DOBJ(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::DOOR(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::DOOR(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::ECZN(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::ECZN(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::EFSH(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::EFSH(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::ENCH(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::ENCH(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::EQUP(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::EQUP(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::EXPL(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::EXPL(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::FACT(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::FACT(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::FLOR(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::FLOR(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::FLST(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::FLST(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::FSTP(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::FSTP(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::FSTS(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::FSTS(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::FURN(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::FURN(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::GDRY(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::GDRY(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::GLOB(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::GLOB(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
                 TopGroup::GMST(g) => {
                     for record in g.data {
                         let form_id = record.header.form_id.clone();
-                        let gs = Rc::new(record);
-                        let gr = SingleRecordRef::GMST(gs.clone());
-                        game_settings.insert(form_id.clone(), gs);
-                        indices.insert(form_id.clone(), gr);
+                        let gr = SingleRecord::GMST(record);
+                        indices.insert(form_id, gr);
                     }
                 }
-
-                _ => {}
-                
+                TopGroup::GRAS(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::GRAS(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::HAZD(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::HAZD(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::HDPT(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::HDPT(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::IDLE(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::IDLE(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::INGR(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::INGR(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::IPCT(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::IPCT(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::IPDS(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::IPDS(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::KEYM(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::KEYM(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::KYWD(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::KYWD(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::LCRT(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::LCRT(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::LCTN(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::LCTN(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::LIGH(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::LIGH(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::LSCR(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::LSCR(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::LTEX(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::LTEX(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::LVLI(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::LVLI(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::LVLN(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::LVLN(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::MATO(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::MATO(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::MATT(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::MATT(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::MESG(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::MESG(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::MGEF(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::MGEF(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::MISC(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::MISC(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::MOVT(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::MOVT(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::MSTT(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::MSTT(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::MUSC(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::MUSC(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::NPC_(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::NPC_(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::OTFT(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::OTFT(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::PACK(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::PACK(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::PERK(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::PERK(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::PROJ(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::PROJ(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::QUST(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::QUST(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::RACE(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::RACE(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::REGN(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::REGN(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::RELA(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::RELA(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::SNCT(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::SNCT(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::SOPM(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::SOPM(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::SOUN(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::SOUN(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::SPGD(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::SPGD(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::STAT(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::STAT(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::TACT(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::TACT(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::TREE(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::TREE(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::TXST(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::TXST(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::VTYP(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::VTYP(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::WATR(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::WATR(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::WEAP(g) => {
+                    for record in g.data {
+                        let form_id = record.header.form_id.clone();
+                        let gr = SingleRecord::WEAP(record);
+                        indices.insert(form_id, gr);
+                    }
+                }
+                TopGroup::Unhandled(group_vec) => todo!(),
+                TopGroup::IDLM(group_vec) => todo!(),
+                TopGroup::IMAD(group_vec) => todo!(),
+                TopGroup::IMGS(group_vec) => todo!(),
+                TopGroup::INNR(group_vec) => todo!(),
+                TopGroup::KSSM(group_vec) => todo!(),
+                TopGroup::LAYR(group_vec) => todo!(),
+                TopGroup::LENS(group_vec) => todo!(),
+                TopGroup::LGTM(group_vec) => todo!(),
+                TopGroup::MSWP(group_vec) => todo!(),
+                TopGroup::MUST(group_vec) => todo!(),
+                TopGroup::NAVI(group_vec) => todo!(),
+                TopGroup::NOCM(group_vec) => todo!(),
+                TopGroup::NOTE(group_vec) => todo!(),
+                TopGroup::OMOD(group_vec) => todo!(),
+                TopGroup::OVIS(group_vec) => todo!(),
+                TopGroup::PKIN(group_vec) => todo!(),
+                TopGroup::REVB(group_vec) => todo!(),
+                TopGroup::RFCT(group_vec) => todo!(),
+                TopGroup::RFGP(group_vec) => todo!(),
+                TopGroup::SCCO(group_vec) => todo!(),
+                TopGroup::SCOL(group_vec) => todo!(),
+                TopGroup::SCSN(group_vec) => todo!(),
+                TopGroup::SMBN(group_vec) => todo!(),
+                TopGroup::SMEN(group_vec) => todo!(),
+                TopGroup::SMQN(group_vec) => todo!(),
+                TopGroup::SNDR(group_vec) => todo!(),
+                TopGroup::SPEL(group_vec) => todo!(),
+                TopGroup::STAG(group_vec) => todo!(),
+                TopGroup::TERM(group_vec) => todo!(),
+                TopGroup::TRNS(group_vec) => todo!(),
+                TopGroup::WRLD(group_vec) => todo!(),
+                TopGroup::WTHR(group_vec) => todo!(),
+                TopGroup::ZOOM(group_vec) => todo!(),
             }
         }
 
-        Self { header, indices, game_settings}
+        Self { header, indices }
     }
 }

@@ -72,6 +72,7 @@ pub fn esm_benchmarks() {
     let start = std::time::Instant::now();
     let esm = MappedESM::from(esm);
     println!("MappedESM: {:?}", start.elapsed());
+    println!("Record count: {}", esm.indices.len());
 
     // let start = std::time::Instant::now();
     // let esm = SmartESM2::load_file(ESM_PATH).unwrap();
