@@ -209,6 +209,7 @@ impl ToTokens for RecordDefinition2 {
         let cmap = common_map2();
 
         let record_iden = &self.iden;
+        let record_iden_string = Ident::new(String::from_utf8_lossy(&record_iden.value()).to_string().as_str(), record_iden.span());
         let name = &self.name;
         let name_field = Ident::new(format!("{}Field", name.clone().to_string().as_str()).as_str(), name.span());
 
@@ -328,6 +329,12 @@ impl ToTokens for RecordDefinition2 {
                     }
 
                     
+                }
+            }
+
+            impl From<#name> for crate::records::SingleRecord {
+                fn from(value: #name) -> Self {
+                    Self::#record_iden_string(value)
                 }
             }
         });
@@ -955,6 +962,10 @@ fn make_record_traits_impl(record_name: &Ident, record_field_name: &Ident, field
             #out
             fn get_record_header(&self) -> &RecordHeader {
                 &self.header
+            }
+
+            fn get_form_id(&self) -> &FormId {
+                &self.header.form_id
             }
         }
     }
