@@ -42,7 +42,7 @@ pub fn esm_benchmarks() {
     let mut file = std::fs::File::open(ESM_PATH).unwrap();
     let mut buf = Vec::new();
     file.read_to_end(&mut buf).unwrap();
-    println!("Read file to memory: {:?}", start.elapsed());
+    println!("Read file to memory: {:?} - {} bytes", start.elapsed(), buf.len());
     println!("");
 
     let start = std::time::Instant::now();

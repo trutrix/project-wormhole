@@ -354,6 +354,7 @@ impl<'esm> Parse<&'esm[u8]> for RawQuestGroup<'esm> {
 #[derive(Debug)]
 pub enum TopGroup {
     Unhandled(GroupVec<RawRecord<'static>>),
+    Empty(GroupVec<RawRecord<'static>>),
     AACT(GroupVec<Action>),
     ACTI(GroupVec<Activator>),
     ADDN(GroupVec<AddonNode>),
@@ -488,7 +489,7 @@ impl Parse<&[u8]> for TopGroup {
         let (i, (header, data)) = alloc_group(i)?;
 
         if data.is_empty() {
-            return Ok((i, TopGroup::Unhandled(GroupVec { header, data: Vec::new() })));
+            return Ok((i, TopGroup::Empty(GroupVec { header, data: Vec::new() })));
         }
 
         //println!("Parsing TopGroup: {:?}", header.label);
@@ -1005,7 +1006,12 @@ impl Parse<&[u8]> for TopGroup {
                     }
 
                     _ => {
+
+                        #[cfg(debug_assertions)]
                         unimplemented!("Top group {} not implemented", label);
+
+                        #[cfg(not(debug_assertions))]
+                        Ok((i, TopGroup::Unhandled(GroupVec { header, data: Vec::new() })))
                     }
                 }
             }

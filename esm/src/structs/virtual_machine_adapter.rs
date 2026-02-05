@@ -59,7 +59,7 @@ pub struct VMADScriptEntry {
     pub fragments: Vec<u8>
 }
 
-impl ParseVersioned<i16> for VMADScriptEntry {
+impl<'nom> ParseVersioned<'nom, i16, nom::error::Error<&'nom[u8]>> for VMADScriptEntry {
     fn parse_versioned(i: &[u8], version: i16) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
         let (i, script_name) = SizedString16::parse(i)?;
         //println!("Parsed VMAD script name: {}", script_name);
@@ -75,39 +75,6 @@ impl ParseVersioned<i16> for VMADScriptEntry {
         let (i, properties) = nom::multi::count(VMADPropertyEntry::parse, property_count as usize)(i)?;
 
         Ok((i, VMADScriptEntry { script_name, flags, property_count, properties, fragments: Vec::new() }) )
-    }
-
-    fn parse_versioned_depth(i: &[u8], version: i16, mut depth: u8) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
-        let (i, script_name) = SizedString16::parse(i)?;
-
-        let (i, flags) = if version >= 4 {
-            VMADScriptFlags::parse(i)?
-        } else {
-            (i, VMADScriptFlags::empty())
-        };
-        
-
-        let (i, property_count) = le_u16(i)?;
-
-        println!("{}VMAD Script Entry: name: {}, flags: {:?}, property_count: {}", depth_to_space(depth), script_name, flags, property_count);
-
-        depth += 1;
-
-        if property_count == 0 {
-            return Ok((i, VMADScriptEntry { script_name, flags, property_count, properties: Vec::new(), fragments: Vec::new() }) )
-        }
-
-        let mut loop_count = 0;
-        let mut properties = Vec::new();
-        let mut remaining = i;
-        while loop_count < property_count {
-            let (i_new, property) = VMADPropertyEntry::parse(remaining)?;
-            properties.push(property);
-            loop_count += 1;
-            remaining = i_new;
-        }
-
-        Ok((remaining, VMADScriptEntry { script_name, flags, property_count, properties, fragments: Vec::new() }) )
     }
 }
 
@@ -239,18 +206,13 @@ impl Parse<&[u8]> for VMADPropertyEntry {
     }
 }
 
-impl ParseVersioned<i16> for VMADPropertyEntry {
+impl<'esm> ParseVersioned<'esm, i16, nom::error::Error<&'esm[u8]>> for VMADPropertyEntry {
     fn parse_versioned(i: &[u8], version: i16) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
-        todo!()
-    }
-
-    fn parse_versioned_depth(i: &[u8], version: i16, mut depth: u8) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
         let (i, name) = SizedString16::parse(i)?;
         let (i, type_) = VMADPropertyType::parse(i)?;
         let (i, flags) = le_u8(i)?;
 
-        println!("{}VMAD property name: {}, type: {:?}, flags: {}", depth_to_space(depth), name, type_, flags);
-        depth += 1;
+        println!("VMAD property name: {}, type: {:?}, flags: {}", name, type_, flags);
 
         match type_ {
             VMADPropertyType::Null => {
@@ -263,32 +225,27 @@ impl ParseVersioned<i16> for VMADPropertyEntry {
                 let (i, v2) = le_u16(i)?;
                 let (i, v3) = FormId::parse_le(i)?;
                 
-                println!("{}VMAD property object ref: ({}, {}, {})", depth_to_space(depth), v1, v2, v3);
 
                 Ok((i, VMADPropertyEntry { name, type_, flags, value: VMADPropertyValue::Object(VMADObjectRef::V2((v1, v2, v3))) }))
             },
             VMADPropertyType::String => {
                 // String
                 let (i, value) = SizedString16::parse(i)?;
-                println!("{}VMAD property string: {}", depth_to_space(depth), value);
                 Ok((i, VMADPropertyEntry { name, type_, flags, value: VMADPropertyValue::String(value) }))
             },
             VMADPropertyType::Int => {
                 // Int
                 let (i, value) = le_i32(i)?;
-                println!("{}VMAD property int: {}", depth_to_space(depth), value);
                 Ok((i, VMADPropertyEntry { name, type_, flags, value: VMADPropertyValue::Int(value) }))
             },
             VMADPropertyType::Float => {
                 // Float
                 let (i, value) = le_f32(i)?;
-                println!("{}VMAD property float: {}", depth_to_space(depth), value);
                 Ok((i, VMADPropertyEntry { name, type_, flags, value: VMADPropertyValue::Float(value) }))
             },
             VMADPropertyType::Bool => {
                 // Bool
                 let (i, value) = le_u8(i)?;
-                println!("{}VMAD property bool: {}", depth_to_space(depth), value != 0);
                 Ok((i, VMADPropertyEntry { name, type_, flags, value: VMADPropertyValue::Bool(value != 0) }))
             },
             // 6 => {
@@ -298,14 +255,12 @@ impl ParseVersioned<i16> for VMADPropertyEntry {
             VMADPropertyType::Struct => {
                 // Unsupported
                 let (i, value) = VMADPropertyEntry::parse(i)?;
-                println!("{}{:?}", depth_to_space(depth), value);
                 Ok((i, VMADPropertyEntry { name, type_, flags, value: VMADPropertyValue::Struct(Box::new(value)) }))
             }
             VMADPropertyType::ObjectArray => {
                 // Object Array
                 let (i, item_count) = le_u32(i)?;
                 let (i, values) = nom::multi::count(FormId::parse, item_count as usize)(i)?;
-                println!("{}VMAD property object array of count {}", depth_to_space(depth), item_count);
                 Ok((i, VMADPropertyEntry { name, type_, flags, value: VMADPropertyValue::ObjectArray(values) }))
             },
             VMADPropertyType::StringArray => {
@@ -340,7 +295,6 @@ impl ParseVersioned<i16> for VMADPropertyEntry {
             VMADPropertyType::StructArray => {
                 // Struct Array
                 let (i, item_count) = le_u32(i)?;
-                println!("{}VMAD property struct array count {}", depth_to_space(depth), item_count);
 
                 // let (i, sub_count) = le_u32(i)?;
                 // println!("{}VMAD property struct array sub-count {}", depth_to_space(depth), sub_count);
@@ -350,10 +304,9 @@ impl ParseVersioned<i16> for VMADPropertyEntry {
 
                 // todo!()
                 if let Ok((i, values)) = nom::multi::count(SubStruct::parse, item_count as usize)(i) {
-                    println!("{}{:?}", depth_to_space(depth), values);
                     Ok((i, VMADPropertyEntry { name, type_, flags, value: VMADPropertyValue::StructArray(values)}))    
                 } else {
-                    panic!("{}Failed to parse struct array items!", depth_to_space(depth));
+                    panic!("Failed to parse struct array items!");
                     Ok((i, VMADPropertyEntry { name, type_, flags, value: VMADPropertyValue::StructArray(Vec::new())}))
                 }
             }

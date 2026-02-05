@@ -375,6 +375,28 @@ pub struct MappedESM {
     pub indices: HashMap<FormId, SingleRecord>,
 }
 
+impl ESMUtils for MappedESM {
+    fn load_file(file_path: &str) -> Result<Self, ESMError> where Self: Sized {
+        let mut file = File::open(file_path)?;
+        let mut buf = Vec::new();
+        file.read_to_end(&mut buf)?;
+        Ok(MappedESM::parse(&buf)?)
+    }
+
+    fn load_dir(dir_path: &str) -> Result<Self, ESMError> where Self: Sized {
+        todo!()
+    }
+
+    fn append<T>(&mut self, other: &T) {
+        todo!()
+    }
+
+    fn parse(i: &[u8]) -> Result<Self, ESMError> where Self: Sized {
+        let (_, esm) = ESMFull::parse_mt(i).map_err(|_| ESMError::InvalidGroup)?;
+        Ok(MappedESM::from(esm))
+    }
+}
+
 
 impl From<ESMFull> for MappedESM {
     fn from(value: ESMFull) -> Self {
@@ -393,7 +415,7 @@ impl From<ESMFull> for MappedESM {
 
         for group in value.groups {
             match group {
-                TopGroup::Unhandled(group_vec) => {},
+                TopGroup::Unhandled(group_vec) => { panic!("Unhandled group: {:?}", group_vec.header.label ) },
                 TopGroup::AACT(group_vec) => iter_insert_records(&mut indices, group_vec.data),
                 TopGroup::ACTI(group_vec) => iter_insert_records(&mut indices, group_vec.data),
                 TopGroup::ADDN(group_vec) => iter_insert_records(&mut indices, group_vec.data),

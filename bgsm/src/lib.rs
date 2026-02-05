@@ -1,7 +1,7 @@
 mod test;
-use nom_derive::{NomLE, Parse, nom::{error::{Error, ErrorKind}, number::complete::{le_f32, le_i32, le_u8, le_u16, le_u32}}};
+use nom_derive::{NomLE, Parse, nom::{error::{Error, ErrorKind}, number::complete::*}};
 use nom_derive::nom;
-use project_wormhole_shared::{prelude::{ParseVersioned, U32ESMString, empty_string_to_none, parse_u32_esm_string}, structs::{color::{Color3, Color4}, fourcc::FourCC, u8_bool::parse_u8_bool}};
+use project_wormhole_shared::{prelude::{ParseVersioned, empty_string_to_none, parse_u32_esm_string}, structs::{color::Color3, fourcc::FourCC, u8_bool::parse_u8_bool}};
 
 // Link to info about bgsm
 // https://github.com/ousnius/Material-Editor/blob/master/MaterialLib/BGSM.cs
@@ -550,7 +550,7 @@ pub struct Wetness {
 }
 
 
-impl ParseVersioned<u32> for Wetness {
+impl<'esm> ParseVersioned<'esm, u32, nom::error::Error<&'esm[u8]>> for Wetness {
     fn parse_versioned(i: &[u8], version: u32) -> nom::IResult<&[u8], Self> {
         let (i, spec_scale) = le_f32(i)?;
         let (i, spec_power_scale) = le_f32(i)?;
@@ -644,8 +644,8 @@ pub struct TerrainInfo {
     pub terrain_rotation_angle: f32,
 }
 
-impl ParseVersioned<u32> for TerrainInfo {
-    fn parse_versioned(i: &[u8], version: u32) -> nom::IResult<&[u8], Self> {
+impl<'nom> ParseVersioned<'nom, u32, nom::error::Error<&'nom[u8]>> for TerrainInfo {
+    fn parse_versioned(i: &'nom[u8], version: u32) -> nom::IResult<&'nom[u8], Self, nom::error::Error<&'nom[u8]>> {
         
         let (i, unk_int_1) = if version == 3 {
             let (i, unk) = le_u32(i)?;
