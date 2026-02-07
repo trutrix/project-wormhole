@@ -86,3 +86,18 @@ pub trait RecordTraits {
 
 
 // ====================================================================================================
+
+
+pub trait VirtualMachineAdapterTrait {
+    fn get_adapter_name(&self) -> &str;
+    fn get_property_count(&self) -> usize;
+    fn get_properties(&self) -> &Vec<VMADPropertyEntry>;
+}
+
+// ====================================================================================================
+
+pub trait EditorIdTrait {
+    fn get_editor_id(&self) -> &ESMString;
+}
+
+// ====================================================================================================
