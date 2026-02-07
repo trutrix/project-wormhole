@@ -96,8 +96,20 @@ pub trait VirtualMachineAdapterTrait {
 
 // ====================================================================================================
 
-pub trait EditorIdTrait {
+pub trait EDID {
     fn get_editor_id(&self) -> &ESMString;
 }
 
+impl<T: EDID> ParseField<Field<EditorId>> for T {
+    fn parse_field(i: &[u8]) -> IResult<&[u8], Field<EditorId>, nom::error::Error<&[u8]>> {
+        let (i, edid) = <Field::<EditorId>>::parse(i)?;
+        Ok((i, edid))
+    }
+}
+
 // ====================================================================================================
+
+
+pub trait ParseField<T> {
+    fn parse_field(i: &[u8]) -> IResult<&[u8], T, nom::error::Error<&[u8]>>;
+}
