@@ -7,7 +7,7 @@ use bitflags::bitflags;
 
 // ====================================================================================================
 
-#[derive(Debug, NomLE)]
+#[derive(Debug, NomLE, PartialEq, Eq)]
 pub struct RecordHeader {
     pub iden: FourCC,
     pub size: u32, // Size NOT INCLUDING header, unlike GroupHeader
@@ -19,7 +19,7 @@ pub struct RecordHeader {
 // ====================================================================================================
 
 // The information contained in the version control structure appears to be used by a custom Perforce VCM
-#[derive(Debug, NomLE)]
+#[derive(Debug, NomLE, PartialEq, Eq)]
 pub struct VersionControl {
     pub timestamp: ESMTimestamp,
     pub users: [u8; 2],
@@ -44,7 +44,7 @@ impl From<[u8; 8]> for VersionControl {
 
 
 // Assuming the timestamp is the same in Fallout 4 as SkyrimSE
-#[derive(NomLE)]
+#[derive(NomLE, PartialEq, Eq)]
 pub struct ESMTimestamp(pub u16);
 
 impl std::fmt::Debug for ESMTimestamp {
@@ -404,6 +404,7 @@ impl RecordFlags2 {
 
 // ====================================================================================================
 
+#[derive(PartialEq, Eq)]
 pub struct RawRecord<'esm> {
     pub header: RecordHeader,
     pub data: RawRecordData<'esm>,
@@ -451,7 +452,7 @@ impl RawRecord<'_> {
     }   
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum RawRecordData<'esm> {
     Pointer(&'esm[u8]),
     Decompressed(Vec<u8>)
