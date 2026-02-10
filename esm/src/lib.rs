@@ -34,3 +34,8 @@ mod dev {
     pub use super::structs::model::*;
     pub use super::structs::form_id::FormId;
 }
+
+
+pub mod prelude {
+    pub use crate::traits::prelude::*;
+}

@@ -19,36 +19,3 @@ define_record2! {
         0x00080000, Restricted;
     ]
 }
-
-pub struct ActionRecord {
-    pub header: RecordHeader,
-    pub fields: Vec<ActionField>,
-}
-
-impl Identifier for ActionRecord {
-    fn get_identifier(&self) -> &[u8;4] {
-        b"AACT"
-    }
-}
-
-impl EDID for Action {
-    fn get_editor_id(&self) -> &ESMString {
-        for field in &self.fields {
-            if let ActionField::EditorId(editor_id) = field {
-                return editor_id;
-            }
-        }
-        panic!("EditorId field not found for Action record with FormId: {}", self.get_form_id());
-    }
-}
-
-impl<T: EDID> Identifier for T {
-    fn get_identifier(&self) -> &[u8;4] {
-        b"EDID"
-    }
-}
-
-
-pub trait Identifier {
-    fn get_identifier(&self) -> &[u8;4];
-}

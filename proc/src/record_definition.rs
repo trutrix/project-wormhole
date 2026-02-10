@@ -958,7 +958,7 @@ fn make_record_traits_impl(record_name: &Ident, record_field_name: &Ident, field
 
 
     quote! {
-        impl RecordTraits for #record_name {
+        impl crate::prelude::RecordTraits for #record_name {
             #out
             fn get_record_header(&self) -> &RecordHeader {
                 &self.header

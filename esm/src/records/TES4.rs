@@ -1,4 +1,4 @@
-use crate::{dev::*, traits::RecordParser};
+use crate::{dev::*, traits::prelude::*};
 
 
 define_record2! {

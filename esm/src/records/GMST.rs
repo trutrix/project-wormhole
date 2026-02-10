@@ -1,5 +1,5 @@
-use crate::{dev::*, traits::{GroupParser, RecordParser}};
-
+use crate::dev::*;
+use crate::traits::prelude::*;
 
 define_record2! {
     b"GMST",
