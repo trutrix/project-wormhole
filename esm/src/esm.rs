@@ -258,6 +258,7 @@ impl ESMFull {
 #[derive(Debug)]
 pub enum ESMError {
     IO(std::io::Error),
+    Nom(nom::Err<nom::error::Error<&'static [u8]>>),
     InvalidFile,
     InvalidHeader,
     InvalidRecord,
@@ -265,6 +266,8 @@ pub enum ESMError {
     InvalidGroup,
     InvalidVersionControl,
     InvalidData,
+    NotEnoughBytes(String),
+    StringConversionError(String),
     GameSetting(String)
 }
 
@@ -274,7 +277,11 @@ impl From<std::io::Error> for ESMError {
     }
 }
 
-
+impl From<nom::Err<nom::error::Error<&'static[u8]>>> for ESMError {
+    fn from(value: nom::Err<nom::error::Error<&'static[u8]>>) -> Self {
+        ESMError::Nom(value)
+    }
+}
 
 // ================================================================================
 

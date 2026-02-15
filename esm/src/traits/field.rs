@@ -10,3 +10,17 @@ pub trait FieldParser<T> {
 
     fn parse_field_body(i: &[u8], header: FieldHeader) -> IResult<&[u8], T, nom::error::Error<&[u8]>>;
 }
+
+
+// =================================================================================================
+
+pub trait ParseField<T, V, E> {
+    fn parse_field(i: &[u8], version: Option<V>) -> IResult<&[u8], Field<T>, E>;
+}
+
+
+// =================================================================================================
+
+pub trait EditorIdTrait {
+    fn get_editor_id(&self) -> &ESMString;
+}

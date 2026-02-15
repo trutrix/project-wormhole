@@ -902,51 +902,52 @@ fn make_record_traits_impl(record_name: &Ident, record_field_name: &Ident, field
             EDID_NAME => {
                 let field_name = Ident::new(EDID_NAME, name.span());
                 out.extend(quote! {
-                    fn try_get_editor_id(&self) -> Option<&ESMString> {
-                        for field in &self.fields {
-                            match field {
-                                #record_field_name::#field_name(edid) => {
-                                    return Some(edid);
-                                },
-                                _ => {}
+                    impl crate::prelude::EditorIdTrait for #record_name {
+                        fn get_editor_id(&self) -> &EditorId {
+                            for field in self.fields {
+                                match field {
+                                    #record_field_name::#field_name(edid) => {
+                                        return &edid;
+                                    },
+                                    _ => { panic!("EditorId field not found.") }
+                                }
                             }
                         }
-                        None
                     }
                 });
             }
-            DESC_NAME => {
-                let field_name = Ident::new(DESC_NAME, name.span());
-                out.extend(quote! {
-                    fn try_get_description(&self) -> Option<&LocalizedString> {
-                        for field in &self.fields {
-                            match field {
-                                #record_field_name::#field_name(desc) => {
-                                    return Some(desc);
-                                },
-                                _ => {}
-                            }
-                        }
-                        None
-                    }
-                });
-            }
-            FULL_NAME => {
-                let field_name = Ident::new(FULL_NAME, name.span());
-                out.extend(quote! {
-                    fn try_get_full_name(&self) -> Option<&LocalizedString> {
-                        for field in &self.fields {
-                            match field {
-                                #record_field_name::#field_name(full) => {
-                                    return Some(full);
-                                },
-                                _ => {}
-                            }
-                        }
-                        None
-                    }
-                });
-            }
+            // DESC_NAME => {
+            //     let field_name = Ident::new(DESC_NAME, name.span());
+            //     out.extend(quote! {
+            //         fn try_get_description(&self) -> Option<&LocalizedString> {
+            //             for field in &self.fields {
+            //                 match field {
+            //                     #record_field_name::#field_name(desc) => {
+            //                         return Some(desc);
+            //                     },
+            //                     _ => {}
+            //                 }
+            //             }
+            //             None
+            //         }
+            //     });
+            // }
+            // FULL_NAME => {
+            //     let field_name = Ident::new(FULL_NAME, name.span());
+            //     out.extend(quote! {
+            //         fn try_get_full_name(&self) -> Option<&LocalizedString> {
+            //             for field in &self.fields {
+            //                 match field {
+            //                     #record_field_name::#field_name(full) => {
+            //                         return Some(full);
+            //                     },
+            //                     _ => {}
+            //                 }
+            //             }
+            //             None
+            //         }
+            //     });
+            // }
 
             
 
@@ -957,16 +958,22 @@ fn make_record_traits_impl(record_name: &Ident, record_field_name: &Ident, field
     }
 
 
-    quote! {
-        impl crate::prelude::RecordTraits for #record_name {
-            #out
-            fn get_record_header(&self) -> &RecordHeader {
-                &self.header
-            }
+    // out = quote! {
+    //     impl crate::prelude::RecordTraits for #record_name {
+    //         #out
+    //         fn get_record_header(&self) -> &RecordHeader {
+    //             &self.header
+    //         }
 
-            fn get_form_id(&self) -> &FormId {
-                &self.header.form_id
-            }
-        }
+    //         fn get_form_id(&self) -> &FormId {
+    //             &self.header.form_id
+    //         }
+    //     }
+    // };
+
+    quote! {
+        #out
+
+        
     }
 }

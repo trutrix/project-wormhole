@@ -491,31 +491,31 @@ pub fn alloc_record(i: &[u8]) -> IResult<&[u8], (RecordHeader, &[u8]), nom::erro
 #[derive(Debug)]
 pub struct Record<T> {
     pub header: RecordHeader,
-    pub fields: Vec<T>
+    pub data: T
 }
 
 
 impl<T: for<'esm> Parse<&'esm[u8]>> Parse<&[u8]> for Record<T> {
-    fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
+    fn parse(i: &[u8]) -> IResult<&[u8], Self, nom_derive::nom::error::Error<&[u8]>> {
         let (i, (header, raw)) = alloc_record(i)?;
 
         if header.flags.is_compressed() {
             if let Ok(dec) = decompress_record(raw) {
                 
-                if let Ok((_, fields)) = many0(T::parse)(&dec) {
-                    Ok((i, Self { header, fields }))
+                if let Ok((_, data)) = T::parse(&dec) {
+                    Ok((i, Self { header, data }))
                 } else {
-                    Err(nom::Err::Error(nom::error::Error::new(i, nom::error::ErrorKind::Complete)))
+                    Err(nom_derive::nom::Err::Error(nom::error::Error::new(i, nom::error::ErrorKind::Complete)))
                 }
                 
             } else {
                 panic!("Could not decompress record: {:?}", header);
             }
             
-        } else if let Ok((_, fields)) = many0(T::parse)(raw) {
-            Ok((i, Self { header, fields }))
+        } else if let Ok((_, data)) = T::parse(raw) {
+            Ok((i, Self { header, data }))
         } else {
-            Err(nom::Err::Error(nom::error::Error::new(i, nom::error::ErrorKind::Complete)))
+            Err(nom_derive::nom::Err::Error(nom::error::Error::new(i, nom::error::ErrorKind::Complete)))
         }       
     }
 }

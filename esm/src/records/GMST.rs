@@ -1,5 +1,4 @@
 use crate::dev::*;
-use crate::traits::prelude::*;
 
 define_record2! {
     b"GMST",
@@ -8,9 +7,6 @@ define_record2! {
         b"DATA", Value, Vec<u8>;
     ]
 }
-
-impl RecordParser<GameSettingField> for GameSetting {}
-impl GroupParser<GameSetting> for GroupVec<Record<GameSettingField>> {}
 
 // impl GameSetting {
 //     fn get_value(&self) -> Result<GameSettingValue, ESMError> {

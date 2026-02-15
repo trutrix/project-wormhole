@@ -1,4 +1,4 @@
-use crate::{dev::*, traits::prelude::*};
+use crate::dev::{field::EditorIdTrait, *};
 
 
 define_record2! {
@@ -13,9 +13,6 @@ define_record2! {
         b"TNAM", TransientItems, FileHeaderTransientItems;
     ]
 }
-
-
-impl RecordParser<FileHeaderField> for FileHeader {}
 
 #[derive(Debug, NomLE)]
 pub struct FileHeaderMetadata {
