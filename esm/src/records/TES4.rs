@@ -1,4 +1,4 @@
-use crate::dev::{field::EditorIdTrait, *};
+use crate::dev::*;
 
 
 define_record2! {

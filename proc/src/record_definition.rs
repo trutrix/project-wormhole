@@ -212,6 +212,8 @@ impl ToTokens for RecordDefinition2 {
         let record_iden_string = Ident::new(String::from_utf8_lossy(&record_iden.value()).to_string().as_str(), record_iden.span());
         let name = &self.name;
         let name_field = Ident::new(format!("{}Field", name.clone().to_string().as_str()).as_str(), name.span());
+        let name_group = Ident::new(format!("{}Group", name.clone().to_string().as_str()).as_str(), name.span());
+
 
         let fields = &self.fields;
 
@@ -242,69 +244,72 @@ impl ToTokens for RecordDefinition2 {
         let trait_impl = make_record_traits_impl(name, &name_field, fields);
 
         tokens.extend(quote! {
-            #[derive(Debug)]
-            pub struct #name {
-                pub header: RecordHeader,
-                pub fields: Vec<#name_field>
-            }
+            // #[derive(Debug)]
+            // pub struct #name {
+            //     pub header: RecordHeader,
+            //     pub fields: Vec<#name_field>
+            // }
 
-            impl Parse<&[u8]> for #name {
-                fn parse(i: &[u8]) -> IResult<&[u8], Self> {
-                    let (i, (header, raw)) = alloc_record(i)?;
+            pub type #name = Record<Vec<#name_field>>;
+            pub type #name_group = Group<#name>;
 
-                    if &header.iden.0 != #record_iden {
-                        panic!("Tried to parse {:?} record as {:?}", header, FourCC(*#record_iden))
-                    }
+            // impl Parse<&[u8]> for #name {
+            //     fn parse(i: &[u8]) -> IResult<&[u8], Self> {
+            //         let (i, (header, raw)) = alloc_record(i)?;
 
-                    if header.flags.is_compressed() {
-                        if let Ok(dec) = decompress_record(raw) {
+            //         if &header.iden.0 != #record_iden {
+            //             panic!("Tried to parse {:?} record as {:?}", header, FourCC(*#record_iden))
+            //         }
+
+            //         if header.flags.is_compressed() {
+            //             if let Ok(dec) = decompress_record(raw) {
                             
-                            if let Ok((_, fields)) = many0(#name_field::parse)(&dec) {
-                                return Ok((i, Self { header, fields }));
-                            } else {
-                                return Err(nom::Err::Error(nom::error::Error::new(i, nom::error::ErrorKind::Complete)));
-                            }
+            //                 if let Ok((_, fields)) = many0(#name_field::parse)(&dec) {
+            //                     return Ok((i, Self { header, fields }));
+            //                 } else {
+            //                     return Err(nom::Err::Error(nom::error::Error::new(i, nom::error::ErrorKind::Complete)));
+            //                 }
                             
-                        } else {
-                            panic!("Could not decompress record: {:?}", header);
-                        }
+            //             } else {
+            //                 panic!("Could not decompress record: {:?}", header);
+            //             }
                         
-                    } else {
-                        if let Ok((_, fields)) = many0(#name_field::parse)(&raw) {
-                            return Ok((i, Self { header, fields }));
-                        } else {
-                            return Err(nom::Err::Error(nom::error::Error::new(i, nom::error::ErrorKind::Complete)));
-                        }
-                    }       
-                }
-            }
+            //         } else {
+            //             if let Ok((_, fields)) = many0(#name_field::parse)(&raw) {
+            //                 return Ok((i, Self { header, fields }));
+            //             } else {
+            //                 return Err(nom::Err::Error(nom::error::Error::new(i, nom::error::ErrorKind::Complete)));
+            //             }
+            //         }       
+            //     }
+            // }
 
-            #trait_impl
+            // #trait_impl
             
 
-            impl<'esm> TryFrom<RawRecord<'esm>> for #name {
-                type Error = nom::error::Error<&'esm[u8]>;
+            // impl<'esm> TryFrom<RawRecord<'esm>> for #name {
+            //     type Error = nom::error::Error<&'esm[u8]>;
 
-                fn try_from(value: RawRecord<'esm>) -> Result<Self, Self::Error> {
+            //     fn try_from(value: RawRecord<'esm>) -> Result<Self, Self::Error> {
 
-                    match value.data {
-                        RawRecordData::Pointer(items) => {
-                            if let Ok((_, fields)) = many0(#name_field::parse)(items) {
-                                Ok(Self { header: value.header, fields })
-                            } else {
-                                Err(nom::error::Error::new(items, nom::error::ErrorKind::Fail))
-                            }
-                        },
-                        RawRecordData::Decompressed(items) => {
-                            if let Ok((_, fields)) = many0(#name_field::parse)(items.as_ref()) {
-                                Ok(Self { header: value.header, fields })
-                            } else {
-                                Err(nom::error::Error::new(&[], nom::error::ErrorKind::Fail))
-                            }
-                        }
-                    }
-                }
-            }
+            //         match value.data {
+            //             RawRecordData::Pointer(items) => {
+            //                 if let Ok((_, fields)) = many0(#name_field::parse)(items) {
+            //                     Ok(Self { header: value.header, fields })
+            //                 } else {
+            //                     Err(nom::error::Error::new(items, nom::error::ErrorKind::Fail))
+            //                 }
+            //             },
+            //             RawRecordData::Decompressed(items) => {
+            //                 if let Ok((_, fields)) = many0(#name_field::parse)(items.as_ref()) {
+            //                     Ok(Self { header: value.header, fields })
+            //                 } else {
+            //                     Err(nom::error::Error::new(&[], nom::error::ErrorKind::Fail))
+            //                 }
+            //             }
+            //         }
+            //     }
+            // }
 
             #[derive(Debug)]
             pub enum #name_field {
@@ -909,9 +914,10 @@ fn make_record_traits_impl(record_name: &Ident, record_field_name: &Ident, field
                                     #record_field_name::#field_name(edid) => {
                                         return &edid;
                                     },
-                                    _ => { panic!("EditorId field not found.") }
+                                    _ => { /* skip */ }
                                 }
                             }
+                            panic!("EditorId field not found.")
                         }
                     }
                 });

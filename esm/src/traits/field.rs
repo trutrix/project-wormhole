@@ -17,10 +17,3 @@ pub trait FieldParser<T> {
 pub trait ParseField<T, V, E> {
     fn parse_field(i: &[u8], version: Option<V>) -> IResult<&[u8], Field<T>, E>;
 }
-
-
-// =================================================================================================
-
-pub trait EditorIdTrait {
-    fn get_editor_id(&self) -> &ESMString;
-}
