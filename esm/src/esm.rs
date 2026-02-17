@@ -442,7 +442,7 @@ impl From<ESMFull> for MappedESM {
                 TopGroup::BOOK(group_vec) => iter_insert_records(&mut indices, group_vec.data),
                 TopGroup::BPTD(group_vec) => iter_insert_records(&mut indices, group_vec.data),
                 TopGroup::CAMS(group_vec) => iter_insert_records(&mut indices, group_vec.data),
-                TopGroup::CELL(group_vec) => iter_insert_records(&mut indices, group_vec.data),
+                //TopGroup::CELL(group_vec) => iter_insert_records(&mut indices, group_vec.data),
                 TopGroup::CLAS(group_vec) => iter_insert_records(&mut indices, group_vec.data),
                 TopGroup::CLFM(group_vec) => iter_insert_records(&mut indices, group_vec.data),
                 TopGroup::CLMT(group_vec) => iter_insert_records(&mut indices, group_vec.data),

@@ -186,6 +186,32 @@ impl std::fmt::Debug for RawInteriorCellBlock<'_> {
     }
 }
 
+#[derive(Debug)]
+pub struct InteriorCellBlock {
+    header: GroupHeader,
+    sub_blocks: Group<InteriorCellSubBlock>
+}
+
+impl Parse<&[u8]> for InteriorCellBlock {
+    fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
+
+        println!("  Parsing InteriorCellBlock");
+
+        let (i, world) = Worldspace::parse(i)?;
+
+        let (i, (header, raw)) = alloc_group(i)?;
+
+        println!("  Parsing: {:?}", header);
+
+        let (_, sub_blocks) = Group::parse(raw)?;
+        Ok((i, Self { header, sub_blocks }))
+    }
+}
+
+
+//pub type InteriorCellBlock = Group<InteriorCellSubBlock>;
+pub type InteriorCellSubBlock = Group<Vec<u8>>;
+
 
 // ====================================================================================================
 
@@ -375,7 +401,7 @@ pub enum TopGroup {
     BOOK(BookGroup),
     BPTD(BodyPartDataGroup),
     CAMS(CameraShotGroup),
-    CELL(CellGroup),
+    CELL(Group<InteriorCellBlock>),
     CLAS(ClassGroup),
     CLFM(ColorGroup),
     CLMT(ClimateGroup),
@@ -479,7 +505,7 @@ pub enum TopGroup {
     VTYP(VoiceTypeGroup),
     WATR(WaterGroup),
     WEAP(WeaponGroup),
-    WRLD(WorldspaceGroup),
+    WRLD(Group<WorldEntry>),
     WTHR(WeatherGroup),
     ZOOM(ZoomGroup),
 }
@@ -488,11 +514,13 @@ impl Parse<&[u8]> for TopGroup {
     fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
         let (i, (header, data)) = alloc_group(i)?;
 
+        println!("Parsing TopGroup: {:?}", header.label);
+
         if data.is_empty() {
             return Ok((i, TopGroup::Empty(Group { header, data: Vec::new() })));
         }
 
-        //println!("Parsing TopGroup: {:?}", header.label);
+        
         match header.label {
             GroupLabel::Top(label) => {
                 match &label.0 {
@@ -515,10 +543,8 @@ impl Parse<&[u8]> for TopGroup {
                     b"BPTD" => { Ok((i, TopGroup::BPTD(Group::parse(i)?.1))) }
                     b"BNDS" => { Ok((i, TopGroup::BNDS(Group::parse(i)?.1))) }
                     b"CAMS" => { Ok((i, TopGroup::CAMS(Group::parse(i)?.1))) }
-                    b"CELL" => { 
-                        Ok((i, TopGroup::CELL(Group { header, data: Vec::new()})))
-                    }
-                    b"CLAS" => {Ok((i, TopGroup::CLAS(Group::parse(i)?.1))) }
+                    b"CELL" => { Ok((i, TopGroup::CELL(Group::parse(i)?.1))) }
+                    b"CLAS" => { Ok((i, TopGroup::CLAS(Group::parse(i)?.1))) }
                     b"CLFM" => { Ok((i, TopGroup::CLFM(Group::parse(i)?.1))) }
                     b"CLMT" => { Ok((i, TopGroup::CLMT(Group::parse(i)?.1))) }
                     b"CMPO" => { Ok((i, TopGroup::CMPO(Group::parse(i)?.1))) }
@@ -581,7 +607,7 @@ impl Parse<&[u8]> for TopGroup {
                     b"MSWP" => { Ok((i, TopGroup::MSWP(Group::parse(i)?.1))) }
                     b"MUSC" => { Ok((i, TopGroup::MUSC(Group::parse(i)?.1))) }
                     b"MUST" => { Ok((i, TopGroup::MUST(Group::parse(i)?.1))) }
-                    b"NAVI" => { Ok((i, TopGroup::NAVI(Group::parse(i)?.1))) }
+                    //b"NAVI" => { Ok((i, TopGroup::NAVI(Group::parse(i)?.1))) }
                     b"NOCM" => { Ok((i, TopGroup::NOCM(Group::parse(i)?.1))) }
                     b"NOTE" => { Ok((i, TopGroup::NOTE(Group::parse(i)?.1))) }
                     b"NPC_" => { Ok((i, TopGroup::NPC_(Group::parse(i)?.1))) }
