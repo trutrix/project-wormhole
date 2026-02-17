@@ -607,7 +607,9 @@ impl Parse<&[u8]> for TopGroup {
                     b"MSWP" => { Ok((i, TopGroup::MSWP(Group::parse(i)?.1))) }
                     b"MUSC" => { Ok((i, TopGroup::MUSC(Group::parse(i)?.1))) }
                     b"MUST" => { Ok((i, TopGroup::MUST(Group::parse(i)?.1))) }
-                    //b"NAVI" => { Ok((i, TopGroup::NAVI(Group::parse(i)?.1))) }
+                    b"NAVI" => { 
+                        Ok((i, TopGroup::NAVI(Group { header, data: Vec::new()}))) 
+                    }
                     b"NOCM" => { Ok((i, TopGroup::NOCM(Group::parse(i)?.1))) }
                     b"NOTE" => { Ok((i, TopGroup::NOTE(Group::parse(i)?.1))) }
                     b"NPC_" => { Ok((i, TopGroup::NPC_(Group::parse(i)?.1))) }
