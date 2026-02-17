@@ -2,7 +2,7 @@ use std::{collections::HashMap, fs::File, io::{Read, Seek}, path::PathBuf};
 
 use rayon::iter::{IndexedParallelIterator, IntoParallelRefIterator, ParallelIterator};
 
-use crate::{dev::*, prelude::RecordTraits, records::{self, SingleRecord, all::*}, structs::{chunk::{get_file_chunks, get_file_chunks2}, group::TopGroup, record::RawRecord, world::WorldEntry}};
+use crate::{dev::*, prelude::{FormIdTrait, RecordTraits}, records::{self, SingleRecord, all::*}, structs::{chunk::{get_file_chunks, get_file_chunks2}, group::TopGroup, record::RawRecord, world::WorldEntry}};
 
 
 // ====================================================================================================
@@ -411,7 +411,7 @@ impl From<ESMFull> for MappedESM {
         let header = value.header;
         let mut indices = HashMap::new();
 
-        fn iter_insert_records<T: RecordTraits + Into<SingleRecord>>(indices: &mut HashMap<FormId, SingleRecord>, records: Vec<T>) {
+        fn iter_insert_records<T: FormIdTrait + Into<SingleRecord>>(indices: &mut HashMap<FormId, SingleRecord>, records: Vec<T>) {
             for record in records {
                 let form_id = record.get_form_id().clone();
                 let sr: SingleRecord = record.into();

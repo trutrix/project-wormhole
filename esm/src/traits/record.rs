@@ -24,3 +24,8 @@ pub trait RecordTraits2 {
 pub trait EditorIdTrait {
     fn get_editor_id(&self) -> &EditorId;
 }
+
+
+pub trait FormIdTrait {
+    fn get_form_id(&self) -> &FormId;
+}

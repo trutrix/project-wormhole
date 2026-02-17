@@ -311,6 +311,12 @@ impl ToTokens for RecordDefinition2 {
             //     }
             // }
 
+            impl crate::prelude::FormIdTrait for #name {
+                fn get_form_id(&self) -> &FormId {
+                    &self.header.form_id
+                }
+            }
+
             #[derive(Debug)]
             pub enum #name_field {
                 Unhandled(FourCC),
@@ -982,4 +988,221 @@ fn make_record_traits_impl(record_name: &Ident, record_field_name: &Ident, field
 
         
     }
+}
+
+
+// ====================================================================================================
+
+pub struct RecordDefinition3 {
+    // pub iden: LitByteStr,
+    // pub name: Ident,
+    // pub fields: Punctuated<FieldDefinition2, Token![;]>,
+    // pub flags: Punctuated<FlagDefinition, Token![;]>
+    fields: Punctuated<NamedDef, Token![;]>
+}
+
+impl Parse for RecordDefinition3 {
+    fn parse(input: parse::ParseStream) -> Result<Self> {
+        let fields = input.parse_terminated(NamedDef::parse, Token![;])?;
+
+        Ok(RecordDefinition3 { fields  })
+
+    }
+}
+
+impl ToTokens for RecordDefinition3 {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+
+        let iden = self.get_iden().expect("Record iden is required.");
+        let iden_as_ident = iden_to_ident(iden);
+        let name = self.get_name().expect("Record name is required.");
+        let name_field = Ident::new(format!("{}Field", name.clone().to_string().as_str()).as_str(), name.span());
+        let name_group = Ident::new(format!("{}Group", name.clone().to_string().as_str()).as_str(), name.span());
+        let is_fixed = self.is_fixed();
+        let fields = self.get_fields().expect("Record fields are required.");
+
+
+        let type_token = if is_fixed {
+
+            let mut field_list: Vec<Type> = Vec::new();
+
+            for field in fields {
+                match &field.field_type {
+                    FieldType::Common(ident) => {
+                        let map = common_map2();
+                        let lookup = ident.to_string();
+                        let result = map.get(&lookup);
+                        if let Some(real_value) = result {
+                            for field2 in real_value {
+                                match &field2.field_type {
+                                    FieldType::Common(_) => todo!("This message should not be here"),
+                                    FieldType::Custom(c) => {
+                                        field_list.push(c.clone());
+                                    },
+                                    FieldType::Reference(_) => todo!("This message should not be here"),
+                                }
+                            }
+                        }
+                    },
+                    FieldType::Custom(c) => {
+                        field_list.push(c.clone());
+                    },
+                    FieldType::Reference(lit_byte_strs) => {
+                        let len = lit_byte_strs.len();
+                        let t = ident_to_type_manual(Ident::new("FormId", lit_byte_strs[0].span()));
+                        for _ in 0..len {
+                            field_list.push(t.clone());
+                        }
+                    },
+                }
+            }
+
+
+            quote! { Record<(#(#field_list),*)> }
+        } else {
+            quote! { Record<Vec<#name_field>> }
+        };
+
+
+        let mut out = quote! {
+            pub type #name = #type_token;
+            pub type #name_group = Group<#name>;
+
+            impl crate::prelude::FormIdTrait for #name {
+                fn get_form_id(&self) -> &FormId {
+                    &self.header.form_id
+                }
+            }
+
+            impl From<#name> for crate::records::SingleRecord {
+                fn from(value: #name) -> Self {
+                    Self::#iden_as_ident(value)
+                }
+            }
+        };
+        
+        
+        tokens.extend(out);
+
+    }
+}
+
+impl RecordDefinition3 {
+    pub fn is_fixed(&self) -> bool {
+        for field in &self.fields {
+            if let NamedDef::Fixed = field {
+                return true;
+            }
+        }
+        false
+    }
+
+    pub fn get_iden(&self) -> Option<&LitByteStr> {
+        for field in &self.fields {
+            if let NamedDef::Iden(iden) = field {
+                return Some(iden);
+            }
+        }
+        None
+    }
+
+    pub fn get_name(&self) -> Option<&Ident> {
+        for field in &self.fields {
+            if let NamedDef::Name(name) = field {
+                return Some(name);
+            }
+        }
+        None
+    }
+
+    pub fn get_fields(&self) -> Option<&Punctuated<FieldDefinition2, Token![;]>> {
+        for field in &self.fields {
+            if let NamedDef::Fields(fields) = field {
+                return Some(fields);
+            }
+        }
+        None
+    }
+
+    pub fn get_flags(&self) -> Option<&Punctuated<FlagDefinition, Token![;]>> {
+        for field in &self.fields {
+            if let NamedDef::Flags(flags) = field {
+                return Some(flags);
+            }
+        }
+        None
+    }
+}
+
+
+pub enum NamedDef {
+    Iden(LitByteStr),
+    Name(Ident),
+    Fields(Punctuated<FieldDefinition2, Token![;]>),
+    Flags(Punctuated<FlagDefinition, Token![;]>),
+    ChildType(Type),
+    Fixed
+}
+
+impl Parse for NamedDef {
+    fn parse(input: parse::ParseStream) -> Result<Self> {
+        let name: LitStr = input.parse()?;
+        input.parse::<Token![:]>()?;
+        let s = name.value();
+
+        match s.as_str() {
+            "iden" => { Ok(NamedDef::Iden(input.parse()?)) }
+            "name" => { Ok(NamedDef::Name(input.parse()?)) }
+            "fields" => {
+                let inner;
+                bracketed!(inner in input);
+                Ok(NamedDef::Fields(inner.parse_terminated(FieldDefinition2::parse, Token![;])?))
+            }
+            "flags" => {
+                let inner2;
+                bracketed!(inner2 in input);
+                Ok(NamedDef::Flags(inner2.parse_terminated(FlagDefinition::parse, Token![;])?))
+            }
+            "child_type" => {
+                Ok(NamedDef::ChildType(input.parse()?))
+            }
+            "fixed" => {
+                let fixed_token: LitBool = input.parse()?;
+                if fixed_token.value {
+                    Ok(NamedDef::Fixed)
+                } else {
+                    panic!("Please erase fixed field if not true.")
+                }
+            }
+
+            _ => {
+                panic!("Unhandled field value.")
+            }
+
+        }
+    }
+}
+
+
+
+fn ident_to_type_manual(ident: Ident) -> Type {
+    let path_segment = PathSegment {
+        ident,
+        arguments: PathArguments::None,
+    };
+
+    let path = Path {
+        leading_colon: None,
+        segments: std::iter::once(path_segment).collect(),
+    };
+
+    Type::Path(TypePath {
+        qself: None,
+        path,
+    })
+}
+
+fn iden_to_ident(iden: &LitByteStr) -> Ident {
+    let s = iden.value();
+    Ident::new(String::from_utf8_lossy(&s).to_string().as_str(), iden.span())
 }
