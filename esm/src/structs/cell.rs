@@ -1,4 +1,4 @@
-use crate::{dev::*, records::all::{ActorReference, Cell, Landscape, NavigationMesh, Reference}};
+use crate::{dev::*, records::all::{ActorReference, Cell, Landscape, NavigationMesh, PlayerHazard, Reference}};
 
 #[derive(Debug)]
 pub struct CellEntry {
@@ -167,7 +167,8 @@ pub enum CellChildItem {
     ItemReference(Reference),
     Landscape(Landscape),
     ActorReference(ActorReference),
-    NavigationMesh(NavigationMesh)
+    NavigationMesh(NavigationMesh),
+    PlayerHazard(PlayerHazard)
 }
 
 
@@ -191,6 +192,10 @@ impl Parse<&[u8]> for CellChildItem {
             b"NAVM" => {
                 let (i, nav_mesh) = NavigationMesh::parse(i)?;
                 Ok((i, CellChildItem::NavigationMesh(nav_mesh)))
+            }
+            b"PHZD" => {
+                let (i, phzd) = PlayerHazard::parse(i)?;
+                Ok((i, CellChildItem::PlayerHazard(phzd)))
             }
             _ => {
                 panic!("CellChildItem::parse encountered unknown record type: {:?}", header.iden);
