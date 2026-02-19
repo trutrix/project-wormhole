@@ -95,6 +95,7 @@ pub mod OTFT;
 pub mod OVIS;
 pub mod PACK;
 pub mod PERK;
+pub mod PHZD;
 pub mod PKIN;
 pub mod PROJ;
 pub mod QUST;
@@ -229,6 +230,7 @@ pub mod all {
     pub use super::OVIS::*;
     pub use super::PACK::*;
     pub use super::PERK::*;
+    pub use super::PHZD::*;
     pub use super::PKIN::*;
     pub use super::PROJ::*;
     pub use super::QUST::*;
@@ -366,6 +368,7 @@ pub enum SingleRecord {
     PACK(PACK::Package),
     PERK(PERK::Perk),
     PKIN(PKIN::PackIn),
+    PHZD(PHZD::PlayerHazard),
     PROJ(PROJ::Projectile),
     QUST(QUST::Quest),
     RACE(RACE::Race),
