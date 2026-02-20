@@ -1,7 +1,7 @@
 use std::{fmt::Debug, io::Read};
 
 
-use crate::{dev::*, records::all::*};
+use crate::{dev::*, prelude::FormIdTrait, records::all::*};
 use bitflags::bitflags;
 
 
@@ -520,10 +520,10 @@ impl<T: for<'esm> Parse<&'esm[u8]>> Parse<&[u8]> for Record<T> {
     }
 }
 
-
-pub struct Record2<T> {
-    pub header: RecordHeader,
-    pub data: T
+impl<T> FormIdTrait for Record<T> {
+    fn get_form_id(&self) -> &FormId {
+        &self.header.form_id
+    }
 }
 
 

@@ -311,12 +311,6 @@ impl ToTokens for RecordDefinition2 {
             //     }
             // }
 
-            impl crate::prelude::FormIdTrait for #name {
-                fn get_form_id(&self) -> &FormId {
-                    &self.header.form_id
-                }
-            }
-
             #[derive(Debug)]
             pub enum #name_field {
                 Unhandled(FourCC),
@@ -882,6 +876,7 @@ pub fn common_map2() -> HashMap<String, Vec<FieldDefinition2>> {
 
 // ====================================================================================================
 
+#[derive(Clone)]
 pub struct FlagDefinition {
     pub position: LitInt,
     pub name: Ident
@@ -994,18 +989,60 @@ fn make_record_traits_impl(record_name: &Ident, record_field_name: &Ident, field
 // ====================================================================================================
 
 pub struct RecordDefinition3 {
-    // pub iden: LitByteStr,
-    // pub name: Ident,
-    // pub fields: Punctuated<FieldDefinition2, Token![;]>,
-    // pub flags: Punctuated<FlagDefinition, Token![;]>
-    fields: Punctuated<NamedDef, Token![;]>
+    pub iden: LitByteStr,
+    pub name: Ident,
+    pub flags: Option<Punctuated<FlagDefinition, Token![;]>>,
+    pub fields: Punctuated<FieldDefinition2, Token![;]>,
+    pub fixed: bool
 }
 
 impl Parse for RecordDefinition3 {
     fn parse(input: parse::ParseStream) -> Result<Self> {
-        let fields = input.parse_terminated(NamedDef::parse, Token![;])?;
+        let field_defs = input.parse_terminated(NamedDef::parse, Token![;])?;
 
-        Ok(RecordDefinition3 { fields  })
+        let iden = field_defs.iter().find_map(|f| {
+            if let NamedDef::Iden(iden) = f {
+                Some(iden.clone())
+            } else {
+                None
+            }
+        }).expect("iden is required.");
+
+        let name = field_defs.iter().find_map(|f| {
+            if let NamedDef::Name(name) = f {
+                Some(name.clone())
+            } else {
+                None
+            }
+        }).expect("name is required.");
+
+        let flags = field_defs.iter().find_map(|f| {
+            if let NamedDef::Flags(flags) = f {
+                Some(flags.clone())
+            } else {
+                None
+            }
+        });
+
+        let fields = field_defs.iter().find_map(|f| {
+            if let NamedDef::Fields(fields) = f {
+                Some(fields.clone())
+            } else {
+                None
+            }
+        }).expect("fields are required.");
+
+        let fixed = field_defs.iter().any(|f| {
+            if let NamedDef::Fixed(v) = f {
+                *v
+            } else {
+                false
+            }
+        });
+
+
+
+        Ok(RecordDefinition3 { iden, name, flags, fields, fixed })
 
     }
 }
@@ -1013,13 +1050,13 @@ impl Parse for RecordDefinition3 {
 impl ToTokens for RecordDefinition3 {
     fn to_tokens(&self, tokens: &mut TokenStream) {
 
-        let iden = self.get_iden().expect("Record iden is required.");
+        let iden = &self.iden;
         let iden_as_ident = iden_to_ident(iden);
-        let name = self.get_name().expect("Record name is required.");
+        let name = &self.name;
         let name_field = Ident::new(format!("{}Field", name.clone().to_string().as_str()).as_str(), name.span());
         let name_group = Ident::new(format!("{}Group", name.clone().to_string().as_str()).as_str(), name.span());
-        let is_fixed = self.is_fixed();
-        let fields = self.get_fields().expect("Record fields are required.");
+        let is_fixed = self.fixed;
+        let fields = &self.fields;
 
 
         let type_token = if is_fixed {
@@ -1068,12 +1105,6 @@ impl ToTokens for RecordDefinition3 {
             pub type #name = #type_token;
             pub type #name_group = Group<#name>;
 
-            impl crate::prelude::FormIdTrait for #name {
-                fn get_form_id(&self) -> &FormId {
-                    &self.header.form_id
-                }
-            }
-
             impl From<#name> for crate::records::SingleRecord {
                 fn from(value: #name) -> Self {
                     Self::#iden_as_ident(value)
@@ -1087,52 +1118,6 @@ impl ToTokens for RecordDefinition3 {
     }
 }
 
-impl RecordDefinition3 {
-    pub fn is_fixed(&self) -> bool {
-        for field in &self.fields {
-            if let NamedDef::Fixed = field {
-                return true;
-            }
-        }
-        false
-    }
-
-    pub fn get_iden(&self) -> Option<&LitByteStr> {
-        for field in &self.fields {
-            if let NamedDef::Iden(iden) = field {
-                return Some(iden);
-            }
-        }
-        None
-    }
-
-    pub fn get_name(&self) -> Option<&Ident> {
-        for field in &self.fields {
-            if let NamedDef::Name(name) = field {
-                return Some(name);
-            }
-        }
-        None
-    }
-
-    pub fn get_fields(&self) -> Option<&Punctuated<FieldDefinition2, Token![;]>> {
-        for field in &self.fields {
-            if let NamedDef::Fields(fields) = field {
-                return Some(fields);
-            }
-        }
-        None
-    }
-
-    pub fn get_flags(&self) -> Option<&Punctuated<FlagDefinition, Token![;]>> {
-        for field in &self.fields {
-            if let NamedDef::Flags(flags) = field {
-                return Some(flags);
-            }
-        }
-        None
-    }
-}
 
 
 pub enum NamedDef {
@@ -1141,7 +1126,7 @@ pub enum NamedDef {
     Fields(Punctuated<FieldDefinition2, Token![;]>),
     Flags(Punctuated<FlagDefinition, Token![;]>),
     ChildType(Type),
-    Fixed
+    Fixed(bool)
 }
 
 impl Parse for NamedDef {
@@ -1169,9 +1154,9 @@ impl Parse for NamedDef {
             "fixed" => {
                 let fixed_token: LitBool = input.parse()?;
                 if fixed_token.value {
-                    Ok(NamedDef::Fixed)
+                    Ok(NamedDef::Fixed(true))
                 } else {
-                    panic!("Please erase fixed field if not true.")
+                    Ok(NamedDef::Fixed(false))
                 }
             }
 

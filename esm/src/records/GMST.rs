@@ -1,6 +1,6 @@
 use project_wormhole_proc::define_record3;
 
-use crate::{dev::*, esm::ESMError};
+use crate::{dev::*, esm::ESMError, prelude::EditorIdTrait};
 
 // define_record2! {
 //     b"GMST",
@@ -23,8 +23,14 @@ define_record3! {
     "fixed": true;
 }
 
+impl EditorIdTrait for GameSetting {
+    fn get_editor_id(&self) -> &EditorId {
+        &self.data.0
+    }
+}
+
 impl GameSetting {
-    fn get_value(&self) -> Result<GameSettingValue, ESMError> {
+    fn get_value(&self) -> Result<EGameSettingValue, ESMError> {
         let edid = &self.data.0;
         let raw_value = &self.data.1;
 
@@ -33,42 +39,42 @@ impl GameSetting {
                 match c {
                     'b' => {
                         let value = raw_value[0] != 0;
-                        return Ok(GameSettingValue::Boolean(value));
+                        return Ok(EGameSettingValue::Boolean(value));
                     }
                     'i' => {
                         let value = i32::from_le_bytes(raw_value[0..4].try_into().unwrap());
-                        return Ok(GameSettingValue::Integer(value));
+                        return Ok(EGameSettingValue::Integer(value));
                     }
                     'f' => {
                         let value = f32::from_le_bytes(raw_value[0..4].try_into().unwrap());
-                        return Ok(GameSettingValue::Float(value));
+                        return Ok(EGameSettingValue::Float(value));
                     }
                     's' | 'S' => {
                         let value = String::from_utf8_lossy(&raw_value[0..]).to_string();
-                        return Ok(GameSettingValue::String(value));
+                        return Ok(EGameSettingValue::String(value));
                     }
                     'c' => {
                         let value = raw_value[0] as char;
-                        return Ok(GameSettingValue::Char(value));
+                        return Ok(EGameSettingValue::Char(value));
                     }
                     'h' => {
                         let value = raw_value[0] as char;
-                        return Ok(GameSettingValue::HexChar(value));
+                        return Ok(EGameSettingValue::HexChar(value));
                     }
                     'u' => {
                         let value = u32::from_le_bytes(raw_value[0..4].try_into().unwrap());
-                        return Ok(GameSettingValue::UnsignedInt(value));
+                        return Ok(EGameSettingValue::UnsignedInt(value));
                     }
                     'r' => {
                         let value = u32::from_le_bytes(raw_value[0..4].try_into().unwrap());
-                        return Ok(GameSettingValue::RGB(value));
+                        return Ok(EGameSettingValue::RGB(value));
                     }
                     'a' => {
                         let value = u32::from_le_bytes(raw_value[0..4].try_into().unwrap());
-                        return Ok(GameSettingValue::RGBA(value));
+                        return Ok(EGameSettingValue::RGBA(value));
                     }
                     _ => {
-                        return Ok(GameSettingValue::Unknown(c as u8, raw_value.clone()));
+                        return Ok(EGameSettingValue::Unknown(c as u8, raw_value.clone()));
                     }
                 }
             }
@@ -91,7 +97,7 @@ impl GameSetting {
 // 9	Any value that's not one of the above.
 
 #[derive(Debug)]
-pub enum GameSettingValue {
+pub enum EGameSettingValue {
     Boolean(bool),
     Integer(i32),
     Float(f32),
