@@ -10,6 +10,9 @@ use syn::{*, parse::Parse, punctuated::Punctuated};
 
 use super::record_consts::*;
 
+// -- TODO --
+// Unify logic for FieldDefinition types (make a function)
+
 // ====================================================================================================
 
 // pub struct RecordDefinition {
