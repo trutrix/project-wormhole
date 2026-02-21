@@ -485,7 +485,7 @@ impl Parse<&[u8]> for TopGroup {
         let orig = i;
         let (i, (header, _)) = alloc_group(i)?;
 
-        println!("Parsing TopGroup: {:?}", header.label);
+        // println!("Parsing TopGroup: {:?}", header.label);
 
         if header.size == 0 {
             return Ok((i, TopGroup::Empty(Group { header, data: Vec::new() })));
