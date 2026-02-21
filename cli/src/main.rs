@@ -1,8 +1,6 @@
 use clap::{Parser, Subcommand};
+use project_wormhole_esm::esm::{self, MappedESM};
 
-use crate::{group::GroupCommands, record::{RecordCommands, handle_record_command}};
-mod record;
-mod group;
 
 /// Simple program to greet a person
 #[derive(Parser, Debug)]
@@ -18,16 +16,7 @@ struct Args {
 
 #[derive(Subcommand, Debug)]
 pub enum TopCommands {
-    Record {
-        #[command(subcommand)]
-        record_command: RecordCommands,
-        #[arg(short)]
-        record_id: Option<u32>
-    },
-    Group {
-        #[command(subcommand)]
-        group_command: GroupCommands
-    }
+    Benchmark
 }
 
 fn main() {
@@ -42,15 +31,37 @@ fn main() {
     }
 
     match args.command {
-        Some(c) => {
-            match c {
-                TopCommands::Group { group_command } => todo!(),
-                TopCommands::Record { record_command, record_id } => handle_record_command(&record_command, &path, record_id),
-            }
+        Some(TopCommands::Benchmark) => {
+            println!("");
+            println!("Running benchmark...");
+            println!("");
+
+            let file_start = std::time::Instant::now();
+            let data = std::fs::read(&args.esm_path).expect("Failed to read file");
+            let file_duration = file_start.elapsed();
+
+            let parse_start = std::time::Instant::now();
+            let (_, esm) = esm::ESMFull::parse(&data).expect("Error parsing ESM file.");
+            let parse_duration_single = parse_start.elapsed();
+
+            let parse_start = std::time::Instant::now();
+            let (_, esm) = esm::ESMFull::parse_mt(&data).expect("Error parsing ESM file.");
+            let parse_duration_multi = parse_start.elapsed();
+
+            let map_start = std::time::Instant::now();
+            let _map = MappedESM::from(esm);
+            let map_duration = map_start.elapsed();
+
+            println!("File read time: {:?}", file_duration);
+            println!("Parse time (single): {:?}", parse_duration_single);
+            println!("Parse time (multi): {:?}", parse_duration_multi);
+            println!("Mapping time: {:?}", map_duration);
         },
+
         None => {
-            eprintln!("No command specified. Use --help for usage information.");
-        },
+            println!("No command specified");
+        }
     }
+    
 
 }
