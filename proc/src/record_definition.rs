@@ -1060,6 +1060,12 @@ impl ToTokens for RecordDefinition3 {
         let name_group = Ident::new(format!("{}Group", name.clone().to_string().as_str()).as_str(), name.span());
         let is_fixed = self.fixed;
         let fields = &self.fields;
+        let field_names: Vec<Ident> = fields.iter().map(|f| f.name.clone()).collect();
+        let field_types: Vec<&FieldType> = fields.iter().map(|f| &f.field_type).collect();
+        let field_idens: Vec<proc_macro2::TokenStream> = fields.iter().map(|f| {
+            let iden = &f.iden;
+            quote! { #iden }
+        }).collect();
 
 
         let type_token = if is_fixed {
@@ -1113,6 +1119,33 @@ impl ToTokens for RecordDefinition3 {
                     Self::#iden_as_ident(value)
                 }
             }
+
+            #[derive(Debug)]
+            pub enum #name_field {
+                Unhandled(FourCC),
+                #(#field_names(#field_types)),*
+            }
+
+            impl Parse<&[u8]> for #name_field {
+                fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
+                    let (i, (header, data)) = alloc_field(i)?;
+                    match &header.iden().0 {
+                        #(
+                            #field_idens => {
+                                let (_, out) = <#field_types>::parse_le(data)?;
+                                Ok((i, Self::#field_names(out)))
+                            }
+                        )*
+                        _ => {
+                            //unimplemented!("Field {} not implemented", header.iden());
+                            Ok((i, #name_field::Unhandled(header.iden().clone())))
+                        }
+                    }
+
+                    
+                }
+            }
+
         };
         
         
