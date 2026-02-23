@@ -1,7 +1,7 @@
 use std::{fmt::Debug, io::Read};
 
 
-use crate::{dev::*, records::all::*};
+use crate::{dev::*, prelude::FormIdTrait, records::all::*};
 use bitflags::bitflags;
 
 
@@ -404,7 +404,6 @@ impl RecordFlags2 {
 
 // ====================================================================================================
 
-#[derive(PartialEq, Eq)]
 pub struct RawRecord<'esm> {
     pub header: RecordHeader,
     pub data: RawRecordData<'esm>,
@@ -468,6 +467,16 @@ impl RawRecordData<'_> {
 }
 
 
+impl PartialEq for RawRecord<'_> {
+    fn eq(&self, other: &Self) -> bool {
+        self.header == other.header && self.data.len() == other.data.len() && self.data == other.data
+    }
+}
+
+impl Eq for RawRecord<'_> {
+    
+}
+
 
 // ====================================================================================================
 
@@ -491,32 +500,38 @@ pub fn alloc_record(i: &[u8]) -> IResult<&[u8], (RecordHeader, &[u8]), nom::erro
 #[derive(Debug)]
 pub struct Record<T> {
     pub header: RecordHeader,
-    pub fields: Vec<T>
+    pub data: T
 }
 
 
 impl<T: for<'esm> Parse<&'esm[u8]>> Parse<&[u8]> for Record<T> {
-    fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
+    fn parse(i: &[u8]) -> IResult<&[u8], Self, nom_derive::nom::error::Error<&[u8]>> {
         let (i, (header, raw)) = alloc_record(i)?;
 
         if header.flags.is_compressed() {
             if let Ok(dec) = decompress_record(raw) {
                 
-                if let Ok((_, fields)) = many0(T::parse)(&dec) {
-                    Ok((i, Self { header, fields }))
+                if let Ok((_, data)) = T::parse(&dec) {
+                    Ok((i, Self { header, data }))
                 } else {
-                    Err(nom::Err::Error(nom::error::Error::new(i, nom::error::ErrorKind::Complete)))
+                    Err(nom_derive::nom::Err::Error(nom::error::Error::new(i, nom::error::ErrorKind::Complete)))
                 }
                 
             } else {
                 panic!("Could not decompress record: {:?}", header);
             }
             
-        } else if let Ok((_, fields)) = many0(T::parse)(raw) {
-            Ok((i, Self { header, fields }))
+        } else if let Ok((_, data)) = T::parse(raw) {
+            Ok((i, Self { header, data }))
         } else {
-            Err(nom::Err::Error(nom::error::Error::new(i, nom::error::ErrorKind::Complete)))
+            Err(nom_derive::nom::Err::Error(nom::error::Error::new(i, nom::error::ErrorKind::Complete)))
         }       
+    }
+}
+
+impl<T> FormIdTrait for Record<T> {
+    fn get_form_id(&self) -> &FormId {
+        &self.header.form_id
     }
 }
 

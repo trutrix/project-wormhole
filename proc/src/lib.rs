@@ -43,6 +43,15 @@ pub fn define_record2(input: TokenStream) -> TokenStream {
 }
 
 
+#[proc_macro]
+pub fn define_record3(input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input as record_definition::RecordDefinition3);
+    let out = quote! { #input };
+    out.into()
+}
+
+
+
 
 #[proc_macro_derive(VersionedParse)]
 pub fn derive_versioned_parse(input: TokenStream) -> TokenStream {

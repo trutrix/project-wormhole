@@ -1,8 +1,10 @@
-use crate::dev::*;
+use project_wormhole_shared::prelude::ParseV;
+
+use crate::{dev::*};
 
 
 // TODO: Verify data, just because it parses doesn't mean it's correct!
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct VirtualMachineAdapter {
     pub version: i16,
     pub object_format: i16,
@@ -39,7 +41,7 @@ impl Parse<&[u8]> for VirtualMachineAdapter {
         depth += 1;
 
         while loop_count < script_count {
-            let (i_new, script) = VMADScriptEntry::parse_versioned(remaining, version)?;
+            let (i_new, script) = VMADScriptEntry::parsev(remaining, version)?;
             scripts.push(script);
             loop_count += 1;
             remaining = i_new;
@@ -50,7 +52,7 @@ impl Parse<&[u8]> for VirtualMachineAdapter {
 }
 
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct VMADScriptEntry {
     pub script_name: SizedString16,
     pub flags: VMADScriptFlags,
@@ -59,8 +61,8 @@ pub struct VMADScriptEntry {
     pub fragments: Vec<u8>
 }
 
-impl<'nom> ParseVersioned<'nom, i16, nom::error::Error<&'nom[u8]>> for VMADScriptEntry {
-    fn parse_versioned(i: &[u8], version: i16) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
+impl ParseV<&[u8], i16> for VMADScriptEntry {
+    fn parsev(i: &[u8], version: i16) -> nom_derive::nom::IResult<&[u8], Self, nom_derive::nom::error::Error<&[u8]>> {
         let (i, script_name) = SizedString16::parse(i)?;
         //println!("Parsed VMAD script name: {}", script_name);
         let (i, flags) = if version >= 4 {
@@ -78,6 +80,44 @@ impl<'nom> ParseVersioned<'nom, i16, nom::error::Error<&'nom[u8]>> for VMADScrip
     }
 }
 
+// impl<'nom> ParseVersioned<VMADScriptEntry, u32, nom::error::Error<&[u8]>> for VMADScriptEntry {
+//     fn parse<'nom>(i: &'nom[u8], version: &'nom Option<u32>) -> IResult<&'nom[u8], Self, nom::error::Error<&'nom[u8]>> {
+//         let (i, script_name) = SizedString16::parse(i)?;
+//         //println!("Parsed VMAD script name: {}", script_name);
+//         let (i, flags) = if version >= 4 {
+//             VMADScriptFlags::parse(i)?
+//         } else {
+//             (i, VMADScriptFlags::empty())
+//         };
+//         let (i, property_count) = le_u16(i)?;
+//         if property_count == 0 {
+//             return Ok((i, VMADScriptEntry { script_name, flags, property_count, properties: Vec::new(), fragments: Vec::new() }) )
+//         }
+//         let (i, properties) = nom::multi::count(VMADPropertyEntry::parse, property_count as usize)(i)?;
+
+//         Ok((i, VMADScriptEntry { script_name, flags, property_count, properties, fragments: Vec::new() }) )
+//     }
+// }
+
+// impl Parse for VMADScriptEntry {
+//     fn parse(i: &[u8]) -> nom_derive::nom::IResult<&[u8], Self, nom::error::Error<&[u8]>> {
+//         let (i, script_name) = SizedString16::parse(i)?;
+//         //println!("Parsed VMAD script name: {}", script_name);
+//         let (i, flags) = if version >= 4 {
+//             VMADScriptFlags::parse(i)?
+//         } else {
+//             (i, VMADScriptFlags::empty())
+//         };
+//         let (i, property_count) = le_u16(i)?;
+//         if property_count == 0 {
+//             return Ok((i, VMADScriptEntry { script_name, flags, property_count, properties: Vec::new(), fragments: Vec::new() }) )
+//         }
+//         let (i, properties) = nom::multi::count(VMADPropertyEntry::parse, property_count as usize)(i)?;
+
+//         Ok((i, VMADScriptEntry { script_name, flags, property_count, properties, fragments: Vec::new() }) )
+//     }
+// }
+
 
 // impl Parse<&[u8]> for VMADScriptEntry {
 //     fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
@@ -91,7 +131,7 @@ impl<'nom> ParseVersioned<'nom, i16, nom::error::Error<&'nom[u8]>> for VMADScrip
 //     }
 // }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct VMADPropertyEntry {
     pub name: SizedString16,
     pub type_: VMADPropertyType,
@@ -206,128 +246,128 @@ impl Parse<&[u8]> for VMADPropertyEntry {
     }
 }
 
-impl<'esm> ParseVersioned<'esm, i16, nom::error::Error<&'esm[u8]>> for VMADPropertyEntry {
-    fn parse_versioned(i: &[u8], version: i16) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
-        let (i, name) = SizedString16::parse(i)?;
-        let (i, type_) = VMADPropertyType::parse(i)?;
-        let (i, flags) = le_u8(i)?;
+// impl<'esm> ParseVersioned<'esm, u32, nom::error::Error<&'esm[u8]>> for VMADPropertyEntry {
+//     fn parse_versioned(i: &[u8], version: i16) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
+//         let (i, name) = SizedString16::parse(i)?;
+//         let (i, type_) = VMADPropertyType::parse(i)?;
+//         let (i, flags) = le_u8(i)?;
 
-        println!("VMAD property name: {}, type: {:?}, flags: {}", name, type_, flags);
+//         println!("VMAD property name: {}, type: {:?}, flags: {}", name, type_, flags);
 
-        match type_ {
-            VMADPropertyType::Null => {
-                // Null
-                Ok((i, VMADPropertyEntry { name, type_, flags, value: VMADPropertyValue::Null }))
-            }
-            VMADPropertyType::Object => {
-                // Object
-                let (i, v1) = le_u16(i)?;
-                let (i, v2) = le_u16(i)?;
-                let (i, v3) = FormId::parse_le(i)?;
+//         match type_ {
+//             VMADPropertyType::Null => {
+//                 // Null
+//                 Ok((i, VMADPropertyEntry { name, type_, flags, value: VMADPropertyValue::Null }))
+//             }
+//             VMADPropertyType::Object => {
+//                 // Object
+//                 let (i, v1) = le_u16(i)?;
+//                 let (i, v2) = le_u16(i)?;
+//                 let (i, v3) = FormId::parse_le(i)?;
                 
 
-                Ok((i, VMADPropertyEntry { name, type_, flags, value: VMADPropertyValue::Object(VMADObjectRef::V2((v1, v2, v3))) }))
-            },
-            VMADPropertyType::String => {
-                // String
-                let (i, value) = SizedString16::parse(i)?;
-                Ok((i, VMADPropertyEntry { name, type_, flags, value: VMADPropertyValue::String(value) }))
-            },
-            VMADPropertyType::Int => {
-                // Int
-                let (i, value) = le_i32(i)?;
-                Ok((i, VMADPropertyEntry { name, type_, flags, value: VMADPropertyValue::Int(value) }))
-            },
-            VMADPropertyType::Float => {
-                // Float
-                let (i, value) = le_f32(i)?;
-                Ok((i, VMADPropertyEntry { name, type_, flags, value: VMADPropertyValue::Float(value) }))
-            },
-            VMADPropertyType::Bool => {
-                // Bool
-                let (i, value) = le_u8(i)?;
-                Ok((i, VMADPropertyEntry { name, type_, flags, value: VMADPropertyValue::Bool(value != 0) }))
-            },
-            // 6 => {
-            //     // Null
-            //     Ok((i, VMADPropertyEntry { name, type_, flags, value: VMADPropertyValue::Null }))
-            // },
-            VMADPropertyType::Struct => {
-                // Unsupported
-                let (i, value) = VMADPropertyEntry::parse(i)?;
-                Ok((i, VMADPropertyEntry { name, type_, flags, value: VMADPropertyValue::Struct(Box::new(value)) }))
-            }
-            VMADPropertyType::ObjectArray => {
-                // Object Array
-                let (i, item_count) = le_u32(i)?;
-                let (i, values) = nom::multi::count(FormId::parse, item_count as usize)(i)?;
-                Ok((i, VMADPropertyEntry { name, type_, flags, value: VMADPropertyValue::ObjectArray(values) }))
-            },
-            VMADPropertyType::StringArray => {
-                // String Array
-                let (i, item_count) = le_u32(i)?;
-                let (i, values) = nom::multi::count(SizedString16::parse, item_count as usize)(i)?;
-                Ok((i, VMADPropertyEntry { name, type_, flags, value: VMADPropertyValue::StringArray(values) }))
-            },
-            VMADPropertyType::IntArray => {
-                // Int Array
-                let (i, item_count) = le_u32(i)?;
-                let (i, values) = nom::multi::count(le_i32, item_count as usize)(i)?;
-                Ok((i, VMADPropertyEntry { name, type_, flags, value: VMADPropertyValue::IntArray(values) }))
-            },
-            VMADPropertyType::FloatArray => {
-                // Float Array
-                let (i, item_count) = le_u32(i)?;
-                let (i, values) = nom::multi::count(le_f32, item_count as usize)(i)?;
-                Ok((i, VMADPropertyEntry { name, type_, flags, value: VMADPropertyValue::FloatArray(values) }))
-            },
-            VMADPropertyType::BoolArray => {
-                // Bool Array
-                let (i, item_count) = le_u32(i)?;
-                let (i, raw_values) = nom::multi::count(le_u8, item_count as usize)(i)?;
-                let values: Vec<bool> = raw_values.iter().map(|&b| b != 0).collect();
-                Ok((i, VMADPropertyEntry { name, type_, flags, value: VMADPropertyValue::BoolArray(values) }))
-            },
-            VMADPropertyType::VarArray => {
-                // Var Array
-                Ok((i, VMADPropertyEntry { name, type_, flags, value: VMADPropertyValue::VarArray}))
-            },
-            VMADPropertyType::StructArray => {
-                // Struct Array
-                let (i, item_count) = le_u32(i)?;
+//                 Ok((i, VMADPropertyEntry { name, type_, flags, value: VMADPropertyValue::Object(VMADObjectRef::V2((v1, v2, v3))) }))
+//             },
+//             VMADPropertyType::String => {
+//                 // String
+//                 let (i, value) = SizedString16::parse(i)?;
+//                 Ok((i, VMADPropertyEntry { name, type_, flags, value: VMADPropertyValue::String(value) }))
+//             },
+//             VMADPropertyType::Int => {
+//                 // Int
+//                 let (i, value) = le_i32(i)?;
+//                 Ok((i, VMADPropertyEntry { name, type_, flags, value: VMADPropertyValue::Int(value) }))
+//             },
+//             VMADPropertyType::Float => {
+//                 // Float
+//                 let (i, value) = le_f32(i)?;
+//                 Ok((i, VMADPropertyEntry { name, type_, flags, value: VMADPropertyValue::Float(value) }))
+//             },
+//             VMADPropertyType::Bool => {
+//                 // Bool
+//                 let (i, value) = le_u8(i)?;
+//                 Ok((i, VMADPropertyEntry { name, type_, flags, value: VMADPropertyValue::Bool(value != 0) }))
+//             },
+//             // 6 => {
+//             //     // Null
+//             //     Ok((i, VMADPropertyEntry { name, type_, flags, value: VMADPropertyValue::Null }))
+//             // },
+//             VMADPropertyType::Struct => {
+//                 // Unsupported
+//                 let (i, value) = VMADPropertyEntry::parse(i)?;
+//                 Ok((i, VMADPropertyEntry { name, type_, flags, value: VMADPropertyValue::Struct(Box::new(value)) }))
+//             }
+//             VMADPropertyType::ObjectArray => {
+//                 // Object Array
+//                 let (i, item_count) = le_u32(i)?;
+//                 let (i, values) = nom::multi::count(FormId::parse, item_count as usize)(i)?;
+//                 Ok((i, VMADPropertyEntry { name, type_, flags, value: VMADPropertyValue::ObjectArray(values) }))
+//             },
+//             VMADPropertyType::StringArray => {
+//                 // String Array
+//                 let (i, item_count) = le_u32(i)?;
+//                 let (i, values) = nom::multi::count(SizedString16::parse, item_count as usize)(i)?;
+//                 Ok((i, VMADPropertyEntry { name, type_, flags, value: VMADPropertyValue::StringArray(values) }))
+//             },
+//             VMADPropertyType::IntArray => {
+//                 // Int Array
+//                 let (i, item_count) = le_u32(i)?;
+//                 let (i, values) = nom::multi::count(le_i32, item_count as usize)(i)?;
+//                 Ok((i, VMADPropertyEntry { name, type_, flags, value: VMADPropertyValue::IntArray(values) }))
+//             },
+//             VMADPropertyType::FloatArray => {
+//                 // Float Array
+//                 let (i, item_count) = le_u32(i)?;
+//                 let (i, values) = nom::multi::count(le_f32, item_count as usize)(i)?;
+//                 Ok((i, VMADPropertyEntry { name, type_, flags, value: VMADPropertyValue::FloatArray(values) }))
+//             },
+//             VMADPropertyType::BoolArray => {
+//                 // Bool Array
+//                 let (i, item_count) = le_u32(i)?;
+//                 let (i, raw_values) = nom::multi::count(le_u8, item_count as usize)(i)?;
+//                 let values: Vec<bool> = raw_values.iter().map(|&b| b != 0).collect();
+//                 Ok((i, VMADPropertyEntry { name, type_, flags, value: VMADPropertyValue::BoolArray(values) }))
+//             },
+//             VMADPropertyType::VarArray => {
+//                 // Var Array
+//                 Ok((i, VMADPropertyEntry { name, type_, flags, value: VMADPropertyValue::VarArray}))
+//             },
+//             VMADPropertyType::StructArray => {
+//                 // Struct Array
+//                 let (i, item_count) = le_u32(i)?;
 
-                // let (i, sub_count) = le_u32(i)?;
-                // println!("{}VMAD property struct array sub-count {}", depth_to_space(depth), sub_count);
+//                 // let (i, sub_count) = le_u32(i)?;
+//                 // println!("{}VMAD property struct array sub-count {}", depth_to_space(depth), sub_count);
 
-                // let (i, st) = SizedString16::parse(i)?;
-                // println!("{}VMAD property struct array type name: {}", depth_to_space(depth), st);
+//                 // let (i, st) = SizedString16::parse(i)?;
+//                 // println!("{}VMAD property struct array type name: {}", depth_to_space(depth), st);
 
-                // todo!()
-                if let Ok((i, values)) = nom::multi::count(SubStruct::parse, item_count as usize)(i) {
-                    Ok((i, VMADPropertyEntry { name, type_, flags, value: VMADPropertyValue::StructArray(values)}))    
-                } else {
-                    panic!("Failed to parse struct array items!");
-                    Ok((i, VMADPropertyEntry { name, type_, flags, value: VMADPropertyValue::StructArray(Vec::new())}))
-                }
-            }
-            _ => {
+//                 // todo!()
+//                 if let Ok((i, values)) = nom::multi::count(SubStruct::parse, item_count as usize)(i) {
+//                     Ok((i, VMADPropertyEntry { name, type_, flags, value: VMADPropertyValue::StructArray(values)}))    
+//                 } else {
+//                     panic!("Failed to parse struct array items!");
+//                     Ok((i, VMADPropertyEntry { name, type_, flags, value: VMADPropertyValue::StructArray(Vec::new())}))
+//                 }
+//             }
+//             _ => {
 
-                #[cfg(debug_assertions)]
-                {
-                    println!("Encountered unsupported VMAD property type: {:?} for {}", type_, name);
-                }
+//                 #[cfg(debug_assertions)]
+//                 {
+//                     println!("Encountered unsupported VMAD property type: {:?} for {}", type_, name);
+//                 }
 
 
-                Ok((i, VMADPropertyEntry { name, type_, flags, value: VMADPropertyValue::Unsupported}))
-            }
-        }
-    }
-}
+//                 Ok((i, VMADPropertyEntry { name, type_, flags, value: VMADPropertyValue::Unsupported}))
+//             }
+//         }
+//     }
+// }
 
 
 // ====================================================================================================
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum VMADPropertyValue {
     Null, // 0, 6
     Object(VMADObjectRef), // 1
@@ -348,7 +388,7 @@ pub enum VMADPropertyValue {
 
 // ====================================================================================================
 
-#[derive(Debug, NomLE)]
+#[derive(Debug, NomLE, PartialEq)]
 #[repr(u8)]
 pub enum VMADPropertyType {
     // Singles
@@ -373,7 +413,7 @@ pub enum VMADPropertyType {
 
 // ====================================================================================================
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum VMADObjectRef {
     V1((FormId, u16, u16)),
     V2((u16, u16, FormId))
@@ -409,7 +449,7 @@ impl Parse<&[u8]> for VMADScriptFlags {
 
 // ====================================================================================================
 
-#[derive(Debug, NomLE)]
+#[derive(Debug, NomLE, PartialEq)]
 pub struct SubStruct {
     #[nom(LengthCount = "le_u32")]
     pub values: Vec<VMADPropertyEntry>

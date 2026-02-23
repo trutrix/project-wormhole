@@ -6,6 +6,8 @@ pub mod esm;
 pub mod consts;
 mod tests;
 
+
+
 mod dev {
     pub use nom_derive::{Parse, NomLE};
     pub use nom::IResult;
@@ -14,7 +16,7 @@ mod dev {
     pub use nom::bytes::complete::take;
     
     pub use nom_derive::nom;
-    pub use project_wormhole_proc::{define_record2, VersionedParse};
+    pub use project_wormhole_proc::{define_record2, define_record3};
 
     pub use super::traits::*;
     pub use super::consts::*;
@@ -33,4 +35,10 @@ mod dev {
     pub use super::structs::data::*;
     pub use super::structs::model::*;
     pub use super::structs::form_id::FormId;
+}
+
+
+pub mod prelude {
+    pub use crate::traits::prelude::*;
+    pub use nom_derive::Parse;
 }

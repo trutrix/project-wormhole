@@ -2,6 +2,7 @@ use std::fmt::Debug;
 
 use crate::records::all::*;
 use crate::dev::*;
+use crate::structs::cell::CellEntry;
 use crate::structs::world::WorldEntry;
 use super::record::VersionControl;
 
@@ -63,14 +64,14 @@ impl Parse<&[u8]> for GroupLabel {
             0 => { Ok((i, GroupLabel::Top(data))) }
             1 => { Ok((i, GroupLabel::WorldChildren(u32::from_le_bytes(data.0)))) }
             2 => { Ok((i, GroupLabel::InteriorCellBlock(i32::from_le_bytes(data.0)))) }
-            3 => { Ok((i, GroupLabel::InteriorCellSubBlock(i32::from_le_bytes(data.0))))}
+            3 => { Ok((i, GroupLabel::InteriorCellSubBlock(i32::from_le_bytes(data.0)))) }
             4 => { Ok((i, GroupLabel::ExteriorCellBlock([i16::from_le_bytes(data.0[0..2].try_into().unwrap()), i16::from_le_bytes(data.0[2..4].try_into().unwrap())]))) }
             5 => { Ok((i, GroupLabel::ExteriorCellSubBlock([i16::from_le_bytes(data.0[0..2].try_into().unwrap()), i16::from_le_bytes(data.0[2..4].try_into().unwrap())]))) }
             6 => { Ok((i, GroupLabel::CellChildren(u32::from_le_bytes(data.0)))) }
-            7 => { Ok((i, GroupLabel::TopicChildren(u32::from_le_bytes(data.0))))}
+            7 => { Ok((i, GroupLabel::TopicChildren(u32::from_le_bytes(data.0)))) }
             8 => { Ok((i, GroupLabel::CellPersistentChildren(u32::from_le_bytes(data.0)))) }
             9 => { Ok((i, GroupLabel::CellTemporaryChildren(u32::from_le_bytes(data.0)))) }
-            10 => { Ok((i, GroupLabel::CellVisibleDistantChildren(u32::from_le_bytes(data.0))))}
+            10 => { Ok((i, GroupLabel::CellVisibleDistantChildren(u32::from_le_bytes(data.0)))) }
             _ => { Ok((i, GroupLabel::Unknown(data))) }
         }
     }
@@ -114,32 +115,16 @@ impl Debug for RawDataGroup<'_> {
 
 
 #[derive(Debug)]
-pub struct GroupVec<T> {
-    pub header: GroupHeader,
-    pub data: Vec<T>
-}
-
-impl<T: for<'esm> Parse<&'esm[u8]>> Parse<&[u8]> for GroupVec<T> {
-    fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
-        let (i, (header, data)) = alloc_group(i)?;
-        let (_, records) = many0(T::parse)(data)?;
-        Ok((i, GroupVec { header, data: records }))
-    }
-}
-
-// ====================================================================================================
-
-#[derive(Debug)]
 pub struct Group<T> {
     pub header: GroupHeader,
-    pub data: T
+    pub data: Vec<T>
 }
 
 impl<T: for<'esm> Parse<&'esm[u8]>> Parse<&[u8]> for Group<T> {
     fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
         let (i, (header, data)) = alloc_group(i)?;
-        let (_, data) = T::parse(data)?;
-        Ok((i, Group { header, data }))
+        let (_, records) = many0(T::parse)(data)?;
+        Ok((i, Group { header, data: records }))
     }
 }
 
@@ -185,6 +170,17 @@ impl std::fmt::Debug for RawInteriorCellBlock<'_> {
         write!(f, "{:?} {} bytes", self.header, self.data.len())
     }
 }
+
+
+// ====================================================================================================
+
+pub type CellGroup = Group<InteriorCellBlock>;
+
+#[derive(Debug, NomLE)]
+pub struct InteriorCellBlock(pub Group<InteriorCellSubBlock>);
+
+#[derive(Debug, NomLE)]
+pub struct InteriorCellSubBlock(pub Group<CellEntry>);
 
 
 // ====================================================================================================
@@ -353,665 +349,290 @@ impl<'esm> Parse<&'esm[u8]> for RawQuestGroup<'esm> {
 
 #[derive(Debug)]
 pub enum TopGroup {
-    Unhandled(GroupVec<RawRecord<'static>>),
-    Empty(GroupVec<RawRecord<'static>>),
-    AACT(GroupVec<Action>),
-    ACTI(GroupVec<Activator>),
-    ADDN(GroupVec<AddonNode>),
-    AECH(GroupVec<AudioEffectChain>),
-    ALCH(GroupVec<Alchemy>),
-    AMDL(GroupVec<AimModel>),
-    AMMO(GroupVec<Ammo>),
-    ANIO(GroupVec<AnimatedObject>),
-    AORU(GroupVec<AttractionRule>),
-    ARMA(GroupVec<ArmorAddon>),
-    ARMO(GroupVec<Armor>),
-    ARTO(GroupVec<ArtObject>),
-    ASPC(GroupVec<AcousticSpace>),
-    ASTP(GroupVec<AssociationType>),
-    AVIF(GroupVec<ActorValueInformation>),
-    BNDS(GroupVec<BendableSpline>),
-    BOOK(GroupVec<Book>),
-    BPTD(GroupVec<BodyPartData>),
-    CAMS(GroupVec<CameraShot>),
-    CELL(GroupVec<Cell>),
-    CLAS(GroupVec<Class>),
-    CLFM(GroupVec<Color>),
-    CLMT(GroupVec<Climate>),
-    CMPO(GroupVec<Component>),
-    COBJ(GroupVec<ConstructibleObject>),
-    COLL(GroupVec<CollisionLayer>),
-    CONT(GroupVec<Container>),
-    CPTH(GroupVec<CameraPath>),
-    CSTY(GroupVec<CombatStyle>),
-    DEBR(GroupVec<Debris>),
-    DFOB(GroupVec<DefaultObject>),
-    DLVW(GroupVec<DialogView>),
-    DMGT(GroupVec<DamageType>),
-    DOBJ(GroupVec<DefaultObjects>),
-    DOOR(GroupVec<Door>),
-    ECZN(GroupVec<EncounterZone>),
-    EFSH(GroupVec<EffectShader>),
-    ENCH(GroupVec<ObjectEffect>),
-    EQUP(GroupVec<EquipType>),
-    EXPL(GroupVec<Explosion>),
-    FACT(GroupVec<Faction>),
-    FLOR(GroupVec<Flora>),
-    FLST(GroupVec<FormIdList>),
-    FSTP(GroupVec<Footstep>),
-    FSTS(GroupVec<FootstepSet>),
-    FURN(GroupVec<Furniture>),
-    GMST(GroupVec<GameSetting>),
-    GDRY(GroupVec<Godray>),
-    GLOB(GroupVec<Global>),
-    GRAS(GroupVec<Grass>),
-    HAZD(GroupVec<Hazard>),
-    HDPT(GroupVec<HeadPart>),
-    IDLE(GroupVec<IdleAnimation>),
-    IDLM(GroupVec<IdleMarker>),
-    IMAD(GroupVec<ImageSpaceAdapter>),
-    IMGS(GroupVec<ImageSpace>),
-    INGR(GroupVec<Ingredient>),
-    INNR(GroupVec<InstanceNamingRules>),
-    IPCT(GroupVec<Impact>),
-    IPDS(GroupVec<ImpactDataSet>),
-    KEYM(GroupVec<Key>),
-    KYWD(GroupVec<Keyword>),
-    KSSM(GroupVec<KeywordSoundMapping>),
-    // LAND is not a top-level group
-    LAYR(GroupVec<Layer>),
-    LCRT(GroupVec<LocationReferenceType>),
-    LCTN(GroupVec<Location>),
-    LENS(GroupVec<LensFlare>),
-    LGTM(GroupVec<LightingTemplate>),
-    LIGH(GroupVec<Light>),
-    LSCR(GroupVec<LoadingScreen>),
-    LTEX(GroupVec<LandscapeTexture>),
-    LVLI(GroupVec<LeveledItem>),
-    LVLN(GroupVec<LeveledNPC>),
-    MATO(GroupVec<MaterialObject>),
-    MATT(GroupVec<MaterialType>),
-    MESG(GroupVec<Message>),
-    MGEF(GroupVec<MagicEffect>),
-    MISC(GroupVec<MiscItem>),
-    MOVT(GroupVec<MovementType>),
-    MSTT(GroupVec<MoveableStatic>),
-    MSWP(GroupVec<MaterialSwap>),
-    MUSC(GroupVec<MusicType>),
-    MUST(GroupVec<MusicTrack>),
-    NAVI(GroupVec<NavigationMeshInfoMap>),
-    NOCM(GroupVec<NavObstacleManager>),
-    NOTE(GroupVec<Note>),
-    NPC_(GroupVec<NonPlayerCharacter>),
-    OMOD(GroupVec<ObjectModification>),
-    OTFT(GroupVec<Outfit>),
-    OVIS(GroupVec<ObjectVisibility>),
-    PACK(GroupVec<Package>),
-    PERK(GroupVec<Perk>),
-    PKIN(GroupVec<PackIn>),
-    PROJ(GroupVec<Projectile>),
-    QUST(GroupVec<Quest>),
-    RACE(GroupVec<Race>),
-    REGN(GroupVec<Region>),
-    RELA(GroupVec<Relationship>),
-    REVB(GroupVec<Reverb>),
-    RFCT(GroupVec<VisualEffect>),
-    RFGP(GroupVec<ReferenceGroup>),
-    SCCO(GroupVec<SceneCollection>),
-    SCOL(GroupVec<StaticCollection>),
-    SCSN(GroupVec<AudioCategorySnapshot>),
-    SMBN(GroupVec<StoryManagerBranchNode>),
-    SMEN(GroupVec<StoryManagerEventNode>),
-    SMQN(GroupVec<StoryManagerQuestNode>),
-    SNCT(GroupVec<SoundCategory>),
-    SNDR(GroupVec<SoundDescriptor>),
-    SOPM(GroupVec<SoundOutputModel>),
-    SOUN(GroupVec<SoundMarker>),
-    SPEL(GroupVec<Spell>),
-    SPGD(GroupVec<ShaderParticleGeometry>),
-    STAG(GroupVec<SoundTag>),
-    STAT(GroupVec<Static>),
-    TACT(GroupVec<TalkingActivator>),
-    TERM(GroupVec<Terminal>),
-    TREE(GroupVec<Tree>),
-    TRNS(GroupVec<Transform>),
-    TXST(GroupVec<TextureSet>),
-    VTYP(GroupVec<VoiceType>),
-    WATR(GroupVec<Water>),
-    WEAP(GroupVec<Weapon>),
-    WRLD(GroupVec<WorldEntry>),
-    WTHR(GroupVec<Weather>),
-    ZOOM(GroupVec<Zoom>),
+    Unhandled(Group<RawRecord<'static>>),
+    Empty(Group<RawRecord<'static>>),
+
+    AACT(ActionGroup),
+    ACTI(ActivatorGroup),
+    ADDN(AddonNodeGroup),
+    AECH(AudioEffectChainGroup),
+    ALCH(AlchemyGroup),
+    AMDL(AimModelGroup),
+    AMMO(AmmoGroup),
+    ANIO(AnimatedObjectGroup),
+    AORU(AttractionRuleGroup),
+    ARMA(ArmorAddonGroup),
+    ARMO(ArmorGroup),
+    ARTO(ArtObjectGroup),
+    ASPC(AcousticSpaceGroup),
+    ASTP(AssociationTypeGroup),
+    AVIF(ActorValueInformationGroup),
+    BNDS(BendableSplineGroup),
+    BOOK(BookGroup),
+    BPTD(BodyPartDataGroup),
+    CAMS(CameraShotGroup),
+    CELL(CellGroup),
+    CLAS(ClassGroup),
+    CLFM(ColorGroup),
+    CLMT(ClimateGroup),
+    CMPO(ComponentGroup),
+    COBJ(ConstructibleObjectGroup),
+    COLL(CollisionLayerGroup),
+    CONT(ContainerGroup),
+    CPTH(CameraPathGroup),
+    CSTY(CombatStyleGroup),
+    DEBR(DebrisGroup),
+    DFOB(DefaultObjectGroup),
+    DLVW(DialogViewGroup),
+    DMGT(DamageTypeGroup),
+    DOBJ(DefaultObjectsGroup),
+    DOOR(DoorGroup),
+    ECZN(EncounterZoneGroup),
+    EFSH(EffectShaderGroup),
+    ENCH(ObjectEffectGroup),
+    EQUP(EquipTypeGroup),
+    EXPL(ExplosionGroup),
+    FACT(FactionGroup),
+    FLOR(FloraGroup),
+    FLST(FormIdListGroup),
+    FSTP(FootstepGroup),
+    FSTS(FootstepSetGroup),
+    FURN(FurnitureGroup),
+    GMST(GameSettingGroup),
+    GDRY(GodrayGroup),
+    GLOB(GlobalGroup),
+    GRAS(GrassGroup),
+    HAZD(HazardGroup),
+    HDPT(HeadPartGroup),
+    IDLE(IdleAnimationGroup),
+    IDLM(IdleMarkerGroup),
+    IMAD(ImageSpaceAdapterGroup),
+    IMGS(ImageSpaceGroup),
+    INGR(IngredientGroup),
+    INNR(InstanceNamingRulesGroup),
+    IPCT(ImpactGroup),
+    IPDS(ImpactDataSetGroup),
+    KEYM(KeyGroup),
+    KYWD(KeywordGroup),
+    KSSM(KeywordSoundMappingGroup),
+    LAYR(LayerGroup),
+    LCRT(LocationReferenceTypeGroup),
+    LCTN(LocationGroup),
+    LENS(LensFlareGroup),
+    LGTM(LightingTemplateGroup),
+    LIGH(LightGroup),
+    LSCR(LoadingScreenGroup),
+    LTEX(LandscapeTextureGroup),
+    LVLI(LeveledItemGroup),
+    LVLN(LeveledNPCGroup),
+    MATO(MaterialObjectGroup),
+    MATT(MaterialTypeGroup),
+    MESG(MessageGroup),
+    MGEF(MagicEffectGroup),
+    MISC(MiscItemGroup),
+    MOVT(MovementTypeGroup),
+    MSTT(MoveableStaticGroup),
+    MSWP(MaterialSwapGroup),
+    MUSC(MusicTypeGroup),
+    MUST(MusicTrackGroup),
+    NAVI(NavigationMeshInfoMapGroup),
+    NOCM(NavObstacleManagerGroup),
+    NOTE(NoteGroup),
+    NPC_(NonPlayerCharacterGroup),
+    OMOD(ObjectModificationGroup),
+    OTFT(OutfitGroup),
+    OVIS(ObjectVisibilityGroup),
+    PACK(PackageGroup),
+    PERK(PerkGroup),
+    PKIN(PackInGroup),
+    PROJ(ProjectileGroup),
+    QUST(QuestGroup),
+    RACE(RaceGroup),
+    REGN(RegionGroup),
+    RELA(RelationshipGroup),
+    REVB(ReverbGroup),
+    RFCT(VisualEffectGroup),
+    RFGP(ReferenceGroupGroup),
+    SCCO(SceneCollectionGroup),
+    SCOL(StaticCollectionGroup),
+    SCSN(AudioCategorySnapshotGroup),
+    SMBN(StoryManagerBranchNodeGroup),
+    SMEN(StoryManagerEventNodeGroup),
+    SMQN(StoryManagerQuestNodeGroup),
+    SNCT(SoundCategoryGroup),
+    SNDR(SoundDescriptorGroup),
+    SOPM(SoundOutputModelGroup),
+    SOUN(SoundMarkerGroup),
+    SPEL(SpellGroup),
+    SPGD(ShaderParticleGeometryGroup),
+    STAG(SoundTagGroup),
+    STAT(StaticGroup),
+    TACT(TalkingActivatorGroup),
+    TERM(TerminalGroup),
+    TREE(TreeGroup),
+    TRNS(TransformGroup),
+    TXST(TextureSetGroup),
+    VTYP(VoiceTypeGroup),
+    WATR(WaterGroup),
+    WEAP(WeaponGroup),
+    WRLD(Group<WorldEntry>),
+    WTHR(WeatherGroup),
+    ZOOM(ZoomGroup),
 }
 
 impl Parse<&[u8]> for TopGroup {
     fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
-        let (i, (header, data)) = alloc_group(i)?;
+        let orig = i;
+        let (i, (header, _)) = alloc_group(i)?;
 
-        if data.is_empty() {
-            return Ok((i, TopGroup::Empty(GroupVec { header, data: Vec::new() })));
+        // println!("Parsing TopGroup: {:?}", header.label);
+
+        if header.size == 0 {
+            return Ok((i, TopGroup::Empty(Group { header, data: Vec::new() })));
         }
 
-        //println!("Parsing TopGroup: {:?}", header.label);
+        
         match header.label {
             GroupLabel::Top(label) => {
                 match &label.0 {
-                    b"AACT" => {
-                        let (_, group) = many0(Action::parse)(data)?;
-                        Ok((i, TopGroup::AACT(GroupVec { header, data: group })))
-                    }
-                    b"ACTI" => {
-                        let (_, group) = many0(Activator::parse)(data)?;
-                        Ok((i, TopGroup::ACTI(GroupVec { header, data: group })))
-                    }
-                    b"ADDN" => {
-                        let (_, group) = many0(AddonNode::parse)(data)?;
-                        Ok((i, TopGroup::ADDN(GroupVec { header, data: group })))
-                    }
-                    b"AECH" => {
-                        let (_, group) = many0(AudioEffectChain::parse)(data)?;
-                        Ok((i, TopGroup::AECH(GroupVec { header, data: group })))
-                    }
-                    b"ALCH" => {
-                        let (_, group) = many0(Alchemy::parse)(data)?;
-                        Ok((i, TopGroup::ALCH(GroupVec { header, data: group })))
-                    }
-                    b"AMDL" => {
-                        let (_, group) = many0(AimModel::parse)(data)?;
-                        Ok((i, TopGroup::AMDL(GroupVec { header, data: group })))
-                    }
-                    b"AMMO" => {
-                        let (_, group) = many0(Ammo::parse)(data)?;
-                        Ok((i, TopGroup::AMMO(GroupVec { header, data: group })))
-                    }
-                    b"ANIO" => {
-                        let (_, group) = many0(AnimatedObject::parse)(data)?;
-                        Ok((i, TopGroup::ANIO(GroupVec { header, data: group })))
-                    }
-                    b"AORU" => {
-                        let (_, group) = many0(AttractionRule::parse)(data)?;
-                        Ok((i, TopGroup::AORU(GroupVec { header, data: group })))
-                    }
-                    b"ARMA" => {
-                        let (_, group) = many0(ArmorAddon::parse)(data)?;
-                        Ok((i, TopGroup::ARMA(GroupVec { header, data: group })))
-                    }
-                    b"ARMO" => {
-                        let (_, group) = many0(Armor::parse)(data)?;
-                        Ok((i, TopGroup::ARMO(GroupVec { header, data: group })))
-                    }
-                    b"ARTO" => {
-                        let (_, group) = many0(ArtObject::parse)(data)?;
-                        Ok((i, TopGroup::ARTO(GroupVec { header, data: group })))
-                    }
-                    b"ASPC" => {
-                        let (_, group) = many0(AcousticSpace::parse)(data)?;
-                        Ok((i, TopGroup::ASPC(GroupVec { header, data: group })))
-                    }
-                    b"ASTP" => {
-                        let (_, group) = many0(AssociationType::parse)(data)?;
-                        Ok((i, TopGroup::ASTP(GroupVec { header, data: group })))
-                    }
-                    b"AVIF" => {
-                        let (_, group) = many0(ActorValueInformation::parse)(data)?;
-                        Ok((i, TopGroup::AVIF(GroupVec { header, data: group })))
-                    }
-                    b"BOOK" => {
-                        let (_, group) = many0(Book::parse)(data)?;
-                        Ok((i, TopGroup::BOOK(GroupVec { header, data: group })))
-                    }
-                    b"BPTD" => {
-                        let (_, group) = many0(BodyPartData::parse)(data)?;
-                        Ok((i, TopGroup::BPTD(GroupVec { header, data: group })))
-                    }
-                    b"BNDS" => {
-                        let (_, group) = many0(BendableSpline::parse)(data)?;
-                        Ok((i, TopGroup::BNDS(GroupVec { header, data: group })))
-                    }
-                    b"CAMS" => {
-                        let (_, group) = many0(CameraShot::parse)(data)?;
-                        Ok((i, TopGroup::CAMS(GroupVec { header, data: group })))
-                    }
-                    b"CELL" => {
-                        //let (i, (header, group)) = alloc_group(i)?;
-                        Ok((i, TopGroup::CELL(GroupVec { header, data: Vec::new()})))
-                    }
-                    b"CLAS" => {
-                        let (_, group) = many0(Class::parse)(data)?;
-                        Ok((i, TopGroup::CLAS(GroupVec { header, data: group })))
-                    }
-                    b"CLFM" => {
-                        let (_, group) = many0(Color::parse)(data)?;
-                        Ok((i, TopGroup::CLFM(GroupVec { header, data: group })))
-                    }
-                    b"CLMT" => {
-                        let (_, group) = many0(Climate::parse)(data)?;
-                        Ok((i, TopGroup::CLMT(GroupVec { header, data: group })))
-                    }
-                    b"CMPO" => {
-                        let (_, group) = many0(Component::parse)(data)?;
-                        Ok((i, TopGroup::CMPO(GroupVec { header, data: group })))
-                    }
-                    b"COBJ" => {
-                        let (_, group) = many0(ConstructibleObject::parse)(data)?;
-                        Ok((i, TopGroup::COBJ(GroupVec { header, data: group })))
-                    }
-                    b"COLL" => {
-                        let (_, group) = many0(CollisionLayer::parse)(data)?;
-                        Ok((i, TopGroup::COLL(GroupVec { header, data: group })))
-                    }
-                    b"CONT" => {
-                        let (_, group) = many0(Container::parse)(data)?;
-                        Ok((i, TopGroup::CONT(GroupVec { header, data: group })))
-                    }
-                    b"CPTH" => {
-                        let (_, group) = many0(CameraPath::parse)(data)?;
-                        Ok((i, TopGroup::CPTH(GroupVec { header, data: group })))
-                    }
-                    b"CSTY" => {
-                        let (_, group) = many0(CombatStyle::parse)(data)?;
-                        Ok((i, TopGroup::CSTY(GroupVec { header, data: group })))
-                    }
-                    b"DEBR" => {
-                        let (_, group) = many0(Debris::parse)(data)?;
-                        Ok((i, TopGroup::DEBR(GroupVec { header, data: group })))
-                    }   
-                    b"DFOB" => {
-                        let (_, group) = many0(DefaultObject::parse)(data)?;
-                        Ok((i, TopGroup::DFOB(GroupVec { header, data: group })))
-                    }
-                    b"DLVW" => {
-                        let (_, group) = many0(DialogView::parse)(data)?;
-                        Ok((i, TopGroup::DLVW(GroupVec { header, data: group })))
-                    }
-                    b"DMGT" => {
-                        let (_, group) = many0(DamageType::parse)(data)?;
-                        Ok((i, TopGroup::DMGT(GroupVec { header, data: group })))
-                    }
-                    b"DOBJ" => {
-                        let (_, group) = many0(DefaultObjects::parse)(data)?;
-                        Ok((i, TopGroup::DOBJ(GroupVec { header, data: group })))
-                    }
-                    b"DOOR" => {
-                        let (_, group) = many0(Door::parse)(data)?;
-                        Ok((i, TopGroup::DOOR(GroupVec { header, data: group })))
-                    }
-                    b"ECZN" => {
-                        let (_, group) = many0(EncounterZone::parse)(data)?;
-                        Ok((i, TopGroup::ECZN(GroupVec { header, data: group })))
-                    }
-                    b"EFSH" => {
-                        let (_, group) = many0(EffectShader::parse)(data)?;
-                        Ok((i, TopGroup::EFSH(GroupVec { header, data: group })))
-                    }
-                    b"ENCH" => {
-                        let (_, group) = many0(ObjectEffect::parse)(data)?;
-                        Ok((i, TopGroup::ENCH(GroupVec { header, data: group })))
-                    }
-                    b"EQUP" => {
-                        let (_, group) = many0(EquipType::parse)(data)?;
-                        Ok((i, TopGroup::EQUP(GroupVec { header, data: group })))
-                    }
-                    b"EXPL" => {
-                        let (_, group) = many0(Explosion::parse)(data)?;
-                        Ok((i, TopGroup::EXPL(GroupVec { header, data: group })))
-                    }
-                    b"FACT" => {
-                        let (_, group) = many0(Faction::parse)(data)?;
-                        Ok((i, TopGroup::FACT(GroupVec { header, data: group })))
-                    }
-                    b"FLOR" => {
-                        let (_, group) = many0(Flora::parse)(data)?;
-                        Ok((i, TopGroup::FLOR(GroupVec { header, data: group })))
-                    }
-                    b"FLST" => {
-                        let (_, group) = many0(FormIdList::parse)(data)?;
-                        Ok((i, TopGroup::FLST(GroupVec { header, data: group })))
-                    }
-                    b"FSTP" => {
-                        let (_, group) = many0(Footstep::parse)(data)?;
-                        Ok((i, TopGroup::FSTP(GroupVec { header, data: group })))
-                    }
-                    b"FSTS" => {
-                        let (_, group) = many0(FootstepSet::parse)(data)?;
-                        Ok((i, TopGroup::FSTS(GroupVec { header, data: group })))
-                    }
-                    b"FURN" => {
-                        let (_, group) = many0(Furniture::parse)(data)?;
-                        Ok((i, TopGroup::FURN(GroupVec { header, data: group })))
-                    }
-                    b"GMST" => {
-                        let (_, group) = many0(GameSetting::parse)(data)?;
-                        Ok((i, TopGroup::GMST(GroupVec { header, data: group })))
-                    }
-                    b"GDRY" => {
-                        let (_, group) = many0(Godray::parse)(data)?;
-                        Ok((i, TopGroup::GDRY(GroupVec { header, data: group })))
-                    }
-                    b"GLOB" => {
-                        let (_, group) = many0(Global::parse)(data)?;
-                        Ok((i, TopGroup::GLOB(GroupVec { header, data: group })))
-                    }
-                    b"GRAS" => {
-                        let (_, group) = many0(Grass::parse)(data)?;
-                        Ok((i, TopGroup::GRAS(GroupVec { header, data: group })))
-                    }
-                    b"HAZD" => {
-                        let (_, group) = many0(Hazard::parse)(data)?;
-                        Ok((i, TopGroup::HAZD(GroupVec { header, data: group })))
-                    }
-                    b"HDPT" => {
-                        let (_, group) = many0(HeadPart::parse)(data)?;
-                        Ok((i, TopGroup::HDPT(GroupVec { header, data: group })))
-                    }
-                    b"IDLE" => {
-                        let (_, group) = many0(IdleAnimation::parse)(data)?;
-                        Ok((i, TopGroup::IDLE(GroupVec { header, data: group })))
-                    }
-                    b"IDLM" => {
-                        let (_, group) = many0(IdleMarker::parse)(data)?;
-                        Ok((i, TopGroup::IDLM(GroupVec { header, data: group })))
-                    }
-                    b"IMAD" => {
-                        let (_, group) = many0(ImageSpaceAdapter::parse)(data)?;
-                        Ok((i, TopGroup::IMAD(GroupVec { header, data: group })))
-                    }
-                    b"IMGS" => {
-                        let (_, group) = many0(ImageSpace::parse)(data)?;
-                        Ok((i, TopGroup::IMGS(GroupVec { header, data: group })))
-                    }
-                    b"INGR" => {
-                        let (_, group) = many0(Ingredient::parse)(data)?;
-                        Ok((i, TopGroup::INGR(GroupVec { header, data: group })))
-                    }
-                    b"INNR" => {
-                        let (_, group) = many0(InstanceNamingRules::parse)(data)?;
-                        Ok((i, TopGroup::INNR(GroupVec { header, data: group })))
-                    }
-                    b"IPCT" => {
-                        let (_, group) = many0(Impact::parse)(data)?;
-                        Ok((i, TopGroup::IPCT(GroupVec { header, data: group })))
-                    }
-                    b"IPDS" => {
-                        let (_, group) = many0(ImpactDataSet::parse)(data)?;
-                        Ok((i, TopGroup::IPDS(GroupVec { header, data: group })))
-                    }
-                    b"KEYM" => {
-                        let (_, group) = many0(Key::parse)(data)?;
-                        Ok((i, TopGroup::KEYM(GroupVec { header, data: group })))
-                    }
-                    b"KYWD" => {
-                        let (_, group) = many0(Keyword::parse)(data)?;
-                        Ok((i, TopGroup::KYWD(GroupVec { header, data: group })))
-                    }
-                    b"KSSM" => {
-                        let (_, group) = many0(KeywordSoundMapping::parse)(data)?;
-                        Ok((i, TopGroup::KSSM(GroupVec { header, data: group })))
-                    }
-                    b"LAYR" => {
-                        let (_, group) = many0(Layer::parse)(data)?;
-                        Ok((i, TopGroup::LAYR(GroupVec { header, data: group })))
-                    }
-                    b"LCRT" => {
-                        let (_, group) = many0(LocationReferenceType::parse)(data)?;
-                        Ok((i, TopGroup::LCRT(GroupVec { header, data: group })))
-                    }
-                    b"LCTN" => {
-                        let (_, group) = many0(Location::parse)(data)?;
-                        Ok((i, TopGroup::LCTN(GroupVec { header, data: group })))
-                    }
-                    b"LENS" => {
-                        let (_, group) = many0(LensFlare::parse)(data)?;
-                        Ok((i, TopGroup::LENS(GroupVec { header, data: group })))
-                    }
-                    b"LGTM" => {
-                        let (_, group) = many0(LightingTemplate::parse)(data)?;
-                        Ok((i, TopGroup::LGTM(GroupVec { header, data: group })))
-                    }
-                    b"LIGH" => {
-                        let (_, group) = many0(Light::parse)(data)?;
-                        Ok((i, TopGroup::LIGH(GroupVec { header, data: group })))
-                    }
-                    b"LSCR" => {
-                        let (_, group) = many0(LoadingScreen::parse)(data)?;
-                        Ok((i, TopGroup::LSCR(GroupVec { header, data: group })))
-                    }
-                    b"LTEX" => {
-                        let (_, group) = many0(LandscapeTexture::parse)(data)?;
-                        Ok((i, TopGroup::LTEX(GroupVec { header, data: group })))
-                    }
-                    b"LVLI" => {
-                        let (_, group) = many0(LeveledItem::parse)(data)?;
-                        Ok((i, TopGroup::LVLI(GroupVec { header, data: group })))
-                    }
-                    b"LVLN" => {
-                        let (_, group) = many0(LeveledNPC::parse)(data)?;
-                        Ok((i, TopGroup::LVLN(GroupVec { header, data: group })))
-                    }
-                    b"MATO" => {
-                        let (_, group) = many0(MaterialObject::parse)(data)?;
-                        Ok((i, TopGroup::MATO(GroupVec { header, data: group })))
-                    }
-                    b"MATT" => {
-                        let (_, group) = many0(MaterialType::parse)(data)?;
-                        Ok((i, TopGroup::MATT(GroupVec { header, data: group })))
-                    }
-                    b"MESG" => {
-                        let (_, group) = many0(Message::parse)(data)?;
-                        Ok((i, TopGroup::MESG(GroupVec { header, data: group })))
-                    }
-                    b"MGEF" => {
-                        let (_, group) = many0(MagicEffect::parse)(data)?;
-                        Ok((i, TopGroup::MGEF(GroupVec { header, data: group })))
-                    }
-                    b"MISC" => {
-                        let (_, group) = many0(MiscItem::parse)(data)?;
-                        Ok((i, TopGroup::MISC(GroupVec { header, data: group })))
-                    }
-                    b"MOVT" => {
-                        let (_, group) = many0(MovementType::parse)(data)?;
-                        Ok((i, TopGroup::MOVT(GroupVec { header, data: group })))
-                    }
-                    b"MSTT" => {
-                        let (_, group) = many0(MoveableStatic::parse)(data)?;
-                        Ok((i, TopGroup::MSTT(GroupVec { header, data: group } )))
-                    }
-                    b"MSWP" => {
-                        let (_, group) = many0(MaterialSwap::parse)(data)?;
-                        Ok((i, TopGroup::MSWP(GroupVec { header, data: group })))
-                    }
-                    b"MUSC" => {
-                        let (_, group) = many0(MusicType::parse)(data)?;
-                        Ok((i, TopGroup::MUSC(GroupVec { header, data: group })))
-                    }
-                    b"MUST" => {
-                        let (_, group) = many0(MusicTrack::parse)(data)?;
-                        Ok((i, TopGroup::MUST(GroupVec { header, data: group })))
-                    }
-                    b"NAVI" => {
-                        let (_, group) = many0(NavigationMeshInfoMap::parse)(data)?;
-                        Ok((i, TopGroup::NAVI(GroupVec { header, data: group })))
-                    }
-                    b"NOCM" => {
-                        let (_, group) = many0(NavObstacleManager::parse)(data)?; 
-                        Ok((i, TopGroup::NOCM(GroupVec { header, data: group })))
-                    }
-                    b"NOTE" => {
-                        let (_, group) = many0(Note::parse)(data)?;
-                        Ok((i, TopGroup::NOTE(GroupVec { header, data: group })))
-                    }
-                    b"NPC_" => {
-                        let (_, group) = many0(NonPlayerCharacter::parse)(data)?;
-                        Ok((i, TopGroup::NPC_(GroupVec { header, data: group })))
-                    }
-                    // b"NPC_" => {
-                    //     let (i, (header, raw)) = alloc_group(i)?;
-                    //     Ok((i, TopGroup::NPC_(Group { header, data: Vec::new()})))
-                    // }
-                    b"OMOD" => {
-                        let (_, group) = many0(ObjectModification::parse)(data)?;
-                        Ok((i, TopGroup::OMOD(GroupVec { header, data: group })))
-                    }
-                    b"OTFT" => {
-                        let (_, group) = many0(Outfit::parse)(data)?;
-                        Ok((i, TopGroup::OTFT(GroupVec { header, data: group })))
-                    }
-                    b"OVIS" => {
-                        let (_, group) = many0(ObjectVisibility::parse)(data)?;
-                        Ok((i, TopGroup::OVIS(GroupVec { header, data: group })))
-                    }
-                    b"PACK" => {
-                        let (_, group) = many0(Package::parse)(data)?;
-                        Ok((i, TopGroup::PACK(GroupVec { header, data: group })))
-                    }
-                    b"PERK" => {
-                        let (_, group) = many0(Perk::parse)(data)?;
-                        Ok((i, TopGroup::PERK(GroupVec { header, data: group })))
-                    }
-                    b"PKIN" => {
-                        let (_, group) = many0(PackIn::parse)(data)?;
-                        Ok((i, TopGroup::PKIN(GroupVec { header, data: group })))
-                    }
-                    b"PROJ" => {
-                        let (_, group) = many0(Projectile::parse)(data)?;
-                        Ok((i, TopGroup::PROJ(GroupVec { header, data: group })))
-                    }
+                    b"AACT" => { Ok((i, TopGroup::AACT(Group::parse(orig)?.1))) }
+                    b"ACTI" => { Ok((i, TopGroup::ACTI(Group::parse(orig)?.1))) }
+                    b"ADDN" => { Ok((i, TopGroup::ADDN(Group::parse(orig)?.1))) }
+                    b"AECH" => { Ok((i, TopGroup::AECH(Group::parse(orig)?.1))) }
+                    b"ALCH" => { Ok((i, TopGroup::ALCH(Group::parse(orig)?.1))) }
+                    b"AMDL" => { Ok((i, TopGroup::AMDL(Group::parse(orig)?.1))) }
+                    b"AMMO" => { Ok((i, TopGroup::AMMO(Group::parse(orig)?.1))) }
+                    b"ANIO" => { Ok((i, TopGroup::ANIO(Group::parse(orig)?.1))) }
+                    b"AORU" => { Ok((i, TopGroup::AORU(Group::parse(orig)?.1))) }
+                    b"ARMA" => { Ok((i, TopGroup::ARMA(Group::parse(orig)?.1))) }
+                    b"ARMO" => { Ok((i, TopGroup::ARMO(Group::parse(orig)?.1))) }
+                    b"ARTO" => { Ok((i, TopGroup::ARTO(Group::parse(orig)?.1))) }
+                    b"ASPC" => { Ok((i, TopGroup::ASPC(Group::parse(orig)?.1))) }
+                    b"ASTP" => { Ok((i, TopGroup::ASTP(Group::parse(orig)?.1))) }
+                    b"AVIF" => { Ok((i, TopGroup::AVIF(Group::parse(orig)?.1))) }
+                    b"BOOK" => { Ok((i, TopGroup::BOOK(Group::parse(orig)?.1))) }
+                    b"BPTD" => { Ok((i, TopGroup::BPTD(Group::parse(orig)?.1))) }
+                    b"BNDS" => { Ok((i, TopGroup::BNDS(Group::parse(orig)?.1))) }
+                    b"CAMS" => { Ok((i, TopGroup::CAMS(Group::parse(orig)?.1))) }
+                    b"CELL" => { Ok((i, TopGroup::CELL(Group::parse(orig)?.1))) }
+                    b"CLAS" => { Ok((i, TopGroup::CLAS(Group::parse(orig)?.1))) }
+                    b"CLFM" => { Ok((i, TopGroup::CLFM(Group::parse(orig)?.1))) }
+                    b"CLMT" => { Ok((i, TopGroup::CLMT(Group::parse(orig)?.1))) }
+                    b"CMPO" => { Ok((i, TopGroup::CMPO(Group::parse(orig)?.1))) }
+                    b"COBJ" => { Ok((i, TopGroup::COBJ(Group::parse(orig)?.1))) }
+                    b"COLL" => { Ok((i, TopGroup::COLL(Group::parse(orig)?.1))) }
+                    b"CONT" => { Ok((i, TopGroup::CONT(Group::parse(orig)?.1))) }
+                    b"CPTH" => { Ok((i, TopGroup::CPTH(Group::parse(orig)?.1))) }
+                    b"CSTY" => { Ok((i, TopGroup::CSTY(Group::parse(orig)?.1))) }
+                    b"DEBR" => { Ok((i, TopGroup::DEBR(Group::parse(orig)?.1))) }   
+                    b"DFOB" => { Ok((i, TopGroup::DFOB(Group::parse(orig)?.1))) }
+                    b"DLVW" => { Ok((i, TopGroup::DLVW(Group::parse(orig)?.1))) }
+                    b"DMGT" => { Ok((i, TopGroup::DMGT(Group::parse(orig)?.1))) }
+                    b"DOBJ" => { Ok((i, TopGroup::DOBJ(Group::parse(orig)?.1))) }
+                    b"DOOR" => { Ok((i, TopGroup::DOOR(Group::parse(orig)?.1))) }
+                    b"ECZN" => { Ok((i, TopGroup::ECZN(Group::parse(orig)?.1))) }
+                    b"EFSH" => { Ok((i, TopGroup::EFSH(Group::parse(orig)?.1))) }
+                    b"ENCH" => { Ok((i, TopGroup::ENCH(Group::parse(orig)?.1))) }
+                    b"EQUP" => { Ok((i, TopGroup::EQUP(Group::parse(orig)?.1))) }
+                    b"EXPL" => { Ok((i, TopGroup::EXPL(Group::parse(orig)?.1))) }
+                    b"FACT" => { Ok((i, TopGroup::FACT(Group::parse(orig)?.1))) }
+                    b"FLOR" => { Ok((i, TopGroup::FLOR(Group::parse(orig)?.1))) }
+                    b"FLST" => { Ok((i, TopGroup::FLST(Group::parse(orig)?.1))) }
+                    b"FSTP" => { Ok((i, TopGroup::FSTP(Group::parse(orig)?.1))) }
+                    b"FSTS" => { Ok((i, TopGroup::FSTS(Group::parse(orig)?.1))) }
+                    b"FURN" => { Ok((i, TopGroup::FURN(Group::parse(orig)?.1))) }
+                    b"GMST" => { Ok((i, TopGroup::GMST(Group::parse(orig)?.1))) }
+                    b"GDRY" => { Ok((i, TopGroup::GDRY(Group::parse(orig)?.1))) }
+                    b"GLOB" => { Ok((i, TopGroup::GLOB(Group::parse(orig)?.1))) }
+                    b"GRAS" => { Ok((i, TopGroup::GRAS(Group::parse(orig)?.1))) }
+                    b"HAZD" => { Ok((i, TopGroup::HAZD(Group::parse(orig)?.1))) }
+                    b"HDPT" => { Ok((i, TopGroup::HDPT(Group::parse(orig)?.1))) }
+                    b"IDLE" => { Ok((i, TopGroup::IDLE(Group::parse(orig)?.1))) }
+                    b"IDLM" => { Ok((i, TopGroup::IDLM(Group::parse(orig)?.1))) }
+                    b"IMAD" => { Ok((i, TopGroup::IMAD(Group::parse(orig)?.1))) }
+                    b"IMGS" => { Ok((i, TopGroup::IMGS(Group::parse(orig)?.1))) }
+                    b"INGR" => { Ok((i, TopGroup::INGR(Group::parse(orig)?.1))) }
+                    b"INNR" => { Ok((i, TopGroup::INNR(Group::parse(orig)?.1))) }
+                    b"IPCT" => { Ok((i, TopGroup::IPCT(Group::parse(orig)?.1))) }
+                    b"IPDS" => { Ok((i, TopGroup::IPDS(Group::parse(orig)?.1))) }
+                    b"KEYM" => { Ok((i, TopGroup::KEYM(Group::parse(orig)?.1))) }
+                    b"KYWD" => { Ok((i, TopGroup::KYWD(Group::parse(orig)?.1))) }
+                    b"KSSM" => { Ok((i, TopGroup::KSSM(Group::parse(orig)?.1))) }
+                    b"LAYR" => { Ok((i, TopGroup::LAYR(Group::parse(orig)?.1))) }
+                    b"LCRT" => { Ok((i, TopGroup::LCRT(Group::parse(orig)?.1))) }
+                    b"LCTN" => { Ok((i, TopGroup::LCTN(Group::parse(orig)?.1))) }
+                    b"LENS" => { Ok((i, TopGroup::LENS(Group::parse(orig)?.1))) }
+                    b"LGTM" => { Ok((i, TopGroup::LGTM(Group::parse(orig)?.1))) }
+                    b"LIGH" => { Ok((i, TopGroup::LIGH(Group::parse(orig)?.1))) }
+                    b"LSCR" => { Ok((i, TopGroup::LSCR(Group::parse(orig)?.1))) }
+                    b"LTEX" => { Ok((i, TopGroup::LTEX(Group::parse(orig)?.1))) }
+                    b"LVLI" => { Ok((i, TopGroup::LVLI(Group::parse(orig)?.1))) }
+                    b"LVLN" => { Ok((i, TopGroup::LVLN(Group::parse(orig)?.1))) }
+                    b"MATO" => { Ok((i, TopGroup::MATO(Group::parse(orig)?.1))) }
+                    b"MATT" => { Ok((i, TopGroup::MATT(Group::parse(orig)?.1))) }
+                    b"MESG" => { Ok((i, TopGroup::MESG(Group::parse(orig)?.1))) }
+                    b"MGEF" => { Ok((i, TopGroup::MGEF(Group::parse(orig)?.1))) }
+                    b"MISC" => { Ok((i, TopGroup::MISC(Group::parse(orig)?.1))) }
+                    b"MOVT" => { Ok((i, TopGroup::MOVT(Group::parse(orig)?.1))) }
+                    b"MSTT" => { Ok((i, TopGroup::MSTT(Group::parse(orig)?.1))) }
+                    b"MSWP" => { Ok((i, TopGroup::MSWP(Group::parse(orig)?.1))) }
+                    b"MUSC" => { Ok((i, TopGroup::MUSC(Group::parse(orig)?.1))) }
+                    b"MUST" => { Ok((i, TopGroup::MUST(Group::parse(orig)?.1))) }
+                    b"NAVI" => { 
+                        Ok((i, TopGroup::NAVI(Group { header, data: Vec::new()}))) 
+                    }
+                    b"NOCM" => { Ok((i, TopGroup::NOCM(Group::parse(orig)?.1))) }
+                    b"NOTE" => { Ok((i, TopGroup::NOTE(Group::parse(orig)?.1))) }
+                    b"NPC_" => { Ok((i, TopGroup::NPC_(Group::parse(orig)?.1))) }
+                    b"OMOD" => { Ok((i, TopGroup::OMOD(Group::parse(orig)?.1))) }
+                    b"OTFT" => { Ok((i, TopGroup::OTFT(Group::parse(orig)?.1))) }
+                    b"OVIS" => { Ok((i, TopGroup::OVIS(Group::parse(orig)?.1))) }
+                    b"PACK" => { Ok((i, TopGroup::PACK(Group::parse(orig)?.1))) }
+                    b"PERK" => { Ok((i, TopGroup::PERK(Group::parse(orig)?.1))) }
+                    b"PKIN" => { Ok((i, TopGroup::PKIN(Group::parse(orig)?.1))) }
+                    b"PROJ" => { Ok((i, TopGroup::PROJ(Group::parse(orig)?.1))) }
                     b"QUST" => {
                         //let (_, (header, raw)) = alloc_group(i)?;
-                        Ok((i, TopGroup::QUST(GroupVec { header, data: Vec::new()})))
+                        Ok((i, TopGroup::QUST(Group { header, data: Vec::new()})))
                     }
-                    b"RACE" => {
-                        let (_, group) = many0(Race::parse)(data)?;
-                        Ok((i, TopGroup::RACE(GroupVec { header, data: group })))
-                    }
-                    b"REGN" => {
-                        let (_, group) = many0(Region::parse)(data)?;
-                        Ok((i, TopGroup::REGN(GroupVec { header, data: group })))
-                    }
-                    b"RELA" => {
-                        let (_, group) = many0(Relationship::parse)(data)?;
-                        Ok((i, TopGroup::RELA(GroupVec { header, data: group })))
-                    }
-                    b"REVB" => {
-                        let (_, group) = many0(Reverb::parse)(data)?;
-                        Ok((i, TopGroup::REVB(GroupVec { header, data: group })))
-                    }
-                    b"RFCT" => {
-                        let (_, group) = many0(VisualEffect::parse)(data)?;
-                        Ok((i, TopGroup::RFCT(GroupVec { header, data: group })))
-                    }
-                    b"RFGP" => {
-                        let (_, group) = many0(ReferenceGroup::parse)(data)?;
-                        Ok((i, TopGroup::RFGP(GroupVec { header, data: group })))
-                    }
-                    b"SCCO" => {
-                        let (_, group) = many0(SceneCollection::parse)(data)?;
-                        Ok((i, TopGroup::SCCO(GroupVec { header, data: group })))
-                    }
-                    b"SCOL" => {
-                        let (_, group) = many0(StaticCollection::parse)(data)?;
-                        Ok((i, TopGroup::SCOL(GroupVec { header, data: group })))
-                    }
-                    b"SCSN" => {
-                        let (_, group) = many0(AudioCategorySnapshot::parse)(data)?;
-                        Ok((i, TopGroup::SCSN(GroupVec { header, data: group })))
-                    }
-                    b"SMBN" => {
-                        let (_, group) = many0(StoryManagerBranchNode::parse)(data)?;
-                        Ok((i, TopGroup::SMBN(GroupVec { header, data: group })))
-                    }
-                    b"SMEN" => {
-                        let (_, group) = many0(StoryManagerEventNode::parse)(data)?;
-                        Ok((i, TopGroup::SMEN(GroupVec { header, data: group })))
-                    }
-                    b"SMQN" => {
-                        let (_, group) = many0(StoryManagerQuestNode::parse)(data)?;
-                        Ok((i, TopGroup::SMQN(GroupVec { header, data: group })))
-                    }
-                    b"SNCT" => {
-                        let (_, group) = many0(SoundCategory::parse)(data)?;
-                        Ok((i, TopGroup::SNCT(GroupVec { header, data: group })))
-                    }
-                    b"SNDR" => {
-                        let (_, group) = many0(SoundDescriptor::parse)(data)?;
-                        Ok((i, TopGroup::SNDR(GroupVec { header, data: group })))
-                    }
-                    b"SOPM" => {
-                        let (_, group) = many0(SoundOutputModel::parse)(data)?;
-                        Ok((i, TopGroup::SOPM(GroupVec { header, data: group })))
-                    }
-                    b"SOUN" => {
-                        let (_, group) = many0(SoundMarker::parse)(data)?;
-                        Ok((i, TopGroup::SOUN(GroupVec { header, data: group })))
-                    }
-                    b"SPEL" => {
-                        let (_, group) = many0(Spell::parse)(data)?;
-                        Ok((i, TopGroup::SPEL(GroupVec { header, data: group })))
-                    }
-                    b"SPGD" => {
-                        let (_, group) = many0(ShaderParticleGeometry::parse)(data)?;
-                        Ok((i, TopGroup::SPGD(GroupVec { header, data: group })))
-                    }
-                    b"STAG" => {
-                        let (_, group) = many0(SoundTag::parse)(data)?;
-                        Ok((i, TopGroup::STAG(GroupVec { header, data: group })))
-                    }
-                    b"STAT" => {
-                        let (_, group) = many0(Static::parse)(data)?;
-                        Ok((i, TopGroup::STAT(GroupVec { header, data: group })))
-                    }
-                    b"TACT" => {
-                        let (_, group) = many0(TalkingActivator::parse)(data)?;
-                        Ok((i, TopGroup::TACT(GroupVec { header, data: group })))
-                    }
-                    b"TERM" => {
-                        let (_, group) = many0(Terminal::parse)(data)?;
-                        Ok((i, TopGroup::TERM(GroupVec { header, data: group })))
-                    }
-                    b"TREE" => {
-                        let (_, group) = many0(Tree::parse)(data)?;
-                        Ok((i, TopGroup::TREE(GroupVec { header, data: group })))
-                    }
-                    b"TRNS" => {
-                        let (_, group) = many0(Transform::parse)(data)?;
-                        Ok((i, TopGroup::TRNS(GroupVec { header, data: group })))
-                    }
-                    b"TXST" => {
-                        let (_, group) = many0(TextureSet::parse)(data)?;
-                        Ok((i, TopGroup::TXST(GroupVec { header, data: group })))
-                    }
-                    b"VTYP" => {
-                        let (_, group) = many0(VoiceType::parse)(data)?;
-                        Ok((i, TopGroup::VTYP(GroupVec { header, data: group })))
-                    }
-                    b"WATR" => {
-                        let (_, group) = many0(Water::parse)(data)?;
-                        Ok((i, TopGroup::WATR(GroupVec { header, data: group })))
-                    }
-                    b"WEAP" => {
-                        let (_, group) = many0(Weapon::parse)(data)?;
-                        Ok((i, TopGroup::WEAP(GroupVec { header, data: group })))
-                    }
-                    b"WRLD" => {
-                        let (_, we) = many0(WorldEntry::parse)(data)?;
-                        Ok((i, TopGroup::WRLD(GroupVec { header, data: we })))
-                    }
-                    b"WTHR" => {
-                        let (_, group) = many0(Weather::parse)(data)?;
-                        Ok((i, TopGroup::WTHR(GroupVec { header, data: group })))
-                    }
-                    b"ZOOM" => {
-                        let (_, group) = many0(Zoom::parse)(data)?;
-                        Ok((i, TopGroup::ZOOM(GroupVec { header, data: group })))
-                    }
+                    b"RACE" => { Ok((i, TopGroup::RACE(Group::parse(orig)?.1))) }
+                    b"REGN" => { Ok((i, TopGroup::REGN(Group::parse(orig)?.1))) }
+                    b"RELA" => { Ok((i, TopGroup::RELA(Group::parse(orig)?.1))) }
+                    b"REVB" => { Ok((i, TopGroup::REVB(Group::parse(orig)?.1))) }
+                    b"RFCT" => { Ok((i, TopGroup::RFCT(Group::parse(orig)?.1))) }
+                    b"RFGP" => { Ok((i, TopGroup::RFGP(Group::parse(orig)?.1))) }
+                    b"SCCO" => { Ok((i, TopGroup::SCCO(Group::parse(orig)?.1))) }
+                    b"SCOL" => { Ok((i, TopGroup::SCOL(Group::parse(orig)?.1))) }
+                    b"SCSN" => { Ok((i, TopGroup::SCSN(Group::parse(orig)?.1))) }
+                    b"SMBN" => { Ok((i, TopGroup::SMBN(Group::parse(orig)?.1))) }
+                    b"SMEN" => { Ok((i, TopGroup::SMEN(Group::parse(orig)?.1))) }
+                    b"SMQN" => { Ok((i, TopGroup::SMQN(Group::parse(orig)?.1))) }
+                    b"SNCT" => { Ok((i, TopGroup::SNCT(Group::parse(orig)?.1))) }
+                    b"SNDR" => { Ok((i, TopGroup::SNDR(Group::parse(orig)?.1))) }
+                    b"SOPM" => { Ok((i, TopGroup::SOPM(Group::parse(orig)?.1))) }
+                    b"SOUN" => { Ok((i, TopGroup::SOUN(Group::parse(orig)?.1))) }
+                    b"SPEL" => { Ok((i, TopGroup::SPEL(Group::parse(orig)?.1))) }
+                    b"SPGD" => { Ok((i, TopGroup::SPGD(Group::parse(orig)?.1))) }
+                    b"STAG" => { Ok((i, TopGroup::STAG(Group::parse(orig)?.1))) }
+                    b"STAT" => { Ok((i, TopGroup::STAT(Group::parse(orig)?.1))) }
+                    b"TACT" => { Ok((i, TopGroup::TACT(Group::parse(orig)?.1))) }
+                    b"TERM" => { Ok((i, TopGroup::TERM(Group::parse(orig)?.1))) }
+                    b"TREE" => { Ok((i, TopGroup::TREE(Group::parse(orig)?.1))) }
+                    b"TRNS" => { Ok((i, TopGroup::TRNS(Group::parse(orig)?.1))) }
+                    b"TXST" => { Ok((i, TopGroup::TXST(Group::parse(orig)?.1))) }
+                    b"VTYP" => { Ok((i, TopGroup::VTYP(Group::parse(orig)?.1))) }
+                    b"WATR" => { Ok((i, TopGroup::WATR(Group::parse(orig)?.1))) }
+                    b"WEAP" => { Ok((i, TopGroup::WEAP(Group::parse(orig)?.1))) }
+                    b"WRLD" => { Ok((i, TopGroup::WRLD(Group::parse(orig)?.1))) }
+                    b"WTHR" => { Ok((i, TopGroup::WTHR(Group::parse(orig)?.1))) }
+                    b"ZOOM" => { Ok((i, TopGroup::ZOOM(Group::parse(orig)?.1))) }
 
                     _ => {
 
                         #[cfg(debug_assertions)]
-                        unimplemented!("Top group {} not implemented", label);
+                        println!("Top group {} not implemented", label);
 
-                        #[cfg(not(debug_assertions))]
-                        Ok((i, TopGroup::Unhandled(GroupVec { header, data: Vec::new() })))
+                        Ok((i, TopGroup::Unhandled(Group { header, data: Vec::new() })))
                     }
                 }
             }

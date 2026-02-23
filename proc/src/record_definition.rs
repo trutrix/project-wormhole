@@ -10,6 +10,9 @@ use syn::{*, parse::Parse, punctuated::Punctuated};
 
 use super::record_consts::*;
 
+// -- TODO --
+// Unify logic for FieldDefinition types (make a function)
+
 // ====================================================================================================
 
 // pub struct RecordDefinition {
@@ -212,6 +215,8 @@ impl ToTokens for RecordDefinition2 {
         let record_iden_string = Ident::new(String::from_utf8_lossy(&record_iden.value()).to_string().as_str(), record_iden.span());
         let name = &self.name;
         let name_field = Ident::new(format!("{}Field", name.clone().to_string().as_str()).as_str(), name.span());
+        let name_group = Ident::new(format!("{}Group", name.clone().to_string().as_str()).as_str(), name.span());
+
 
         let fields = &self.fields;
 
@@ -242,69 +247,72 @@ impl ToTokens for RecordDefinition2 {
         let trait_impl = make_record_traits_impl(name, &name_field, fields);
 
         tokens.extend(quote! {
-            #[derive(Debug)]
-            pub struct #name {
-                pub header: RecordHeader,
-                pub fields: Vec<#name_field>
-            }
+            // #[derive(Debug)]
+            // pub struct #name {
+            //     pub header: RecordHeader,
+            //     pub fields: Vec<#name_field>
+            // }
 
-            impl Parse<&[u8]> for #name {
-                fn parse(i: &[u8]) -> IResult<&[u8], Self> {
-                    let (i, (header, raw)) = alloc_record(i)?;
+            pub type #name = Record<Vec<#name_field>>;
+            pub type #name_group = Group<#name>;
 
-                    if &header.iden.0 != #record_iden {
-                        panic!("Tried to parse {:?} record as {:?}", header, FourCC(*#record_iden))
-                    }
+            // impl Parse<&[u8]> for #name {
+            //     fn parse(i: &[u8]) -> IResult<&[u8], Self> {
+            //         let (i, (header, raw)) = alloc_record(i)?;
 
-                    if header.flags.is_compressed() {
-                        if let Ok(dec) = decompress_record(raw) {
+            //         if &header.iden.0 != #record_iden {
+            //             panic!("Tried to parse {:?} record as {:?}", header, FourCC(*#record_iden))
+            //         }
+
+            //         if header.flags.is_compressed() {
+            //             if let Ok(dec) = decompress_record(raw) {
                             
-                            if let Ok((_, fields)) = many0(#name_field::parse)(&dec) {
-                                return Ok((i, Self { header, fields }));
-                            } else {
-                                return Err(nom::Err::Error(nom::error::Error::new(i, nom::error::ErrorKind::Complete)));
-                            }
+            //                 if let Ok((_, fields)) = many0(#name_field::parse)(&dec) {
+            //                     return Ok((i, Self { header, fields }));
+            //                 } else {
+            //                     return Err(nom::Err::Error(nom::error::Error::new(i, nom::error::ErrorKind::Complete)));
+            //                 }
                             
-                        } else {
-                            panic!("Could not decompress record: {:?}", header);
-                        }
+            //             } else {
+            //                 panic!("Could not decompress record: {:?}", header);
+            //             }
                         
-                    } else {
-                        if let Ok((_, fields)) = many0(#name_field::parse)(&raw) {
-                            return Ok((i, Self { header, fields }));
-                        } else {
-                            return Err(nom::Err::Error(nom::error::Error::new(i, nom::error::ErrorKind::Complete)));
-                        }
-                    }       
-                }
-            }
+            //         } else {
+            //             if let Ok((_, fields)) = many0(#name_field::parse)(&raw) {
+            //                 return Ok((i, Self { header, fields }));
+            //             } else {
+            //                 return Err(nom::Err::Error(nom::error::Error::new(i, nom::error::ErrorKind::Complete)));
+            //             }
+            //         }       
+            //     }
+            // }
 
-            #trait_impl
+            // #trait_impl
             
 
-            impl<'esm> TryFrom<RawRecord<'esm>> for #name {
-                type Error = nom::error::Error<&'esm[u8]>;
+            // impl<'esm> TryFrom<RawRecord<'esm>> for #name {
+            //     type Error = nom::error::Error<&'esm[u8]>;
 
-                fn try_from(value: RawRecord<'esm>) -> Result<Self, Self::Error> {
+            //     fn try_from(value: RawRecord<'esm>) -> Result<Self, Self::Error> {
 
-                    match value.data {
-                        RawRecordData::Pointer(items) => {
-                            if let Ok((_, fields)) = many0(#name_field::parse)(items) {
-                                Ok(Self { header: value.header, fields })
-                            } else {
-                                Err(nom::error::Error::new(items, nom::error::ErrorKind::Fail))
-                            }
-                        },
-                        RawRecordData::Decompressed(items) => {
-                            if let Ok((_, fields)) = many0(#name_field::parse)(items.as_ref()) {
-                                Ok(Self { header: value.header, fields })
-                            } else {
-                                Err(nom::error::Error::new(&[], nom::error::ErrorKind::Fail))
-                            }
-                        }
-                    }
-                }
-            }
+            //         match value.data {
+            //             RawRecordData::Pointer(items) => {
+            //                 if let Ok((_, fields)) = many0(#name_field::parse)(items) {
+            //                     Ok(Self { header: value.header, fields })
+            //                 } else {
+            //                     Err(nom::error::Error::new(items, nom::error::ErrorKind::Fail))
+            //                 }
+            //             },
+            //             RawRecordData::Decompressed(items) => {
+            //                 if let Ok((_, fields)) = many0(#name_field::parse)(items.as_ref()) {
+            //                     Ok(Self { header: value.header, fields })
+            //                 } else {
+            //                     Err(nom::error::Error::new(&[], nom::error::ErrorKind::Fail))
+            //                 }
+            //             }
+            //         }
+            //     }
+            // }
 
             #[derive(Debug)]
             pub enum #name_field {
@@ -871,6 +879,7 @@ pub fn common_map2() -> HashMap<String, Vec<FieldDefinition2>> {
 
 // ====================================================================================================
 
+#[derive(Clone)]
 pub struct FlagDefinition {
     pub position: LitInt,
     pub name: Ident
@@ -902,51 +911,53 @@ fn make_record_traits_impl(record_name: &Ident, record_field_name: &Ident, field
             EDID_NAME => {
                 let field_name = Ident::new(EDID_NAME, name.span());
                 out.extend(quote! {
-                    fn try_get_editor_id(&self) -> Option<&ESMString> {
-                        for field in &self.fields {
-                            match field {
-                                #record_field_name::#field_name(edid) => {
-                                    return Some(edid);
-                                },
-                                _ => {}
+                    impl crate::prelude::EditorIdTrait for #record_name {
+                        fn get_editor_id(&self) -> &EditorId {
+                            for field in self.fields {
+                                match field {
+                                    #record_field_name::#field_name(edid) => {
+                                        return &edid;
+                                    },
+                                    _ => { /* skip */ }
+                                }
                             }
+                            panic!("EditorId field not found.")
                         }
-                        None
                     }
                 });
             }
-            DESC_NAME => {
-                let field_name = Ident::new(DESC_NAME, name.span());
-                out.extend(quote! {
-                    fn try_get_description(&self) -> Option<&LocalizedString> {
-                        for field in &self.fields {
-                            match field {
-                                #record_field_name::#field_name(desc) => {
-                                    return Some(desc);
-                                },
-                                _ => {}
-                            }
-                        }
-                        None
-                    }
-                });
-            }
-            FULL_NAME => {
-                let field_name = Ident::new(FULL_NAME, name.span());
-                out.extend(quote! {
-                    fn try_get_full_name(&self) -> Option<&LocalizedString> {
-                        for field in &self.fields {
-                            match field {
-                                #record_field_name::#field_name(full) => {
-                                    return Some(full);
-                                },
-                                _ => {}
-                            }
-                        }
-                        None
-                    }
-                });
-            }
+            // DESC_NAME => {
+            //     let field_name = Ident::new(DESC_NAME, name.span());
+            //     out.extend(quote! {
+            //         fn try_get_description(&self) -> Option<&LocalizedString> {
+            //             for field in &self.fields {
+            //                 match field {
+            //                     #record_field_name::#field_name(desc) => {
+            //                         return Some(desc);
+            //                     },
+            //                     _ => {}
+            //                 }
+            //             }
+            //             None
+            //         }
+            //     });
+            // }
+            // FULL_NAME => {
+            //     let field_name = Ident::new(FULL_NAME, name.span());
+            //     out.extend(quote! {
+            //         fn try_get_full_name(&self) -> Option<&LocalizedString> {
+            //             for field in &self.fields {
+            //                 match field {
+            //                     #record_field_name::#field_name(full) => {
+            //                         return Some(full);
+            //                     },
+            //                     _ => {}
+            //                 }
+            //             }
+            //             None
+            //         }
+            //     });
+            // }
 
             
 
@@ -957,16 +968,273 @@ fn make_record_traits_impl(record_name: &Ident, record_field_name: &Ident, field
     }
 
 
+    // out = quote! {
+    //     impl crate::prelude::RecordTraits for #record_name {
+    //         #out
+    //         fn get_record_header(&self) -> &RecordHeader {
+    //             &self.header
+    //         }
+
+    //         fn get_form_id(&self) -> &FormId {
+    //             &self.header.form_id
+    //         }
+    //     }
+    // };
+
     quote! {
-        impl RecordTraits for #record_name {
-            #out
-            fn get_record_header(&self) -> &RecordHeader {
-                &self.header
+        #out
+
+        
+    }
+}
+
+
+// ====================================================================================================
+
+pub struct RecordDefinition3 {
+    pub iden: LitByteStr,
+    pub name: Ident,
+    pub flags: Option<Punctuated<FlagDefinition, Token![;]>>,
+    pub fields: Punctuated<FieldDefinition2, Token![;]>,
+    pub fixed: bool
+}
+
+impl Parse for RecordDefinition3 {
+    fn parse(input: parse::ParseStream) -> Result<Self> {
+        let field_defs = input.parse_terminated(NamedDef::parse, Token![;])?;
+
+        let iden = field_defs.iter().find_map(|f| {
+            if let NamedDef::Iden(iden) = f {
+                Some(iden.clone())
+            } else {
+                None
+            }
+        }).expect("iden is required.");
+
+        let name = field_defs.iter().find_map(|f| {
+            if let NamedDef::Name(name) = f {
+                Some(name.clone())
+            } else {
+                None
+            }
+        }).expect("name is required.");
+
+        let flags = field_defs.iter().find_map(|f| {
+            if let NamedDef::Flags(flags) = f {
+                Some(flags.clone())
+            } else {
+                None
+            }
+        });
+
+        let fields = field_defs.iter().find_map(|f| {
+            if let NamedDef::Fields(fields) = f {
+                Some(fields.clone())
+            } else {
+                None
+            }
+        }).expect("fields are required.");
+
+        let fixed = field_defs.iter().any(|f| {
+            if let NamedDef::Fixed(v) = f {
+                *v
+            } else {
+                false
+            }
+        });
+
+
+
+        Ok(RecordDefinition3 { iden, name, flags, fields, fixed })
+
+    }
+}
+
+impl ToTokens for RecordDefinition3 {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+
+        let iden = &self.iden;
+        let iden_as_ident = iden_to_ident(iden);
+        let name = &self.name;
+        let name_field = Ident::new(format!("{}Field", name.clone().to_string().as_str()).as_str(), name.span());
+        let name_group = Ident::new(format!("{}Group", name.clone().to_string().as_str()).as_str(), name.span());
+        let is_fixed = self.fixed;
+        let fields = &self.fields;
+        let field_names: Vec<Ident> = fields.iter().map(|f| f.name.clone()).collect();
+        let field_types: Vec<&FieldType> = fields.iter().map(|f| &f.field_type).collect();
+        let field_idens: Vec<proc_macro2::TokenStream> = fields.iter().map(|f| {
+            let iden = &f.iden;
+            quote! { #iden }
+        }).collect();
+
+
+        let type_token = if is_fixed {
+
+            let mut field_list: Vec<Type> = Vec::new();
+
+            for field in fields {
+                match &field.field_type {
+                    FieldType::Common(ident) => {
+                        let map = common_map2();
+                        let lookup = ident.to_string();
+                        let result = map.get(&lookup);
+                        if let Some(real_value) = result {
+                            for field2 in real_value {
+                                match &field2.field_type {
+                                    FieldType::Common(_) => todo!("This message should not be here"),
+                                    FieldType::Custom(c) => {
+                                        field_list.push(c.clone());
+                                    },
+                                    FieldType::Reference(_) => todo!("This message should not be here"),
+                                }
+                            }
+                        }
+                    },
+                    FieldType::Custom(c) => {
+                        field_list.push(c.clone());
+                    },
+                    FieldType::Reference(lit_byte_strs) => {
+                        let len = lit_byte_strs.len();
+                        let t = ident_to_type_manual(Ident::new("FormId", lit_byte_strs[0].span()));
+                        for _ in 0..len {
+                            field_list.push(t.clone());
+                        }
+                    },
+                }
             }
 
-            fn get_form_id(&self) -> &FormId {
-                &self.header.form_id
+
+            quote! { Record<(#(#field_list),*)> }
+        } else {
+            quote! { Record<Vec<#name_field>> }
+        };
+
+
+        let mut out = quote! {
+            pub type #name = #type_token;
+            pub type #name_group = Group<#name>;
+
+            impl From<#name> for crate::records::SingleRecord {
+                fn from(value: #name) -> Self {
+                    Self::#iden_as_ident(value)
+                }
             }
+
+            #[derive(Debug, PartialEq)]
+            pub enum #name_field {
+                Unhandled(FourCC),
+                #(#field_names(#field_types)),*
+            }
+
+            impl project_wormhole_shared::prelude::FourCCTrait for &#name_field {
+                fn fourcc(&self) -> FourCC {
+                    match self {
+                        #(
+                            #name_field::#field_names(_) => FourCC(*#field_idens),
+                        )*
+                        #name_field::Unhandled(iden) => iden.clone(),
+                    }
+                }
+            }
+
+            impl Parse<&[u8]> for #name_field {
+                fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
+                    let (i, (header, data)) = alloc_field(i)?;
+                    match &header.iden().0 {
+                        #(
+                            #field_idens => {
+                                let (_, out) = <#field_types>::parse_le(data)?;
+                                Ok((i, Self::#field_names(out)))
+                            }
+                        )*
+                        _ => {
+                            //unimplemented!("Field {} not implemented", header.iden());
+                            Ok((i, #name_field::Unhandled(header.iden().clone())))
+                        }
+                    }
+
+                    
+                }
+            }
+
+        };
+        
+        
+        tokens.extend(out);
+
+    }
+}
+
+
+
+pub enum NamedDef {
+    Iden(LitByteStr),
+    Name(Ident),
+    Fields(Punctuated<FieldDefinition2, Token![;]>),
+    Flags(Punctuated<FlagDefinition, Token![;]>),
+    ChildType(Type),
+    Fixed(bool)
+}
+
+impl Parse for NamedDef {
+    fn parse(input: parse::ParseStream) -> Result<Self> {
+        let name: LitStr = input.parse()?;
+        input.parse::<Token![:]>()?;
+        let s = name.value();
+
+        match s.as_str() {
+            "iden" => { Ok(NamedDef::Iden(input.parse()?)) }
+            "name" => { Ok(NamedDef::Name(input.parse()?)) }
+            "fields" => {
+                let inner;
+                bracketed!(inner in input);
+                Ok(NamedDef::Fields(inner.parse_terminated(FieldDefinition2::parse, Token![;])?))
+            }
+            "flags" => {
+                let inner2;
+                bracketed!(inner2 in input);
+                Ok(NamedDef::Flags(inner2.parse_terminated(FlagDefinition::parse, Token![;])?))
+            }
+            "child_type" => {
+                Ok(NamedDef::ChildType(input.parse()?))
+            }
+            "fixed" => {
+                let fixed_token: LitBool = input.parse()?;
+                if fixed_token.value {
+                    Ok(NamedDef::Fixed(true))
+                } else {
+                    Ok(NamedDef::Fixed(false))
+                }
+            }
+
+            _ => {
+                panic!("Unhandled field value.")
+            }
+
         }
     }
+}
+
+
+
+fn ident_to_type_manual(ident: Ident) -> Type {
+    let path_segment = PathSegment {
+        ident,
+        arguments: PathArguments::None,
+    };
+
+    let path = Path {
+        leading_colon: None,
+        segments: std::iter::once(path_segment).collect(),
+    };
+
+    Type::Path(TypePath {
+        qself: None,
+        path,
+    })
+}
+
+fn iden_to_ident(iden: &LitByteStr) -> Ident {
+    let s = iden.value();
+    Ident::new(String::from_utf8_lossy(&s).to_string().as_str(), iden.span())
 }

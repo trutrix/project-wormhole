@@ -5,7 +5,7 @@ use crate::dev::*;
 
 
 // OBND
-#[derive(Debug, NomLE)]
+#[derive(Debug, NomLE, PartialEq)]
 pub struct ObjectBounds {
     pub x1: i16,
     pub y1: i16,
@@ -17,7 +17,7 @@ pub struct ObjectBounds {
 
 
 /// Location in world grid for cell
-#[derive(Debug, Clone, NomLE)]
+#[derive(Debug, Clone, NomLE, PartialEq)]
 pub struct CellLoc {
     pub y: i16,
     pub x: i16
@@ -38,7 +38,7 @@ impl From<u32> for CellLoc {
 }
 
 
-#[derive(Debug, NomLE)]
+#[derive(Debug, NomLE, PartialEq)]
 pub struct LocationRotation {
     pub x: f32,
     pub y: f32,

@@ -2,8 +2,12 @@ use std::{collections::HashMap, fs::File, io::{Read, Seek}, path::PathBuf};
 
 use rayon::iter::{IndexedParallelIterator, IntoParallelRefIterator, ParallelIterator};
 
-use crate::{dev::*, records::{self, SingleRecord, all::*}, structs::{chunk::{get_file_chunks, get_file_chunks2}, group::TopGroup, record::RawRecord, world::WorldEntry}};
+use crate::{dev::*, prelude::{FormIdTrait, RecordTraits}, records::{self, SingleRecord, all::*}, structs::{chunk::{get_file_chunks, get_file_chunks2}, group::TopGroup, record::RawRecord, world::WorldEntry}};
 
+pub mod diff;
+pub mod mapped;
+pub mod raw;
+pub mod full;
 
 // ====================================================================================================
 
@@ -152,6 +156,12 @@ impl<'esm> RawESM<'esm> {
     }
 }
 
+impl PartialEq for RawESM<'_> {
+    fn eq(&self, other: &Self) -> bool {
+        self.header == other.header
+    }
+}
+
 // ====================================================================================================
 
 
@@ -258,6 +268,7 @@ impl ESMFull {
 #[derive(Debug)]
 pub enum ESMError {
     IO(std::io::Error),
+    Nom(nom::Err<nom::error::Error<&'static [u8]>>),
     InvalidFile,
     InvalidHeader,
     InvalidRecord,
@@ -265,6 +276,8 @@ pub enum ESMError {
     InvalidGroup,
     InvalidVersionControl,
     InvalidData,
+    NotEnoughBytes(String),
+    StringConversionError(String),
     GameSetting(String)
 }
 
@@ -274,7 +287,11 @@ impl From<std::io::Error> for ESMError {
     }
 }
 
-
+impl From<nom::Err<nom::error::Error<&'static[u8]>>> for ESMError {
+    fn from(value: nom::Err<nom::error::Error<&'static[u8]>>) -> Self {
+        ESMError::Nom(value)
+    }
+}
 
 // ================================================================================
 
@@ -404,7 +421,7 @@ impl From<ESMFull> for MappedESM {
         let header = value.header;
         let mut indices = HashMap::new();
 
-        fn iter_insert_records<T: RecordTraits + Into<SingleRecord>>(indices: &mut HashMap<FormId, SingleRecord>, records: Vec<T>) {
+        fn iter_insert_records<T: FormIdTrait + Into<SingleRecord>>(indices: &mut HashMap<FormId, SingleRecord>, records: Vec<T>) {
             for record in records {
                 let form_id = record.get_form_id().clone();
                 let sr: SingleRecord = record.into();
@@ -435,7 +452,7 @@ impl From<ESMFull> for MappedESM {
                 TopGroup::BOOK(group_vec) => iter_insert_records(&mut indices, group_vec.data),
                 TopGroup::BPTD(group_vec) => iter_insert_records(&mut indices, group_vec.data),
                 TopGroup::CAMS(group_vec) => iter_insert_records(&mut indices, group_vec.data),
-                TopGroup::CELL(group_vec) => iter_insert_records(&mut indices, group_vec.data),
+                //TopGroup::CELL(group_vec) => iter_insert_records(&mut indices, group_vec.data),
                 TopGroup::CLAS(group_vec) => iter_insert_records(&mut indices, group_vec.data),
                 TopGroup::CLFM(group_vec) => iter_insert_records(&mut indices, group_vec.data),
                 TopGroup::CLMT(group_vec) => iter_insert_records(&mut indices, group_vec.data),
