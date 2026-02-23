@@ -44,7 +44,7 @@ impl ESMDiff<'_> {
         }
 
         for (leftover, _) in &other.records {
-            result.subtractions.insert(leftover.clone());
+            result.leftover_ids.insert(leftover.clone());
         }
 
         result
@@ -57,7 +57,7 @@ impl ESMDiff<'_> {
 pub struct ESMDiffResult {
     pub header_changed: bool,
     pub additions: HashSet<FormId>,
-    pub subtractions: HashSet<FormId>,
+    pub leftover_ids: HashSet<FormId>,
     pub changed: HashSet<FormId>,
     pub same: HashSet<FormId>
 }
@@ -67,7 +67,7 @@ impl Default for ESMDiffResult {
         Self {
             header_changed: false,
             additions: HashSet::new(),
-            subtractions: HashSet::new(),
+            leftover_ids: HashSet::new(),
             changed: HashSet::new(),
             same: HashSet::new()
         }
@@ -78,7 +78,7 @@ impl ESMDiffResult {
     pub fn print_summary(&self) {
         println!("Header Changed: {:?}", self.header_changed);
         println!("Additions: {:?}", self.additions.len());
-        println!("Subtractions: {:?}", self.subtractions.len());
+        println!("Leftovers: {:?}", self.leftover_ids.len());
         println!("Changed: {:?}", self.changed.len());
         println!("Same: {:?}", self.same.len());
     }
