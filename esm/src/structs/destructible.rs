@@ -3,7 +3,7 @@ use bitflags::bitflags;
 
 // TODO: verify correct parsing
 
-#[derive(Debug, NomLE)]
+#[derive(Debug, NomLE, PartialEq)]
 pub struct DestructibleHeader {
     pub health: i32,
     pub dest_count: u8,
@@ -12,7 +12,7 @@ pub struct DestructibleHeader {
 }
 
 
-#[derive(Debug, NomLE)]
+#[derive(Debug, NomLE, PartialEq)]
 pub struct DestructibleStageData {
     pub health: u8,
     pub index: u8,
@@ -25,11 +25,11 @@ pub struct DestructibleStageData {
 }
 
 
-#[derive(Debug, NomLE)]
+#[derive(Debug, NomLE, PartialEq)]
 pub struct DestructibleHeaderFlags(pub u8);
 
 bitflags! {
-    #[derive(Debug)]
+    #[derive(Debug, PartialEq)]
     pub struct DestructibleStageFlags: u8 {
         const CAP_DAMAGE       = 0x01;
         const DISABLE          = 0x02;

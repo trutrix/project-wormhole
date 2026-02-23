@@ -404,7 +404,6 @@ impl RecordFlags2 {
 
 // ====================================================================================================
 
-#[derive(PartialEq, Eq)]
 pub struct RawRecord<'esm> {
     pub header: RecordHeader,
     pub data: RawRecordData<'esm>,
@@ -467,6 +466,16 @@ impl RawRecordData<'_> {
     }
 }
 
+
+impl PartialEq for RawRecord<'_> {
+    fn eq(&self, other: &Self) -> bool {
+        self.header == other.header && self.data.len() == other.data.len() && self.data == other.data
+    }
+}
+
+impl Eq for RawRecord<'_> {
+    
+}
 
 
 // ====================================================================================================

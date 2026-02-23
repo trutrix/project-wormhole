@@ -4,7 +4,7 @@ use crate::{dev::*};
 
 
 // TODO: Verify data, just because it parses doesn't mean it's correct!
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct VirtualMachineAdapter {
     pub version: i16,
     pub object_format: i16,
@@ -52,7 +52,7 @@ impl Parse<&[u8]> for VirtualMachineAdapter {
 }
 
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct VMADScriptEntry {
     pub script_name: SizedString16,
     pub flags: VMADScriptFlags,
@@ -131,7 +131,7 @@ impl ParseV<&[u8], i16> for VMADScriptEntry {
 //     }
 // }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct VMADPropertyEntry {
     pub name: SizedString16,
     pub type_: VMADPropertyType,
@@ -367,7 +367,7 @@ impl Parse<&[u8]> for VMADPropertyEntry {
 
 // ====================================================================================================
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum VMADPropertyValue {
     Null, // 0, 6
     Object(VMADObjectRef), // 1
@@ -388,7 +388,7 @@ pub enum VMADPropertyValue {
 
 // ====================================================================================================
 
-#[derive(Debug, NomLE)]
+#[derive(Debug, NomLE, PartialEq)]
 #[repr(u8)]
 pub enum VMADPropertyType {
     // Singles
@@ -413,7 +413,7 @@ pub enum VMADPropertyType {
 
 // ====================================================================================================
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum VMADObjectRef {
     V1((FormId, u16, u16)),
     V2((u16, u16, FormId))
@@ -449,7 +449,7 @@ impl Parse<&[u8]> for VMADScriptFlags {
 
 // ====================================================================================================
 
-#[derive(Debug, NomLE)]
+#[derive(Debug, NomLE, PartialEq)]
 pub struct SubStruct {
     #[nom(LengthCount = "le_u32")]
     pub values: Vec<VMADPropertyEntry>

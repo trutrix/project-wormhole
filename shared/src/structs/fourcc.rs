@@ -79,3 +79,9 @@ impl nom_derive::Parse<&[u8]> for FourCC {
         Ok((i, FourCC(code)))
     }
 }
+
+// ================================================================================
+
+pub trait FourCCTrait {
+    fn fourcc(&self) -> FourCC;
+}

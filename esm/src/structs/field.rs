@@ -133,5 +133,5 @@ pub fn alloc_field(i: &[u8]) -> IResult<&[u8], (FieldHeader, &[u8]), nom::error:
 pub type UnusedData = EmptyParser;
 
 
-#[derive(Debug, NomLE)]
+#[derive(Debug, NomLE, PartialEq)]
 pub struct EmptyParser;

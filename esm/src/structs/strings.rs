@@ -11,7 +11,7 @@ pub type LocalizedString = u32;
 // Basically a CString
 // Custom implementation to avoid foreign parsing errors
 // TODO: Make this a proper CString
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct ESMString(pub String);
 
 impl Parse<&[u8]> for ESMString {

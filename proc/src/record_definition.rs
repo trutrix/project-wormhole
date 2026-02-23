@@ -1120,10 +1120,21 @@ impl ToTokens for RecordDefinition3 {
                 }
             }
 
-            #[derive(Debug)]
+            #[derive(Debug, PartialEq)]
             pub enum #name_field {
                 Unhandled(FourCC),
                 #(#field_names(#field_types)),*
+            }
+
+            impl project_wormhole_shared::prelude::FourCCTrait for &#name_field {
+                fn fourcc(&self) -> FourCC {
+                    match self {
+                        #(
+                            #name_field::#field_names(_) => FourCC(*#field_idens),
+                        )*
+                        #name_field::Unhandled(iden) => iden.clone(),
+                    }
+                }
             }
 
             impl Parse<&[u8]> for #name_field {

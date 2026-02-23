@@ -4,6 +4,10 @@ use rayon::iter::{IndexedParallelIterator, IntoParallelRefIterator, ParallelIter
 
 use crate::{dev::*, prelude::{FormIdTrait, RecordTraits}, records::{self, SingleRecord, all::*}, structs::{chunk::{get_file_chunks, get_file_chunks2}, group::TopGroup, record::RawRecord, world::WorldEntry}};
 
+pub mod diff;
+pub mod mapped;
+pub mod raw;
+pub mod full;
 
 // ====================================================================================================
 
@@ -149,6 +153,12 @@ impl<'esm> RawESM<'esm> {
         }
 
         Ok((i, Self { header, cells, worlds, records, quests }))
+    }
+}
+
+impl PartialEq for RawESM<'_> {
+    fn eq(&self, other: &Self) -> bool {
+        self.header == other.header
     }
 }
 
