@@ -2,7 +2,7 @@ use crate::{dev::*, structs::geometry::LocationRotation};
 
 
 define_record2! {
-    b"REFR", Reference, [
+    b"REFR", RecordReference, [
             EditorId;
             b"XOWN", Owner, FormId;
             b"NAME", BaseObject, FormId;

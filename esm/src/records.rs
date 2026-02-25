@@ -372,7 +372,7 @@ pub enum SingleRecord {
     PROJ(PROJ::Projectile),
     QUST(QUST::Quest),
     RACE(RACE::Race),
-    REFR(REFR::Reference),
+    REFR(REFR::RecordReference),
     REGN(REGN::Region),
     RELA(RELA::Relationship),
     REVB(REVB::Reverb),

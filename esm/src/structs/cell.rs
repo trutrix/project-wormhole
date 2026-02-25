@@ -1,4 +1,4 @@
-use crate::{dev::*, records::all::{ActorReference, Cell, Landscape, NavigationMesh, PlayerHazard, Reference}};
+use crate::{dev::*, records::all::{ActorReference, Cell, Landscape, NavigationMesh, PlayerHazard, RecordReference}};
 
 #[derive(Debug)]
 pub struct CellEntry {
@@ -164,7 +164,7 @@ impl Parse<&[u8]> for CellTemporaryChildren {
 
 #[derive(Debug)]
 pub enum CellChildItem {
-    ItemReference(Reference),
+    ItemReference(RecordReference),
     Landscape(Landscape),
     ActorReference(ActorReference),
     NavigationMesh(NavigationMesh),
@@ -178,7 +178,7 @@ impl Parse<&[u8]> for CellChildItem {
 
         match &header.iden.0{
             b"REFR" => {
-                let (i, reference) = Reference::parse(i)?;
+                let (i, reference) = RecordReference::parse(i)?;
                 Ok((i, CellChildItem::ItemReference(reference)))
             }
             b"LAND" => {
