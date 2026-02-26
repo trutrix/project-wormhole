@@ -23,33 +23,35 @@ impl<'esm> Parse<&'esm[u8]> for ESMDiff<'esm> {
 
 impl ESMDiff<'_> {
     
-    pub fn get_diff_form_ids(&self, other: &mut ESMDiff<'_>) -> ESMDiffResult {
+    
 
-        let mut result = ESMDiffResult::default();
+}
 
-        result.header_changed = self.header != other.header;
-        
-        for (self_id, self_record) in &self.records {
+pub fn get_diff_form_ids(new_esm: &ESMDiff, old_esm: &mut ESMDiff<'_>) -> ESMDiffResult {
 
-            if let Some(other_record) = other.records.get(self_id) {
-                if self_record != other_record {
-                    result.changed.insert(self_id.clone());
-                } else {
-                    result.same.insert(self_id.clone());
-                }
-                other.records.remove(self_id);
+    let mut result = ESMDiffResult::default();
+
+    result.header_changed = new_esm.header != old_esm.header;
+    
+    for (self_id, self_record) in &new_esm.records {
+
+        if let Some(other_record) = old_esm.records.get(self_id) {
+            if self_record != other_record {
+                result.changed.insert(self_id.clone());
             } else {
-                result.additions.insert(self_id.clone());
+                result.same.insert(self_id.clone());
             }
+            old_esm.records.remove(self_id);
+        } else {
+            result.additions.insert(self_id.clone());
         }
-
-        for (leftover, _) in &other.records {
-            result.leftover_ids.insert(leftover.clone());
-        }
-
-        result
     }
 
+    for (leftover, _) in &old_esm.records {
+        result.deletions.insert(leftover.clone());
+    }
+
+    result
 }
 
 
@@ -57,7 +59,7 @@ impl ESMDiff<'_> {
 pub struct ESMDiffResult {
     pub header_changed: bool,
     pub additions: HashSet<FormId>,
-    pub leftover_ids: HashSet<FormId>,
+    pub deletions: HashSet<FormId>,
     pub changed: HashSet<FormId>,
     pub same: HashSet<FormId>
 }
@@ -67,7 +69,7 @@ impl Default for ESMDiffResult {
         Self {
             header_changed: false,
             additions: HashSet::new(),
-            leftover_ids: HashSet::new(),
+            deletions: HashSet::new(),
             changed: HashSet::new(),
             same: HashSet::new()
         }
@@ -78,7 +80,7 @@ impl ESMDiffResult {
     pub fn print_summary(&self) {
         println!("Header Changed: {:?}", self.header_changed);
         println!("Additions: {:?}", self.additions.len());
-        println!("Leftovers: {:?}", self.leftover_ids.len());
+        println!("Deletions: {:?}", self.deletions.len());
         println!("Changed: {:?}", self.changed.len());
         println!("Same: {:?}", self.same.len());
     }

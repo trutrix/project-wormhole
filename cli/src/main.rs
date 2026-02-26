@@ -111,7 +111,7 @@ fn main() {
             let (_, mut esm_b) = esm::diff::ESMDiff::parse(&esm_file_b).expect("Error parsing ESM file B.");
 
             let start = std::time::Instant::now();
-            let result = esm_a.get_diff_form_ids(&mut esm_b);
+            let result = esm::diff::get_diff_form_ids(&esm_a, &mut esm_b);
             let duration = start.elapsed();
 
             result.print_summary();
