@@ -14,7 +14,7 @@ define_record2! {
 }
 
 
-#[derive(Debug, NomLE, Default)]
+#[derive(Debug, NomLE, Default, PartialEq)]
 #[repr(u32)]
 pub enum KeywordType {
     #[default]

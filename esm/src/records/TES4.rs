@@ -1,7 +1,6 @@
-use project_wormhole_shared::prelude::FourCCTrait;
-
 use crate::dev::*;
 
+// ====================================================================================================
 
 define_record3! {
     "iden": b"TES4";
@@ -17,6 +16,8 @@ define_record3! {
     ]
 }
 
+// ====================================================================================================
+
 #[derive(Debug, NomLE, PartialEq)]
 pub struct FileHeaderMetadata {
     pub version: f32,
@@ -24,18 +25,23 @@ pub struct FileHeaderMetadata {
     pub next_object_id: FormId
 }
 
+// ====================================================================================================
+
 #[derive(NomLE, PartialEq)]
 pub struct FileHeaderTransientItems {
     pub type_: u32,
     pub ids: Vec<FormId>
 }
 
+
+// Custom debug to avoid printing an enormous list of FormIDs
 impl std::fmt::Debug for FileHeaderTransientItems {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "FileHeaderTransientItems {{ type_: {}, ids: {} items }}", self.type_, self.ids.len())
     }
 }
 
+// ====================================================================================================
 
 impl PartialEq for FileHeader {
     fn eq(&self, other: &Self) -> bool {
@@ -52,6 +58,8 @@ impl PartialEq for FileHeader {
 
             if matched == false { return false; }
         }
-        true
+        matched
     }
 }
+
+// ====================================================================================================
