@@ -1,21 +1,75 @@
-use std::collections::{HashMap, HashSet};
+use std::{cell, collections::{HashMap, HashSet}};
 
-use crate::{dev::*, esm::raw::RawESM, records::all::FileHeader};
+use crate::{dev::*, records::all::FileHeader};
 
 
 
 pub struct ESMDiff<'esm> {
     pub header: FileHeader,
-    pub records: HashMap<FormId, RawRecord<'esm>>
+    pub records: HashMap<FormId, RawRecord<'esm>>,
+    pub cells: HashMap<FormId, RawCellRecord<'esm>>
 }
 
 impl<'esm> Parse<&'esm[u8]> for ESMDiff<'esm> {
     fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
-        let (i, raw) = RawESM::parse(i)?;
+        
+
+        let (i, header) = FileHeader::parse(i)?;
+        let mut records = HashMap::new();
+        let mut cells = HashMap::new();
+
+        let mut raw = i;
+
+        while raw.len() > 0 {
+            let (i, (gh, gd)) = alloc_group(raw)?;
+            raw = i;
+
+
+            match gh.label {
+                GroupLabel::Top(label) => {
+                    match &label.0 {
+                        b"WRLD" | b"QUST" => {
+                        //     let (_, recs) = many0(RawRecord::parse)(graw)?;
+                        //     for r in recs {
+                        //         records.insert(r.header.form_id, r);
+                        //     }
+                        }
+                        b"CELL" => {
+                            let (i, blocks) = many0(RawInteriorCellBlock::parse)(gd)?;
+                            if i.len() != 0 {
+                                panic!("Not all bytes consumed for CELL group: {} bytes left", i.len());
+                            }
+
+                            for block in blocks {
+                                for sub_block in block.sub_blocks {
+                                    for record in sub_block.data {
+                                        cells.insert(record.cell.header.form_id.clone(), record);
+                                    }
+                                }
+                            }
+                        }
+                        _ => {
+                            let (_, recs) = many0(RawRecord::parse)(gd)?;
+                            for r in recs {
+                                records.insert(r.header.form_id.clone(), r);
+                            }
+                        }
+                    }
+
+
+                }
+                _ => {
+                    panic!("Unexpected group label: {:?}", gh.label);
+                }
+                
+            }
+        }
+
 
         Ok((i, ESMDiff { 
-            header: raw.header,
-            records: raw.records
+            header,
+            records,
+            cells
         }))
     }
 }
@@ -31,15 +85,15 @@ pub fn get_diff_form_ids(new_esm: &ESMDiff, old_esm: &mut ESMDiff<'_>) -> ESMDif
 
     let mut result = ESMDiffResult::default();
 
-    result.header_changed = new_esm.header != old_esm.header;
+    result.header_modified = new_esm.header != old_esm.header;
     
     for (self_id, self_record) in &new_esm.records {
 
         if let Some(other_record) = old_esm.records.get(self_id) {
             if self_record != other_record {
-                result.changed.insert(self_id.clone());
+                result.modified.insert(self_id.clone());
             } else {
-                result.same.insert(self_id.clone());
+                result.unchanged.insert(self_id.clone());
             }
             old_esm.records.remove(self_id);
         } else {
@@ -57,31 +111,31 @@ pub fn get_diff_form_ids(new_esm: &ESMDiff, old_esm: &mut ESMDiff<'_>) -> ESMDif
 
 #[derive(Debug)]
 pub struct ESMDiffResult {
-    pub header_changed: bool,
+    pub header_modified: bool,
     pub additions: HashSet<FormId>,
     pub deletions: HashSet<FormId>,
-    pub changed: HashSet<FormId>,
-    pub same: HashSet<FormId>
+    pub modified: HashSet<FormId>,
+    pub unchanged: HashSet<FormId>
 }
 
 impl Default for ESMDiffResult {
     fn default() -> Self {
         Self {
-            header_changed: false,
+            header_modified: false,
             additions: HashSet::new(),
             deletions: HashSet::new(),
-            changed: HashSet::new(),
-            same: HashSet::new()
+            modified: HashSet::new(),
+            unchanged: HashSet::new()
         }
     }
 }
 
 impl ESMDiffResult {
     pub fn print_summary(&self) {
-        println!("Header Changed: {:?}", self.header_changed);
+        println!("Header Modified: {:?}", self.header_modified);
         println!("Additions: {:?}", self.additions.len());
         println!("Deletions: {:?}", self.deletions.len());
-        println!("Changed: {:?}", self.changed.len());
-        println!("Same: {:?}", self.same.len());
+        println!("Modified {:?}", self.modified.len());
+        println!("Unchanged: {:?}", self.unchanged.len());
     }
 }

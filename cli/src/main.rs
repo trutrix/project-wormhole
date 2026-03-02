@@ -69,15 +69,15 @@ fn main() {
             let file_duration = file_start.elapsed();
 
             let parse_start = std::time::Instant::now();
-            let (_, esm) = ESMFull::parse(&data).expect("Error parsing ESM file.");
+            let (_, _esm_full_single) = ESMFull::parse(&data).expect("Error parsing ESM file.");
             let parse_duration_single = parse_start.elapsed();
 
             let parse_start = std::time::Instant::now();
-            let (_, esm) = ESMFull::parse_mt(&data).expect("Error parsing ESM file.");
+            let (_, esm_full_multi) = ESMFull::parse_mt(&data).expect("Error parsing ESM file.");
             let parse_duration_multi = parse_start.elapsed();
 
             let map_start = std::time::Instant::now();
-            let _map = MappedESM::from(esm);
+            let _map = MappedESM::from(esm_full_multi);
             let map_duration = map_start.elapsed();
 
             println!("File read time: {:?}", file_duration);
@@ -139,11 +139,11 @@ fn main() {
 
             let mut table = comfy_table::Table::new();
             table.set_header(vec!["Change Type", "Count", "", "Benchmark Name", "Benchmark Time"]);
-            table.add_row(vec!["Header Changed", &result.header_changed.to_string(), "", "Parse A", &format!("{:?}", parse_duration_a)]);
+            table.add_row(vec!["Header Changed", &result.header_modified.to_string(), "", "Parse A", &format!("{:?}", parse_duration_a)]);
             table.add_row(vec!["Additions", &result.additions.len().to_string(), "", "Parse B", &format!("{:?}", parse_duration_b)]);
             table.add_row(vec!["Deletions", &result.deletions.len().to_string(), "", "File Read A", &format!("{:?}", read_duration_a)]);
-            table.add_row(vec!["Changed", &result.changed.len().to_string(), "", "File Read B", &format!("{:?}", read_duration_b)]);
-            table.add_row(vec!["Same", &result.same.len().to_string(), "", "Diffing", &format!("{:?}", duration)]);
+            table.add_row(vec!["Changed", &result.modified.len().to_string(), "", "File Read B", &format!("{:?}", read_duration_b)]);
+            table.add_row(vec!["Same", &result.unchanged.len().to_string(), "", "Diffing", &format!("{:?}", duration)]);
             table.add_row(vec!["", "", "", "Total Time", &format!("{:?}", total_duration)]);
 
 

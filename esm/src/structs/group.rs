@@ -155,21 +155,50 @@ impl Debug for RawWorldChildren<'_> {
 
 pub struct RawInteriorCellBlock<'esm> {
     pub header: GroupHeader,
-    pub data: &'esm [u8]
+    pub sub_blocks: Vec<RawInteriorCellSubBlock<'esm>>
 }
 
 impl<'esm> Parse<&'esm[u8]> for RawInteriorCellBlock<'esm> {
     fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
         let (i, (header, data)) = alloc_group(i)?;
-        Ok((i, Self { header, data }))
+        let (_, sub_blocks) = many0(RawInteriorCellSubBlock::parse)(data)?;
+        Ok((i, Self { header, sub_blocks}))
     }
 }
 
 impl std::fmt::Debug for RawInteriorCellBlock<'_> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?} {} bytes", self.header, self.data.len())
+        write!(f, "{:?} {} bytes", self.header, self.sub_blocks.len())
     }
 }
+
+// ====================================================================================================
+
+pub struct RawInteriorCellSubBlock<'esm> {
+    pub header: GroupHeader,
+    pub data: Vec<RawCellRecord<'esm>>
+}
+
+impl<'esm> Parse<&'esm[u8]> for RawInteriorCellSubBlock<'esm> {
+    fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
+        let (i, (header, data)) = alloc_group(i)?;
+        let (_, records) = many0(RawCellRecord::parse)(data)?;
+        Ok((i, Self { header, data: records }))
+    }
+}
+
+impl std::fmt::Display for RawInteriorCellSubBlock<'_> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:?} {} records", self.header, self.data.len())
+    }
+}
+
+impl std::fmt::Debug for RawInteriorCellSubBlock<'_> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:?} {} records", self.header, self.data.len())
+    }
+}
+
 
 
 // ====================================================================================================
@@ -181,23 +210,6 @@ pub struct InteriorCellBlock(pub Group<InteriorCellSubBlock>);
 
 #[derive(Debug, NomLE)]
 pub struct InteriorCellSubBlock(pub Group<CellEntry>);
-
-
-// ====================================================================================================
-
-
-#[derive(Debug)]
-pub struct RawInteriorCellSubBlock<'esm> {
-    pub header: GroupHeader,
-    pub data: &'esm [u8]
-}
-
-impl<'esm> Parse<&'esm[u8]> for RawInteriorCellSubBlock<'esm> {
-    fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
-        let (i, (header, data)) = alloc_group(i)?;
-        Ok((i, Self { header, data }))
-    }
-}
 
 
 // ====================================================================================================
