@@ -29,7 +29,7 @@ pub enum TopCommands {
         path_b: String,
 
         #[arg(short, default_value_t = 4)]
-        /// Number of threads to use for diffing
+        /// Number of threads to use for diffing (unused for now)
         threads: usize,
 
         #[arg(short)]
