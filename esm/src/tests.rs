@@ -1,7 +1,7 @@
 #![allow(unused)]
 use std::collections::{HashMap, HashSet};
 
-use crate::{records::all::*, structs::{chunk::{SmartChunks, get_file_chunks, get_file_chunks2}, world::WorldChildren}};
+use crate::{esm::{full::ESMFull, mapped::MappedESM, raw::RawESM}, records::all::*, structs::{chunk::{SmartChunks, get_file_chunks, get_file_chunks2}, world::WorldChildren}};
 
 
 const ESM_PATH: &str = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Fallout 4\\Data\\Fallout4.esm";

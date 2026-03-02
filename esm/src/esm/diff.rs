@@ -1,6 +1,6 @@
-use std::{collections::{HashMap, HashSet}, hash::Hash};
+use std::collections::{HashMap, HashSet};
 
-use crate::{dev::*, esm::RawESM, records::all::FileHeader};
+use crate::{dev::*, esm::raw::RawESM, records::all::FileHeader};
 
 
 

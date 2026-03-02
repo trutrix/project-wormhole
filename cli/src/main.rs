@@ -1,5 +1,6 @@
 use clap::{Parser, Subcommand};
-use project_wormhole_esm::esm::{self, MappedESM};
+use project_wormhole_esm::esm::full::ESMFull;
+use project_wormhole_esm::esm::{self, mapped::MappedESM};
 use project_wormhole_esm::prelude::Parse;
 
 mod benchmark;
@@ -68,11 +69,11 @@ fn main() {
             let file_duration = file_start.elapsed();
 
             let parse_start = std::time::Instant::now();
-            let (_, esm) = esm::ESMFull::parse(&data).expect("Error parsing ESM file.");
+            let (_, esm) = ESMFull::parse(&data).expect("Error parsing ESM file.");
             let parse_duration_single = parse_start.elapsed();
 
             let parse_start = std::time::Instant::now();
-            let (_, esm) = esm::ESMFull::parse_mt(&data).expect("Error parsing ESM file.");
+            let (_, esm) = ESMFull::parse_mt(&data).expect("Error parsing ESM file.");
             let parse_duration_multi = parse_start.elapsed();
 
             let map_start = std::time::Instant::now();
