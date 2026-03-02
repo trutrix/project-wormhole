@@ -1,5 +1,3 @@
-use std::panic;
-
 use crate::{dev::*, records::all::KeywordType};
 
 define_record3! {
