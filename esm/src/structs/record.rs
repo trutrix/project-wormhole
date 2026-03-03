@@ -1,7 +1,7 @@
 use std::{fmt::Debug, io::Read};
 
 
-use crate::{dev::*, prelude::FormIdTrait, records::all::*};
+use crate::{dev::*, groups::prelude::RawCellChildren, prelude::FormIdTrait, records::all::*};
 use bitflags::bitflags;
 
 
@@ -571,7 +571,7 @@ impl RawCellRecord<'_> {
 impl <'esm> Parse<&'esm[u8]> for RawCellRecord<'esm> {
     fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
         let (i, cell) = RawRecord::parse(i)?;
-        println!("{:?}", cell);
+        // println!("{:?}", cell);
         let (_, ghead) = GroupHeader::parse(i)?;
 
         match ghead.label {

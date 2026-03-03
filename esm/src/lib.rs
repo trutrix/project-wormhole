@@ -4,6 +4,7 @@ pub mod traits;
 pub mod structs;
 pub mod esm;
 pub mod consts;
+pub mod groups;
 mod tests;
 
 

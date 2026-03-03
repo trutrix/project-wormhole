@@ -62,15 +62,3 @@ pub struct GridLocation {
     pub y: u32,
     pub flags: u32
 }
-#[derive(Debug)]
-pub struct RawCellChildren<'esm> {
-    pub header: GroupHeader,
-    pub data: &'esm[u8]
-}
-
-impl<'esm> Parse<&'esm[u8]> for RawCellChildren<'esm> {
-    fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
-        let (i, (header, data)) = alloc_group(i)?;
-        Ok((i, RawCellChildren { header, data }))
-    }
-}

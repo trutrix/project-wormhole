@@ -120,8 +120,8 @@ pub struct Group<T> {
     pub data: Vec<T>
 }
 
-impl<T: for<'esm> Parse<&'esm[u8]>> Parse<&[u8]> for Group<T> {
-    fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
+impl<'esm, T: for<'nom> Parse<&'nom[u8]>> Parse<&'esm[u8]> for Group<T> {
+    fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
         let (i, (header, data)) = alloc_group(i)?;
         let (_, records) = many0(T::parse)(data)?;
         Ok((i, Group { header, data: records }))
