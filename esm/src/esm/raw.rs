@@ -12,7 +12,6 @@ use crate::{dev::*, records::all::FileHeader};
 #[derive(Debug)]
 pub struct RawESM<'esm> {
     pub header: FileHeader,
-    pub cells: Vec<RawInteriorCellBlock<'esm>>,
     pub worlds: Vec<RawWorldGroup<'esm>>,
     pub records: HashMap<FormId, RawRecord<'esm>>,
     pub quests: Vec<RawQuestGroup<'esm>>,
@@ -22,7 +21,6 @@ pub struct RawESM<'esm> {
 
 impl<'esm> RawESM<'esm> {
     pub fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self> {
-        let mut cells = Vec::new();
         let mut worlds = Vec::new();
         let mut records = HashMap::new();
         let mut quests = Vec::new();
@@ -41,10 +39,16 @@ impl<'esm> RawESM<'esm> {
                     match &iden.0 {
                         b"CELL" => {
                             let (i, (_ghead, graw)) = alloc_group(raw)?;
-                            // println!("{:?}", ghead);
                             raw = i;
                             let (_, icb) = many0(RawInteriorCellBlock::parse)(graw)?;
-                            cells = icb;
+
+                            for block in icb {
+                                for sub_block in block.sub_blocks {
+                                    for record in sub_block.data {
+                                        records.insert(record.cell.header.form_id.clone(), record.cell);
+                                    }
+                                }
+                            }
                         }
                         b"WRLD" => {
                             // println!("Parsing {:?}", gh.label);
@@ -76,11 +80,10 @@ impl<'esm> RawESM<'esm> {
 
         }
 
-        Ok((i, Self { header, cells, worlds, records, quests }))
+        Ok((i, Self { header, worlds, records, quests }))
     }
 
     pub fn parse_mt(i: &'esm[u8]) -> IResult<&'esm[u8], Self> {
-        let mut cells = Vec::new();
         let mut worlds = Vec::new();
         let mut records = HashMap::new();
         let mut quests = Vec::new();
@@ -102,7 +105,16 @@ impl<'esm> RawESM<'esm> {
                             // println!("{:?}", ghead);
                             raw = i;
                             let (_, icb) = many0(RawInteriorCellBlock::parse)(graw)?;
-                            cells = icb;
+
+                            for block in icb {
+                                for sub_block in block.sub_blocks {
+                                    for record in sub_block.data {
+                                        println!("Adding cell to records: {}", record.cell.header.form_id);
+                                        records.insert(record.cell.header.form_id.clone(), record.cell);
+                                    }
+                                }
+                            }
+
                         }
                         b"WRLD" => {
                             // println!("Parsing {:?}", gh.label);
@@ -134,9 +146,8 @@ impl<'esm> RawESM<'esm> {
 
         }
 
-        Ok((i, Self { header, cells, worlds, records, quests }))
+        Ok((i, Self { header, worlds, records, quests }))
     }
 }
 
 // ====================================================================================================
-

@@ -106,41 +106,11 @@ impl Parse<&[u8]> for CellChildItem {
 // ====================================================================================================
 
 
-#[derive(Debug)]
-pub struct RawCellChildren<'esm> {
-    pub header: GroupHeader,
-    pub children: Vec<Group<RawRecord<'esm>>>
-}
-
-impl<'esm> Parse<&'esm[u8]> for RawCellChildren<'esm> {
-    fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
-
-        // Parse header and raw data pointer
-        let (i, (header, raw)) = alloc_group(i)?;
-
-        // Ensure correct group type - debugging only
-        #[cfg(debug_assertions)]
-        match header.label {
-            GroupLabel::CellChildren(_) => { }
-            _ => { panic!("RawCellChildren::parse encountered wrong group type: {:?}", header.label) }
-        }
+// #[derive(Debug, NomLE)]
+// pub struct RawCellChildren<'esm> {
+//     pub header: GroupHeader,
+//     pub children: Vec<Group<RawRecord<'esm>>>
+// }
 
 
-        let mut leftover = raw;
-        let mut children = Vec::new();
-
-        while leftover.len() > 0 {
-            
-            let (raw, (gh, gd)) = alloc_group(leftover)?;
-            let (_, items) = many0(RawRecord::parse)(gd)?;
-            leftover = raw;
-            children.push(Group { header: gh, data: items });
-        }
-
-        // Parse all child groups from remaining raw data
-        // let (_, children) = many0(Group::parse)(raw)?;
-        
-
-        Ok((i, Self { header, children }) )
-    }
-}
+pub type RawCellChildren<'esm> = Group<Group<RawRecord<'esm>>>;

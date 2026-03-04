@@ -3,11 +3,16 @@ use std::{fmt::Debug, io::Read};
 
 use crate::{dev::*, groups::prelude::RawCellChildren, prelude::FormIdTrait, records::all::*};
 use bitflags::bitflags;
+use nom_derive::Parse;
+use nom_derive::nom::IResult;
+use nom_derive::nom::bytes::complete::take;
+use nom_derive::nom::number::complete::le_u32;
+use nom_derive::nom::multi::many0;
 
 
 // ====================================================================================================
 
-#[derive(Debug, NomLE, PartialEq, Eq)]
+#[derive(Debug, NomLE, PartialEq, Eq, Clone)]
 pub struct RecordHeader {
     pub iden: FourCC,
     pub size: u32, // Size NOT INCLUDING header, unlike GroupHeader
@@ -19,7 +24,7 @@ pub struct RecordHeader {
 // ====================================================================================================
 
 // The information contained in the version control structure appears to be used by a custom Perforce VCM
-#[derive(Debug, NomLE, PartialEq, Eq)]
+#[derive(Debug, NomLE, PartialEq, Eq, Clone)]
 pub struct VersionControl {
     pub timestamp: ESMTimestamp,
     pub users: [u8; 2],
@@ -44,7 +49,7 @@ impl From<[u8; 8]> for VersionControl {
 
 
 // Assuming the timestamp is the same in Fallout 4 as SkyrimSE
-#[derive(NomLE, PartialEq, Eq)]
+#[derive(NomLE, PartialEq, Eq, Clone)]
 pub struct ESMTimestamp(pub u16);
 
 impl std::fmt::Debug for ESMTimestamp {
@@ -404,13 +409,14 @@ impl RecordFlags2 {
 
 // ====================================================================================================
 
+#[derive(Clone)]
 pub struct RawRecord<'esm> {
     pub header: RecordHeader,
     pub data: RawRecordData<'esm>,
 }
 
 impl<'esm> Parse<&'esm [u8]> for RawRecord<'esm> {
-    fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self> {
+    fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
         let (i, (header, data)) = alloc_record(i)?;
 
         if header.flags.is_compressed() {
@@ -451,7 +457,7 @@ impl RawRecord<'_> {
     }   
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub enum RawRecordData<'esm> {
     Pointer(&'esm[u8]),
     Decompressed(Vec<u8>)
@@ -571,19 +577,30 @@ impl RawCellRecord<'_> {
 impl <'esm> Parse<&'esm[u8]> for RawCellRecord<'esm> {
     fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
         let (i, cell) = RawRecord::parse(i)?;
-        // println!("{:?}", cell);
-        let (_, ghead) = GroupHeader::parse(i)?;
+        let (_, next_id) = FourCC::parse(i)?;
 
-        match ghead.label {
-            GroupLabel::CellChildren(_) => {
-                let (i, cell_children) = RawCellChildren::parse(i)?;
-                Ok((i, Self { cell, cell_children: Some(cell_children) }))
-            }
-            _ => {
-                Ok((i, Self { cell, cell_children: None }))
-            }
+        if &next_id.0 != b"GRUP" {
+            return Ok((i, Self { cell, cell_children: None }));
         }
 
+        // println!("{:?}", cell);
+        if i.len() > 0 {
+            let (_, ghead) = GroupHeader::parse(i)?;
+
+            match ghead.label {
+                GroupLabel::CellChildren(_) => {
+                    
+                    let (i, cell_children) = RawCellChildren::parse(i)?;
+                    Ok((i, Self { cell, cell_children: Some(cell_children) }))
+                }
+                _ => {
+                    println!("Found non-CellChildren group after Cell record: {:?}, skipping", ghead);
+                    Ok((i, Self { cell, cell_children: None }))
+                }
+            }
+        } else {
+            Ok((i, Self { cell, cell_children: None }))
+        }
     }
 }
 

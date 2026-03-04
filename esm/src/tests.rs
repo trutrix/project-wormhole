@@ -57,6 +57,7 @@ pub fn esm_benchmarks() {
     let start = std::time::Instant::now();
     let (_, esm) = RawESM::parse(&buf).unwrap();
     println!("RawESM (Single Thread): {:?}", start.elapsed());
+    println!("RawESM record count: {}", esm.records.len());
     //println!("Expected records: {:?}", esm.header.fields);
     //println!("Record count: {}", esm.records.len());
 
