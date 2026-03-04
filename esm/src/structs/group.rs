@@ -42,12 +42,12 @@ impl Parse<&[u8]> for GroupHeader {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum GroupLabel {
     Top(FourCC),
-    WorldChildren(u32),
+    WorldChildren(FormId),
     InteriorCellBlock(i32),
     InteriorCellSubBlock(i32),
     ExteriorCellBlock([i16;2]),
     ExteriorCellSubBlock([i16;2]),
-    CellChildren(u32),
+    CellChildren(FormId),
     TopicChildren(u32),
     CellPersistentChildren(u32),
     CellTemporaryChildren(u32),
@@ -62,12 +62,12 @@ impl Parse<&[u8]> for GroupLabel {
 
         match label_type {
             0 => { Ok((i, GroupLabel::Top(data))) }
-            1 => { Ok((i, GroupLabel::WorldChildren(u32::from_le_bytes(data.0)))) }
+            1 => { Ok((i, GroupLabel::WorldChildren(FormId(u32::from_le_bytes(data.0))))) }
             2 => { Ok((i, GroupLabel::InteriorCellBlock(i32::from_le_bytes(data.0)))) }
             3 => { Ok((i, GroupLabel::InteriorCellSubBlock(i32::from_le_bytes(data.0)))) }
             4 => { Ok((i, GroupLabel::ExteriorCellBlock([i16::from_le_bytes(data.0[0..2].try_into().unwrap()), i16::from_le_bytes(data.0[2..4].try_into().unwrap())]))) }
             5 => { Ok((i, GroupLabel::ExteriorCellSubBlock([i16::from_le_bytes(data.0[0..2].try_into().unwrap()), i16::from_le_bytes(data.0[2..4].try_into().unwrap())]))) }
-            6 => { Ok((i, GroupLabel::CellChildren(u32::from_le_bytes(data.0)))) }
+            6 => { Ok((i, GroupLabel::CellChildren(FormId(u32::from_le_bytes(data.0))))) }
             7 => { Ok((i, GroupLabel::TopicChildren(u32::from_le_bytes(data.0)))) }
             8 => { Ok((i, GroupLabel::CellPersistentChildren(u32::from_le_bytes(data.0)))) }
             9 => { Ok((i, GroupLabel::CellTemporaryChildren(u32::from_le_bytes(data.0)))) }
@@ -120,13 +120,22 @@ pub struct Group<T> {
     pub data: Vec<T>
 }
 
-impl<'esm, T: for<'nom> Parse<&'nom[u8]>> Parse<&'esm[u8]> for Group<T> {
+// impl<T> Parse<&[u8]> for Group<T> where T: for<'nom> Parse<&'nom[u8]> {
+//     fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
+//         let (i, (header, data)) = alloc_group(i)?;
+//         let (_, records) = many0(T::parse)(data)?;
+//         Ok((i, Group { header, data: records }))
+//     }
+// }
+
+impl<'esm, T> Parse<&'esm[u8]> for Group<T> where T: for<'nom> Parse<&'esm[u8]> {
     fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
         let (i, (header, data)) = alloc_group(i)?;
         let (_, records) = many0(T::parse)(data)?;
         Ok((i, Group { header, data: records }))
     }
 }
+
 
 
 // ====================================================================================================
@@ -182,7 +191,9 @@ pub struct RawInteriorCellSubBlock<'esm> {
 impl<'esm> Parse<&'esm[u8]> for RawInteriorCellSubBlock<'esm> {
     fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
         let (i, (header, data)) = alloc_group(i)?;
+        // println!("  Parsing InteriorCellSubBlock: {:?}, {} bytes", header, data.len());
         let (_, records) = many0(RawCellRecord::parse)(data)?;
+        // println!("  Finished parsing InteriorCellSubBlock: {:?}, {} records", header, records.len());
         Ok((i, Self { header, data: records }))
     }
 }
