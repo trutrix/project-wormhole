@@ -3,30 +3,30 @@ use std::{collections::HashMap, fs::File, io::Read};
 use crate::{dev::*, esm::{ESMError, full::ESMFull}, prelude::FormIdTrait, records::{SingleRecord, all::FileHeader}};
 
 
-pub struct MappedESM {
+pub struct ESMMapped {
     pub header: FileHeader,
     pub indices: HashMap<FormId, SingleRecord>,
 }
 
 // ================================================================================
 
-impl MappedESM {
+impl ESMMapped {
     pub fn load_file(file_path: &str) -> Result<Self, ESMError> where Self: Sized {
         let mut file = File::open(file_path)?;
         let mut buf = Vec::new();
         file.read_to_end(&mut buf)?;
-        Ok(MappedESM::parse(&buf)?)
+        Ok(ESMMapped::parse(&buf)?)
     }
 
     pub fn parse(i: &[u8]) -> Result<Self, ESMError> where Self: Sized {
         let (_, esm) = ESMFull::parse_mt(i).map_err(|_| ESMError::InvalidGroup)?;
-        Ok(MappedESM::from(esm))
+        Ok(ESMMapped::from(esm))
     }
 }
 
 // ================================================================================
 
-impl From<ESMFull> for MappedESM {
+impl From<ESMFull> for ESMMapped {
     fn from(value: ESMFull) -> Self {
         
         let header = value.header;

@@ -1,7 +1,7 @@
 #![allow(unused)]
 use std::collections::{HashMap, HashSet};
 
-use crate::{esm::{full::ESMFull, mapped::MappedESM, raw::RawESM}, records::all::*, structs::{chunk::{SmartChunks, get_file_chunks, get_file_chunks2}, world::WorldChildren}};
+use crate::{esm::{diff::ESMDiff, full::ESMFull, mapped::ESMMapped, raw::RawESM}, records::all::*, structs::{chunk::{SmartChunks, get_file_chunks, get_file_chunks2}, world::WorldChildren}};
 
 
 const ESM_PATH: &str = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Fallout 4\\Data\\Fallout4.esm";
@@ -58,6 +58,7 @@ pub fn esm_benchmarks() {
     let (_, esm) = RawESM::parse(&buf).unwrap();
     println!("RawESM (Single Thread): {:?}", start.elapsed());
     println!("RawESM record count: {}", esm.records.len());
+    println!("RawESM references count: {}", esm.references.len());
     //println!("Expected records: {:?}", esm.header.fields);
     //println!("Record count: {}", esm.records.len());
 
@@ -71,28 +72,13 @@ pub fn esm_benchmarks() {
 
 
     let start = std::time::Instant::now();
-    let esm = MappedESM::from(esm);
+    let esm = ESMMapped::from(esm);
     println!("MappedESM: {:?}", start.elapsed());
-    println!("Record count: {}", esm.indices.len());
+    println!("Mapped Record count: {}", esm.indices.len());
 
-    // let start = std::time::Instant::now();
-    // let esm = SmartESM2::load_file(ESM_PATH).unwrap();
-    // println!("SmartESM2: {:?}", start.elapsed());
-
-    // println!("Record count: {}", esm.records.len());
-
-
-    // println!("Counted {:?} chunks", chunks.len());
-
-    //println!("Header: {:?}", header);
-    
-
-    // for group in &top_group {
-    //     match group {
-    //         TopGroup::WRLD(worlds) => {
-    //             println!("Worlds group with {:#?} worlds", worlds);
-    //         },
-    //         _ => {}
-    //     }
-    // }
+    let start = std::time::Instant::now();
+    let diff = ESMDiff::parse(&buf).unwrap().1;
+    println!("ESMDiff: {:?}", start.elapsed());
+    println!("Diff record count: {}", diff.data_records.len());
+    println!("Diff cell count: {}", diff.cells.len());
 }

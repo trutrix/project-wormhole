@@ -7,6 +7,7 @@ pub mod consts;
 pub mod groups;
 mod tests;
 
+pub use nom_derive::Parse;
 
 
 mod dev {

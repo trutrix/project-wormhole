@@ -1,14 +1,15 @@
-use std::{cell, collections::{HashMap, HashSet}};
-
+use std::collections::{HashMap, HashSet};
 use crate::{dev::*, records::all::FileHeader};
 
-
+// ====================================================================================================
 
 pub struct ESMDiff<'esm> {
     pub header: FileHeader,
-    pub records: HashMap<FormId, RawRecord<'esm>>,
+    pub data_records: HashMap<FormId, RawRecord<'esm>>,
     pub cells: HashMap<FormId, RawCellRecord<'esm>>
 }
+
+// ====================================================================================================
 
 impl<'esm> Parse<&'esm[u8]> for ESMDiff<'esm> {
     fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
@@ -36,12 +37,18 @@ impl<'esm> Parse<&'esm[u8]> for ESMDiff<'esm> {
                         }
                         b"CELL" => {
                             let (i, blocks) = many0(RawInteriorCellBlock::parse)(gd)?;
+
+                            #[cfg(debug_assertions)]
                             if i.len() != 0 {
                                 panic!("Not all bytes consumed for CELL group: {} bytes left", i.len());
                             }
 
                             for block in blocks {
+
+                                //println!("{:?}: contains {} sub blocks", block.header.label, block.sub_blocks.len());
+
                                 for sub_block in block.sub_blocks {
+                                    //println!("  {:?}: Contains {} cell records", sub_block.header.label, sub_block.data.len());
                                     for record in sub_block.data {
                                         cells.insert(record.cell.header.form_id.clone(), record);
                                     }
@@ -68,12 +75,13 @@ impl<'esm> Parse<&'esm[u8]> for ESMDiff<'esm> {
 
         Ok((i, ESMDiff { 
             header,
-            records,
+            data_records: records,
             cells
         }))
     }
 }
 
+// ====================================================================================================
 
 impl ESMDiff<'_> {
     
@@ -81,33 +89,45 @@ impl ESMDiff<'_> {
 
 }
 
+// ====================================================================================================
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum ESMParseMode {
+    Full,
+    DataOnly,
+    ReferenceOnly
+}
+
+// ====================================================================================================
+
 pub fn get_diff_form_ids(new_esm: &ESMDiff, old_esm: &mut ESMDiff<'_>) -> ESMDiffResult {
 
     let mut result = ESMDiffResult::default();
 
     result.header_modified = new_esm.header != old_esm.header;
     
-    for (self_id, self_record) in &new_esm.records {
+    for (self_id, self_record) in &new_esm.data_records {
 
-        if let Some(other_record) = old_esm.records.get(self_id) {
+        if let Some(other_record) = old_esm.data_records.get(self_id) {
             if self_record != other_record {
                 result.modified.insert(self_id.clone());
             } else {
                 result.unchanged.insert(self_id.clone());
             }
-            old_esm.records.remove(self_id);
+            old_esm.data_records.remove(self_id);
         } else {
             result.additions.insert(self_id.clone());
         }
     }
 
-    for (leftover, _) in &old_esm.records {
+    for (leftover, _) in &old_esm.data_records {
         result.deletions.insert(leftover.clone());
     }
 
     result
 }
 
+// ====================================================================================================
 
 #[derive(Debug)]
 pub struct ESMDiffResult {
@@ -117,6 +137,8 @@ pub struct ESMDiffResult {
     pub modified: HashSet<FormId>,
     pub unchanged: HashSet<FormId>
 }
+
+// ====================================================================================================
 
 impl Default for ESMDiffResult {
     fn default() -> Self {
@@ -129,6 +151,8 @@ impl Default for ESMDiffResult {
         }
     }
 }
+
+// ====================================================================================================
 
 impl ESMDiffResult {
     pub fn print_summary(&self) {
