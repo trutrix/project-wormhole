@@ -1,0 +1,10 @@
+[package]
+name = "esm-diff"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+clap = { version = "4.5.60", features = ["derive"] }
+comfy-table = "7.2.2"
+project-wormhole-esm = { path = "../esm", version = "0.1.0" }
+project-wormhole-shared = { path = "../shared", version = "0.1.0" }
