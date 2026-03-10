@@ -157,7 +157,7 @@ impl<'esm> Parse<&'esm[u8]> for RawWorldChildren<'esm> {
         }
 
         let (raw, cell) = RawCellRecord::parse(raw)?;
-        println!("Parsed world children cell: {:?}, {} bytes", cell.cell.header.form_id, raw.len());
+        // println!("Parsed world children cell: {:?}, {} bytes", cell.cell.header.form_id, raw.len());
 
         #[cfg(debug_assertions)]
         if cell.cell.header.iden.0 != *b"CELL" {
@@ -261,7 +261,7 @@ impl<'esm> Parse<&'esm[u8]> for RawExteriorCellBlock<'esm> {
 
 
         match header.label {
-            GroupLabel::ExteriorCellBlock(_) => { println!("Parsing: {:?}", header.label) }
+            GroupLabel::ExteriorCellBlock(_) => { }
             _ => { panic!("RawExteriorCellBlock::parse encountered wrong group type: {:?}", header.label) }
         }
 
@@ -290,11 +290,11 @@ impl<'esm> Parse<&'esm[u8]> for RawExteriorCellSubBlock<'esm> {
     fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
         let (i, (header, raw)) = alloc_group(i)?;
 
-        println!("     Parsing: {:?}", header.label);
+        // println!("     Parsing: {:?}", header.label);
 
         match header.label {
             GroupLabel::ExteriorCellSubBlock(_) => {
-                println!("  Parsing: {:?}", header.label);
+                // println!("  Parsing: {:?}", header.label);
             }
 
             _ => { panic!("RawExteriorCellSubBlock::parse encountered wrong group type: {:?}", header.label) }
@@ -307,7 +307,16 @@ impl<'esm> Parse<&'esm[u8]> for RawExteriorCellSubBlock<'esm> {
         if raw.len() > 0 {
             println!("{:?}", header);
             let (_, next_id) = FourCC::parse(raw)?;
+            
+            if let Ok((_, next_record)) = RawCellRecord::parse(raw) {
+                // println!("Next record: {:?}", next_record.cell.header);
+            } else {
+                println!("Failed to parse next record");
+            }
+            
             panic!("Failed to consume RawExteriorCellSubBlock: {} bytes, next id: {:?}", raw.len(), next_id);
+
+            
         }
 
         Ok((i, Self { header, cells }))

@@ -576,30 +576,35 @@ impl RawCellRecord<'_> {
 
 impl <'esm> Parse<&'esm[u8]> for RawCellRecord<'esm> {
     fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
+
+        // Parse the cell record first
         let (i, cell) = RawRecord::parse(i)?;
+
+        // Check if there is any data left after the cell record, if not return immediately
+        if i.is_empty() {
+            return Ok((i, Self { cell, cell_children: None }));
+        }
+
+        // Get the next id
         let (_, next_id) = FourCC::parse(i)?;
 
+        // If the next id isn't a group, return immediately
         if &next_id.0 != b"GRUP" {
             return Ok((i, Self { cell, cell_children: None }));
         }
 
-        // println!("{:?}", cell);
-        if i.len() > 0 {
-            let (_, ghead) = GroupHeader::parse(i)?;
+        let (_, ghead) = GroupHeader::parse(i)?;
 
-            match ghead.label {
-                GroupLabel::CellChildren(_) => {
-                    
-                    let (i, cell_children) = RawCellChildren::parse(i)?;
-                    Ok((i, Self { cell, cell_children: Some(cell_children) }))
-                }
-                _ => {
-                    //println!("Found non-CellChildren group after Cell record: {:?}, skipping", ghead);
-                    Ok((i, Self { cell, cell_children: None }))
-                }
+        match ghead.label {
+            GroupLabel::CellChildren(_) => {
+                
+                let (i, cell_children) = RawCellChildren::parse(i)?;
+                Ok((i, Self { cell, cell_children: Some(cell_children) }))
             }
-        } else {
-            Ok((i, Self { cell, cell_children: None }))
+            _ => {
+                //println!("Found non-CellChildren group after Cell record: {:?}, skipping", ghead);
+                Ok((i, Self { cell, cell_children: None }))
+            }
         }
     }
 }
