@@ -594,7 +594,7 @@ impl <'esm> Parse<&'esm[u8]> for RawCellRecord<'esm> {
                     Ok((i, Self { cell, cell_children: Some(cell_children) }))
                 }
                 _ => {
-                    println!("Found non-CellChildren group after Cell record: {:?}, skipping", ghead);
+                    //println!("Found non-CellChildren group after Cell record: {:?}, skipping", ghead);
                     Ok((i, Self { cell, cell_children: None }))
                 }
             }

@@ -58,10 +58,12 @@ pub fn esm_benchmarks() {
     let (_, esm) = RawESM::parse(&buf).unwrap();
     println!("RawESM (Single Thread): {:?}", start.elapsed());
     println!("RawESM record count: {}", esm.records.len());
-    println!("RawESM references count: {}", esm.references.len());
+    println!("RawESM interior references count: {}", esm.interior_references.len());
+    println!("RawESM world count: {}", esm.worlds.len());
     //println!("Expected records: {:?}", esm.header.fields);
     //println!("Record count: {}", esm.records.len());
 
+    println!("");
     let start = std::time::Instant::now();
     let (_, esm) = ESMFull::parse(&buf).unwrap();
     println!("ESMFull (Single Thread): {:?}", start.elapsed());
@@ -70,7 +72,7 @@ pub fn esm_benchmarks() {
     let (_, esm) = ESMFull::parse_mt(&buf).unwrap();
     println!("ESMFull (Thread Per Group): {:?}", start.elapsed());
 
-
+    println!("");
     let start = std::time::Instant::now();
     let esm = ESMMapped::from(esm);
     println!("MappedESM: {:?}", start.elapsed());

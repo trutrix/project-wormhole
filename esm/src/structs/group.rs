@@ -142,20 +142,43 @@ impl<'esm, T> Parse<&'esm[u8]> for Group<T> where T: for<'nom> Parse<&'esm[u8]> 
 
 pub struct RawWorldChildren<'esm> {
     pub header: GroupHeader,
-    pub data: &'esm [u8]
+    pub cell: RawCellRecord<'esm>,
+    pub blocks: Vec<RawExteriorCellBlock<'esm>>
 }
 
 impl<'esm> Parse<&'esm[u8]> for RawWorldChildren<'esm> {
     fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
-        let (i, (header, data)) = alloc_group(i)?;
-        Ok((i, Self { header, data }))
+        let (i, (header, raw)) = alloc_group(i)?;
+
+        #[cfg(debug_assertions)]
+        match header.label {
+            GroupLabel::WorldChildren(_) => { }
+            _ => { panic!("RawWorldChildren::parse encountered wrong group type: {:?}", header.label) }
+        }
+
+        let (raw, cell) = RawCellRecord::parse(raw)?;
+        println!("Parsed world children cell: {:?}, {} bytes", cell.cell.header.form_id, raw.len());
+
+        #[cfg(debug_assertions)]
+        if cell.cell.header.iden.0 != *b"CELL" {
+            panic!("WorldChildren tried to parse {:?} as CELL", cell.cell.header.form_id);
+        }
+
+        let (raw, blocks) = many0(RawExteriorCellBlock::parse)(raw)?;
+
+        #[cfg(debug_assertions)]
+        if raw.len() > 0 {
+            panic!("Failed to consume RawWorldChildren")
+        }
+
+        Ok((i, Self { header, cell, blocks }))
     }
 }
 
 
 impl Debug for RawWorldChildren<'_> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "RawWorldChildren {{ header: {:?}, data: [{} bytes] }}", self.header, self.data.len())
+        write!(f, "RawWorldChildren {{ header: {:?}, cell: {:?}, blocks: {} }}", self.header, self.cell.cell.header.form_id, self.blocks.len())
     }
 }
 
@@ -229,13 +252,28 @@ pub struct InteriorCellSubBlock(pub Group<CellEntry>);
 #[derive(Debug)]
 pub struct RawExteriorCellBlock<'esm> {
     pub header: GroupHeader,
-    pub data: &'esm [u8]
+    pub sub_blocks: Vec<RawExteriorCellSubBlock<'esm>>
 }
 
 impl<'esm> Parse<&'esm[u8]> for RawExteriorCellBlock<'esm> {
     fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
-        let (i, (header, data)) = alloc_group(i)?;
-        Ok((i, Self { header, data }))
+        let (i, (header, raw)) = alloc_group(i)?;
+
+
+        match header.label {
+            GroupLabel::ExteriorCellBlock(_) => { println!("Parsing: {:?}", header.label) }
+            _ => { panic!("RawExteriorCellBlock::parse encountered wrong group type: {:?}", header.label) }
+        }
+
+
+        let (raw, sub_blocks) = many0(RawExteriorCellSubBlock::parse)(raw)?;
+
+        #[cfg(debug_assertions)]
+        if raw.len() > 0 {
+            panic!("Failed to consume RawExteriorBlock");
+        }
+
+        Ok((i, Self { header, sub_blocks }))
     }
 }
 
@@ -245,13 +283,34 @@ impl<'esm> Parse<&'esm[u8]> for RawExteriorCellBlock<'esm> {
 #[derive(Debug)]
 pub struct RawExteriorCellSubBlock<'esm> {
     pub header: GroupHeader,
-    pub data: &'esm [u8]
+    pub cells: Vec<RawCellRecord<'esm>>
 }
 
 impl<'esm> Parse<&'esm[u8]> for RawExteriorCellSubBlock<'esm> {
     fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
-        let (i, (header, data)) = alloc_group(i)?;
-        Ok((i, Self { header, data }))
+        let (i, (header, raw)) = alloc_group(i)?;
+
+        println!("     Parsing: {:?}", header.label);
+
+        match header.label {
+            GroupLabel::ExteriorCellSubBlock(_) => {
+                println!("  Parsing: {:?}", header.label);
+            }
+
+            _ => { panic!("RawExteriorCellSubBlock::parse encountered wrong group type: {:?}", header.label) }
+        }
+
+
+        let (raw, cells) = many0(RawCellRecord::parse)(raw)?;
+
+        #[cfg(debug_assertions)]
+        if raw.len() > 0 {
+            println!("{:?}", header);
+            let (_, next_id) = FourCC::parse(raw)?;
+            panic!("Failed to consume RawExteriorCellSubBlock: {} bytes, next id: {:?}", raw.len(), next_id);
+        }
+
+        Ok((i, Self { header, cells }))
     }
 }
 
@@ -337,6 +396,9 @@ impl<'esm> Parse<&'esm[u8]> for RawCellGroup<'esm> {
 }
 
 // ====================================================================================================
+
+
+
 
 #[derive(Debug)]
 pub struct RawWorldGroup<'esm> {

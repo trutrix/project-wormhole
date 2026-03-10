@@ -12,20 +12,23 @@ use crate::{dev::*, records::all::FileHeader};
 #[derive(Debug)]
 pub struct RawESM<'esm> {
     pub header: FileHeader,
-    pub worlds: Vec<RawWorldGroup<'esm>>,
+    pub worlds: HashMap<FormId, RawWorldRecord<'esm>>,
     pub records: HashMap<FormId, RawRecord<'esm>>,
     pub quests: Vec<RawQuestGroup<'esm>>,
-    pub references: HashMap<FormId, RawRecord<'esm>>
+    pub interior_references: HashMap<FormId, RawRecord<'esm>>,
+    pub world_references: HashMap<FormId, RawRecord<'esm>>
 }
 
 // ====================================================================================================
 
 impl<'esm> RawESM<'esm> {
     pub fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self> {
-        let mut worlds = Vec::new();
+        let mut worlds = HashMap::new();
         let mut records = HashMap::new();
         let mut quests = Vec::new();
-        let mut references = HashMap::new();
+        let mut interior_references = HashMap::new();
+        let mut world_references = HashMap::new();
+        let mut wrc = 0;
 
         
         let (i, header) = FileHeader::parse(i)?;
@@ -50,7 +53,7 @@ impl<'esm> RawESM<'esm> {
                                             let children = record.cell_children.unwrap();
                                             for g in children.data {
                                                 for r in g.data {
-                                                    if let Some(or) = references.insert(r.header.form_id.clone(), r) {
+                                                    if let Some(or) = interior_references.insert(r.header.form_id.clone(), r) {
                                                         panic!("Duplicate reference form id: {}", or.header.form_id);
                                                     }
                                                 }
@@ -65,7 +68,11 @@ impl<'esm> RawESM<'esm> {
                             // println!("Parsing {:?}", gh.label);
                             let (i, gw) = RawWorldGroup::parse(raw)?;
                             raw = i;
-                            worlds.push(gw);
+                            
+
+                            for world in gw.worlds {
+                                worlds.insert(world.world.header.form_id.clone(), world);
+                            }
                         }
                         b"QUST" => {
                             // println!("Skipping: {:?}", gh.label);
@@ -91,7 +98,7 @@ impl<'esm> RawESM<'esm> {
 
         }
 
-        Ok((i, Self { header, worlds, records, quests, references }))
+        Ok((i, Self { header, worlds, records, quests, interior_references, world_references }))
     }
 
     
