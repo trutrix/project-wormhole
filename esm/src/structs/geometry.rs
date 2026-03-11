@@ -17,7 +17,7 @@ pub struct ObjectBounds {
 
 
 /// Location in world grid for cell
-#[derive(Debug, Clone, NomLE, PartialEq)]
+#[derive(Debug, Clone, NomLE, PartialEq, Eq)]
 pub struct CellLoc {
     pub y: i16,
     pub x: i16

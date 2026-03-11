@@ -1,8 +1,10 @@
 use crate::{dev::*, groups::prelude::WorldChildren, structs::geometry::CellLoc};
 
 
-define_record2! {
-    b"WRLD", Worldspace, [
+define_record3! {
+    "iden":b"WRLD";
+    "name": Worldspace;
+    "fields": [
             EditorId;
             // b"CNAM", Color, u32; // Duplicate field
             b"ZNAM", Music, FormId;
@@ -49,7 +51,7 @@ pub struct WorldEntry {
 
 // -- Worldspace specific field structs
 
-#[derive(NomLE)]
+#[derive(NomLE, PartialEq, Eq)]
 pub struct WorldRNAM {
     pub loc: CellLoc,
     #[nom(LengthCount = "le_u32")]
@@ -62,21 +64,21 @@ impl std::fmt::Debug for WorldRNAM {
     }
 }
 
-#[derive(Debug, NomLE)]
+#[derive(Debug, NomLE, PartialEq, Eq)]
 pub struct WorldIdLoc {
     pub form_id: FormId,
     pub loc: CellLoc
 }
 
 
-#[derive(Debug, NomLE)]
+#[derive(Debug, NomLE, PartialEq, Eq)]
 pub struct MaxHeightDataWorld {
     pub min: [i16;2],
     pub max: [i16;2],
     pub cell_data: WorldCellData
 }
 
-#[derive(NomLE)]
+#[derive(NomLE, PartialEq, Eq)]
 pub struct WorldCellData(pub Vec<WorldQuadHeight>);
 
 impl std::fmt::Debug for WorldCellData {
@@ -85,7 +87,7 @@ impl std::fmt::Debug for WorldCellData {
     }
 }
 
-#[derive(Debug, NomLE)]
+#[derive(Debug, NomLE, PartialEq, Eq)]
 pub struct WorldQuadHeight {
     pub bottom_left: u8,
     pub bottom_right: u8,
@@ -94,7 +96,7 @@ pub struct WorldQuadHeight {
 }
 
 
-#[derive(Debug, NomLE)]
+#[derive(Debug, NomLE, PartialEq)]
 pub struct WorldOffsetData {
     pub scale: f32, 
     pub x: f32, 
@@ -102,7 +104,7 @@ pub struct WorldOffsetData {
     pub z: f32
 }
 
-#[derive(Debug, NomLE)]
+#[derive(Debug, NomLE, PartialEq, Eq)]
 pub struct MapData {
     pub width: i32, 
     pub height: i32, 
