@@ -309,7 +309,7 @@ impl<'esm> Parse<&'esm[u8]> for RawExteriorCellSubBlock<'esm> {
             let (_, next_id) = FourCC::parse(raw)?;
             
             if let Ok((_, next_record)) = RawCellRecord::parse(raw) {
-                // println!("Next record: {:?}", next_record.cell.header);
+                println!("Next record: {:?}", next_record.cell.header);
             } else {
                 println!("Failed to parse next record");
             }
