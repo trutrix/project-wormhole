@@ -1,8 +1,11 @@
 use crate::{dev::*, groups::prelude::CellChildren};
 
 
-define_record2! {
-    b"CELL", Cell, [
+define_record3! {
+    "iden": b"CELL";
+    "name": Cell;
+    "child_type": CellChildren;
+    "fields": [
         EditorId;
         b"DATA", Flags, u16;
         b"XCLC", GridLocation, GridLocation;
@@ -21,7 +24,7 @@ define_record2! {
 }
 
 
-#[derive(Debug, NomLE)]
+#[derive(Debug, NomLE, PartialEq, Eq)]
 pub struct CombinedReferenceIndex {
     pub mesh_count: u32,
     pub reference_count: u32,
@@ -32,7 +35,7 @@ pub struct CombinedReferenceIndex {
     // todo
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum CellLocalWaterLevel {
     NoWater,
     WaterHeight(f32)
@@ -56,7 +59,7 @@ pub struct CombinedReference {
 }
 
 
-#[derive(Debug, NomLE)]
+#[derive(Debug, NomLE, PartialEq, Eq)]
 pub struct GridLocation {
     pub x: u32,
     pub y: u32,

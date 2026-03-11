@@ -4,6 +4,7 @@ use crate::{dev::*, groups::prelude::WorldChildren, structs::geometry::CellLoc};
 define_record3! {
     "iden":b"WRLD";
     "name": Worldspace;
+    "child_type": WorldChildren;
     "fields": [
             EditorId;
             // b"CNAM", Color, u32; // Duplicate field
