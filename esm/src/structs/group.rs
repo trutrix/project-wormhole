@@ -1,9 +1,8 @@
 use std::fmt::Debug;
 
+use crate::groups::prelude::InteriorCellBlock;
 use crate::records::all::*;
 use crate::dev::*;
-use crate::structs::cell::CellEntry;
-use crate::structs::world::WorldEntry;
 use super::record::VersionControl;
 
 
@@ -140,98 +139,16 @@ impl<'esm, T> Parse<&'esm[u8]> for Group<T> where T: for<'nom> Parse<&'esm[u8]> 
 
 // ====================================================================================================
 
-pub struct RawWorldChildren<'esm> {
-    pub header: GroupHeader,
-    pub cell: RawCellRecord<'esm>,
-    pub blocks: Vec<RawExteriorCellBlock<'esm>>
-}
 
-impl<'esm> Parse<&'esm[u8]> for RawWorldChildren<'esm> {
-    fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
-        let (i, (header, raw)) = alloc_group(i)?;
-
-        #[cfg(debug_assertions)]
-        match header.label {
-            GroupLabel::WorldChildren(_) => { }
-            _ => { panic!("RawWorldChildren::parse encountered wrong group type: {:?}", header.label) }
-        }
-
-        let (raw, cell) = RawCellRecord::parse(raw)?;
-        // println!("Parsed world children cell: {:?}, {} bytes", cell.cell.header.form_id, raw.len());
-
-        #[cfg(debug_assertions)]
-        if cell.cell.header.iden.0 != *b"CELL" {
-            panic!("WorldChildren tried to parse {:?} as CELL", cell.cell.header.form_id);
-        }
-
-        let (raw, blocks) = many0(RawExteriorCellBlock::parse)(raw)?;
-
-        #[cfg(debug_assertions)]
-        if raw.len() > 0 {
-            panic!("Failed to consume RawWorldChildren")
-        }
-
-        Ok((i, Self { header, cell, blocks }))
-    }
-}
-
-
-impl Debug for RawWorldChildren<'_> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "RawWorldChildren {{ header: {:?}, cell: {:?}, blocks: {} }}", self.header, self.cell.cell.header.form_id, self.blocks.len())
-    }
-}
 
 // ====================================================================================================
 
 
-pub struct RawInteriorCellBlock<'esm> {
-    pub header: GroupHeader,
-    pub sub_blocks: Vec<RawInteriorCellSubBlock<'esm>>
-}
 
-impl<'esm> Parse<&'esm[u8]> for RawInteriorCellBlock<'esm> {
-    fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
-        let (i, (header, data)) = alloc_group(i)?;
-        let (_, sub_blocks) = many0(RawInteriorCellSubBlock::parse)(data)?;
-        Ok((i, Self { header, sub_blocks}))
-    }
-}
-
-impl std::fmt::Debug for RawInteriorCellBlock<'_> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?} {} bytes", self.header, self.sub_blocks.len())
-    }
-}
 
 // ====================================================================================================
 
-pub struct RawInteriorCellSubBlock<'esm> {
-    pub header: GroupHeader,
-    pub data: Vec<RawCellRecord<'esm>>
-}
 
-impl<'esm> Parse<&'esm[u8]> for RawInteriorCellSubBlock<'esm> {
-    fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
-        let (i, (header, data)) = alloc_group(i)?;
-        // println!("  Parsing InteriorCellSubBlock: {:?}, {} bytes", header, data.len());
-        let (_, records) = many0(RawCellRecord::parse)(data)?;
-        // println!("  Finished parsing InteriorCellSubBlock: {:?}, {} records", header, records.len());
-        Ok((i, Self { header, data: records }))
-    }
-}
-
-impl std::fmt::Display for RawInteriorCellSubBlock<'_> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?} {} records", self.header, self.data.len())
-    }
-}
-
-impl std::fmt::Debug for RawInteriorCellSubBlock<'_> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?} {} records", self.header, self.data.len())
-    }
-}
 
 
 
@@ -239,11 +156,7 @@ impl std::fmt::Debug for RawInteriorCellSubBlock<'_> {
 
 pub type CellGroup = Group<InteriorCellBlock>;
 
-#[derive(Debug, NomLE)]
-pub struct InteriorCellBlock(pub Group<InteriorCellSubBlock>);
 
-#[derive(Debug, NomLE)]
-pub struct InteriorCellSubBlock(pub Group<CellEntry>);
 
 
 // ====================================================================================================

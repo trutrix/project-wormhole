@@ -1,4 +1,4 @@
-use crate::{dev::*, structs::geometry::CellLoc};
+use crate::{dev::*, groups::prelude::WorldChildren, structs::geometry::CellLoc};
 
 
 define_record2! {
@@ -38,6 +38,12 @@ define_record2! {
             b"XWEM", WaterEnvironmentMap, ESMString;
             b"WLEV", WaterLevelData, u8; // TODO
         ]
+}
+
+#[derive(Debug, NomLE)]
+pub struct WorldEntry {
+    pub worldspace: Worldspace,
+    pub children: WorldChildren
 }
 
 

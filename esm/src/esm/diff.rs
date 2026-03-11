@@ -1,5 +1,5 @@
 use std::collections::{HashMap, HashSet};
-use crate::{dev::*, records::all::FileHeader};
+use crate::{dev::*, groups::prelude::RawInteriorCellBlock, records::all::FileHeader};
 
 // ====================================================================================================
 

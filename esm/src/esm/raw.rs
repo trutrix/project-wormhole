@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::{dev::*, records::all::FileHeader};
+use crate::{dev::*, groups::prelude::RawInteriorCellBlock, records::all::FileHeader};
 
 
 /// This is a barebones parsing of an ESM file.  
