@@ -552,7 +552,8 @@ pub struct RecordDefinition3 {
     pub name: Ident,
     pub flags: Option<Punctuated<FlagDefinition, Token![;]>>,
     pub fields: Punctuated<FieldDefinition2, Token![;]>,
-    pub fixed: bool
+    pub fixed: bool,
+    pub child_type: Option<Type>
 }
 
 impl Parse for RecordDefinition3 {
@@ -599,9 +600,15 @@ impl Parse for RecordDefinition3 {
             }
         });
 
+        let child_type = field_defs.iter().find_map(|f| {
+            if let NamedDef::ChildType(t) = f {
+                Some(t.clone())
+            } else {
+                None
+            }
+        });
 
-
-        Ok(RecordDefinition3 { iden, name, flags, fields, fixed })
+        Ok(RecordDefinition3 { iden, name, flags, fields, fixed, child_type })
 
     }
 }
@@ -659,10 +666,18 @@ impl ToTokens for RecordDefinition3 {
                 }
             }
 
-
-            quote! { Record<(#(#field_list),*)> }
+            if let Some(child_type) = &self.child_type {
+                quote! { (Record<#(#field_list),*> ,  Option<#child_type>) }
+            } else {
+                quote! { Record<(#(#field_list),*)> }
+            }
         } else {
-            quote! { Record<Vec<#name_field>> }
+
+            if let Some(child_type) = &self.child_type {
+                quote! { (Record<Vec<#name_field>>, Option<#child_type>) }
+            } else {
+                quote! { Record<Vec<#name_field>> }
+            }
         };
 
 

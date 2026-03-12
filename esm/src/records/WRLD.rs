@@ -6,41 +6,42 @@ define_record3! {
     "name": Worldspace;
     "child_type": WorldChildren;
     "fields": [
-            EditorId;
-            // b"CNAM", Color, u32; // Duplicate field
-            b"ZNAM", Music, FormId;
+        EditorId;
+        FullName;
+        // b"CNAM", Color, u32; // Duplicate field
+        b"ZNAM", Music, FormId;
 
-            b"CLSZ", CellSizeData, u8; //TODO
-            b"CNAM", Climate, FormId;
-            b"DATA", Flags, u8;
-            b"DNAM", DefaultHeight, Vec<f32>;
+        b"CLSZ", CellSizeData, u8; //TODO
+        b"CNAM", Climate, FormId;
+        b"DATA", Flags, u8;
+        b"DNAM", DefaultHeight, Vec<f32>;
 
-            b"ICON", MapImage, ESMString;
+        b"ICON", MapImage, ESMString;
 
-            b"MNAM", MapData, MapData; // TODO
+        b"MNAM", MapData, MapData; // TODO
 
-            b"NAM2", Water, FormId;
-            b"NAM3", LODWaterType, FormId;
-            b"NAM4", LODWaterHeight, FormId;
-            b"NAMA", DistantLODMultiplier, f32;
-    
-            b"NAM0", SizeMin, [f32;2];
-            b"NAM9", SizeMax, [f32;2];
+        b"NAM2", Water, FormId;
+        b"NAM3", LODWaterType, FormId;
+        b"NAM4", LODWaterHeight, FormId;
+        b"NAMA", DistantLODMultiplier, f32;
 
-            b"OFST", AbsoluteData, u8; // TODO
-            b"ONAM", WorldOffsetData, WorldOffsetData; //TODO
+        b"NAM0", SizeMin, [f32;2];
+        b"NAM9", SizeMax, [f32;2];
 
-            b"PNAM", UseFlags, u16;
-            b"WCTR", CenterCell, [u16;2];
-            b"RNAM", LocIdRef, WorldRNAM; //TODO
-            FullName;
-            b"MHDT", MaxHeightData, MaxHeightDataWorld;
-            b"WNAM", ParentWorldspace, FormId;
+        b"OFST", AbsoluteData, u8; // TODO
+        b"ONAM", WorldOffsetData, WorldOffsetData; //TODO
 
-            b"XLCN", Location, FormId;
-            b"XWEM", WaterEnvironmentMap, ESMString;
-            b"WLEV", WaterLevelData, u8; // TODO
-        ]
+        b"PNAM", UseFlags, u16;
+        b"WCTR", CenterCell, [u16;2];
+        b"RNAM", LocIdRef, WorldRNAM; //TODO
+        
+        b"MHDT", MaxHeightData, MaxHeightDataWorld;
+        b"WNAM", ParentWorldspace, FormId;
+
+        b"XLCN", Location, FormId;
+        b"XWEM", WaterEnvironmentMap, ESMString;
+        b"WLEV", WaterLevelData, u8; // TODO
+    ]
 }
 
 #[derive(Debug, NomLE)]
