@@ -681,9 +681,57 @@ impl ToTokens for RecordDefinition3 {
         };
 
 
+        let full_types = if let Some(ct) = &self.child_type {
+            quote! {
+                #[derive(Debug)]
+                pub struct #name {
+                    pub record: Record<Vec<#name_field>>,
+                    pub children: Option<#ct>
+                }
+
+                pub type #name_group = Group<#name>;
+            }
+        } else {
+            quote! {
+                pub type #name = #type_token;
+                pub type #name_group = Group<#name>;
+            }
+        };
+
+        let custom_parse = if let Some(child_type) = &self.child_type {
+            quote! {
+                impl Parse<&[u8]> for #name {
+                    fn parse(i: &[u8]) -> IResult<&[u8], Self> {
+                        let (i, record) = <Record<Vec<#name_field>>>::parse_le(i)?;
+                        
+                        if i.is_empty() {
+                            return Ok((i, Self { record, children: None }))
+                        }
+
+                        let (_, next_group) = GroupHeader::parse(i)?;
+
+                        if let GroupLabel::#child_type(id) = next_group.label {
+                            let (i, children) = <#child_type>::parse_le(i)?;
+                            return Ok((i, Self { record, children: Some(children) }))
+
+
+                        } else {
+                            return Ok((i, Self { record, children: None }))
+                        }
+
+                    }
+                }
+            }
+        } else {
+            quote! { }
+        };
+
+
         let out = quote! {
-            pub type #name = #type_token;
-            pub type #name_group = Group<#name>;
+
+            #full_types
+
+            #custom_parse
 
             impl From<#name> for crate::records::SingleRecord {
                 fn from(value: #name) -> Self {

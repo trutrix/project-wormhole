@@ -482,7 +482,7 @@ pub enum TopGroup {
     VTYP(VoiceTypeGroup),
     WATR(WaterGroup),
     WEAP(WeaponGroup),
-    WRLD(Group<WorldEntry>),
+    WRLD(WorldspaceGroup),
     WTHR(WeatherGroup),
     ZOOM(ZoomGroup),
 }
