@@ -36,6 +36,7 @@ mod versioned_consts;
 /// 
 /// ```
 #[proc_macro]
+#[deprecated(note = "Use define_record3 instead, which supports child groups.")]
 pub fn define_record2(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as record_definition::RecordDefinition2);
     let out = quote! { #input };
