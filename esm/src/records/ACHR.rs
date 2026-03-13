@@ -1,10 +1,10 @@
 use crate::dev::*;
 
 
-define_record2! {
-    b"ACHR", 
-    ActorReference,
-    [
+define_record3! {
+    "iden": b"ACHR";
+    "name": ActorReference;
+    "fields": [
         EditorId;
     ]
 }

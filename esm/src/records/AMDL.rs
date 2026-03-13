@@ -2,9 +2,10 @@ use crate::dev::*;
 
 // This record forgoes the usual fields in favor of a single DATA structure
 
-define_record2! {
-    b"AMDL",
-    AimModel, [
+define_record3! {
+    "iden": b"AMDL";
+    "name": AimModel;
+    "fields": [
         EditorId;
         b"DATA", AimModelData, AimModelData;
     ]
@@ -12,7 +13,7 @@ define_record2! {
 
 
 // TODO: Find actual structure
-#[derive(Debug, NomLE)]
+#[derive(Debug, NomLE, PartialEq)]
 pub struct AimModelData {
     
 }

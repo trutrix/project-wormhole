@@ -3,9 +3,10 @@ use crate::{dev::*, structs::geometry::ObjectBounds};
 
 // Also known as ingestible
 
-define_record2! {
-    b"ALCH",
-    Alchemy, [
+define_record3! {
+    "iden": b"ALCH";
+    "name": Alchemy;
+    "fields": [
         EditorId;
         ObjectBounds;
         PreviewTransform;

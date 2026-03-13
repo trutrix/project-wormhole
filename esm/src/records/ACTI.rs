@@ -1,9 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"ACTI",
-    Activator, [
-
+define_record3! {
+    "iden": b"ACTI";
+    "name": Activator;
+    "fields": [
         EditorId;
         ModelData;
         ObjectBounds;
@@ -18,7 +18,6 @@ define_record2! {
         b"NTRM", NativeTerminal, [b"TERM"];
         b"SNAM", SoundLooping, [b"SOUN"];
         
-
         // Compound destruction fields
         b"DAMC", DamageResistance, u8; // TODO: Find type
         b"FNAM", Flags, u8; // TODO: Find type
@@ -28,8 +27,8 @@ define_record2! {
         b"STCP", AnimationSound, u8; // TODO: Find type
         b"VNAM", SoundActivation, u8; // TODO: Find type
         b"WNAM", WaterType, u8; // TODO: Find type
-    ],
-    [
+    ];
+    "flags": [
         // Flags - these are just guesses
         0x00000002, NeverFades;
         0x00000004, NonOccluder;
@@ -50,4 +49,3 @@ define_record2! {
         0x04000000, NavmeshGround;
     ]
 }
-
