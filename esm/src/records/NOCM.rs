@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"NOCM",
-    NavObstacleManager, [
+define_record3! {
+    "iden": b"NOCM";
+    "name": NavObstacleManager;
+    "fields": [
         // No EDID, single record
         b"INDX", Index, u32;
         b"DATA", Data, NavigationObstacleManagerData;

@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"SNCT",
-    SoundCategory, [
+define_record3! {
+    "iden": b"SNCT";
+    "name": SoundCategory;
+    "fields": [
         EditorId;
         FullName;
         b"PNAM", ParentCategory, FormId;

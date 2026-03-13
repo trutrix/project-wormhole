@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"AORU",
-    AttractionRule, [
+define_record3! {
+    "iden": b"AORU";
+    "name": AttractionRule;
+    "fields": [
         EditorId;
         b"AOR2", AttractionRuleData, AttractionRuleData;
     ]

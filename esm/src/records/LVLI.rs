@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"LVLI",
-    LeveledItem, [
+define_record3! {
+    "iden": b"LVLI";
+    "name": LeveledItem;
+    "fields": [
         EditorId;
         ObjectBounds;
         b"COED", ExtraData, EmptyParser; // TODO: Size 12, may require special parsing

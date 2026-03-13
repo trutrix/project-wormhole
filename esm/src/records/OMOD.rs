@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"OMOD",
-    ObjectModification, [
+define_record3! {
+    "iden": b"OMOD";
+    "name": ObjectModification;
+    "fields": [
         EditorId;
         FullName;
         Description;

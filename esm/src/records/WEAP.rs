@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"WEAP",
-    Weapon, [
+define_record3! {
+    "iden": b"WEAP";
+    "name": Weapon;
+    "fields": [
         EditorId;
         Description;
         Destructible;

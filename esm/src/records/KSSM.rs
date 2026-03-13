@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"KSSM",
-    KeywordSoundMapping, [
+define_record3! {
+    "iden": b"KSSM";
+    "name": KeywordSoundMapping;
+    "fields": [
         EditorId;
         b"DNAM", PrimaryDesc, FormId;
         b"RNAM", SoundPair, (u32, FormId); // Type / Sound

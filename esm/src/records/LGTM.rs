@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"LGTM",
-    LightingTemplate, [
+define_record3! {
+    "iden": b"LGTM";
+    "name": LightingTemplate;
+    "fields": [
         EditorId;
         b"DALC", DirectionalAmbientLightingColor, LightingDirectionalAmbientLightingColor; // TODO: 32 bytes
         b"DATA", Data, LightingTemplateData;

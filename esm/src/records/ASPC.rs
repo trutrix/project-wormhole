@@ -3,9 +3,10 @@ use crate::dev::*;
 
 // Contains refs
 
-define_record2! {
-    b"ASPC",
-    AcousticSpace, [
+define_record3! {
+    "iden": b"ASPC";
+    "name": AcousticSpace;
+    "fields": [
         EditorId;
         ObjectBounds;
         b"WNAM", WeatherAttenuation, u8; // TODO: Find correct type

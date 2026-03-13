@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"SCOL",
-    StaticCollection, [
+define_record3! {
+    "iden": b"SCOL";
+    "name": StaticCollection;
+    "fields": [
         EditorId;
         PreviewTransform;
         ModelData;

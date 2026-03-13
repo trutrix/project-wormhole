@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"RELA",
-    Relationship, [
+define_record3! {
+    "iden": b"RELA";
+    "name": Relationship;
+    "fields": [
         EditorId;
         b"DATA", Data, RelationshipData;
     ]

@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"LTEX",
-    LandscapeTexture, [
+define_record3! {
+    "iden": b"LTEX";
+    "name": LandscapeTexture;
+    "fields": [
         EditorId;
         b"TNAM", TextureSet, FormId;
         b"MNAM", MaterialSet, FormId;

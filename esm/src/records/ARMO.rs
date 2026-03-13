@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"ARMO",
-    Armor, [
+define_record3! {
+    "iden": b"ARMO";
+    "name": Armor;
+    "fields": [
         EditorId;
         ObjectBounds;
         ModelData;

@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"BNDS",
-    BendableSpline, [
+define_record3! {
+    "iden": b"BNDS";
+    "name": BendableSpline;
+    "fields": [
         EditorId;
         ObjectBounds;
         b"DNAM", Data, BendableSplineData;

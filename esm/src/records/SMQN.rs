@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"SMQN",
-    StoryManagerQuestNode, [
+define_record3! {
+    "iden": b"SMQN";
+    "name": StoryManagerQuestNode;
+    "fields": [
         EditorId;
         Condition;
         b"PNAM", ParentNode, FormId;

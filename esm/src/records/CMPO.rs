@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"CMPO",
-    Component, [
+define_record3! {
+    "iden": b"CMPO";
+    "name": Component;
+    "fields": [
         EditorId;
         ObjectBounds;
         FullName;

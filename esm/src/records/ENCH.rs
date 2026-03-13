@@ -3,9 +3,10 @@ use crate::dev::*;
 
 // Also known as Enchantment
 
-define_record2! {
-    b"ENCH",
-    ObjectEffect, [
+define_record3! {
+    "iden": b"ENCH";
+    "name": ObjectEffect;
+    "fields": [
         EditorId;
         ObjectBounds;
         FullName;

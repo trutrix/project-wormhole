@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"HDPT",
-    HeadPart, [
+define_record3! {
+    "iden": b"HDPT";
+    "name": HeadPart;
+    "fields": [
         EditorId;
         FullName;
         ModelData;

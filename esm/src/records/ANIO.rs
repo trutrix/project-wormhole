@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"ANIO",
-    AnimatedObject, [
+define_record3! {
+    "iden": b"ANIO";
+    "name": AnimatedObject;
+    "fields": [
         EditorId;
         ModelData;
         b"BNAM", UnloadEvent, ESMString; // String?

@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"FSTS",
-    FootstepSet, [
+define_record3! {
+    "iden": b"FSTS";
+    "name": FootstepSet;
+    "fields": [
         EditorId;
         b"DATA", PlayList, Vec<FormId>;
         b"XCNT", Counts, FootstepSetCounts;

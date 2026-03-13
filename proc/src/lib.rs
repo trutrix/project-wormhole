@@ -19,7 +19,7 @@ mod versioned_consts;
 /// ```rust
 /// use proc::define_record2;
 /// 
-/// define_record2! {
+/// define_record3! {
 ///     b"TEST", // FourCC identifier
 ///     TestRecord, // Record Struct name
 ///     [

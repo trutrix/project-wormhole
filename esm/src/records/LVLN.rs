@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"LVLN",
-    LeveledNPC, [
+define_record3! {
+    "iden": b"LVLN";
+    "name": LeveledNPC;
+    "fields": [
         EditorId;
         ObjectBounds;
         ModelData;

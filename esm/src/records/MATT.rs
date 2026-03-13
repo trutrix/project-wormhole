@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"MATT",
-    MaterialType, [
+define_record3! {
+    "iden": b"MATT";
+    "name": MaterialType;
+    "fields": [
         EditorId;
         ModelData; // Maybe only MODT?
         b"MNAM", MaterialName, ESMString;

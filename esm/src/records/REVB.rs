@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"REVB",
-    Reverb, [
+define_record3! {
+    "iden": b"REVB";
+    "name": Reverb;
+    "fields": [
         EditorId;
         b"DATA", Data, ReverbData;
         b"ANAM", Class, u32; // TODO: enum?;

@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"SPEL",
-    Spell, [
+define_record3! {
+    "iden": b"SPEL";
+    "name": Spell;
+    "fields": [
         EditorId;
         ObjectBounds;
         FullName;

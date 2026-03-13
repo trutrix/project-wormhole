@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"PROJ",
-    Projectile, [
+define_record3! {
+    "iden": b"PROJ";
+    "name": Projectile;
+    "fields": [
         EditorId;
         ObjectBounds;
         FullName;

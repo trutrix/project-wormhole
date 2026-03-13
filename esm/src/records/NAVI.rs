@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"NAVI",
-    NavigationMeshInfoMap, [
+define_record3! {
+    "iden": b"NAVI";
+    "name": NavigationMeshInfoMap;
+    "fields": [
         // No EDID, single record per NAVI
         b"NVER", Version, u32;
         b"NVMI", MapInfo, NavMeshMapInfo;

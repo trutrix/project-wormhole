@@ -1,8 +1,8 @@
 use crate::dev::*;
 
 
-define_record2! {
-    b"NAVM", 
+define_record3! {
+    "iden": b"NAVM"; 
     NavigationMesh,
     [
         EditorId;

@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"PERK",
-    Perk, [
+define_record3! {
+    "iden": b"PERK";
+    "name": Perk;
+    "fields": [
         EditorId;
         VirtualMachineAdapter;
         FullName;

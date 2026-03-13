@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"HAZD",
-    Hazard, [
+define_record3! {
+    "iden": b"HAZD";
+    "name": Hazard;
+    "fields": [
         EditorId;
         FullName;
         ModelData;

@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"COLL",
-    CollisionLayer, [
+define_record3! {
+    "iden": b"COLL";
+    "name": CollisionLayer;
+    "fields": [
         EditorId;
         Description; // unsure if localized - seems to only be 4 bytes
         b"FNAM", Color, Color4;

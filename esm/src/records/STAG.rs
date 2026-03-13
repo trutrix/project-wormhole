@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"STAG",
-    SoundTag, [
+define_record3! {
+    "iden": b"STAG";
+    "name": SoundTag;
+    "fields": [
         EditorId;
         b"TNAM", Sounds, (FormId, ESMString);
     ]

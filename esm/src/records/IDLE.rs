@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"IDLE",
-    IdleAnimation, [
+define_record3! {
+    "iden": b"IDLE";
+    "name": IdleAnimation;
+    "fields": [
         EditorId;
         Condition;
         b"DATA", Data, IdleData;

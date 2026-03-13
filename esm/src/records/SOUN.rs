@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"SOUN",
-    SoundMarker, [
+define_record3! {
+    "iden": b"SOUN";
+    "name": SoundMarker;
+    "fields": [
         EditorId;
         ObjectBounds;
         b"SDSC", SoundDescriptor, FormId;

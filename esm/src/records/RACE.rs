@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"RACE",
-    Race, [
+define_record3! {
+    "iden": b"RACE";
+    "name": Race;
+    "fields": [
         EditorId;
         FullName;
         Description;

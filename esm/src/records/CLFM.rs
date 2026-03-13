@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"CLFM",
-    Color, [
+define_record3! {
+    "iden": b"CLFM";
+    "name": Color;
+    "fields": [
         EditorId;
         FullName;
         Condition;

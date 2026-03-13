@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"PKIN",
-    PackIn, [
+define_record3! {
+    "iden": b"PKIN";
+    "name": PackIn;
+    "fields": [
         EditorId;
         ObjectBounds;
         b"VNAM", Version, u32;

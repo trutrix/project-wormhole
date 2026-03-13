@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"PACK",
-    Package, [
+define_record3! {
+    "iden": b"PACK";
+    "name": Package;
+    "fields": [
         EditorId;
         VirtualMachineAdapter;
         Condition;

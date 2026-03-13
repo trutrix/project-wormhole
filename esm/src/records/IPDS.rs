@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"IPDS",
-    ImpactDataSet, [
+define_record3! {
+    "iden": b"IPDS";
+    "name": ImpactDataSet;
+    "fields": [
         EditorId;
         b"PNAM", MaterialImpact, (FormId, FormId); // Material / Impact Data pairings
     ]

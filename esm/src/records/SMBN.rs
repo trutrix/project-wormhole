@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"SMBN",
-    StoryManagerBranchNode, [
+define_record3! {
+    "iden": b"SMBN";
+    "name": StoryManagerBranchNode;
+    "fields": [
         EditorId;
         Condition;
         b"SNAM", PreviousSibling, FormId;

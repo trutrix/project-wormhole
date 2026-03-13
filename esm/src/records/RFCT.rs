@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"RFCT",
-    VisualEffect, [
+define_record3! {
+    "iden": b"RFCT";
+    "name": VisualEffect;
+    "fields": [
         EditorId;
         b"DATA", Data, VisualEffectData;
     ]

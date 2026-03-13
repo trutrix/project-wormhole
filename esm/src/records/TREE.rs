@@ -3,9 +3,10 @@ use crate::dev::*;
 // Appears only once in Fallout4.esm, maybe not used in Fallout 4
 
 
-define_record2! {
-    b"TREE",
-    Tree, [
+define_record3! {
+    "iden": b"TREE";
+    "name": Tree;
+    "fields": [
         EditorId;
         VirtualMachineAdapter;
         FullName;

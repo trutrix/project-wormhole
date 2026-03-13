@@ -2,14 +2,6 @@ use project_wormhole_proc::define_record3;
 
 use crate::{dev::*, esm::ESMError, prelude::EditorIdTrait};
 
-// define_record2! {
-//     b"GMST",
-//     GameSetting, [
-//         EditorId;
-//         b"DATA", Value, Vec<u8>;
-//     ]
-// }
-
 define_record3! {
     "iden": b"GMST";
     "name": GameSetting;

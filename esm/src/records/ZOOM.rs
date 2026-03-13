@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"ZOOM",
-    Zoom, [
+define_record3! {
+    "iden": b"ZOOM";
+    "name": Zoom;
+    "fields": [
         EditorId;
         b"GNAM", Data, ZoomData;
     ]

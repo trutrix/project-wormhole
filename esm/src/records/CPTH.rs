@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"CPTH",
-    CameraPath, [
+define_record3! {
+    "iden": b"CPTH";
+    "name": CameraPath;
+    "fields": [
         EditorId;
         Condition;
         b"ANAM", RelatedPaths, (FormId, FormId); // Parent / Sibling

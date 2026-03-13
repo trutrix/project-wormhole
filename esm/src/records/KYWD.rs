@@ -1,8 +1,8 @@
 use crate::{dev::*, structs::colors::Color4};
 
 
-define_record2! {
-    b"KYWD", Keyword, [
+define_record3! {
+    "iden": b"KYWD"; Keyword, [
         EditorId;
         FullName;
         b"CNAM", Color, Color4;

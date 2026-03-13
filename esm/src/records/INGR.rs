@@ -4,9 +4,10 @@ use crate::dev::*;
 // Probably for crafting is TES
 
 
-define_record2! {
-    b"INGR",
-    Ingredient, [
+define_record3! {
+    "iden": b"INGR";
+    "name": Ingredient;
+    "fields": [
         EditorId;
         ModelData;
         ObjectBounds;

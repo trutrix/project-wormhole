@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"SOPM",
-    SoundOutputModel, [
+define_record3! {
+    "iden": b"SOPM";
+    "name": SoundOutputModel;
+    "fields": [
         EditorId;
         b"VNAM", StaticAttenuation, u16; // TODO: maybe a half?
         b"ONAM", OutputValues, [u8;24]; // TODO: struct? always 24 bytes

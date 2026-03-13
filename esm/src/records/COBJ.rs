@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"COBJ",
-    ConstructibleObject, [
+define_record3! {
+    "iden": b"COBJ";
+    "name": ConstructibleObject;
+    "fields": [
         EditorId;
         Description;
         Condition;

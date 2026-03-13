@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"WATR",
-    Water, [
+define_record3! {
+    "iden": b"WATR";
+    "name": Water;
+    "fields": [
         EditorId;
         FullName;
         b"DNAM", VisualData, EmptyParser; // TODO: large struct

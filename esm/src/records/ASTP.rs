@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"ASTP",
-    AssociationType, [
+define_record3! {
+    "iden": b"ASTP";
+    "name": AssociationType;
+    "fields": [
         EditorId;
         b"MPRT", MaleParentTitle, ESMString;
         b"FPRT", FemaleParentTitle, ESMString;

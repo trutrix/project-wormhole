@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"CAMS",
-    CameraShot, [
+define_record3! {
+    "iden": b"CAMS";
+    "name": CameraShot;
+    "fields": [
         EditorId;
         ModelData;
         Condition;

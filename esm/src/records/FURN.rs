@@ -3,9 +3,10 @@ use crate::dev::*;
 // This has an empty stop record, implying special parsing is needed.
 
 
-define_record2! {
-    b"FURN",
-    Furniture, [
+define_record3! {
+    "iden": b"FURN";
+    "name": Furniture;
+    "fields": [
         EditorId;
         Keyword;
         ModelData;

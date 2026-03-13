@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"MGEF",
-    MagicEffect, [
+define_record3! {
+    "iden": b"MGEF";
+    "name": MagicEffect;
+    "fields": [
         EditorId;
         Keyword;
         FullName;

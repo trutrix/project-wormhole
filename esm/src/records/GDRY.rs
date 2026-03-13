@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"GDRY",
-    Godray, [
+define_record3! {
+    "iden": b"GDRY";
+    "name": Godray;
+    "fields": [
         EditorId;
         b"DATA", Data, GodrayData;
     ]

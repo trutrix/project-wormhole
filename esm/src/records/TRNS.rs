@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"TRNS",
-    Transform, [
+define_record3! {
+    "iden": b"TRNS";
+    "name": Transform;
+    "fields": [
         EditorId;
         b"DATA", Data, TransformData;
     ]

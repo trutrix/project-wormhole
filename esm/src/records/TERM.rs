@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"TERM",
-    Terminal, [
+define_record3! {
+    "iden": b"TERM";
+    "name": Terminal;
+    "fields": [
         EditorId;
         Properties;
         FullName;

@@ -1,7 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"LAND", Landscape, [
+define_record3! {
+    "iden": b"LAND"; 
+    "name": Landscape;
+    "fields": [
         b"VHGT", VertexHeight, VertexHeightData;
         b"VNML", VertexNormals, EmptyParser;
         b"VCLR", VertexColors, EmptyParser;

@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"SNDR",
-    SoundDescriptor, [
+define_record3! {
+    "iden": b"SNDR";
+    "name": SoundDescriptor;
+    "fields": [
         EditorId;
         Condition;
         b"SNAM", AlternateSound, FormId;

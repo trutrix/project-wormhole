@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"MISC",
-    MiscItem, [
+define_record3! {
+    "iden": b"MISC";
+    "name": MiscItem;
+    "fields": [
         EditorId;
         ObjectBounds;
         PreviewTransform;

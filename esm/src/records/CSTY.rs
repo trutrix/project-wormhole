@@ -3,9 +3,10 @@ use crate::dev::*;
 // Unknown structs here appear to just be f32 lists of varying lengths
 // Maybe make wrapper structs for them that pick specific indices and fail gracefully?
 
-define_record2! {
-    b"CSTY",
-    CombatStyle, [
+define_record3! {
+    "iden": b"CSTY";
+    "name": CombatStyle;
+    "fields": [
         EditorId;
         b"CSFL", Flight, Vec<f32>; // Unknown Struct - Always 32
         b"CSME", Melee, Vec<f32>; // Unknown Struct - Always 36 and 40

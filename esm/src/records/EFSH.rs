@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"EFSH",
-    EffectShader, [
+define_record3! {
+    "iden": b"EFSH";
+    "name": EffectShader;
+    "fields": [
         EditorId;
         ModelData;
         b"DNAM", Data, EffectShaderData;

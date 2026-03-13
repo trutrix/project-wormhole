@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"STAT",
-    Static, [
+define_record3! {
+    "iden": b"STAT";
+    "name": Static;
+    "fields": [
         EditorId;
         ModelData;
         PreviewTransform;

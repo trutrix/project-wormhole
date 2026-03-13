@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"LSCR",
-    LoadingScreen, [
+define_record3! {
+    "iden": b"LSCR";
+    "name": LoadingScreen;
+    "fields": [
         EditorId;
         Condition;
         Description;

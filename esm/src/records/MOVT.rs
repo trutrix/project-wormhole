@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"MOVT",
-    MovementType, [
+define_record3! {
+    "iden": b"MOVT";
+    "name": MovementType;
+    "fields": [
         EditorId;
         b"MNAM", Name, ESMString;
         b"JNAM", FloatHeight, f32;

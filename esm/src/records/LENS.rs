@@ -3,9 +3,10 @@ use crate::dev::*;
 // TODO: Edge case - DNAM appears multiple times but the first is always f32 
 // this may require custom parsing logic
 
-define_record2! {
-    b"LENS",
-    LensFlare, [
+define_record3! {
+    "iden": b"LENS";
+    "name": LensFlare;
+    "fields": [
         EditorId;
         b"CNAM", Color, Color4;
         b"DNAM", FadeDistanceScale, LensFlareFadeDistanceScale;

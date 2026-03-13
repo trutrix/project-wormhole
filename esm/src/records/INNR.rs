@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"INNR",
-    InstanceNamingRules, [
+define_record3! {
+    "iden": b"INNR";
+    "name": InstanceNamingRules;
+    "fields": [
         EditorId;
         Keyword;
         b"VNAM", NamingCount, u32;

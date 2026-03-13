@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"DEBR",
-    Debris, [
+define_record3! {
+    "iden": b"DEBR";
+    "name": Debris;
+    "fields": [
         EditorId;
         ModelData;
         b"DATA", Data, u8;

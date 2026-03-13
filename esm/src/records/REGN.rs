@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"REGN",
-    Region, [
+define_record3! {
+    "iden": b"REGN";
+    "name": Region;
+    "fields": [
         EditorId;
         b"RCLR", Color, Color4;
         b"WNAM", WorldSpace, FormId;

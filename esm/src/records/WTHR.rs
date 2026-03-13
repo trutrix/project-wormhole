@@ -2,9 +2,10 @@ use crate::dev::*;
 
 // TODO: this record needs many structs created just to access the data properly
 
-define_record2! {
-    b"WTHR",
-    Weather, [
+define_record3! {
+    "iden": b"WTHR";
+    "name": Weather;
+    "fields": [
         EditorId;
         ModelData;
         b"00TX", Texture0, ESMString;

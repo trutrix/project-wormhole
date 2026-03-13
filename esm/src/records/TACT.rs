@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"TACT",
-    TalkingActivator, [
+define_record3! {
+    "iden": b"TACT";
+    "name": TalkingActivator;
+    "fields": [
         EditorId;
         VirtualMachineAdapter;
         FullName;

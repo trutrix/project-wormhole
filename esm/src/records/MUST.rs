@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"MUST",
-    MusicTrack, [
+define_record3! {
+    "iden": b"MUST";
+    "name": MusicTrack;
+    "fields": [
         EditorId;
         Condition;
         b"ANAM", TrackFilePath, ESMString;

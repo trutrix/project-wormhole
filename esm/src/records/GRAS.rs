@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"GRAS",
-    Grass, [
+define_record3! {
+    "iden": b"GRAS";
+    "name": Grass;
+    "fields": [
         EditorId;
         ObjectBounds;
         ModelData;

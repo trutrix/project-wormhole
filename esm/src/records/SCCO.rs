@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"SCCO",
-    SceneCollection, [
+define_record3! {
+    "iden": b"SCCO";
+    "name": SceneCollection;
+    "fields": [
         EditorId;
         b"QNAM", Quest, FormId;
         b"XNAM", Coordinates, [i32;2];

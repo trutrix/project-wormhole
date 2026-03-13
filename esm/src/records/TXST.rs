@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"TXST",
-    TextureSet, [
+define_record3! {
+    "iden": b"TXST";
+    "name": TextureSet;
+    "fields": [
         EditorId;
         ObjectBounds;
         b"DODT", DecalData, EmptyParser; // TODO: common decal data struct

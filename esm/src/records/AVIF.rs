@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"AVIF",
-    ActorValueInformation, [
+define_record3! {
+    "iden": b"AVIF";
+    "name": ActorValueInformation;
+    "fields": [
         EditorId;
         FullName;
         Description;

@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"LCTN",
-    Location, [
+define_record3! {
+    "iden": b"LCTN";
+    "name": Location;
+    "fields": [
         EditorId;
         FullName;
         Keyword;

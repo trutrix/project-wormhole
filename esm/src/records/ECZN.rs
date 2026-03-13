@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"ECZN",
-    EncounterZone, [
+define_record3! {
+    "iden": b"ECZN";
+    "name": EncounterZone;
+    "fields": [
         EditorId;
         b"DATA", Data, EncounterZoneData;
     ]

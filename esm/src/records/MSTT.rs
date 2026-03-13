@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"MSTT",
-    MoveableStatic, [
+define_record3! {
+    "iden": b"MSTT";
+    "name": MoveableStatic;
+    "fields": [
         EditorId;
         VirtualMachineAdapter;
         ObjectBounds;

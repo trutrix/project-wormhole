@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"CONT",
-    Container, [
+define_record3! {
+    "iden": b"CONT";
+    "name": Container;
+    "fields": [
         EditorId;
         VirtualMachineAdapter;
         PreviewTransform;

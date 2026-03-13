@@ -5,9 +5,10 @@ use crate::dev::*;
 // Only a single record appears in Fallout4.esm
 // TODO: Research this record more thoroughly
 
-define_record2! {
-    b"DLVW",
-    DialogView, [
+define_record3! {
+    "iden": b"DLVW";
+    "name": DialogView;
+    "fields": [
         EditorId;
         b"BNAM", Branches, Vec<FormId>;
         b"QNAM", Quest, FormId;

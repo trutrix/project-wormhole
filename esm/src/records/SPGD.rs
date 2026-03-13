@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"SPGD",
-    ShaderParticleGeometry, [
+define_record3! {
+    "iden": b"SPGD";
+    "name": ShaderParticleGeometry;
+    "fields": [
         EditorId;
         b"DATA", Data, ShaderParticleGeometryData;
         b"MNAM", MaterialPath, ESMString;

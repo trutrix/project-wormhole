@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"MATO",
-    MaterialObject, [
+define_record3! {
+    "iden": b"MATO";
+    "name": MaterialObject;
+    "fields": [
         EditorId;
         ModelData;
         b"DATA", Data, MaterialObjectData;

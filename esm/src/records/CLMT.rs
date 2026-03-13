@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"CLMT",
-    Climate, [
+define_record3! {
+    "iden": b"CLMT";
+    "name": Climate;
+    "fields": [
         EditorId;
         ModelData;
         b"WSLT", WeatherList, Vec<WeatherData>;

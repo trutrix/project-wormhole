@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"IDLM",
-    IdleMarker, [
+define_record3! {
+    "iden": b"IDLM";
+    "name": IdleMarker;
+    "fields": [
         EditorId;
         Keyword;
         ModelData;

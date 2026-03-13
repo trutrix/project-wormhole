@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"IMGS",
-    ImageSpace, [
+define_record3! {
+    "iden": b"IMGS";
+    "name": ImageSpace;
+    "fields": [
         EditorId;
     ]
 }

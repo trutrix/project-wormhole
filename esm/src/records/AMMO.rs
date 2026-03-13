@@ -1,8 +1,9 @@
 use crate::{dev::*, structs::geometry::ObjectBounds};
 
-define_record2! {
-    b"AMMO",
-    Ammo, [
+define_record3! {
+    "iden": b"AMMO";
+    "name": Ammo;
+    "fields": [
         EditorId;
         ObjectBounds;
         ModelData;

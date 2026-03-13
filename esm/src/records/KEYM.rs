@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"KEYM",
-    Key, [
+define_record3! {
+    "iden": b"KEYM";
+    "name": Key;
+    "fields": [
         EditorId;
         VirtualMachineAdapter;
         ObjectBounds;

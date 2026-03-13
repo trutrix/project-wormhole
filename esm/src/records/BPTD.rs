@@ -1,8 +1,9 @@
 use crate::dev::*;
 
-define_record2! {
-    b"BPTD",
-    BodyPartData, [
+define_record3! {
+    "iden": b"BPTD";
+    "name": BodyPartData;
+    "fields": [
         EditorId;
         ModelData;
 
