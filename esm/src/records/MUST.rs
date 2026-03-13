@@ -17,7 +17,7 @@ define_record3! {
     ]
 }
 
-#[derive(Debug, NomLE)]
+#[derive(Debug, NomLE, PartialEq)]
 pub struct MusicTrackLoopData {
     pub start: f32,
     pub end: f32,

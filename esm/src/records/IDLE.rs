@@ -15,7 +15,7 @@ define_record3! {
 }
 
 // 6 bytes
-#[derive(Debug, NomLE)]
+#[derive(Debug, NomLE, PartialEq)]
 pub struct IdleData {
 
 }

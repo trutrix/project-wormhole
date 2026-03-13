@@ -10,7 +10,7 @@ pub type ModelFlags = u32;
 
 
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct ModelTexture {
     pub item_types_count: u32,
     pub item_counts: Vec<u32>,
@@ -38,7 +38,7 @@ impl ModelTexture {
     }
 }
 
-#[derive(Debug, NomLE)]
+#[derive(Debug, NomLE, PartialEq, Eq)]
 pub struct FileHashInfo {
     pub file_hash: u32,
     pub file_ext: FourCC,

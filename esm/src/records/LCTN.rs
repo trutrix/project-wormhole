@@ -23,7 +23,7 @@ define_record3! {
     ]
 }
 
-#[derive(Debug, NomLE)]
+#[derive(Debug, NomLE, PartialEq, Eq)]
 pub struct LocationPersistentRef {
     pub actor: FormId,
     pub location: FormId,
@@ -31,13 +31,13 @@ pub struct LocationPersistentRef {
     pub grid_y: i16,
 }
 
-#[derive(Debug, NomLE)]
+#[derive(Debug, NomLE, PartialEq, Eq)]
 pub struct LocationEncounterCell {
     pub location: FormId,
     pub positions: Vec<[i16; 2]>
 }
 
-#[derive(Debug, NomLE)]
+#[derive(Debug, NomLE, PartialEq, Eq)]
 pub struct LocationCellStaticRef {
     pub ref_type: FormId,
     pub marker: FormId,
@@ -46,7 +46,7 @@ pub struct LocationCellStaticRef {
     pub grid_y: i16,
 }
 
-#[derive(Debug, NomLE)]
+#[derive(Debug, NomLE, PartialEq, Eq)]
 pub struct LocationCellEnablePoint {
     pub actor: FormId,
     pub refr: FormId,
@@ -54,7 +54,7 @@ pub struct LocationCellEnablePoint {
     pub grid_y: i16
 }
 
-#[derive(Debug, NomLE)]
+#[derive(Debug, NomLE, PartialEq, Eq)]
 pub struct LocationCellUnique {
     pub actor: FormId,
     pub refr: FormId,

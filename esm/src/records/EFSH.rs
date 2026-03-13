@@ -18,5 +18,5 @@ define_record3! {
 
 
 // TODO: Fill this out later
-#[derive(Debug, NomLE)]
+#[derive(Debug, NomLE, PartialEq)]
 pub struct EffectShaderData;

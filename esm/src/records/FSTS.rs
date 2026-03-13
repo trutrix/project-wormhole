@@ -12,7 +12,7 @@ define_record3! {
 
 
 
-#[derive(Debug, NomLE)]
+#[derive(Debug, NomLE, PartialEq, Eq)]
 pub struct FootstepSetCounts {
     pub walking: u32,
     pub running: u32,

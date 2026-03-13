@@ -64,7 +64,7 @@ define_record3! {
     ]
 }
 
-#[derive(Debug, NomLE)]
+#[derive(Debug, NomLE, PartialEq)]
 pub struct WeatherCloudColors {
     // TODO: fill out - length 512 and 1024 bytes
 }

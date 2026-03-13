@@ -20,5 +20,5 @@ define_record3! {
 }
 
 
-#[derive(Debug, NomLE)]
+#[derive(Debug, NomLE, PartialEq, Eq)]
 pub struct CombatStyleFlags(pub u32);

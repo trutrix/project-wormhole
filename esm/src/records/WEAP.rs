@@ -50,7 +50,7 @@ define_record3! {
 }
 
 
-#[derive(Debug, NomLE)]
+#[derive(Debug, NomLE, PartialEq)]
 pub struct WeaponCriticalData {
     pub damage_multiplier: f32,
     pub charge_bonus: f32,

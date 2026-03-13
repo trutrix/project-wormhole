@@ -15,7 +15,7 @@ define_record3! {
     ]
 }
 
-#[derive(Debug, NomLE)]
+#[derive(Debug, NomLE, PartialEq)]
 pub struct PackageLocationData {
     // TODO: fill out - length 12 and 16 observed
 }

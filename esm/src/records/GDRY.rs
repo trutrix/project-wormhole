@@ -11,7 +11,7 @@ define_record3! {
 
 
 // 60 bytes
-#[derive(Debug, NomLE)]
+#[derive(Debug, NomLE, PartialEq)]
 pub struct GodrayData {
     
 }

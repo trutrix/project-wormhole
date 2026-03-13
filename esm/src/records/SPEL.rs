@@ -20,7 +20,7 @@ define_record3! {
 
 
 /// Size 36 bytes
-#[derive(Debug, NomLE)]
+#[derive(Debug, NomLE, PartialEq)]
 pub struct SpellData {
     // TODO: fill in
 }

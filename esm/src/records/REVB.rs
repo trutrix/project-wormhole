@@ -12,7 +12,7 @@ define_record3! {
 
 // todo: fill out
 // size 14 bytes
-#[derive(Debug, NomLE)]
+#[derive(Debug, NomLE, PartialEq)]
 pub struct ReverbData {
 
 }

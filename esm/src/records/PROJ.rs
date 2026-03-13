@@ -17,7 +17,7 @@ define_record3! {
     ]
 }
 
-#[derive(Debug, NomLE)]
+#[derive(Debug, NomLE, PartialEq)]
 pub struct ProjectileData {
     // TODO: fill out - length 93 bytes (odd number is weird)
 }

@@ -17,13 +17,13 @@ define_record3! {
 }
 
 
-#[derive(Debug, NomLE)]
+#[derive(Debug, NomLE, PartialEq, Eq)]
 pub struct  LensFlareFadeDistanceScale {
 
 }
 
 
-#[derive(Debug, NomLE)]
+#[derive(Debug, NomLE, PartialEq)]
 pub struct LensFlareData {
     pub tint: Color3,
     pub width: f32,

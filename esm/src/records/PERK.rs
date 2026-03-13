@@ -27,12 +27,12 @@ define_record3! {
 }
 
 
-#[derive(Debug, NomLE)]
+#[derive(Debug, NomLE, PartialEq)]
 pub struct PerkData {
     // TODO: shared with effects - lengths 3, 4, 5 and 6 observed
 }
 
-#[derive(Debug, NomLE)]
+#[derive(Debug, NomLE, PartialEq, Eq)]
 pub struct PerkEffectHeader {
     pub type_: u8, // TODO: enum
     pub rank: u8,

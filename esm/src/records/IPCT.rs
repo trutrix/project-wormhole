@@ -21,5 +21,5 @@ define_record3! {
 
 
 // TODO: Fill out ImpactData structure - Size 24 bytes
-#[derive(Debug, NomLE)]
+#[derive(Debug, NomLE, PartialEq)]
 pub struct ImpactData;

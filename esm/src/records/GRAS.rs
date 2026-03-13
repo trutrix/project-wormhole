@@ -14,7 +14,7 @@ define_record3! {
 
 // 32 bytes
 // TODO: best guess, needs confirmation
-#[derive(Debug, NomLE)]
+#[derive(Debug, NomLE, PartialEq)]
 pub struct GrassData {
     pub density: u8,
     pub min_slope: u16,

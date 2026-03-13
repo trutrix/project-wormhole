@@ -21,5 +21,5 @@ define_record3! {
 }
 
 
-#[derive(Debug, NomLE)]
+#[derive(Debug, NomLE, PartialEq, Eq)]
 pub struct TextureSetFlags(pub u16); // TODO: bitflags

@@ -16,7 +16,7 @@ define_record3! {
 }
 
 
-#[derive(NomLE)]
+#[derive(NomLE, PartialEq)]
 pub struct VertexHeightData {
     pub offset: f32,
     pub gradient: [[i8;33];33],

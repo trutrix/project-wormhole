@@ -21,12 +21,12 @@ define_record3! {
 }
 
 
-#[derive(Debug, NomLE)]
+#[derive(Debug, NomLE, PartialEq, Eq)]
 pub struct FactionFlags(pub u32);
 
 
 
-#[derive(Debug, NomLE)]
+#[derive(Debug, NomLE, PartialEq, Eq)]
 pub struct FactionRelation {
     pub faction: FormId,
     pub modifier: u32,
@@ -35,7 +35,7 @@ pub struct FactionRelation {
 
 // 12 bytes - 8 values
 // TODO: Verify structure - these are guesses
-#[derive(Debug, NomLE)]
+#[derive(Debug, NomLE, PartialEq, Eq)]
 pub struct FactionVendorValues {
     pub start_hour: u8,
     pub end_hour: u8,
@@ -49,7 +49,7 @@ pub struct FactionVendorValues {
 
 // 20 bytes - 10 values
 // TODO: Verify structure - these are guesses
-#[derive(Debug, NomLE)]
+#[derive(Debug, NomLE, PartialEq)]
 pub struct FactionCrimeValues {
     pub arrest: u8,
     pub attack: u8,
@@ -64,7 +64,7 @@ pub struct FactionCrimeValues {
 }
 
 // 16 bytes - 4 values
-#[derive(Debug, NomLE)]
+#[derive(Debug, NomLE, PartialEq, Eq)]
 pub struct FactionLocation {
     pub type_: u32,
     pub unknown: u32,

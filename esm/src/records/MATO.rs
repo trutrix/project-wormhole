@@ -11,7 +11,7 @@ define_record3! {
     ]
 }
 
-#[derive(Debug, NomLE)]
+#[derive(Debug, NomLE, PartialEq)]
 pub struct MaterialObjectData {
     // TODO: fill out
 }

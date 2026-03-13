@@ -12,7 +12,7 @@ define_record3! {
 
 // TODO: verify field types and sizes
 // total struct size: 16 bytes
-#[derive(Debug, NomLE)]
+#[derive(Debug, NomLE, PartialEq, Eq)]
 pub struct RelationshipData {
     pub parent: FormId,
     pub child: FormId,

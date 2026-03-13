@@ -19,7 +19,7 @@ define_record3! {
 }
 
 
-#[derive(Debug, NomLE)]
+#[derive(Debug, NomLE, PartialEq)]
 pub struct StaticDirectionalMaterial {
     pub max_angle: f32,
     pub material: FormId,

@@ -22,7 +22,7 @@ define_record3! {
 }
 
 
-#[derive(Debug, NomLE)]
+#[derive(Debug, NomLE, PartialEq)]
 pub struct LightData {
     // TODO: fill out
 }

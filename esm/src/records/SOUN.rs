@@ -13,7 +13,7 @@ define_record3! {
 
 
 // Min 8 bytes, Sometimes 9 bytes
-#[derive(Debug, NomLE)]
+#[derive(Debug, NomLE, PartialEq)]
 pub struct SoundMarkerRepeat {
     pub min_time: f32,
     pub max_time: f32,

@@ -2,7 +2,9 @@ use crate::{dev::*, structs::colors::Color4};
 
 
 define_record3! {
-    "iden": b"KYWD"; Keyword, [
+    "iden": b"KYWD"; 
+    "name": Keyword;
+    "fields": [
         EditorId;
         FullName;
         b"CNAM", Color, Color4;

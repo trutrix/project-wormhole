@@ -12,7 +12,7 @@ define_record3! {
 
 
 // size: 96 bytes (low sample size)
-#[derive(Debug, NomLE)]
+#[derive(Debug, NomLE, PartialEq)]
 pub struct ShaderParticleGeometryData {
     // TODO: fill in
 }

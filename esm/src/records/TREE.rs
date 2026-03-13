@@ -19,7 +19,7 @@ define_record3! {
 
 
 // size: 48
-#[derive(Debug, NomLE)]
+#[derive(Debug, NomLE, PartialEq)]
 pub struct TreeData {
     pub values: [f32; 12]
 }

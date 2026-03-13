@@ -19,7 +19,7 @@ define_record3! {
 
 
 // size 12 bytes
-#[derive(Debug, NomLE)]
+#[derive(Debug, NomLE, PartialEq)]
 pub struct ObjectEffectModifier {
     pub magnitude: f32,
     pub area: u32,
@@ -27,7 +27,7 @@ pub struct ObjectEffectModifier {
 }
 
 // size 36 bytes
-#[derive(Debug, NomLE)]
+#[derive(Debug, NomLE, PartialEq)]
 pub struct ObjectEffectData {
     pub enchantment_cost: u32,
     pub flags: u32,

@@ -11,13 +11,13 @@ define_record3! {
     ]
 }
 
-#[derive(Debug, NomLE)]
+#[derive(Debug, NomLE, PartialEq)]
 pub struct NavMeshMapInfo {
     // TODO: fill out
 }
 
 
-#[derive(Debug, NomLE)]
+#[derive(Debug, NomLE, PartialEq)]
 pub struct NavMeshPreferredPathing {
     // TODO: fill out (verbose)
 }

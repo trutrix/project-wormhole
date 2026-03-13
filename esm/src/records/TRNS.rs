@@ -10,7 +10,7 @@ define_record3! {
 }
 
 // Sizes: 28 and 36
-#[derive(Debug, NomLE)]
+#[derive(Debug, NomLE, PartialEq)]
 pub struct TransformData {
     pub position: [f32; 3],
     pub rotation: [f32; 3], // TODO: Needs conversion

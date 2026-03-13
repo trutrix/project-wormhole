@@ -10,7 +10,7 @@ define_record3! {
 }
 
 
-#[derive(Debug, NomLE)]
+#[derive(Debug, NomLE, PartialEq, Eq)]
 pub struct EncounterZoneData {
     pub owner: FormId,
     pub location: FormId,
