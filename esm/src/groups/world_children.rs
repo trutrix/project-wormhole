@@ -14,8 +14,6 @@ pub struct WorldChildren {
 // Implement nom_derive::Parse
 impl Parse<&[u8]> for WorldChildren {
     fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
-        
-        println!("Parsing WorldChildren group");
 
         // Parse header and raw data pointer
         let (i, (header, raw)) = alloc_group(i)?;

@@ -698,23 +698,44 @@ impl ToTokens for RecordDefinition3 {
             }
         };
 
+        //let debug_name = name.to_string();
+        // let debug_child = if let Some(ct) = &self.child_type {
+        //     format!(" with child type {}", quote! { #ct }.to_string())
+        // } else {
+        //     "".to_string()
+        // };
+
         let custom_parse = if let Some(child_type) = &self.child_type {
             quote! {
                 impl Parse<&[u8]> for #name {
                     fn parse(i: &[u8]) -> IResult<&[u8], Self> {
+
+                        //println!("Begin parsing {}", #debug_name);
+
                         let (i, record) = <Record<Vec<#name_field>>>::parse_le(i)?;
                         
+                        //println!("Finished parsing record for {}", #debug_name);
+
+                        
+
                         if i.is_empty() {
+                            return Ok((i, Self { record, children: None }))
+                        }
+
+                        let (_, next_iden) = FourCC::parse(i)?;
+
+                        if next_iden.0 != *b"GRUP" {
                             return Ok((i, Self { record, children: None }))
                         }
 
                         let (_, next_group) = GroupHeader::parse(i)?;
 
+                        //println!("  Next group header: {:?}", next_group);
+
                         if let GroupLabel::#child_type(id) = next_group.label {
+                            //println!("  Found child group of type {} for {}", #debug_child, #debug_name);
                             let (i, children) = <#child_type>::parse_le(i)?;
                             return Ok((i, Self { record, children: Some(children) }))
-
-
                         } else {
                             return Ok((i, Self { record, children: None }))
                         }
