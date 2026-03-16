@@ -1,6 +1,6 @@
 use crate::{dev::*, groups::{cell_persistent_children::CellPersistentChildren, cell_temporary_children::CellTemporaryChildren}, records::all::{ActorReference, Landscape, NavigationMesh, PlayerHazard, RecordReference}};
 
-
+// ====================================================================================================
 
 #[derive(Debug)]
 pub struct CellChildren {
@@ -9,6 +9,7 @@ pub struct CellChildren {
     pub temporary_children: Option<CellTemporaryChildren>
 }
 
+// ====================================================================================================
 
 // Implement nom_derive::Parse
 impl Parse<&[u8]> for CellChildren {
@@ -56,8 +57,6 @@ impl Parse<&[u8]> for CellChildren {
     }
 }
 
-
-
 // ====================================================================================================
 
 #[derive(Debug)]
@@ -69,6 +68,7 @@ pub enum CellChildItem {
     PlayerHazard(PlayerHazard)
 }
 
+// ====================================================================================================
 
 impl Parse<&[u8]> for CellChildItem {
     fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
@@ -106,11 +106,5 @@ impl Parse<&[u8]> for CellChildItem {
 // ====================================================================================================
 
 
-// #[derive(Debug, NomLE)]
-// pub struct RawCellChildren<'esm> {
-//     pub header: GroupHeader,
-//     pub children: Vec<Group<RawRecord<'esm>>>
-// }
-
-
+/// This is a type alias because the existence of the CellChildren group implies at least one sub group exists under it
 pub type RawCellChildren<'esm> = Group<Group<RawRecord<'esm>>>;
