@@ -58,8 +58,7 @@ pub fn esm_benchmarks() {
     let (_, esm) = RawESM::parse(&buf).unwrap();
     println!("RawESM (Single Thread): {:?}", start.elapsed());
     println!("RawESM record count: {}", esm.records.len());
-    println!("RawESM interior references count: {}", esm.interior_references.len());
-    println!("RawESM world count: {}", esm.worlds.len());
+    println!("RawESM references count: {}", esm.references.len());
     //println!("Expected records: {:?}", esm.header.fields);
     //println!("Record count: {}", esm.records.len());
 

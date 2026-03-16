@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::{fmt::Debug, io::Read};
 
 
@@ -410,7 +411,7 @@ impl RecordFlags2 {
 
 // ====================================================================================================
 
-#[derive(Clone)]
+
 pub struct RawRecord<'esm> {
     pub header: RecordHeader,
     pub data: RawRecordData<'esm>,
@@ -569,9 +570,21 @@ pub struct RawCellRecord<'esm> {
     pub cell_children: Option<RawCellChildren<'esm>>
 }
 
-impl RawCellRecord<'_> {
+impl<'esm> RawCellRecord<'esm> {
     pub fn has_children(&self) -> bool {
         self.cell_children.is_some()
+    }
+
+    pub fn into_maps(self, cell_map: &mut HashMap<FormId, RawRecord<'esm>>, reference_map: &mut HashMap<FormId, RawRecord<'esm>>) {
+        if let Some(children) = self.cell_children {
+            for group in children.data {
+                for block in group.data {
+                    reference_map.insert(block.header.form_id.clone(), block);
+                }
+            }
+        }
+
+        cell_map.insert(self.cell.header.form_id.clone(), self.cell);
     }
 }
 

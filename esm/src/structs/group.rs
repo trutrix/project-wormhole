@@ -90,20 +90,20 @@ pub fn alloc_group(i: &[u8]) -> IResult<&[u8], (GroupHeader, &[u8])> {
 // ====================================================================================================
 
 
-pub struct RawDataGroup<'esm> {
+pub struct RawGroup<'esm> {
     pub header: GroupHeader,
     pub data: Vec<RawRecord<'esm>>
 }
 
-impl<'esm> Parse<&'esm[u8]> for RawDataGroup<'esm> {
+impl<'esm> Parse<&'esm[u8]> for RawGroup<'esm> {
     fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
         let (i, (header, data)) = alloc_group(i)?;
         let (_, records) = many0(RawRecord::parse)(data)?;
-        Ok((i, RawDataGroup { header, data: records }))
+        Ok((i, RawGroup { header, data: records }))
     }
 }
 
-impl Debug for RawDataGroup<'_> {
+impl Debug for RawGroup<'_> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "RawGroup {{ header: {:?}, data: [{} bytes] }}", self.header, self.data.len())
     }

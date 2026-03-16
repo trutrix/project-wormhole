@@ -12,23 +12,18 @@ use crate::{dev::*, groups::prelude::RawInteriorCellBlock, records::all::FileHea
 #[derive(Debug)]
 pub struct RawESM<'esm> {
     pub header: FileHeader,
-    pub worlds: HashMap<FormId, RawWorldRecord<'esm>>,
     pub records: HashMap<FormId, RawRecord<'esm>>,
     pub quests: Vec<RawQuestGroup<'esm>>,
-    pub interior_references: HashMap<FormId, RawRecord<'esm>>,
-    pub world_references: HashMap<FormId, RawRecord<'esm>>
+    pub references: HashMap<FormId, RawRecord<'esm>>,
 }
 
 // ====================================================================================================
 
 impl<'esm> RawESM<'esm> {
     pub fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self> {
-        let mut worlds = HashMap::new();
         let mut records = HashMap::new();
         let mut quests = Vec::new();
-        let mut interior_references = HashMap::new();
-        let mut world_references = HashMap::new();
-        let mut wrc = 0;
+        let mut references = HashMap::new();
 
         
         let (i, header) = FileHeader::parse(i)?;
@@ -53,7 +48,7 @@ impl<'esm> RawESM<'esm> {
                                             let children = record.cell_children.unwrap();
                                             for g in children.data {
                                                 for r in g.data {
-                                                    if let Some(or) = interior_references.insert(r.header.form_id.clone(), r) {
+                                                    if let Some(or) = references.insert(r.header.form_id.clone(), r) {
                                                         panic!("Duplicate reference form id: {}", or.header.form_id);
                                                     }
                                                 }
@@ -71,7 +66,20 @@ impl<'esm> RawESM<'esm> {
                             
 
                             for world in gw.worlds {
-                                worlds.insert(world.world.header.form_id.clone(), world);
+                                if world.has_children() {
+                                    let children = world.world_children.unwrap();
+                                    
+                                    records.insert(children.cell.cell.header.form_id.clone(), children.cell.cell);
+
+                                    for block in children.blocks {
+                                        for sub_block in block.sub_blocks {
+                                            for cell in sub_block.cells {
+                                                cell.into_maps(&mut records, &mut references);
+                                            }
+                                        }
+                                    }
+
+                                }
                             }
                         }
                         b"QUST" => {
@@ -82,7 +90,7 @@ impl<'esm> RawESM<'esm> {
                         }
                         _ => {
                             // println!("Parsing {:?}", gh.label);
-                            let (i, rg) = RawDataGroup::parse(raw)?;
+                            let (i, rg) = RawGroup::parse(raw)?;
                             raw = i;
                             for r in rg.data {
                                 records.insert(r.header.form_id.clone(), r);
@@ -98,7 +106,7 @@ impl<'esm> RawESM<'esm> {
 
         }
 
-        Ok((i, Self { header, worlds, records, quests, interior_references, world_references }))
+        Ok((i, Self { header, records, quests, references }))
     }
 
     
