@@ -13,7 +13,6 @@ use crate::{dev::*, groups::prelude::RawInteriorCellBlock, records::all::FileHea
 pub struct RawESM<'esm> {
     pub header: FileHeader,
     pub records: HashMap<FormId, RawRecord<'esm>>,
-    pub quests: Vec<RawQuestGroup<'esm>>,
     pub references: HashMap<FormId, RawRecord<'esm>>,
 }
 
@@ -21,21 +20,32 @@ pub struct RawESM<'esm> {
 
 impl<'esm> RawESM<'esm> {
     pub fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self> {
+
+        // Initialize maps
         let mut records = HashMap::new();
-        let mut quests = Vec::new();
         let mut references = HashMap::new();
 
-        
+        // Full parse file header
         let (i, header) = FileHeader::parse(i)?;
+
+        // Init top level buffer
         let mut raw = i;
 
+        // Loop until buffer is empty
         while !raw.is_empty() {
 
+            // Get the next group header
+            // Note: We are assuming all top level structures should be groups
             let (_, gh) = GroupHeader::parse(raw)?;
             
+            // Make sure the group label is correct
             match gh.label {
+
+                // Top group verified (sort of), proceed to parsers
                 GroupLabel::Top(iden) => {
                     match &iden.0 {
+
+                        // Contains InteriorCellBlock list
                         b"CELL" => {
                             let (i, (_ghead, graw)) = alloc_group(raw)?;
                             raw = i;
@@ -44,27 +54,17 @@ impl<'esm> RawESM<'esm> {
                             for block in icb {
                                 for sub_block in block.sub_blocks {
                                     for record in sub_block.data {
-                                        if record.has_children() {
-                                            let children = record.cell_children.unwrap();
-                                            for g in children.data {
-                                                for r in g.data {
-                                                    if let Some(or) = references.insert(r.header.form_id.clone(), r) {
-                                                        panic!("Duplicate reference form id: {}", or.header.form_id);
-                                                    }
-                                                }
-                                            }
-                                        }
-                                        records.insert(record.cell.header.form_id.clone(), record.cell);
+                                        record.into_maps(&mut records, &mut references);
                                     }
                                 }
                             }
                         }
+
+                        // Contains WRLD records with accompanying WorldChildren groups
                         b"WRLD" => {
-                            // println!("Parsing {:?}", gh.label);
                             let (i, gw) = RawWorldGroup::parse(raw)?;
                             raw = i;
                             
-
                             for world in gw.worlds {
                                 if world.has_children() {
                                     let children = world.world_children.unwrap();
@@ -82,14 +82,20 @@ impl<'esm> RawESM<'esm> {
                                 }
                             }
                         }
+
+                        // TODO: Figure out whats in this group
+                        // Appears to be different than CELL and WRLD
                         b"QUST" => {
-                            // println!("Skipping: {:?}", gh.label);
-                            let (i, gq) = RawQuestGroup::parse(raw)?;
+                            // Allocate and skip for now
+                            let (i, _gq) = RawQuestGroup::parse(raw)?;
                             raw = i;
-                            quests.push(gq);
+
+                            #[cfg(debug_assertions)]
+                            eprintln!("Skipping unsupported QUST group.");
                         }
+
+                        // Every other group appears to be data records, 
                         _ => {
-                            // println!("Parsing {:?}", gh.label);
                             let (i, rg) = RawGroup::parse(raw)?;
                             raw = i;
                             for r in rg.data {
@@ -99,6 +105,7 @@ impl<'esm> RawESM<'esm> {
                     }
                 }
                 _ => {
+                    // Parsing will for sure fail, panic for now, maybe pass result in later iteration
                     panic!("Encountered non-top group in RawESM")
                 }
             }
@@ -106,10 +113,8 @@ impl<'esm> RawESM<'esm> {
 
         }
 
-        Ok((i, Self { header, records, quests, references }))
+        Ok((i, Self { header, records, references }))
     }
-
-    
 }
 
 // ====================================================================================================
