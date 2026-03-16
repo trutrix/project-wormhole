@@ -1,6 +1,6 @@
 use rayon::prelude::*;
 
-use crate::{dev::*, records::all::FileHeader, structs::chunk::get_file_chunks};
+use crate::{dev::*, groups::prelude::TopGroup, records::all::FileHeader, structs::chunk::get_file_chunks};
 
 
 #[derive(Debug)]

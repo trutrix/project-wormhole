@@ -1,6 +1,6 @@
 use std::{collections::HashMap, fs::File, io::Read};
 
-use crate::{dev::*, esm::{ESMError, full::ESMFull}, prelude::FormIdTrait, records::{SingleRecord, all::FileHeader}};
+use crate::{dev::*, esm::{ESMError, full::ESMFull}, groups::prelude::TopGroup, prelude::FormIdTrait, records::{SingleRecord, all::FileHeader}};
 
 
 pub struct ESMMapped {
