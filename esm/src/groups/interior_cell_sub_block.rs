@@ -1,13 +1,18 @@
 use crate::{dev::*, records::all::CellEntry};
 
+// ====================================================================================================
 
 #[derive(Debug, NomLE)]
 pub struct InteriorCellSubBlock(pub Group<CellEntry>);
+
+// ====================================================================================================
 
 pub struct RawInteriorCellSubBlock<'esm> {
     pub header: GroupHeader,
     pub data: Vec<RawCellRecord<'esm>>
 }
+
+// ====================================================================================================
 
 impl<'esm> Parse<&'esm[u8]> for RawInteriorCellSubBlock<'esm> {
     fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
@@ -19,11 +24,15 @@ impl<'esm> Parse<&'esm[u8]> for RawInteriorCellSubBlock<'esm> {
     }
 }
 
+// ====================================================================================================
+
 impl std::fmt::Display for RawInteriorCellSubBlock<'_> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{:?} {} records", self.header, self.data.len())
     }
 }
+
+// ====================================================================================================
 
 impl std::fmt::Debug for RawInteriorCellSubBlock<'_> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {

@@ -1,11 +1,14 @@
 use crate::{dev::*, groups::cell_children::CellChildItem};
 
+// ====================================================================================================
 
 #[derive(Debug)]
 pub struct CellTemporaryChildren {
     pub header: GroupHeader,
     pub children: Vec<CellChildItem>
 }
+
+// ====================================================================================================
 
 impl Parse<&[u8]> for CellTemporaryChildren {
     fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {

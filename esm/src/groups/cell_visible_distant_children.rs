@@ -1,12 +1,16 @@
 use crate::dev::*;
 
+// ====================================================================================================
 
+
+/// Unknown / unimplemented group
 #[derive(Debug)]
 pub struct CellVisibleDistantChildren {
     pub header: GroupHeader,
     pub cells: Vec<u8>
 }
 
+// ====================================================================================================
 
 impl Parse<&[u8]> for CellVisibleDistantChildren {
     fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {

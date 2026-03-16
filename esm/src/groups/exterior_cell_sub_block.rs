@@ -1,11 +1,14 @@
 use crate::{dev::*, records::all::CellEntry};
 
+// ====================================================================================================
 
 #[derive(Debug)]
 pub struct ExteriorCellSubBlock {
     pub header: GroupHeader,
     pub cells: Vec<CellEntry>
 }
+
+// ====================================================================================================
 
 impl Parse<&[u8]> for ExteriorCellSubBlock {
     fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
