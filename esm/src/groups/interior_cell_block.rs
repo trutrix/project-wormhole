@@ -1,4 +1,6 @@
-use crate::{dev::*, groups::prelude::{InteriorCellSubBlock, RawInteriorCellSubBlock}};
+use std::collections::HashMap;
+
+use crate::{dev::*, groups::prelude::{InteriorCellSubBlock, RawInteriorCellSubBlock}, prelude::MapContents};
 
 // ====================================================================================================
 
@@ -27,5 +29,25 @@ impl<'esm> Parse<&'esm[u8]> for RawInteriorCellBlock<'esm> {
 impl std::fmt::Debug for RawInteriorCellBlock<'_> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{:?} {} bytes", self.header, self.sub_blocks.len())
+    }
+}
+
+// ====================================================================================================
+
+impl<'esm> MapContents<HashMap<FormId, RawRecord<'esm>>> for RawInteriorCellBlock<'esm> {
+    fn insert_into_one_map(self, map: &mut HashMap<FormId, RawRecord<'esm>>) {
+        for sub_block in self.sub_blocks {
+            for cell in sub_block.data {
+                cell.insert_into_one_map(map);
+            }
+        }
+    }
+
+    fn insert_into_two_maps(self, map1: &mut HashMap<FormId, RawRecord<'esm>>, map2: &mut HashMap<FormId, RawRecord<'esm>>) {
+        for sub_block in self.sub_blocks {
+            for cell in sub_block.data {
+                cell.insert_into_two_maps(map1, map2);
+            }
+        }
     }
 }

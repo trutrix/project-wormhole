@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::{dev::*, groups::prelude::RawInteriorCellBlock, records::all::FileHeader};
+use crate::{dev::*, groups::prelude::RawInteriorCellBlock, prelude::MapContents, records::all::FileHeader};
 
 
 /// This is a barebones parsing of an ESM file.  
@@ -54,7 +54,7 @@ impl<'esm> RawESM<'esm> {
                             for block in icb {
                                 for sub_block in block.sub_blocks {
                                     for record in sub_block.data {
-                                        record.into_maps(&mut records, &mut references);
+                                        record.insert_into_two_maps(&mut records, &mut references);
                                     }
                                 }
                             }
@@ -74,7 +74,7 @@ impl<'esm> RawESM<'esm> {
                                     for block in children.blocks {
                                         for sub_block in block.sub_blocks {
                                             for cell in sub_block.cells {
-                                                cell.into_maps(&mut records, &mut references);
+                                                cell.insert_into_two_maps(&mut records, &mut references);
                                             }
                                         }
                                     }

@@ -3,6 +3,7 @@ use std::{fmt::Debug, io::Read};
 
 
 use crate::groups::prelude::RawWorldChildren;
+use crate::prelude::MapContents;
 use crate::{dev::*, groups::prelude::RawCellChildren, prelude::FormIdTrait, records::all::*};
 use bitflags::bitflags;
 use nom_derive::Parse;
@@ -570,21 +571,27 @@ pub struct RawCellRecord<'esm> {
     pub cell_children: Option<RawCellChildren<'esm>>
 }
 
-impl<'esm> RawCellRecord<'esm> {
-    pub fn has_children(&self) -> bool {
-        self.cell_children.is_some()
-    }
-
-    pub fn into_maps(self, cell_map: &mut HashMap<FormId, RawRecord<'esm>>, reference_map: &mut HashMap<FormId, RawRecord<'esm>>) {
+impl<'esm> MapContents<HashMap<FormId, RawRecord<'esm>>> for RawCellRecord<'esm> {
+    fn insert_into_one_map(self, map: &mut HashMap<FormId, RawRecord<'esm>>) {
         if let Some(children) = self.cell_children {
             for group in children.data {
                 for block in group.data {
-                    reference_map.insert(block.header.form_id.clone(), block);
+                    map.insert(block.header.form_id.clone(), block);
                 }
             }
         }
+        map.insert(self.cell.header.form_id.clone(), self.cell);
+    }
 
-        cell_map.insert(self.cell.header.form_id.clone(), self.cell);
+    fn insert_into_two_maps(self, map1: &mut HashMap<FormId, RawRecord<'esm>>, map2: &mut HashMap<FormId, RawRecord<'esm>>) {
+        if let Some(children) = self.cell_children {
+            for group in children.data {
+                for block in group.data {
+                    map2.insert(block.header.form_id.clone(), block);
+                }
+            }
+        }
+        map1.insert(self.cell.header.form_id.clone(), self.cell);
     }
 }
 

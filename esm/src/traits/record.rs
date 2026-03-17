@@ -29,3 +29,12 @@ pub trait EditorIdTrait {
 pub trait FormIdTrait {
     fn get_form_id(&self) -> &FormId;
 }
+
+
+pub trait MapContents<M> where Self: Sized {
+    #[allow(unused)]
+    fn insert_into_two_maps(self, map1: &mut M, map2: &mut M) { unimplemented!("Called but not defined."); }
+    #[allow(unused)]
+    fn insert_into_one_map(self, map: &mut M) { unimplemented!("Called but undefined."); }
+    fn generate_maps(self) -> M { unimplemented!("Called but undefined."); }
+}

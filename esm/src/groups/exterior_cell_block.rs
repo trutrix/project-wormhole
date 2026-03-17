@@ -1,4 +1,6 @@
-use crate::{dev::*, groups::prelude::ExteriorCellSubBlock};
+use std::collections::HashMap;
+
+use crate::{dev::*, groups::prelude::ExteriorCellSubBlock, prelude::MapContents};
 
 // ====================================================================================================
 
@@ -33,5 +35,25 @@ impl Parse<&[u8]> for ExteriorCellBlock {
             _ => { panic!("ExteriorCellBlock::parse encountered wrong group type: {:?}", header.label) }
         }
 
+    }
+}
+
+// ====================================================================================================
+
+impl<'esm> MapContents<HashMap<FormId, RawRecord<'esm>>> for RawExteriorCellBlock<'esm> {
+    fn insert_into_one_map(self, map: &mut HashMap<FormId, RawRecord<'esm>>) {
+        for sub_block in self.sub_blocks {
+            for cell in sub_block.cells {
+                cell.insert_into_one_map(map);
+            }
+        }
+    }
+
+    fn insert_into_two_maps(self, map1: &mut HashMap<FormId, RawRecord<'esm>>, map2: &mut HashMap<FormId, RawRecord<'esm>>) {
+        for sub_block in self.sub_blocks {
+            for cell in sub_block.cells {
+                cell.insert_into_two_maps(map1, map2);
+            }
+        }
     }
 }

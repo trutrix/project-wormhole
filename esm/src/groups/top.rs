@@ -26,7 +26,7 @@ pub enum TopGroup {
     BOOK(BookGroup),
     BPTD(BodyPartDataGroup),
     CAMS(CameraShotGroup),
-    CELL(Group<InteriorCellBlock>),
+    CELL(Group<InteriorCellBlock>), // Does not contain top level data records
     CLAS(ClassGroup),
     CLFM(ColorGroup),
     CLMT(ClimateGroup),
