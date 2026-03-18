@@ -1,7 +1,6 @@
 use std::fmt::Debug;
 
 use crate::groups::prelude::InteriorCellBlock;
-use crate::records::all::*;
 use crate::dev::*;
 use super::record::VersionControl;
 
@@ -296,6 +295,10 @@ pub struct RawCellVisibleDistantChildren<'esm> {
 impl<'esm> Parse<&'esm[u8]> for RawCellVisibleDistantChildren<'esm> {
     fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
         let (i, (header, data)) = alloc_group(i)?;
+
+        let (_, first_id) = FourCC::parse(data)?;
+        panic!("First child in RawCellVisibleDistantChildren: {:?}", first_id);
+
         Ok((i, Self { header, data }))
     }
 }

@@ -4,7 +4,7 @@ use std::{fmt::Debug, io::Read};
 
 use crate::groups::prelude::RawWorldChildren;
 use crate::prelude::MapContents;
-use crate::{dev::*, groups::prelude::RawCellChildren, prelude::FormIdTrait, records::all::*};
+use crate::{dev::*, groups::prelude::RawCellChildren, prelude::FormIdTrait};
 use bitflags::bitflags;
 use nom_derive::Parse;
 use nom_derive::nom::IResult;
@@ -717,6 +717,7 @@ impl <'esm> Parse<&'esm[u8]> for RawQuestRecord<'esm>  {
                 Ok((i, Self { quest, quest_children: Some(quest_children) }))
             }
             _ => {
+                panic!("Wrong group in quest children.");
                 Ok((i, Self { quest, quest_children: None }))
             }
         }

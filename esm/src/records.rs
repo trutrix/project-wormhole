@@ -32,6 +32,7 @@ pub mod CPTH;
 pub mod CSTY;
 pub mod DEBR;
 pub mod DFOB;
+pub mod DLBR;
 pub mod DLVW;
 pub mod DMGT;
 pub mod DOBJ;
@@ -167,6 +168,7 @@ pub mod all {
     pub use super::CSTY::*;
     pub use super::DEBR::*;
     pub use super::DFOB::*;
+    pub use super::DLBR::*;
     pub use super::DLVW::*;
     pub use super::DMGT::*;
     pub use super::DOBJ::*;
@@ -304,6 +306,7 @@ pub enum SingleRecord {
     CSTY(CSTY::CombatStyle),
     DEBR(DEBR::Debris),
     DFOB(DFOB::DefaultObject),
+    DLBR(DLBR::DialogBranch),
     DLVW(DLVW::DialogView),
     DMGT(DMGT::DamageType),
     DOBJ(DOBJ::DefaultObjects),
