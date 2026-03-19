@@ -1,11 +1,7 @@
 use crate::dev::*;
 
-
-
-
-
 // OBND
-#[derive(Debug, NomLE, PartialEq)]
+#[derive(Debug, NomLE, PartialEq, Eq)]
 pub struct ObjectBounds {
     pub x1: i16,
     pub y1: i16,
@@ -14,7 +10,6 @@ pub struct ObjectBounds {
     pub y2: i16,
     pub z2: i16,
 }
-
 
 /// Location in world grid for cell
 #[derive(Debug, Clone, NomLE, PartialEq, Eq)]

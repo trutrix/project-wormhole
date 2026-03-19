@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::{fmt::Debug, io::Read};
 
 
-use crate::groups::prelude::RawWorldChildren;
+use crate::groups::prelude::{RawCellVisibleDistantChildren, RawWorldChildren};
 use crate::prelude::MapContents;
 use crate::{dev::*, groups::prelude::RawCellChildren, prelude::FormIdTrait};
 use bitflags::bitflags;

@@ -1,4 +1,4 @@
-use crate::dev::*;
+use crate::{dev::*, records::all::RawDialogBranch};
 
 // ====================================================================================================
 
@@ -26,5 +26,26 @@ impl Parse<&[u8]> for CellVisibleDistantChildren {
             _ => { panic!("CellVisibleDistantChildren::parse encountered wrong group type: {:?}", header.label) }
         }
 
+    }
+}
+
+
+// ====================================================================================================
+
+
+#[derive(Debug)]
+pub struct RawCellVisibleDistantChildren<'esm> {
+    pub header: GroupHeader,
+    pub branches: Vec<RawDialogBranch<'esm>>
+}
+
+impl<'esm> Parse<&'esm[u8]> for RawCellVisibleDistantChildren<'esm> {
+    fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
+        let (i, (header, data)) = alloc_group(i)?;
+
+
+        let (_, branches) = many0(RawDialogBranch::parse)(data)?;
+
+        Ok((i, Self { header, branches }))
     }
 }
