@@ -90,8 +90,8 @@ impl<'esm> RawESM<'esm> {
                             let (i, _gq) = RawQuestGroup::parse(raw)?;
                             raw = i;
 
-                            #[cfg(debug_assertions)]
-                            eprintln!("Skipping unsupported QUST group.");
+                            // #[cfg(debug_assertions)]
+                            // eprintln!("Skipping unsupported QUST group.");
                         }
 
                         // Every other group appears to be data records, 

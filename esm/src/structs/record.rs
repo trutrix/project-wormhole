@@ -701,8 +701,6 @@ impl <'esm> Parse<&'esm[u8]> for RawQuestRecord<'esm>  {
         // Parse the quest record first
         let (i, quest) = RawRecord::parse(i)?;
         
-
-
         // If the next thing isn't a group, return immediately
         let (_, next_id) = FourCC::parse(i)?;
         if &next_id.0 != b"GRUP" {
@@ -717,7 +715,6 @@ impl <'esm> Parse<&'esm[u8]> for RawQuestRecord<'esm>  {
                 Ok((i, Self { quest, quest_children: Some(quest_children) }))
             }
             _ => {
-                panic!("Wrong group in quest children.");
                 Ok((i, Self { quest, quest_children: None }))
             }
         }

@@ -21,6 +21,10 @@ pub struct RawDialogBranch<'esm> {
 impl<'esm> Parse<&'esm[u8]> for RawDialogBranch<'esm> {
     fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
         let (i, record) = RawRecord::parse(i)?;
+
+        if record.header.iden.0 != *b"DLBR" {
+            panic!("Encounterd non DialogBranch {:?}:", record.header);
+        }
         
         if i.is_empty() {
             return Ok((i, Self { record, children: None }));
