@@ -15,13 +15,29 @@ use nom_derive::nom::multi::many0;
 
 // ====================================================================================================
 
-#[derive(Debug, NomLE, PartialEq, Eq, Clone)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub struct RecordHeader {
     pub iden: FourCC,
     pub size: u32, // Size NOT INCLUDING header, unlike GroupHeader
     pub flags: RecordFlags2,
     pub form_id: FormId,
     pub version_control: VersionControl,
+}
+
+impl Parse<&[u8]> for RecordHeader {
+    fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
+        let (i, iden) = FourCC::parse(i)?;
+        let (i, size) = le_u32(i)?;
+        let (i, flags) = RecordFlags2::parse(i)?;
+        let (i, form_id) = FormId::parse(i)?;
+        let (i, version_control) = VersionControl::parse(i)?;
+
+        if !version_control.timestamp.is_null() && version_control.timestamp.month() < 1 {
+            panic!("{:?} - {:?} - {:?} - {:?} - {:?}", iden, size, flags, form_id, version_control);
+        }
+
+        Ok((i, Self { iden, size, flags, form_id, version_control }))
+    }
 }
 
 // ====================================================================================================
@@ -35,16 +51,16 @@ pub struct VersionControl {
     pub revision: u16,
 }
 
-impl From<[u8; 8]> for VersionControl {
-    fn from(value: [u8; 8]) -> Self {
-        Self {
-            timestamp: ESMTimestamp(u16::from_le_bytes([value[0], value[1]])),
-            users: [value[2], value[3]],
-            form: u16::from_le_bytes([value[4], value[5]]),
-            revision: u16::from_le_bytes([value[6], value[7]]),
-        }
-    }
-}
+// impl From<[u8; 8]> for VersionControl {
+//     fn from(value: [u8; 8]) -> Self {
+//         Self {
+//             timestamp: ESMTimestamp(u16::from_le_bytes([value[0], value[1]])),
+//             users: [value[2], value[3]],
+//             form: u16::from_le_bytes([value[4], value[5]]),
+//             revision: u16::from_le_bytes([value[6], value[7]]),
+//         }
+//     }
+// }
 
 
 // ====================================================================================================
@@ -55,20 +71,42 @@ impl From<[u8; 8]> for VersionControl {
 #[derive(NomLE, PartialEq, Eq, Clone)]
 pub struct ESMTimestamp(pub u16);
 
+impl ESMTimestamp {
+    
+    /// Mask out first 11 bits so only day is remaining
+    /// 
+    /// `self.0 & 0b0000000000011111`
+    pub fn day(&self) -> u16 {
+        self.0 & 0b0000000000011111
+    }
+
+    /// Shift right 5 (to erase day), then mask out first 7 (to erase year)
+    /// 
+    /// `self.0 >> 5 & 0b00000001111`
+    pub fn month(&self) -> u16 {
+        self.0 >> 5 & 0b00000001111
+    }
+
+
+    /// Bitshift right 9 to keep only the year.
+    /// 
+    /// `self.0 >> 9`
+    /// 
+    /// Add 2000 to this to display the correct millenia
+    pub fn year(&self) -> u16 {
+        self.0 >> 9
+    }
+}
+
+impl ESMTimestamp {
+    pub fn is_null(&self) -> bool {
+        self.0 == 0
+    }
+}
+
 impl std::fmt::Debug for ESMTimestamp {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-
-        // Shift over to keep only the year
-        let year = self.0   >>   9;
-
-        // Shift over to keep only the month
-        // Not working properly, some months are showing as 0
-        let month = self.0  >> 5 & 0b00000001111;
-
-        // Mask to keep only the day
-        let day = self.0    &   0b0000000000011111;
-
-        write!(f, "{:04}/{:02}/{:02}", year + 2000, month, day)
+        write!(f, "{:04}/{:02}/{:02}", self.year() + 2000, self.month(), self.day())
     }
 }
 
@@ -698,8 +736,12 @@ impl RawQuestRecord<'_> {
 impl <'esm> Parse<&'esm[u8]> for RawQuestRecord<'esm>  {
     fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self> {
 
+
         // Parse the quest record first
         let (i, quest) = RawRecord::parse(i)?;
+
+        println!("  Parsed {:?}", quest.header);
+
         
         // If the next thing isn't a group, return immediately
         let (_, next_id) = FourCC::parse(i)?;
@@ -711,10 +753,12 @@ impl <'esm> Parse<&'esm[u8]> for RawQuestRecord<'esm>  {
         let (_, ghead) = GroupHeader::parse(i)?;
         match ghead.label {
             GroupLabel::CellVisibleDistantChildren(_) => {
+                println!("  Parsing CellVisibleDistantChildren...");
                 let (i, quest_children) = RawCellVisibleDistantChildren::parse(i)?;
                 Ok((i, Self { quest, quest_children: Some(quest_children) }))
             }
             _ => {
+                //panic!("Wrong group after quest: {:?}", ghead);
                 Ok((i, Self { quest, quest_children: None }))
             }
         }
