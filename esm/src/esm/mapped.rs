@@ -138,7 +138,7 @@ impl From<ESMFull> for ESMMapped {
                 TopGroup::PERK(group_vec) => iter_insert_records(&mut indices, group_vec.data),
                 TopGroup::PKIN(group_vec) => iter_insert_records(&mut indices, group_vec.data),
                 TopGroup::PROJ(group_vec) => iter_insert_records(&mut indices, group_vec.data),
-                TopGroup::QUST(group_vec) => iter_insert_records(&mut indices, group_vec.data),
+                // TopGroup::QUST(group_vec) => iter_insert_records(&mut indices, group_vec.data),
                 TopGroup::RACE(group_vec) => iter_insert_records(&mut indices, group_vec.data),
                 TopGroup::REGN(group_vec) => iter_insert_records(&mut indices, group_vec.data),
                 TopGroup::RELA(group_vec) => iter_insert_records(&mut indices, group_vec.data),

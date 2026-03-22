@@ -248,8 +248,8 @@ impl Parse<&[u8]> for TopGroup {
                     b"PROJ" => { Ok((i, TopGroup::PROJ(Group::parse(orig)?.1))) }
                     b"QUST" => {
                         let (_, (header, raw)) = alloc_group(orig)?;
-                        let (q, quests) = many0(RawQuestRecord::parse)(raw)?;
-                        println!("Quest count: {}", quests.len());
+                        // let (q, quests) = many0(RawQuestRecord::parse)(raw)?;
+                        // println!("Quest count: {}", quests.len());
 
                         Ok((i, TopGroup::QUST(Group { header, data: Vec::new()})))
                     }
