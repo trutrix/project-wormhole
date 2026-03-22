@@ -43,6 +43,13 @@ impl<'esm> Parse<&'esm[u8]> for RawCellVisibleDistantChildren<'esm> {
     fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
         let (i, (header, data)) = alloc_group(i)?;
 
+        #[cfg(debug_assertions)]
+        match header.label {
+            GroupLabel::CellVisibleDistantChildren(_) => { }
+            _ => {
+                panic!("Unexpected group encountered. {:?}", header);
+            }
+        }
 
         let (_, branches) = many0(RawDialogBranch::parse)(data)?;
 
