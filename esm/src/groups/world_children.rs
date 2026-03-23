@@ -68,7 +68,7 @@ impl<'esm> Parse<&'esm[u8]> for RawWorldChildren<'esm> {
         let (raw, blocks) = many0(RawExteriorCellBlock::parse)(raw)?;
 
         #[cfg(debug_assertions)]
-        if raw.len() > 0 {
+        if !raw.is_empty() {
             panic!("Failed to consume RawWorldChildren")
         }
 

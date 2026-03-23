@@ -15,7 +15,7 @@ impl ESMMapped {
         let mut file = File::open(file_path)?;
         let mut buf = Vec::new();
         file.read_to_end(&mut buf)?;
-        Ok(ESMMapped::parse(&buf)?)
+        ESMMapped::parse(&buf)
     }
 
     pub fn parse(i: &[u8]) -> Result<Self, ESMError> where Self: Sized {
@@ -34,7 +34,7 @@ impl From<ESMFull> for ESMMapped {
 
         fn iter_insert_records<T: FormIdTrait + Into<SingleRecord>>(indices: &mut HashMap<FormId, SingleRecord>, records: Vec<T>) {
             for record in records {
-                let form_id = record.get_form_id().clone();
+                let form_id = *record.get_form_id();
                 let sr: SingleRecord = record.into();
                 indices.insert(form_id, sr);
             }

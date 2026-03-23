@@ -121,7 +121,7 @@ pub fn get_diff_form_ids(new_esm: &ESMDiff, old_esm: &mut ESMDiff<'_>) -> ESMDif
     }
 
     for (leftover, _) in &old_esm.data_records {
-        result.deletions.insert(leftover.clone());
+        result.deletions.insert(*leftover);
     }
 
     result
@@ -129,7 +129,7 @@ pub fn get_diff_form_ids(new_esm: &ESMDiff, old_esm: &mut ESMDiff<'_>) -> ESMDif
 
 // ====================================================================================================
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct ESMDiffResult {
     pub header_modified: bool,
     pub additions: HashSet<FormId>,
@@ -140,17 +140,17 @@ pub struct ESMDiffResult {
 
 // ====================================================================================================
 
-impl Default for ESMDiffResult {
-    fn default() -> Self {
-        Self {
-            header_modified: false,
-            additions: HashSet::new(),
-            deletions: HashSet::new(),
-            modified: HashSet::new(),
-            unchanged: HashSet::new()
-        }
-    }
-}
+// impl Default for ESMDiffResult {
+//     fn default() -> Self {
+//         Self {
+//             header_modified: false,
+//             additions: HashSet::new(),
+//             deletions: HashSet::new(),
+//             modified: HashSet::new(),
+//             unchanged: HashSet::new()
+//         }
+//     }
+// }
 
 // ====================================================================================================
 

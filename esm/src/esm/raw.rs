@@ -69,7 +69,7 @@ impl<'esm> RawESM<'esm> {
                                 if world.has_children() {
                                     let children = world.world_children.unwrap();
                                     
-                                    records.insert(children.cell.cell.header.form_id.clone(), children.cell.cell);
+                                    records.insert(children.cell.cell.header.form_id, children.cell.cell);
 
                                     for block in children.blocks {
                                         for sub_block in block.sub_blocks {
@@ -99,7 +99,7 @@ impl<'esm> RawESM<'esm> {
                             let (i, rg) = RawGroup::parse(raw)?;
                             raw = i;
                             for r in rg.data {
-                                records.insert(r.header.form_id.clone(), r);
+                                records.insert(r.header.form_id, r);
                             }
                         }
                     }
