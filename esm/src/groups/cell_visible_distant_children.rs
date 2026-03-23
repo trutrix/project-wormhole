@@ -1,4 +1,4 @@
-use crate::{dev::*, records::all::RawDialogBranch};
+use crate::{dev::*, records::all::{RawDialog}};
 
 // ====================================================================================================
 
@@ -36,7 +36,7 @@ impl Parse<&[u8]> for CellVisibleDistantChildren {
 #[derive(Debug)]
 pub struct RawCellVisibleDistantChildren<'esm> {
     pub header: GroupHeader,
-    pub branches: Vec<RawDialogBranch<'esm>>
+    pub branches: Vec<RawCellVisibleDistantChild<'esm>>
 }
 
 impl<'esm> Parse<&'esm[u8]> for RawCellVisibleDistantChildren<'esm> {
@@ -51,8 +51,50 @@ impl<'esm> Parse<&'esm[u8]> for RawCellVisibleDistantChildren<'esm> {
             }
         }
 
-        let (_, branches) = many0(RawDialogBranch::parse)(data)?;
+        let (_, branches) = many0(RawCellVisibleDistantChild::parse)(data)?;
 
         Ok((i, Self { header, branches }))
+    }
+}
+
+// ====================================================================================================
+
+#[derive(Debug)]
+pub enum RawCellVisibleDistantChild<'esm> {
+    Dialog(RawDialog<'esm>),
+    DialogBranch(RawRecord<'esm>),
+    Scene(RawRecord<'esm>)
+}
+
+
+impl<'esm> Parse<&'esm[u8]> for RawCellVisibleDistantChild<'esm> {
+    fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
+        let (_, next_id) = FourCC::parse(i)?;
+
+        match &next_id.0 {
+            b"DIAL" => {
+                let (i, record) = RawDialog::parse(i)?;
+                Ok((i, RawCellVisibleDistantChild::Dialog(record)))
+            }
+            b"DLBR" => {
+                let (i, record) = RawRecord::parse(i)?;
+                Ok((i, RawCellVisibleDistantChild::DialogBranch(record)))
+            }
+            b"SCEN" => {
+                let (i, record) = RawRecord::parse(i)?;
+                Ok((i, RawCellVisibleDistantChild::Scene(record)))
+            }
+            _ => {
+                if next_id.0 == *b"GRUP" {
+                    let (_, header) = GroupHeader::parse(i)?;
+                    panic!("Wrong RawCellVisibleDistantChild encountered: {:?}" , header);
+                } else {
+                    let (_, header) = RecordHeader::parse(i)?;
+                    panic!("Wrong RawCellVisibleDistantChild encountered: {:?}" , header);
+                }
+                
+            }
+        }
+
     }
 }

@@ -236,22 +236,6 @@ impl<'esm> Parse<&'esm[u8]> for RawExteriorCellSubBlock<'esm> {
     }
 }
 
-
-// ====================================================================================================
-
-#[derive(Debug)]
-pub struct RawTopicChildren<'esm> {
-    pub header: GroupHeader,
-    pub data: &'esm [u8]
-}
-
-impl<'esm> Parse<&'esm[u8]> for RawTopicChildren<'esm> {
-    fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
-        let (i, (header, data)) = alloc_group(i)?;
-        Ok((i, Self { header, data }))
-    }
-}
-
 // ====================================================================================================
 
 #[derive(Debug)]

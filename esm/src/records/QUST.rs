@@ -32,9 +32,6 @@ impl <'esm> Parse<&'esm[u8]> for RawQuestRecord<'esm>  {
 
         // Parse the quest record first
         let (i, quest) = RawRecord::parse(i)?;
-
-        println!("  Parsed {:?}", quest.header);
-
         
         // If the next thing isn't a group, return immediately
         let (_, next_id) = FourCC::parse(i)?;
@@ -46,7 +43,6 @@ impl <'esm> Parse<&'esm[u8]> for RawQuestRecord<'esm>  {
         let (_, ghead) = GroupHeader::parse(i)?;
         match ghead.label {
             GroupLabel::CellVisibleDistantChildren(_) => {
-                println!("  Parsing CellVisibleDistantChildren...");
                 let (i, quest_children) = RawCellVisibleDistantChildren::parse(i)?;
                 Ok((i, Self { quest, quest_children: Some(quest_children) }))
             }
@@ -60,9 +56,3 @@ impl <'esm> Parse<&'esm[u8]> for RawQuestRecord<'esm>  {
 
 
 // ====================================================================================================
-
-#[derive(Debug)]
-pub enum RawQuestChild {
-    Dialog,
-    DialogBranch,
-}
