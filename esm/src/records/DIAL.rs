@@ -6,9 +6,26 @@ define_record3! {
     "name": Dialog;
     "fields": [
         EditorId;
+        FullName;
+        b"PNAM", Priority, f32;
+        b"BNAM", OwningBranch, FormId;
+        b"QNAM", OwningQuest, FormId;
+        b"DATA", Data, DialogData;
+        b"SNAM", Subtype, FourCC;
+        b"TIFC", InfoCount, u32;
     ]
 }
 
+
+// ====================================================================================================
+
+#[derive(Debug, NomLE, PartialEq)]
+pub struct DialogData {
+    pub unknown1: u8,
+    pub dialog_tab: u8,
+    pub subtype_id: u8,
+    pub unused: u8
+}
 
 // ====================================================================================================
 
@@ -23,7 +40,7 @@ impl<'esm> Parse<&'esm[u8]> for RawDialog<'esm> {
         let (i, record) = RawRecord::parse(i)?;
 
         if record.header.iden.0 != *b"DIAL" {
-            panic!("Encounterd non DialogBranch {:?}:", record.header);
+            panic!("Encounterd non Dialog header: {:?}:", record.header);
         }
         
         if i.is_empty() {
@@ -39,7 +56,7 @@ impl<'esm> Parse<&'esm[u8]> for RawDialog<'esm> {
         let (_, next_header) = GroupHeader::parse(i)?;
 
         match next_header.label {
-            GroupLabel::TopicChildren(cvdc) => {
+            GroupLabel::TopicChildren(_) => {
                 let (i, children) = RawTopicChildren::parse(i)?;
                 Ok((i, Self { record, children: Some(children) }))
             }
