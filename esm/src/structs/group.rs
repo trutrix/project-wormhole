@@ -73,16 +73,25 @@ impl Parse<&[u8]> for GroupLabel {
 
 // ====================================================================================================
 
-
+/// Parse a group header and allocate the next byte slice
+/// 
+/// Debug: panic if not `GRUP` header
 pub fn alloc_group(i: &[u8]) -> IResult<&[u8], (GroupHeader, &[u8])> {
+
+    // parse the header, assumed to be for group
     let (i, header) = GroupHeader::parse(i)?;
 
+    // Assert header should be group
+    // If the header is not for a group, it will allocate the chunk incorrectly
     #[cfg(debug_assertions)]
     if &header.iden.0 != b"GRUP" {
         panic!("Invalid group header: {:?}", header.iden.0);
     }
 
+    // Grab the next byte slice
+    // Minus 24 because group headers do not include their own size.
     let (i, raw) = take(header.size as usize - 24)(i)?;
+    
     Ok((i, (header, raw)))
 }
 
