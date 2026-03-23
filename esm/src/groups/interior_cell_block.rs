@@ -4,8 +4,16 @@ use crate::{dev::*, groups::prelude::{InteriorCellSubBlock, RawInteriorCellSubBl
 
 // ====================================================================================================
 
-#[derive(Debug, NomLE)]
+#[derive(Debug)]
 pub struct InteriorCellBlock(pub Group<InteriorCellSubBlock>);
+
+impl Parse<&[u8]> for InteriorCellBlock {
+    fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
+        println!("  Parsing interior cell block...");
+        let (i, items) = Group::<InteriorCellSubBlock>::parse(i)?;
+        Ok((i, Self(items)))
+    }
+}
 
 // ====================================================================================================
 

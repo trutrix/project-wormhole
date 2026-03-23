@@ -1,9 +1,17 @@
-use crate::{dev::*, records::all::CellEntry};
+use crate::{dev::*, records::all::{Cell, CellEntry}};
 
 // ====================================================================================================
 
-#[derive(Debug, NomLE)]
-pub struct InteriorCellSubBlock(pub Group<CellEntry>);
+#[derive(Debug)]
+pub struct InteriorCellSubBlock(pub Group<Cell>);
+
+impl Parse<&[u8]> for InteriorCellSubBlock {
+    fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
+        println!("    Parsing interior cell sub-block...");
+        let (i, items) = Group::<Cell>::parse(i)?;
+        Ok((i, Self(items)))
+    }
+}
 
 // ====================================================================================================
 

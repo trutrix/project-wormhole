@@ -140,7 +140,7 @@ impl Parse<&[u8]> for TopGroup {
         let orig = i;
         let (i, (header, _)) = alloc_group(i)?;
 
-        // println!("Parsing TopGroup: {:?}", header.label);
+        println!("Parsing TopGroup: {:?}", header.label);
 
         if header.size == 0 {
             return Ok((i, TopGroup::Empty(Group { header, data: Vec::new() })));
@@ -247,11 +247,11 @@ impl Parse<&[u8]> for TopGroup {
                     b"PKIN" => { Ok((i, TopGroup::PKIN(Group::parse(orig)?.1))) }
                     b"PROJ" => { Ok((i, TopGroup::PROJ(Group::parse(orig)?.1))) }
                     b"QUST" => {
-                        let (_, (header, raw)) = alloc_group(orig)?;
+                        // let (_, (header, raw)) = alloc_group(orig)?;
                         // let (q, quests) = many0(RawQuestRecord::parse)(raw)?;
                         // println!("Quest count: {}", quests.len());
 
-                        Ok((i, TopGroup::QUST(Group { header, data: Vec::new()})))
+                        Ok((i, TopGroup::QUST(Group::parse(orig)?.1)))
                     }
                     b"RACE" => { Ok((i, TopGroup::RACE(Group::parse(orig)?.1))) }
                     b"REGN" => { Ok((i, TopGroup::REGN(Group::parse(orig)?.1))) }
