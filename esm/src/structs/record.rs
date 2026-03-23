@@ -15,10 +15,12 @@ use nom_derive::nom::multi::many0;
 
 // ====================================================================================================
 
+
+/// Size NOT INCLUDING header, unlike [GroupHeader]
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub struct RecordHeader {
     pub iden: FourCC,
-    pub size: u32, // Size NOT INCLUDING header, unlike GroupHeader
+    pub size: u32,
     pub flags: RecordFlags2,
     pub form_id: FormId,
     pub version_control: VersionControl,
@@ -32,6 +34,7 @@ impl Parse<&[u8]> for RecordHeader {
         let (i, form_id) = FormId::parse(i)?;
         let (i, version_control) = VersionControl::parse(i)?;
 
+        #[cfg(debug_assertions)]
         if !version_control.timestamp.is_null() && version_control.timestamp.month() < 1 {
             panic!("{:?} - {:?} - {:?} - {:?} - {:?}", iden, size, flags, form_id, version_control);
         }
@@ -42,7 +45,7 @@ impl Parse<&[u8]> for RecordHeader {
 
 // ====================================================================================================
 
-// The information contained in the version control structure appears to be used by a custom Perforce VCM
+/// The information contained in the version control structure appears to be used by a custom Perforce VCM
 #[derive(Debug, NomLE, PartialEq, Eq, Clone)]
 pub struct VersionControl {
     pub timestamp: ESMTimestamp,
@@ -51,23 +54,16 @@ pub struct VersionControl {
     pub revision: u16,
 }
 
-// impl From<[u8; 8]> for VersionControl {
-//     fn from(value: [u8; 8]) -> Self {
-//         Self {
-//             timestamp: ESMTimestamp(u16::from_le_bytes([value[0], value[1]])),
-//             users: [value[2], value[3]],
-//             form: u16::from_le_bytes([value[4], value[5]]),
-//             revision: u16::from_le_bytes([value[6], value[7]]),
-//         }
-//     }
-// }
-
-
 // ====================================================================================================
 
-
-
-// Assuming the timestamp is the same in Fallout 4 as SkyrimSE
+/// Assuming the timestamp is the same in Fallout 4 as SkyrimSE. Add 2000 to get full year
+/// 
+/// Binary format:  
+/// ```text
+///    YYYYYYY MMMM DDDDD
+/// 0b 0000000 0000 11111
+/// ```
+/// 
 #[derive(NomLE, PartialEq, Eq, Clone)]
 pub struct ESMTimestamp(pub u16);
 
