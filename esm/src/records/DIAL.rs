@@ -44,7 +44,7 @@ impl<'esm> Parse<&'esm[u8]> for RawDialog<'esm> {
                 Ok((i, Self { record, children: Some(children) }))
             }
             _ => {
-                return Ok((i, Self { record, children: None }));
+                Ok((i, Self { record, children: None }))
             }
         }
 

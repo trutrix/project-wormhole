@@ -56,7 +56,7 @@ impl PartialEq for FileHeader {
                 if self_item == other_item { matched = true; break; }
             }
 
-            if matched == false { return false; }
+            if !matched { return false; }
         }
         matched
     }

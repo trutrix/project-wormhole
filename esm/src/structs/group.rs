@@ -191,7 +191,7 @@ impl<'esm> Parse<&'esm[u8]> for RawExteriorCellBlock<'esm> {
         let (raw, sub_blocks) = many0(RawExteriorCellSubBlock::parse)(raw)?;
 
         #[cfg(debug_assertions)]
-        if raw.len() > 0 {
+        if !raw.is_empty() {
             panic!("Failed to consume RawExteriorBlock");
         }
 
@@ -226,7 +226,7 @@ impl<'esm> Parse<&'esm[u8]> for RawExteriorCellSubBlock<'esm> {
         let (raw, cells) = many0(RawCellRecord::parse)(raw)?;
 
         #[cfg(debug_assertions)]
-        if raw.len() > 0 {
+        if !raw.is_empty() {
             println!("{:?}", header);
             let (_, next_id) = FourCC::parse(raw)?;
             

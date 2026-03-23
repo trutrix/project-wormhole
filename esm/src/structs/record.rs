@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::{fmt::Debug, io::Read};
 
 
-use crate::groups::prelude::{RawCellVisibleDistantChildren, RawWorldChildren};
+use crate::groups::prelude::RawWorldChildren;
 use crate::prelude::MapContents;
 use crate::{dev::*, groups::prelude::RawCellChildren, prelude::FormIdTrait};
 use bitflags::bitflags;
@@ -614,22 +614,22 @@ impl<'esm> MapContents<HashMap<FormId, RawRecord<'esm>>> for RawCellRecord<'esm>
         if let Some(children) = self.cell_children {
             for group in children.data {
                 for block in group.data {
-                    map.insert(block.header.form_id.clone(), block);
+                    map.insert(block.header.form_id, block);
                 }
             }
         }
-        map.insert(self.cell.header.form_id.clone(), self.cell);
+        map.insert(self.cell.header.form_id, self.cell);
     }
 
     fn insert_into_two_maps(self, map1: &mut HashMap<FormId, RawRecord<'esm>>, map2: &mut HashMap<FormId, RawRecord<'esm>>) {
         if let Some(children) = self.cell_children {
             for group in children.data {
                 for block in group.data {
-                    map2.insert(block.header.form_id.clone(), block);
+                    map2.insert(block.header.form_id, block);
                 }
             }
         }
-        map1.insert(self.cell.header.form_id.clone(), self.cell);
+        map1.insert(self.cell.header.form_id, self.cell);
     }
 }
 

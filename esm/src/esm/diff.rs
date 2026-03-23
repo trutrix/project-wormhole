@@ -21,7 +21,7 @@ impl<'esm> Parse<&'esm[u8]> for ESMDiff<'esm> {
 
         let mut raw = i;
 
-        while raw.len() > 0 {
+        while !raw.is_empty() {
             let (i, (gh, gd)) = alloc_group(raw)?;
             raw = i;
 
@@ -39,7 +39,7 @@ impl<'esm> Parse<&'esm[u8]> for ESMDiff<'esm> {
                             let (i, blocks) = many0(RawInteriorCellBlock::parse)(gd)?;
 
                             #[cfg(debug_assertions)]
-                            if i.len() != 0 {
+                            if !i.is_empty() {
                                 panic!("Not all bytes consumed for CELL group: {} bytes left", i.len());
                             }
 
@@ -50,7 +50,7 @@ impl<'esm> Parse<&'esm[u8]> for ESMDiff<'esm> {
                                 for sub_block in block.sub_blocks {
                                     //println!("  {:?}: Contains {} cell records", sub_block.header.label, sub_block.data.len());
                                     for record in sub_block.data {
-                                        cells.insert(record.cell.header.form_id.clone(), record);
+                                        cells.insert(record.cell.header.form_id, record);
                                     }
                                 }
                             }
@@ -58,7 +58,7 @@ impl<'esm> Parse<&'esm[u8]> for ESMDiff<'esm> {
                         _ => {
                             let (_, recs) = many0(RawRecord::parse)(gd)?;
                             for r in recs {
-                                records.insert(r.header.form_id.clone(), r);
+                                records.insert(r.header.form_id, r);
                             }
                         }
                     }
@@ -110,17 +110,17 @@ pub fn get_diff_form_ids(new_esm: &ESMDiff, old_esm: &mut ESMDiff<'_>) -> ESMDif
 
         if let Some(other_record) = old_esm.data_records.get(self_id) {
             if self_record != other_record {
-                result.modified.insert(self_id.clone());
+                result.modified.insert(*self_id);
             } else {
-                result.unchanged.insert(self_id.clone());
+                result.unchanged.insert(*self_id);
             }
             old_esm.data_records.remove(self_id);
         } else {
-            result.additions.insert(self_id.clone());
+            result.additions.insert(*self_id);
         }
     }
 
-    for (leftover, _) in &old_esm.data_records {
+    for leftover in old_esm.data_records.keys() {
         result.deletions.insert(*leftover);
     }
 

@@ -20,11 +20,11 @@ mod dev {
     pub use nom_derive::nom;
     pub use project_wormhole_proc::define_record3;
 
-    pub use super::traits::*;
+    
     pub use super::consts::*;
 
     pub use project_wormhole_shared::structs::fourcc::FourCC;
-    pub use project_wormhole_shared::traits::parse_versioned::ParseVersioned;
+    
     pub use super::structs::record::*;
     pub use super::structs::field::*;
     pub use super::structs::group::*;

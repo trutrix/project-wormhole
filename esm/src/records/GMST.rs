@@ -31,47 +31,47 @@ impl GameSetting {
                 match c {
                     'b' => {
                         let value = raw_value[0] != 0;
-                        return Ok(EGameSettingValue::Boolean(value));
+                        Ok(EGameSettingValue::Boolean(value))
                     }
                     'i' => {
                         let value = i32::from_le_bytes(raw_value[0..4].try_into().unwrap());
-                        return Ok(EGameSettingValue::Integer(value));
+                        Ok(EGameSettingValue::Integer(value))
                     }
                     'f' => {
                         let value = f32::from_le_bytes(raw_value[0..4].try_into().unwrap());
-                        return Ok(EGameSettingValue::Float(value));
+                        Ok(EGameSettingValue::Float(value))
                     }
                     's' | 'S' => {
                         let value = String::from_utf8_lossy(&raw_value[0..]).to_string();
-                        return Ok(EGameSettingValue::String(value));
+                        Ok(EGameSettingValue::String(value))
                     }
                     'c' => {
                         let value = raw_value[0] as char;
-                        return Ok(EGameSettingValue::Char(value));
+                        Ok(EGameSettingValue::Char(value))
                     }
                     'h' => {
                         let value = raw_value[0] as char;
-                        return Ok(EGameSettingValue::HexChar(value));
+                        Ok(EGameSettingValue::HexChar(value))
                     }
                     'u' => {
                         let value = u32::from_le_bytes(raw_value[0..4].try_into().unwrap());
-                        return Ok(EGameSettingValue::UnsignedInt(value));
+                        Ok(EGameSettingValue::UnsignedInt(value))
                     }
                     'r' => {
                         let value = u32::from_le_bytes(raw_value[0..4].try_into().unwrap());
-                        return Ok(EGameSettingValue::RGB(value));
+                        Ok(EGameSettingValue::RGB(value))
                     }
                     'a' => {
                         let value = u32::from_le_bytes(raw_value[0..4].try_into().unwrap());
-                        return Ok(EGameSettingValue::RGBA(value));
+                        Ok(EGameSettingValue::RGBA(value))
                     }
                     _ => {
-                        return Ok(EGameSettingValue::Unknown(c as u8, raw_value.clone()));
+                        Ok(EGameSettingValue::Unknown(c as u8, raw_value.clone()))
                     }
                 }
             }
             None => {
-                return Err(ESMError::GameSetting("GameSetting::get_value() EditorId is empty".to_string()));
+                Err(ESMError::GameSetting("GameSetting::get_value() EditorId is empty".to_string()))
             }
         }
     }
