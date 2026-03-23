@@ -1,9 +1,10 @@
-use crate::{dev::*, groups::prelude::RawTopicChildren};
+use crate::{dev::*, groups::prelude::{RawTopicChildren, TopicChildren}};
 
 
 define_record3! {
     "iden": b"DIAL";
     "name": Dialog;
+    "child_type": TopicChildren;
     "fields": [
         EditorId;
         FullName;
