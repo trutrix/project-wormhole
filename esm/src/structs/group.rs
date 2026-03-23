@@ -20,12 +20,6 @@ pub struct GroupHeader {
 impl Parse<&[u8]> for GroupHeader {
     fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
         let (i, iden) = FourCC::parse(i)?;
-
-        #[cfg(debug_assertions)]
-        if &iden.0 != b"GRUP" {
-             panic!("Invalid group header: {:?}", iden);
-        }
-
         let (i, size) = le_u32(i)?;
         let (i, label) = GroupLabel::parse(i)?;
         let (i, version_control) = VersionControl::parse(i)?;
@@ -82,6 +76,12 @@ impl Parse<&[u8]> for GroupLabel {
 
 pub fn alloc_group(i: &[u8]) -> IResult<&[u8], (GroupHeader, &[u8])> {
     let (i, header) = GroupHeader::parse(i)?;
+
+    #[cfg(debug_assertions)]
+    if &header.iden.0 != b"GRUP" {
+        panic!("Invalid group header: {:?}", header.iden.0);
+    }
+
     let (i, raw) = take(header.size as usize - 24)(i)?;
     Ok((i, (header, raw)))
 }
