@@ -22,7 +22,7 @@ impl EditorIdTrait for GameSetting {
 }
 
 impl GameSetting {
-    fn get_value(&self) -> Result<EGameSettingValue, ESMError> {
+    pub fn get_value(&self) -> Result<EGameSettingValue, ESMError> {
         let edid = &self.data.0;
         let raw_value = &self.data.1;
 
