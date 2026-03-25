@@ -71,15 +71,15 @@ pub fn esm_benchmarks() {
     let (_, esm) = ESMFull::parse_mt(&buf).unwrap();
     println!("ESMFull (Thread Per Group): {:?}", start.elapsed());
 
-    // println!("");
-    // let start = std::time::Instant::now();
-    // let esm = ESMMapped::from(esm);
-    // println!("MappedESM: {:?}", start.elapsed());
-    // println!("Mapped Record count: {}", esm.indices.len());
+    println!("");
+    let start = std::time::Instant::now();
+    let esm = ESMMapped::from(esm);
+    println!("MappedESM: {:?}", start.elapsed());
+    println!("Mapped Record count: {}", esm.indices.len());
 
-    // let start = std::time::Instant::now();
-    // let diff = ESMDiff::parse(&buf).unwrap().1;
-    // println!("ESMDiff: {:?}", start.elapsed());
-    // println!("Diff record count: {}", diff.data_records.len());
-    // println!("Diff cell count: {}", diff.cells.len());
+    let start = std::time::Instant::now();
+    let diff = ESMDiff::parse(&buf).unwrap().1;
+    println!("ESMDiff: {:?}", start.elapsed());
+    println!("Diff record count: {}", diff.data_records.len());
+    println!("Diff cell count: {}", diff.cells.len());
 }
