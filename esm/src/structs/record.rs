@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::process::id;
 use std::{fmt::Debug, io::Read};
 
 
@@ -29,9 +30,12 @@ pub struct RecordHeader {
 impl Parse<&[u8]> for RecordHeader {
     fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
         let (i, iden) = FourCC::parse(i)?;
+        
         let (i, size) = le_u32(i)?;
         let (i, flags) = RecordFlags2::parse(i)?;
         let (i, form_id) = FormId::parse(i)?;
+
+        //if iden.0 == *b"CELL" { println!("Parsing record: {:?} - {:?}", iden, form_id); }
         let (i, version_control) = VersionControl::parse(i)?;
 
         #[cfg(debug_assertions)]

@@ -1,4 +1,4 @@
-use crate::{dev::*, groups::{cell_persistent_children::CellPersistentChildren, cell_temporary_children::CellTemporaryChildren}, records::all::{ActorReference, Landscape, NavigationMesh, PlayerHazard, RecordReference}};
+use crate::{dev::*, groups::{cell_persistent_children::CellPersistentChildren, cell_temporary_children::CellTemporaryChildren}, records::all::{ActorReference, Landscape, NavigationMesh, PlacedGrenade, PlacedMissle, PlayerHazard, RecordReference}};
 
 // ====================================================================================================
 
@@ -15,6 +15,7 @@ pub struct CellChildren {
 impl Parse<&[u8]> for CellChildren {
     fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
 
+        //println!("  Parsing CellChildren...");
         // Parse header and raw data pointer
         let (i, (header, raw)) = alloc_group(i)?;
 
@@ -65,14 +66,16 @@ pub enum CellChildItem {
     Landscape(Landscape),
     ActorReference(ActorReference),
     NavigationMesh(NavigationMesh),
-    PlayerHazard(PlayerHazard)
+    PlayerHazard(PlayerHazard),
+    PlacedGrenade(PlacedGrenade),
+    PlacedMissle(PlacedMissle)
 }
 
 // ====================================================================================================
 
 impl Parse<&[u8]> for CellChildItem {
     fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
-        let (i, header) = RecordHeader::parse(i)?;
+        let (_, header) = RecordHeader::parse(i)?;
 
         match &header.iden.0{
             b"REFR" => {
@@ -95,8 +98,16 @@ impl Parse<&[u8]> for CellChildItem {
                 let (i, phzd) = PlayerHazard::parse(i)?;
                 Ok((i, CellChildItem::PlayerHazard(phzd)))
             }
+            b"PGRE" => {
+                let (i, pgre) = PlacedGrenade::parse(i)?;
+                Ok((i, CellChildItem::PlacedGrenade(pgre)))
+            }
+            b"PMIS" => {
+                let (i, pmis) = PlacedMissle::parse(i)?;
+                Ok((i, CellChildItem::PlacedMissle(pmis)))
+            }
             _ => {
-                panic!("CellChildItem::parse encountered unknown record type: {:?}", header.iden);
+                panic!("CellChildItem::parse encountered unknown record type: {:?}", header);
             }
         }
     }

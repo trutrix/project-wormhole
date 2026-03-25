@@ -13,6 +13,8 @@ pub struct CellPersistentChildren {
 impl Parse<&[u8]> for CellPersistentChildren {
     fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
 
+        //println!("    Parsing persistent children...");
+
         // Parse header and raw data pointer
         let (i, (header, raw)) = alloc_group(i)?;
 

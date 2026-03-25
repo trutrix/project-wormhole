@@ -13,8 +13,12 @@ pub struct CellTemporaryChildren {
 impl Parse<&[u8]> for CellTemporaryChildren {
     fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
 
+        //println!("    Parsing temporary children...");
+
         // Parse header and raw data pointer
         let (i, (header, raw)) = alloc_group(i)?;
+
+        //println!("      Allocated");
 
         // Ensure correct group type - debugging only
         #[cfg(debug_assertions)]

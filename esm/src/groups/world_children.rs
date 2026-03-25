@@ -1,4 +1,4 @@
-use crate::{dev::*, groups::prelude::ExteriorCellBlock, records::all::CellEntry};
+use crate::{dev::*, groups::prelude::ExteriorCellBlock, records::all::Cell};
 
 
 
@@ -6,7 +6,7 @@ use crate::{dev::*, groups::prelude::ExteriorCellBlock, records::all::CellEntry}
 #[derive(Debug)]
 pub struct WorldChildren {
     pub header: GroupHeader,
-    pub cell: CellEntry,
+    pub cell: Cell,
     pub blocks: Vec<ExteriorCellBlock>
 }
 
@@ -26,7 +26,7 @@ impl Parse<&[u8]> for WorldChildren {
         }
     
         // Parse the Cell record inside the WorldChildren group
-        let (raw, cell) = CellEntry::parse(raw)?;
+        let (raw, cell) = Cell::parse(raw)?;
         let (raw, blocks) = many0(ExteriorCellBlock::parse)(raw)?;
 
         #[cfg(debug_assertions)]

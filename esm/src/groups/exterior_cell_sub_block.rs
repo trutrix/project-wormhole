@@ -1,11 +1,11 @@
-use crate::{dev::*, records::all::CellEntry};
+use crate::{dev::*, records::all::Cell};
 
 // ====================================================================================================
 
 #[derive(Debug)]
 pub struct ExteriorCellSubBlock {
     pub header: GroupHeader,
-    pub cells: Vec<CellEntry>
+    pub cells: Vec<Cell>
 }
 
 // ====================================================================================================
@@ -18,7 +18,7 @@ impl Parse<&[u8]> for ExteriorCellSubBlock {
 
         match header.label {
             GroupLabel::ExteriorCellSubBlock(_) => {
-                let (raw, cells) = many0(CellEntry::parse)(raw)?;
+                let (raw, cells) = many0(Cell::parse)(raw)?;
 
                 #[cfg(debug_assertions)]
                 if !raw.is_empty() {

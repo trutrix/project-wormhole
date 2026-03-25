@@ -1,4 +1,4 @@
-use crate::{dev::*, records::all::{Cell, CellEntry}};
+use crate::{dev::*, records::all::Cell};
 
 // ====================================================================================================
 
@@ -7,8 +7,18 @@ pub struct InteriorCellSubBlock(pub Group<Cell>);
 
 impl Parse<&[u8]> for InteriorCellSubBlock {
     fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
-        println!("    Parsing interior cell sub-block...");
+        //println!("    Parsing interior cell sub-block...");
+        let (_, (gh, raw)) = alloc_group(i)?;
+        //println!("      Parsing group: {:?}", gh);
+        let (_, next) = FourCC::parse(raw)?;
+        //println!("      First iden: {:?}", next);
+
+        let (_, first_cell) = Cell::parse(raw)?;
+
+        //println!("        First cell: {:?}", first_cell.record.header);
+
         let (i, items) = Group::<Cell>::parse(i)?;
+        //println!("Finished parsing subblock");
         Ok((i, Self(items)))
     }
 }

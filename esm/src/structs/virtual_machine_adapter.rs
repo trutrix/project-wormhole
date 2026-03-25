@@ -173,6 +173,13 @@ impl Parse<&[u8]> for VMADPropertyEntry {
                 let (i, values) = nom::multi::count(SubStruct::parse, item_count as usize)(i)?;
                 Ok((i, VMADPropertyEntry { name, type_, flags, value: VMADPropertyValue::StructArray(values)}))
             }
+            VMADPropertyType::Var => {
+                // #[cfg(debug_assertions)]
+                // println!("Encountered var");
+                // TODO
+
+                Ok((i, VMADPropertyEntry { name, type_, flags, value: VMADPropertyValue::Var}))
+            }
             _ => {
 
                 #[cfg(debug_assertions)]
@@ -200,6 +207,7 @@ pub enum VMADPropertyValue {
     Float(f32), // 4
     Bool(bool), // 5
     Struct(Box<VMADPropertyEntry>), // 7
+    Var, // 8
     ObjectArray(Vec<FormId>), // 11
     StringArray(Vec<SizedString16>), // 12
     IntArray(Vec<i32>), // 13
