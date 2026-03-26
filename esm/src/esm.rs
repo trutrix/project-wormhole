@@ -47,6 +47,9 @@ impl From<nom::Err<nom::error::Error<&'static[u8]>>> for ESMError {
 
 // ================================================================================
 
-
-
-
+#[derive(Debug, PartialEq)]
+pub enum ESMParseMode {
+    Full,
+    DataOnly,
+    ReferenceOnly,
+}

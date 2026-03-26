@@ -54,32 +54,100 @@ pub fn esm_benchmarks() {
     println!("get_file_chunks2: {:?}", start.elapsed());
     println!("");
 
-    let start = std::time::Instant::now();
-    let (_, esm) = RawESM::parse(&buf).unwrap();
-    println!("RawESM (Single Thread): {:?}", start.elapsed());
-    println!("RawESM record count: {}", esm.records.len());
-    println!("RawESM references count: {}", esm.references.len());
+    // let start = std::time::Instant::now();
+    // let (_, esm) = RawESM::parse(&buf).unwrap();
+    // println!("RawESM (Single Thread): {:?}", start.elapsed());
+    // println!("RawESM record count: {}", esm.records.len());
+    // println!("RawESM references count: {}", esm.references.len());
     //println!("Expected records: {:?}", esm.header.fields);
     //println!("Record count: {}", esm.records.len());
+
+    // println!("");
+    // let start = std::time::Instant::now();
+    // let (_, esm) = ESMFull::parse(&buf).unwrap();
+    // println!("ESMFull (Single Thread): {:?}", start.elapsed());
+
+    // let start = std::time::Instant::now();
+    // let (_, esm) = ESMFull::parse_mt(&buf).unwrap();
+    // println!("ESMFull (Thread Per Group): {:?}", start.elapsed());
+
+    // println!("");
+    // let start = std::time::Instant::now();
+    // let esm = ESMMapped::from(esm);
+    // println!("MappedESM: {:?}", start.elapsed());
+    // println!("Mapped Record count: {}", esm.indices.len());
+
+    // let start = std::time::Instant::now();
+    // let diff = ESMDiff::parse(&buf).unwrap().1;
+    // println!("ESMDiff: {:?}", start.elapsed());
+    // println!("Diff record count: {}", diff.data_records.len());
+    // println!("Diff cell count: {}", diff.cells.len());
+}
+
+
+
+#[test]
+fn esm_full_single() {
+    use std::io::Read;
+
+    let start = std::time::Instant::now();
+    let mut file = std::fs::File::open(ESM_PATH).unwrap();
+    let mut buf = Vec::new();
+    file.read_to_end(&mut buf).unwrap();
 
     println!("");
     let start = std::time::Instant::now();
     let (_, esm) = ESMFull::parse(&buf).unwrap();
     println!("ESMFull (Single Thread): {:?}", start.elapsed());
+}
+
+
+#[test]
+fn esm_full_multi() {
+    use std::io::Read;
 
     let start = std::time::Instant::now();
-    let (_, esm) = ESMFull::parse_mt(&buf).unwrap();
-    println!("ESMFull (Thread Per Group): {:?}", start.elapsed());
+    let mut file = std::fs::File::open(ESM_PATH).unwrap();
+    let mut buf = Vec::new();
+    file.read_to_end(&mut buf).unwrap();
 
     println!("");
     let start = std::time::Instant::now();
-    let esm = ESMMapped::from(esm);
-    println!("MappedESM: {:?}", start.elapsed());
-    println!("Mapped Record count: {}", esm.indices.len());
+    let (_, esm) = ESMFull::parse_mt(&buf).unwrap();
+    println!("ESMFull (Multi Thread): {:?}", start.elapsed());
+}
+
+#[test]
+fn esm_raw_single() {
+    use std::io::Read;
 
     let start = std::time::Instant::now();
-    let diff = ESMDiff::parse(&buf).unwrap().1;
-    println!("ESMDiff: {:?}", start.elapsed());
-    println!("Diff record count: {}", diff.data_records.len());
-    println!("Diff cell count: {}", diff.cells.len());
+    let mut file = std::fs::File::open(ESM_PATH).unwrap();
+    let mut buf = Vec::new();
+    file.read_to_end(&mut buf).unwrap();
+
+    let start = std::time::Instant::now();
+    let (_, esm) = RawESM::parse(&buf).unwrap();
+    println!("");
+    println!("RawESM (Single Thread): {:?}", start.elapsed());
+    println!("RawESM record count: {}", esm.records.len());
+    println!("RawESM references count: {}", esm.references.len());
+}
+
+
+#[test]
+fn esm_raw_multi() {
+    use std::io::Read;
+
+    let start = std::time::Instant::now();
+    let mut file = std::fs::File::open(ESM_PATH).unwrap();
+    let mut buf = Vec::new();
+    file.read_to_end(&mut buf).unwrap();
+
+    let start = std::time::Instant::now();
+    let (_, esm) = RawESM::parse_mt(&buf, crate::esm::ESMParseMode::Full).unwrap();
+    println!("");
+    println!("RawESM (Multi Thread): {:?}", start.elapsed());
+    println!("RawESM record count: {}", esm.records.len());
+    println!("RawESM references count: {}", esm.references.len());
 }
