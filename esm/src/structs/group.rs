@@ -85,7 +85,7 @@ pub fn alloc_group(i: &[u8]) -> IResult<&[u8], (GroupHeader, &[u8])> {
     // If the header is not for a group, it will allocate the chunk incorrectly
     #[cfg(debug_assertions)]
     if &header.iden.0 != b"GRUP" {
-        panic!("Invalid group header: {:?}", header.iden.0);
+        panic!("Invalid group header: {:?}", header.iden);
     }
 
     // Grab the next byte slice

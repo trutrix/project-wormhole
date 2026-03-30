@@ -1,4 +1,4 @@
-use crate::{dev::*, groups::prelude::CellChildren};
+use crate::{dev::*, groups::prelude::CellChildren, prelude::MapContents};
 
 
 define_record3! {
@@ -65,7 +65,6 @@ pub struct GridLocation {
     pub y: u32,
     pub flags: u32
 }
-
 
 // #[derive(Debug)]
 // pub struct CellEntry {

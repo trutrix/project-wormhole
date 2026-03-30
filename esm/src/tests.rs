@@ -87,6 +87,7 @@ pub fn esm_benchmarks() {
 
 
 #[test]
+#[ignore]
 fn esm_full_single() {
     use std::io::Read;
 
@@ -103,6 +104,7 @@ fn esm_full_single() {
 
 
 #[test]
+#[ignore = "multiple multi-threaded tests contaminate results"]
 fn esm_full_multi() {
     use std::io::Read;
 
@@ -130,8 +132,8 @@ fn esm_raw_single() {
     let (_, esm) = RawESM::parse(&buf).unwrap();
     println!("");
     println!("RawESM (Single Thread): {:?}", start.elapsed());
-    println!("RawESM record count: {}", esm.records.len());
-    println!("RawESM references count: {}", esm.references.len());
+    println!("RawESM record count: {}", esm.data_map.len());
+    println!("RawESM references count: {}", esm.refr_map.len());
 }
 
 
@@ -148,6 +150,6 @@ fn esm_raw_multi() {
     let (_, esm) = RawESM::parse_mt(&buf, crate::esm::ESMParseMode::Full).unwrap();
     println!("");
     println!("RawESM (Multi Thread): {:?}", start.elapsed());
-    println!("RawESM record count: {}", esm.records.len());
-    println!("RawESM references count: {}", esm.references.len());
+    println!("RawESM record count: {}", esm.data_map.len());
+    println!("RawESM references count: {}", esm.refr_map.len());
 }

@@ -33,8 +33,8 @@ pub trait FormIdTrait {
 
 pub trait MapContents<M> where Self: Sized {
     #[allow(unused)]
-    fn insert_into_two_maps(self, map1: &mut M, map2: &mut M) { unimplemented!("Called but not defined."); }
+    fn insert_into_two_maps(self, data_map: &mut M, refr_map: &mut M) { unimplemented!("Called but not defined."); }
     #[allow(unused)]
-    fn insert_into_one_map(self, map: &mut M) { unimplemented!("Called but undefined."); }
+    fn insert_into_one_map(self, combined_map: &mut M) { unimplemented!("Called but undefined."); }
     fn generate_maps(self) -> M { unimplemented!("Called but undefined."); }
 }

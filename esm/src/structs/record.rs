@@ -609,26 +609,26 @@ pub struct RawCellRecord<'esm> {
 }
 
 impl<'esm> MapContents<HashMap<FormId, RawRecord<'esm>>> for RawCellRecord<'esm> {
-    fn insert_into_one_map(self, map: &mut HashMap<FormId, RawRecord<'esm>>) {
+    fn insert_into_one_map(self, combined_map: &mut HashMap<FormId, RawRecord<'esm>>) {
         if let Some(children) = self.cell_children {
             for group in children.data {
                 for block in group.data {
-                    map.insert(block.header.form_id, block);
+                    combined_map.insert(block.header.form_id, block);
                 }
             }
         }
-        map.insert(self.cell.header.form_id, self.cell);
+        combined_map.insert(self.cell.header.form_id, self.cell);
     }
 
-    fn insert_into_two_maps(self, map1: &mut HashMap<FormId, RawRecord<'esm>>, map2: &mut HashMap<FormId, RawRecord<'esm>>) {
+    fn insert_into_two_maps(self, data_map: &mut HashMap<FormId, RawRecord<'esm>>, refr_map: &mut HashMap<FormId, RawRecord<'esm>>) {
         if let Some(children) = self.cell_children {
             for group in children.data {
                 for block in group.data {
-                    map2.insert(block.header.form_id, block);
+                    refr_map.insert(block.header.form_id, block);
                 }
             }
         }
-        map1.insert(self.cell.header.form_id, self.cell);
+        data_map.insert(self.cell.header.form_id, self.cell);
     }
 }
 
@@ -688,16 +688,12 @@ impl <'esm> Parse<&'esm[u8]> for RawWorldRecord<'esm>  {
 
         let (_, ghead) = GroupHeader::parse(i)?;
 
-        match ghead.label {
-            GroupLabel::WorldChildren(_) => {
-                let (i, world_children) = RawWorldChildren::parse(i)?;
-                Ok((i, Self { world, world_children: Some(world_children) }))
-            }
-            _ => {
-                Ok((i, Self { world, world_children: None }))
-            }
+        if let GroupLabel::WorldChildren(_) = ghead.label {
+            let (i, world_children) = RawWorldChildren::parse(i)?;
+            Ok((i, Self { world, world_children: Some(world_children) }))
+        } else {
+            Ok((i, Self { world, world_children: None }))
         }
-
     }
 }
 

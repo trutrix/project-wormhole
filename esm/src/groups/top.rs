@@ -1,5 +1,5 @@
 use crate::dev::*;
-use crate::groups::prelude::InteriorCellBlock;
+use crate::groups::prelude::{InteriorCellBlock, RawInteriorCellBlock};
 use crate::records::all::*;
 
 #[derive(Debug)]
@@ -299,6 +299,68 @@ impl Parse<&[u8]> for TopGroup {
             }
         }
 
+
+
+    }
+}
+
+
+// ====================================================================================================
+
+
+#[derive(Debug)]
+pub enum RawTopGroup<'esm> {
+    Common(Vec<RawRecord<'esm>>),
+    Quest(Vec<RawQuestRecord<'esm>>),
+    World(Vec<RawWorldRecord<'esm>>),
+    Cell(Vec<RawInteriorCellBlock<'esm>>)
+}
+
+
+impl<'esm> Parse<&'esm[u8]> for RawTopGroup<'esm> {
+    fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
+        let (i, (gh, raw)) = alloc_group(i)?;
+
+        if &gh.iden.0 != b"GRUP" {
+            panic!("Encountered non-group while parsing RawTopGroup: {:?}", gh.iden);
+        }
+
+        if let GroupLabel::Top(group_iden) = gh.label {
+
+            match &group_iden.0 {
+                b"CELL" => {
+                    let start = std::time::Instant::now();
+                    let (_, cell_group) = many0(RawInteriorCellBlock::parse)(raw)?;
+                    println!("Cells parse time: {:?}", start.elapsed());
+                    Ok((i, Self::Cell(cell_group)))
+                }
+
+                b"WRLD" => {
+                    let start = std::time::Instant::now();
+                    let (_, world_group) = many0(RawWorldRecord::parse)(raw)?;
+                    println!("Worlds parse time: {:?}", start.elapsed());
+                    Ok((i, Self::World(world_group)))
+                }
+
+                b"QUST" => {
+                    let start = std::time::Instant::now();
+                    let (_, quest_group) = many0(RawQuestRecord::parse)(raw)?;
+                    println!("Quests parse time: {:?}", start.elapsed());
+                    Ok((i, Self::Quest(quest_group)))
+                }
+
+                _ => {
+                    let start = std::time::Instant::now();
+                    let (_, common_group) = many0(RawRecord::parse)(raw)?;
+                    //println!("Commons parse time: {:?}", start.elapsed());
+                    Ok((i, Self::Common(common_group)))
+                }
+            }
+
+
+        } else {
+            panic!("Encountered non-top group while parsing RawTopGroup: {:?}", gh.label);
+        }
 
 
     }
