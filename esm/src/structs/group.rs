@@ -153,7 +153,6 @@ impl<'esm, T> Group<T> where T: for<'nom> Parse<&'esm[u8]> {
 
 // ====================================================================================================
 
-
 #[derive(Debug)]
 pub struct RawExteriorCellBlock<'esm> {
     pub header: GroupHeader,
@@ -181,7 +180,6 @@ impl<'esm> Parse<&'esm[u8]> for RawExteriorCellBlock<'esm> {
         Ok((i, Self { header, sub_blocks }))
     }
 }
-
 
 // ====================================================================================================
 
@@ -260,61 +258,62 @@ impl<'esm> Parse<&'esm[u8]> for RawCellTemporaryChildren<'esm> {
     }
 }
 
+// ====================================================================================================
+
+pub type RawCellGroup<'esm> = Group<RawCellRecord<'esm>>;
+
+// #[derive(Debug)]
+// pub struct RawCellGroup<'esm> {
+//     pub header: GroupHeader,
+//     pub cells: Vec<RawCellRecord<'esm>>
+// }
+
+// impl<'esm> Parse<&'esm[u8]> for RawCellGroup<'esm> {
+//     fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
+//         let (i, (header, data)) = alloc_group(i)?;
+//         let (_, cells) = many0(RawCellRecord::parse)(data)?;
+//         Ok((i, Self { header, cells }))
+//     }
+// }
 
 // ====================================================================================================
 
 
+pub type RawWorldGroup<'esm> = Group<RawWorldRecord<'esm>>;
+
+
+// #[derive(Debug)]
+// pub struct RawWorldGroup<'esm> {
+//     pub header: GroupHeader,
+//     pub worlds: Vec<RawWorldRecord<'esm>>
+// }
+
+// impl<'esm> Parse<&'esm[u8]> for RawWorldGroup<'esm> {
+//     fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
+//         let (i, (header, data)) = alloc_group(i)?;
+//         let (_, worlds) = many0(RawWorldRecord::parse)(data)?;
+//         Ok((i, Self { header, worlds }))
+//     }
+// }
 
 // ====================================================================================================
 
-#[derive(Debug)]
-pub struct RawCellGroup<'esm> {
-    pub header: GroupHeader,
-    pub cells: Vec<RawCellRecord<'esm>>
-}
-
-impl<'esm> Parse<&'esm[u8]> for RawCellGroup<'esm> {
-    fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
-        let (i, (header, data)) = alloc_group(i)?;
-        let (_, cells) = many0(RawCellRecord::parse)(data)?;
-        Ok((i, Self { header, cells }))
-    }
-}
-
-// ====================================================================================================
+pub type RawQuestGroup<'esm> = Group<RawQuestRecord<'esm>>;
 
 
+// #[derive(Debug)]
+// pub struct RawQuestGroup<'esm> {
+//     pub header: GroupHeader,
+//     pub quests: Vec<RawQuestRecord<'esm>>
+// }
 
-
-#[derive(Debug)]
-pub struct RawWorldGroup<'esm> {
-    pub header: GroupHeader,
-    pub worlds: Vec<RawWorldRecord<'esm>>
-}
-
-impl<'esm> Parse<&'esm[u8]> for RawWorldGroup<'esm> {
-    fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
-        let (i, (header, data)) = alloc_group(i)?;
-        let (_, worlds) = many0(RawWorldRecord::parse)(data)?;
-        Ok((i, Self { header, worlds }))
-    }
-}
-
-// ====================================================================================================
-
-#[derive(Debug)]
-pub struct RawQuestGroup<'esm> {
-    pub header: GroupHeader,
-    pub quests: Vec<RawQuestRecord<'esm>>
-}
-
-impl<'esm> Parse<&'esm[u8]> for RawQuestGroup<'esm> {
-    fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
-        let (i, (header, data)) = alloc_group(i)?;
-        let (_, quests) = many0(RawQuestRecord::parse)(data)?;
-        Ok((i, Self { header, quests }))
-    }
-}
+// impl<'esm> Parse<&'esm[u8]> for RawQuestGroup<'esm> {
+//     fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
+//         let (i, (header, data)) = alloc_group(i)?;
+//         let (_, quests) = many0(RawQuestRecord::parse)(data)?;
+//         Ok((i, Self { header, quests }))
+//     }
+// }
 
 // ====================================================================================================
 

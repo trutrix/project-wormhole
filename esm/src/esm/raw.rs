@@ -69,7 +69,7 @@ impl<'esm> RawESM<'esm> {
                             println!("Worlds parse time: {:?}", start.elapsed());
                             raw = i;
                             
-                            for world in gw.worlds {
+                            for world in gw.data {
                                 if world.has_children() {
                                     let children = world.world_children.unwrap();
                                     
