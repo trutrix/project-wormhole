@@ -1,4 +1,4 @@
-use crate::{dev::*, groups::prelude::CellChildren, prelude::MapContents};
+use crate::{dev::*, groups::prelude::CellChildren};
 
 
 define_record3! {

@@ -36,7 +36,7 @@ impl Parse<&[u8]> for CellVisibleDistantChildren {
 #[derive(Debug)]
 pub struct RawCellVisibleDistantChildren<'esm> {
     pub header: GroupHeader,
-    pub branches: Vec<RawCellVisibleDistantChild<'esm>>
+    pub items: Vec<RawCellVisibleDistantChild<'esm>>
 }
 
 impl<'esm> Parse<&'esm[u8]> for RawCellVisibleDistantChildren<'esm> {
@@ -51,9 +51,9 @@ impl<'esm> Parse<&'esm[u8]> for RawCellVisibleDistantChildren<'esm> {
             }
         }
 
-        let (_, branches) = many0(RawCellVisibleDistantChild::parse)(data)?;
+        let (_, items) = many0(RawCellVisibleDistantChild::parse)(data)?;
 
-        Ok((i, Self { header, branches }))
+        Ok((i, Self { header, items }))
     }
 }
 

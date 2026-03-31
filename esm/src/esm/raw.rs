@@ -64,9 +64,9 @@ impl<'esm> RawESM<'esm> {
 
                         // Contains WRLD records with accompanying WorldChildren groups
                         b"WRLD" => {
-                            let start = std::time::Instant::now();
+                            //let start = std::time::Instant::now();
                             let (i, gw) = RawWorldGroup::parse(raw)?;
-                            println!("Worlds parse time: {:?}", start.elapsed());
+                            //println!("Worlds parse time: {:?}", start.elapsed());
                             raw = i;
                             
                             for world in gw.data {
@@ -144,11 +144,46 @@ impl<'esm> RawESM<'esm> {
             }
         }).collect();
 
-        for group in &groups {
-            
-        }
+        for group in groups {
+            match group {
+                RawTopGroup::Common(raw_records) => {
+                    for record in raw_records {
 
-        println!("Group count: {}", groups.len());
+                        #[cfg(debug_assertions)]
+                        if let Some(result) = data_map.insert(record.header.form_id, record) {
+                            panic!("A record tried to overwrite itself in the same file. {:?}", result.header);
+                        }
+
+
+                        #[cfg(not(debug_assertions))]
+                        data_map.insert(record.header.form_id, record);
+                    }
+                }
+                RawTopGroup::Quest(raw_quest_records) => {
+
+                    for quest_entry in raw_quest_records {
+                        if let Some(quest_children) = quest_entry.quest_children {
+                            for quest_child in quest_children.items {
+
+                            }
+                        }
+                    }
+
+                }
+                RawTopGroup::World(raw_world_records) => {
+
+                    for world in raw_world_records {
+
+                    }
+
+                }
+                RawTopGroup::Cell(raw_interior_cell_blocks) => {
+                    for block in raw_interior_cell_blocks {
+
+                    }
+                }
+            }
+        }
 
         Ok((i, Self { header, data_map, refr_map }))
     }
