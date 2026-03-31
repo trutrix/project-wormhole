@@ -139,34 +139,17 @@ pub struct Group<T> {
 impl<'esm, T> Parse<&'esm[u8]> for Group<T> where T: for<'nom> Parse<&'esm[u8]> {
     fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
         let (i, (header, data)) = alloc_group(i)?;
-        let (_, records) = many0(T::parse)(data)?;
-        Ok((i, Group { header, data: records }))
+        let (_, data) = Self::parse_with_header(data, header)?;
+        Ok((i, data))
     }
 }
 
-
-
-// ====================================================================================================
-
-
-
-// ====================================================================================================
-
-
-
-
-// ====================================================================================================
-
-
-
-
-
-// ====================================================================================================
-
-pub type CellGroup = Group<InteriorCellBlock>;
-
-
-
+impl<'esm, T> Group<T> where T: for<'nom> Parse<&'esm[u8]> {
+    pub fn parse_with_header(i: &'esm[u8], header: GroupHeader) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
+        let (i, data) = many0(T::parse)(i)?;
+        Ok((i, Group { header, data }))
+    }
+}
 
 // ====================================================================================================
 
