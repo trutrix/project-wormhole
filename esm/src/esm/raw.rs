@@ -164,22 +164,48 @@ impl<'esm> RawESM<'esm> {
                     for quest_entry in raw_quest_records {
                         if let Some(quest_children) = quest_entry.quest_children {
                             for quest_child in quest_children.items {
+                                match quest_child {
+                                    crate::groups::prelude::RawCellVisibleDistantChild::Dialog(raw_dialog) => {
+                                        
+                                    },
+                                    crate::groups::prelude::RawCellVisibleDistantChild::DialogBranch(raw_record) => {
 
+                                    },
+                                    crate::groups::prelude::RawCellVisibleDistantChild::Scene(raw_record) => {
+
+                                    }
+                                }
                             }
                         }
+                        data_map.insert(quest_entry.quest.header.form_id, quest_entry.quest);
                     }
 
                 }
                 RawTopGroup::World(raw_world_records) => {
-
                     for world in raw_world_records {
+                        if world.has_children() {
+                            let children = world.world_children.unwrap();
+                            
+                            data_map.insert(children.cell.cell.header.form_id, children.cell.cell);
 
+                            for block in children.blocks {
+                                for sub_block in block.sub_blocks {
+                                    for cell in sub_block.cells {
+                                        cell.insert_into_two_maps(&mut data_map, &mut refr_map);
+                                    }
+                                }
+                            }
+
+                        }
                     }
-
                 }
                 RawTopGroup::Cell(raw_interior_cell_blocks) => {
                     for block in raw_interior_cell_blocks {
-
+                        for sub_block in block.sub_blocks {
+                            for record in sub_block.data {
+                                record.insert_into_two_maps(&mut data_map, &mut refr_map);
+                            }
+                        }
                     }
                 }
             }
