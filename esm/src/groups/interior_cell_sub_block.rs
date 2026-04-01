@@ -1,4 +1,6 @@
-use crate::{dev::*, records::all::Cell};
+use std::collections::HashMap;
+
+use crate::{dev::*, prelude::MapContents, records::all::Cell};
 
 // ====================================================================================================
 
@@ -44,5 +46,16 @@ impl std::fmt::Display for RawInteriorCellSubBlock<'_> {
 impl std::fmt::Debug for RawInteriorCellSubBlock<'_> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{:?} {} records", self.header, self.data.len())
+    }
+}
+
+// ====================================================================================================
+
+
+impl<'esm> MapContents<HashMap<FormId, RawRecord<'esm>>> for RawInteriorCellSubBlock<'esm> {
+    fn insert_into_one_map(self, combined_map: &mut HashMap<FormId, RawRecord<'esm>>) {
+        for cell in self.data {
+            cell.insert_into_one_map(combined_map);
+        }
     }
 }

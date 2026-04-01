@@ -312,11 +312,7 @@ impl<'esm> ESMRaw<'esm> {
                         }
                         RawTopGroup::Cell(raw_interior_cell_blocks) => {
                             for block in raw_interior_cell_blocks {
-                                for sub_block in block.sub_blocks {
-                                    for record in sub_block.data {
-                                        record.insert_into_one_map(&mut data_map);
-                                    }
-                                }
+                                block.insert_into_one_map(&mut data_map);
                             }
                         }
                     }
