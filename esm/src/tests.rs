@@ -1,7 +1,7 @@
 #![allow(unused)]
 use std::collections::{HashMap, HashSet};
 
-use crate::{esm::{diff::ESMDiff, full::ESMFull, mapped::ESMMapped, raw::RawESM}, records::all::*, structs::{chunk::{SmartChunks, get_file_chunks, get_file_chunks2}}};
+use crate::{esm::{diff::ESMDiff, full::ESMFull, mapped::ESMMapped, raw::{ESMRaw, RawESM}}, records::all::*, structs::chunk::{SmartChunks, get_file_chunks, get_file_chunks2}};
 
 
 const ESM_PATH: &str = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Fallout 4\\Data\\Fallout4.esm";
@@ -138,6 +138,7 @@ fn esm_raw_single() {
 
 
 #[test]
+#[ignore = "obsolete"]
 fn esm_raw_multi() {
     use std::io::Read;
 
@@ -147,9 +148,26 @@ fn esm_raw_multi() {
     file.read_to_end(&mut buf).unwrap();
 
     let start = std::time::Instant::now();
-    let (_, esm) = RawESM::parse_mt(&buf, crate::esm::ESMParseMode::Full).unwrap();
+    let (_, esm) = RawESM::parse_mt(&buf).unwrap();
     println!("");
     println!("RawESM (Multi Thread): {:?}", start.elapsed());
     println!("RawESM record count: {}", esm.data_map.len());
     println!("RawESM references count: {}", esm.refr_map.len());
+}
+
+
+#[test]
+fn esm_raw_2() {
+    use std::io::Read;
+
+    let start = std::time::Instant::now();
+    let mut file = std::fs::File::open(ESM_PATH).unwrap();
+    let mut buf = Vec::new();
+    file.read_to_end(&mut buf).unwrap();
+
+    let start = std::time::Instant::now();
+    let (_, esm) = ESMRaw::parse(&buf).unwrap();
+    println!("");
+    println!("RawESM (Multi Thread): {:?}", start.elapsed());
+    println!("RawESM record count: {}", esm.data_map.len());
 }

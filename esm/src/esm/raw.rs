@@ -122,7 +122,7 @@ impl<'esm> RawESM<'esm> {
 
 
 
-    pub fn parse_mt(i: &'esm[u8], parse_mode: ESMParseMode) -> IResult<&'esm[u8], Self> {
+    pub fn parse_mt(i: &'esm[u8]) -> IResult<&'esm[u8], Self> {
 
         // Initialize maps
         let mut data_map = HashMap::new();
@@ -167,12 +167,14 @@ impl<'esm> RawESM<'esm> {
                                 match quest_child {
                                     crate::groups::prelude::RawCellVisibleDistantChild::Dialog(raw_dialog) => {
                                         
+
+                                        data_map.insert(raw_dialog.record.header.form_id, raw_dialog.record);
                                     },
                                     crate::groups::prelude::RawCellVisibleDistantChild::DialogBranch(raw_record) => {
-
+                                        data_map.insert(raw_record.header.form_id, raw_record);
                                     },
                                     crate::groups::prelude::RawCellVisibleDistantChild::Scene(raw_record) => {
-
+                                        data_map.insert(raw_record.header.form_id, raw_record);
                                     }
                                 }
                             }
@@ -216,3 +218,117 @@ impl<'esm> RawESM<'esm> {
 }
 
 // ====================================================================================================
+
+
+
+pub struct ESMRaw<'esm> {
+    pub header: FileHeader,
+    pub data_map: HashMap<FormId, RawRecord<'esm>>
+}
+
+
+impl<'esm> ESMRaw<'esm> {
+    
+
+    pub fn parse(i: &'esm [u8]) -> IResult<&'esm [u8], Self> {
+
+        // Initialize maps
+        let mut data_map = HashMap::new();
+
+        // Get chunks for multithread
+        let (i, chunks) = get_file_chunks(i)?;
+
+        // Full parse file header
+        let (_, header) = FileHeader::parse(chunks[0].data)?;
+
+        let group_results: Vec<_> = chunks.par_iter().skip(1).map(|x| {
+            RawTopGroup::parse(x.data)
+        }).collect();
+
+        for group_result in group_results {
+            match group_result {
+                Ok((_, group)) => {
+                    match group {
+                        RawTopGroup::Common(raw_records) => {
+                            for record in raw_records {
+
+                                #[cfg(debug_assertions)]
+                                if let Some(result) = data_map.insert(record.header.form_id, record) {
+                                    panic!("A record tried to overwrite itself in the same file. {:?}", result.header);
+                                }
+
+
+                                #[cfg(not(debug_assertions))]
+                                data_map.insert(record.header.form_id, record);
+                            }
+                        }
+                        RawTopGroup::Quest(raw_quest_records) => {
+
+                            for quest_entry in raw_quest_records {
+                                if let Some(quest_children) = quest_entry.quest_children {
+                                    for quest_child in quest_children.items {
+                                        match quest_child {
+                                            crate::groups::prelude::RawCellVisibleDistantChild::Dialog(raw_dialog) => {
+                                
+                                                if let Some(topic_children) = raw_dialog.children {
+                                                    for tc in topic_children.records {
+                                                        data_map.insert(tc.header.form_id, tc);
+                                                    }
+                                                }
+
+
+                                                data_map.insert(raw_dialog.record.header.form_id, raw_dialog.record);
+                                            },
+                                            crate::groups::prelude::RawCellVisibleDistantChild::DialogBranch(raw_record) => {
+                                                data_map.insert(raw_record.header.form_id, raw_record);
+                                            },
+                                            crate::groups::prelude::RawCellVisibleDistantChild::Scene(raw_record) => {
+                                                data_map.insert(raw_record.header.form_id, raw_record);
+                                            }
+                                        }
+                                    }
+                                }
+                                data_map.insert(quest_entry.quest.header.form_id, quest_entry.quest);
+                            }
+
+                        }
+                        RawTopGroup::World(raw_world_records) => {
+                            for world in raw_world_records {
+                                if world.has_children() {
+                                    let children = world.world_children.unwrap();
+                    
+                                    data_map.insert(children.cell.cell.header.form_id, children.cell.cell);
+
+                                    for block in children.blocks {
+                                        for sub_block in block.sub_blocks {
+                                            for cell in sub_block.cells {
+                                                cell.insert_into_one_map(&mut data_map);
+                                            }
+                                        }
+                                    }
+
+                                }
+                            }
+                        }
+                        RawTopGroup::Cell(raw_interior_cell_blocks) => {
+                            for block in raw_interior_cell_blocks {
+                                for sub_block in block.sub_blocks {
+                                    for record in sub_block.data {
+                                        record.insert_into_one_map(&mut data_map);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                Err(_) => { println!("Failed to parse RawTopGroup") }
+            }
+        }
+
+
+
+        Ok((i, Self { header, data_map }))
+    }
+
+
+}
