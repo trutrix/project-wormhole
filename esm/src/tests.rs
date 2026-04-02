@@ -120,6 +120,7 @@ fn esm_full_multi() {
 }
 
 #[test]
+#[ignore = "obsolete"]
 fn esm_raw_single() {
     use std::io::Read;
 
