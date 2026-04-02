@@ -1,8 +1,6 @@
-use std::fmt::Debug;
-
-use crate::groups::prelude::InteriorCellBlock;
 use crate::dev::*;
 use crate::records::all::RawQuestRecord;
+use crate::traits::ValidateData;
 use super::record::VersionControl;
 
 
@@ -25,6 +23,12 @@ impl Parse<&[u8]> for GroupHeader {
         let (i, version_control) = VersionControl::parse(i)?;
 
         Ok((i, GroupHeader { iden, size, label, version_control }))
+    }
+}
+
+impl ValidateData for GroupHeader {
+    fn is_valid(&self) -> bool {
+        &self.iden.0 == b"GRUP"
     }
 }
 
@@ -99,24 +103,24 @@ pub fn alloc_group(i: &[u8]) -> IResult<&[u8], (GroupHeader, &[u8])> {
 // ====================================================================================================
 
 
-pub struct RawGroup<'esm> {
-    pub header: GroupHeader,
-    pub data: Vec<RawRecord<'esm>>
-}
+// pub struct RawGroup<'esm> {
+//     pub header: GroupHeader,
+//     pub data: Vec<RawRecord<'esm>>
+// }
 
-impl<'esm> Parse<&'esm[u8]> for RawGroup<'esm> {
-    fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
-        let (i, (header, data)) = alloc_group(i)?;
-        let (_, records) = many0(RawRecord::parse)(data)?;
-        Ok((i, RawGroup { header, data: records }))
-    }
-}
+// impl<'esm> Parse<&'esm[u8]> for RawGroup<'esm> {
+//     fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
+//         let (i, (header, data)) = alloc_group(i)?;
+//         let (_, records) = many0(RawRecord::parse)(data)?;
+//         Ok((i, RawGroup { header, data: records }))
+//     }
+// }
 
-impl Debug for RawGroup<'_> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "RawGroup {{ header: {:?}, data: [{} bytes] }}", self.header, self.data.len())
-    }
-}
+// impl Debug for RawGroup<'_> {
+//     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+//         write!(f, "RawGroup {{ header: {:?}, data: [{} bytes] }}", self.header, self.data.len())
+//     }
+// }
 
 
 // ====================================================================================================

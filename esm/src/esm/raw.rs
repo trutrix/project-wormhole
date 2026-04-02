@@ -1,8 +1,7 @@
-use std::{collections::HashMap, sync::{Arc, Mutex}};
+use std::collections::HashMap;
+use rayon::prelude::*;
 
-use rayon::{iter::{IndexedParallelIterator, IntoParallelIterator, IntoParallelRefIterator, ParallelIterator}, slice::ParallelSlice};
-
-use crate::{dev::*, esm::ESMParseMode, groups::prelude::{InteriorCellBlock, RawInteriorCellBlock, RawTopGroup}, prelude::MapContents, records::all::FileHeader, structs::chunk::{get_file_chunks, get_file_chunks2}};
+use crate::{dev::*, groups::prelude::{RawInteriorCellBlock, RawTopGroup}, prelude::MapContents, records::all::FileHeader, structs::chunk::get_file_chunks};
 
 
 /// This is a barebones parsing of an ESM file.  
@@ -12,6 +11,7 @@ use crate::{dev::*, esm::ESMParseMode, groups::prelude::{InteriorCellBlock, RawI
 /// More advanced parsing can be built on top of this.
 
 #[derive(Debug)]
+#[deprecated]
 pub struct RawESM<'esm> {
     pub header: FileHeader,
     pub data_map: HashMap<FormId, RawRecord<'esm>>,
@@ -100,7 +100,7 @@ impl<'esm> RawESM<'esm> {
 
                         // Every other group appears to be data records, 
                         _ => {
-                            let (i, rg) = RawGroup::parse(raw)?;
+                            let (i, rg) = Group::<RawRecord>::parse(raw)?;
                             raw = i;
                             for r in rg.data {
                                 records.insert(r.header.form_id, r);

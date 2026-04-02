@@ -350,7 +350,7 @@ impl<'esm> Parse<&'esm[u8]> for RawTopGroup<'esm> {
                 }
 
                 _ => {
-                    let start = std::time::Instant::now();
+                    //let start = std::time::Instant::now();
                     let (_, common_group) = many0(RawRecord::parse)(raw)?;
                     //println!("Commons parse time: {:?}", start.elapsed());
                     Ok((i, Self::Common(common_group)))
