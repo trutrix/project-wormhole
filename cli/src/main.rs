@@ -1,5 +1,6 @@
 use clap::{Parser, Subcommand};
 use project_wormhole_esm::esm::full::ESMFull;
+use project_wormhole_esm::esm::raw::ESMRaw;
 use project_wormhole_esm::esm::{self, mapped::ESMMapped};
 use project_wormhole_esm::prelude::Parse;
 
@@ -69,21 +70,26 @@ fn main() {
             let file_duration = file_start.elapsed();
 
             let parse_start = std::time::Instant::now();
-            let (_, _esm_full_single) = ESMFull::parse(&data).expect("Error parsing ESM file.");
-            let parse_duration_single = parse_start.elapsed();
+            let esm_raw = ESMRaw::parse(&data).unwrap().1;
+            let parse_duration = parse_start.elapsed();
 
-            let parse_start = std::time::Instant::now();
-            let (_, esm_full_multi) = ESMFull::parse_mt(&data).expect("Error parsing ESM file.");
-            let parse_duration_multi = parse_start.elapsed();
+            // let parse_start = std::time::Instant::now();
+            // let (_, _esm_full_single) = ESMFull::parse(&data).expect("Error parsing ESM file.");
+            // let parse_duration_single = parse_start.elapsed();
 
-            let map_start = std::time::Instant::now();
-            let _map = ESMMapped::from(esm_full_multi);
-            let map_duration = map_start.elapsed();
+            // let parse_start = std::time::Instant::now();
+            // let (_, esm_full_multi) = ESMFull::parse_mt(&data).expect("Error parsing ESM file.");
+            // let parse_duration_multi = parse_start.elapsed();
+
+            // let map_start = std::time::Instant::now();
+            // let _map = ESMMapped::from(esm_full_multi);
+            // let map_duration = map_start.elapsed();
 
             println!("File read time: {:?}", file_duration);
-            println!("Parse time (single): {:?}", parse_duration_single);
-            println!("Parse time (multi): {:?}", parse_duration_multi);
-            println!("Mapping time: {:?}", map_duration);
+            println!("Parse time (multi): {:?}", parse_duration);
+            // println!("Parse time (single): {:?}", parse_duration_single);
+            // println!("Parse time (multi): {:?}", parse_duration_multi);
+            // println!("Mapping time: {:?}", map_duration);
         },
 
         TopCommands::Diff { path_a, path_b, threads, report, report_path}=> {

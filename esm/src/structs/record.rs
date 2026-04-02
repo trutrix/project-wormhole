@@ -609,6 +609,7 @@ pub struct RawCellRecord<'esm> {
 }
 
 impl<'esm> MapContents<HashMap<FormId, RawRecord<'esm>>> for RawCellRecord<'esm> {
+    
     fn insert_into_one_map(self, combined_map: &mut HashMap<FormId, RawRecord<'esm>>) {
         if let Some(children) = self.cell_children {
             for group in children.data {

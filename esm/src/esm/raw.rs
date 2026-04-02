@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use rayon::prelude::*;
 
-use crate::{dev::*, groups::prelude::{RawInteriorCellBlock, RawTopGroup}, prelude::MapContents, records::all::FileHeader, structs::chunk::get_file_chunks};
+use crate::{dev::*, groups::prelude::*, prelude::MapContents, records::all::FileHeader, structs::chunk::get_file_chunks};
 
 
 /// This is a barebones parsing of an ESM file.  
@@ -268,7 +268,7 @@ impl<'esm> ESMRaw<'esm> {
                                 if let Some(quest_children) = quest_entry.quest_children {
                                     for quest_child in quest_children.items {
                                         match quest_child {
-                                            crate::groups::prelude::RawCellVisibleDistantChild::Dialog(raw_dialog) => {
+                                            RawCellVisibleDistantChild::Dialog(raw_dialog) => {
                                 
                                                 if let Some(topic_children) = raw_dialog.children {
                                                     for tc in topic_children.records {
@@ -279,10 +279,10 @@ impl<'esm> ESMRaw<'esm> {
 
                                                 data_map.insert(raw_dialog.record.header.form_id, raw_dialog.record);
                                             },
-                                            crate::groups::prelude::RawCellVisibleDistantChild::DialogBranch(raw_record) => {
+                                            RawCellVisibleDistantChild::DialogBranch(raw_record) => {
                                                 data_map.insert(raw_record.header.form_id, raw_record);
                                             },
-                                            crate::groups::prelude::RawCellVisibleDistantChild::Scene(raw_record) => {
+                                            RawCellVisibleDistantChild::Scene(raw_record) => {
                                                 data_map.insert(raw_record.header.form_id, raw_record);
                                             }
                                         }
@@ -294,9 +294,8 @@ impl<'esm> ESMRaw<'esm> {
                         }
                         RawTopGroup::World(raw_world_records) => {
                             for world in raw_world_records {
-                                if world.has_children() {
-                                    let children = world.world_children.unwrap();
-                    
+
+                                if let Some(children) = world.world_children {
                                     data_map.insert(children.cell.cell.header.form_id, children.cell.cell);
 
                                     for block in children.blocks {
@@ -306,7 +305,6 @@ impl<'esm> ESMRaw<'esm> {
                                             }
                                         }
                                     }
-
                                 }
                             }
                         }

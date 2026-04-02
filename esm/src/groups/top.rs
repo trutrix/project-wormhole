@@ -329,23 +329,23 @@ impl<'esm> Parse<&'esm[u8]> for RawTopGroup<'esm> {
 
             match &group_iden.0 {
                 b"CELL" => {
-                    let start = std::time::Instant::now();
+                    //let start = std::time::Instant::now();
                     let (_, cell_group) = many0(RawInteriorCellBlock::parse)(raw)?;
-                    println!("Cells parse time: {:?}", start.elapsed());
+                    //println!("Cells parse time: {:?}", start.elapsed());
                     Ok((i, Self::Cell(cell_group)))
                 }
 
                 b"WRLD" => {
-                    let start = std::time::Instant::now();
+                    //let start = std::time::Instant::now();
                     let (_, world_group) = many0(RawWorldRecord::parse)(raw)?;
-                    println!("Worlds parse time: {:?}", start.elapsed());
+                    //println!("Worlds parse time: {:?}", start.elapsed());
                     Ok((i, Self::World(world_group)))
                 }
 
                 b"QUST" => {
-                    let start = std::time::Instant::now();
+                    //let start = std::time::Instant::now();
                     let (_, quest_group) = many0(RawQuestRecord::parse)(raw)?;
-                    println!("Quests parse time: {:?}", start.elapsed());
+                    //println!("Quests parse time: {:?}", start.elapsed());
                     Ok((i, Self::Quest(quest_group)))
                 }
 
