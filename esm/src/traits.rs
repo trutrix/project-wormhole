@@ -9,3 +9,8 @@ pub mod prelude {
     pub use super::field::*;
     
 }
+
+
+pub trait ValidateData {
+    fn is_valid(&self) -> bool;
+}
