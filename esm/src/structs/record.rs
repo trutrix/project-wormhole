@@ -452,23 +452,26 @@ impl RecordFlags2 {
 
 pub struct RawRecord<'esm> {
     pub header: RecordHeader,
-    pub data: RawRecordData<'esm>,
+    // pub data: RawRecordData<'esm>,
+    pub data: &'esm[u8]
 }
 
 impl<'esm> Parse<&'esm [u8]> for RawRecord<'esm> {
     fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
         let (i, (header, data)) = alloc_record(i)?;
+        Ok((i, Self { header, data }))
 
-        if header.flags.is_compressed() {
-            if let Ok(dec) = decompress_record(data) {
-                Ok((i, Self{ header, data: RawRecordData::Decompressed(dec) }))
-            } else {
-                panic!("Could not decompress record: {:?}", header);
-            }
+        // Old logic
+        // if header.flags.is_compressed() {
+        //     if let Ok(dec) = decompress_record(data) {
+        //         Ok((i, Self{ header, data: RawRecordData::Decompressed(dec) }))
+        //     } else {
+        //         panic!("Could not decompress record: {:?}", header);
+        //     }
             
-        } else {
-            Ok((i, Self{ header, data: RawRecordData::Pointer(data) }))
-        }
+        // } else {
+        //     Ok((i, Self{ header, data: RawRecordData::Pointer(data) }))
+        // }
     }
 }
 
@@ -484,18 +487,19 @@ impl Debug for RawRecord<'_> {
     }
 }
 
-impl RawRecord<'_> {
-    pub fn get_raw_fields(&self) -> IResult<&[u8], Vec<RawField<'_>>, nom::error::Error<&[u8]>> {
-        match &self.data {
-            RawRecordData::Pointer(data) => {
-                many0(RawField::parse)(data)
-            }
-            RawRecordData::Decompressed(data) => {
-                many0(RawField::parse)(data)
-            }
-        }
-    }   
-}
+// Old logic
+// impl RawRecord<'_> {
+//     pub fn get_raw_fields(&self) -> IResult<&[u8], Vec<RawField<'_>>, nom::error::Error<&[u8]>> {
+//         match &self.data {
+//             RawRecordData::Pointer(data) => {
+//                 many0(RawField::parse)(data)
+//             }
+//             RawRecordData::Decompressed(data) => {
+//                 many0(RawField::parse)(data)
+//             }
+//         }
+//     }   
+// }
 
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub enum RawRecordData<'esm> {
