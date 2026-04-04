@@ -1,4 +1,4 @@
-use crate::{dev::*, groups::prelude::ExteriorCellBlock, records::all::Cell};
+use crate::{dev::*, groups::prelude::{ExteriorCellBlock, RawExteriorCellBlock}, records::all::Cell};
 
 
 

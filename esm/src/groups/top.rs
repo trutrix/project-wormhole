@@ -2,6 +2,8 @@ use crate::dev::*;
 use crate::groups::prelude::{InteriorCellBlock, RawInteriorCellBlock};
 use crate::records::all::*;
 
+// ====================================================================================================
+
 #[derive(Debug)]
 pub enum TopGroup {
     Unhandled(Group<RawRecord<'static>>),
@@ -134,6 +136,8 @@ pub enum TopGroup {
     WTHR(WeatherGroup),
     ZOOM(ZoomGroup),
 }
+
+// ====================================================================================================
 
 impl Parse<&[u8]> for TopGroup {
     fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
@@ -316,6 +320,7 @@ pub enum RawTopGroup<'esm> {
     Cell(Vec<RawInteriorCellBlock<'esm>>)
 }
 
+// ====================================================================================================
 
 impl<'esm> Parse<&'esm[u8]> for RawTopGroup<'esm> {
     fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
