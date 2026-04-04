@@ -1,6 +1,7 @@
 use clap::{Parser, ValueEnum};
 use project_wormhole_esm::esm::diff::ESMDiff;
 use project_wormhole_esm::Parse;
+use project_wormhole_esm::esm::raw::ESMRaw;
 
 #[derive(Parser, Debug)]
 #[command(version, about)]
@@ -49,11 +50,11 @@ fn main() {
     let buf2 = std::fs::read(path2).expect("Failed to read ESM2");
 
 
-    let (_, esm1) = ESMDiff::parse(&buf1).expect("Failed to parse ESM1");
-    let (_, mut esm2) = ESMDiff::parse(&buf2).expect("Failed to parse ESM2");
+    let (_, esm1) = ESMRaw::parse(&buf1).expect("Failed to parse ESM1");
+    let (_, mut esm2) = ESMRaw::parse(&buf2).expect("Failed to parse ESM2");
 
-    let diff = project_wormhole_esm::esm::diff::get_diff_form_ids(&esm1, &mut esm2);
+    let diff = project_wormhole_esm::esm::raw::esm_raw_diff(esm1, esm2);
 
-    diff.print_summary();
+    
 }
 

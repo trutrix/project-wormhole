@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::{HashMap, HashSet}, hash::Hasher};
 use rayon::prelude::*;
 
 use crate::{dev::*, groups::prelude::*, prelude::MapContents, records::all::FileHeader, structs::chunk::get_file_chunks};
@@ -241,7 +241,6 @@ pub struct ESMRaw<'esm> {
 
 impl<'esm> ESMRaw<'esm> {
     
-
     pub fn parse(i: &'esm [u8]) -> IResult<&'esm [u8], Self> {
 
         // Initialize maps
@@ -335,6 +334,38 @@ impl<'esm> ESMRaw<'esm> {
 
         Ok((i, Self { header, data_map }))
     }
+
+
+}
+
+// ====================================================================================================
+
+pub fn esm_raw_diff(orig: ESMRaw<'_>, incoming: ESMRaw<'_>) {
+
+    let mut unchanged = HashSet::new();
+    let mut changed = HashSet::new();
+    
+
+    for (orig_id, orig_record) in &orig.data_map {
+
+        if let Some(new_record) = incoming.data_map.get(orig_id) {
+            
+            if orig_record == new_record {
+                unchanged.insert(orig_id);
+            } else {
+                changed.insert(orig_id);
+            }
+
+        } else {
+            unchanged.insert(orig_id);
+        }
+    }
+
+    let fresh = incoming.data_map.len() - (unchanged.len() + changed.len());
+
+    println!("Changed: {:?}", changed.len());
+    println!("Same: {:?}", unchanged.len());
+    println!("Fresh: {:?}", fresh);
 
 
 }
