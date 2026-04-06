@@ -1,5 +1,5 @@
 use crate::dev::*;
-use crate::records::all::RawQuestRecord;
+use crate::records::all::{RawQuestItem, RawQuestRecord};
 use crate::traits::ValidateData;
 use super::record::VersionControl;
 
@@ -45,10 +45,10 @@ pub enum GroupLabel {
     ExteriorCellBlock([i16;2]),
     ExteriorCellSubBlock([i16;2]),
     CellChildren(FormId),
-    TopicChildren(u32),
-    CellPersistentChildren(u32),
-    CellTemporaryChildren(u32),
-    CellVisibleDistantChildren(u32),
+    TopicChildren(FormId),
+    CellPersistentChildren(FormId),
+    CellTemporaryChildren(FormId),
+    CellVisibleDistantChildren(FormId),
     Unknown(FourCC)
 }
 
@@ -65,10 +65,10 @@ impl Parse<&[u8]> for GroupLabel {
             4 => { Ok((i, GroupLabel::ExteriorCellBlock([i16::from_le_bytes(data.0[0..2].try_into().unwrap()), i16::from_le_bytes(data.0[2..4].try_into().unwrap())]))) }
             5 => { Ok((i, GroupLabel::ExteriorCellSubBlock([i16::from_le_bytes(data.0[0..2].try_into().unwrap()), i16::from_le_bytes(data.0[2..4].try_into().unwrap())]))) }
             6 => { Ok((i, GroupLabel::CellChildren(FormId(u32::from_le_bytes(data.0))))) }
-            7 => { Ok((i, GroupLabel::TopicChildren(u32::from_le_bytes(data.0)))) }
-            8 => { Ok((i, GroupLabel::CellPersistentChildren(u32::from_le_bytes(data.0)))) }
-            9 => { Ok((i, GroupLabel::CellTemporaryChildren(u32::from_le_bytes(data.0)))) }
-            10 => { Ok((i, GroupLabel::CellVisibleDistantChildren(u32::from_le_bytes(data.0)))) }
+            7 => { Ok((i, GroupLabel::TopicChildren(FormId(u32::from_le_bytes(data.0))))) }
+            8 => { Ok((i, GroupLabel::CellPersistentChildren(FormId(u32::from_le_bytes(data.0))))) }
+            9 => { Ok((i, GroupLabel::CellTemporaryChildren(FormId(u32::from_le_bytes(data.0))))) }
+            10 => { Ok((i, GroupLabel::CellVisibleDistantChildren(FormId(u32::from_le_bytes(data.0))))) }
             _ => { Ok((i, GroupLabel::Unknown(data))) }
         }
     }
@@ -227,7 +227,7 @@ pub type RawWorldGroup<'esm> = Group<RawWorldRecord<'esm>>;
 
 // ====================================================================================================
 
-pub type RawQuestGroup<'esm> = Group<RawQuestRecord<'esm>>;
+pub type RawQuestGroup<'esm> = Group<RawQuestItem<'esm>>;
 
 
 // #[derive(Debug)]

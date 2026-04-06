@@ -40,31 +40,58 @@ impl<'esm> Parse<&'esm[u8]> for RawDialog<'esm> {
     fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
         let (i, record) = RawRecord::parse(i)?;
 
-        if record.header.iden.0 != *b"DIAL" {
-            panic!("Encounterd non Dialog header: {:?}:", record.header);
-        }
-        
-        if i.is_empty() {
-            return Ok((i, Self { record, children: None }));
-        }
+        if !i.is_empty() {
 
-        let (_, next_id) = FourCC::parse(i)?;
+            let (_, gh) = GroupHeader::parse(i)?;
 
-        if next_id.0 != *b"GRUP" {
-            return Ok((i, Self { record, children: None }));
-        }
-
-        let (_, next_header) = GroupHeader::parse(i)?;
-
-        match next_header.label {
-            GroupLabel::TopicChildren(_) => {
-                let (i, children) = RawTopicChildren::parse(i)?;
-                Ok((i, Self { record, children: Some(children) }))
-            }
-            _ => {
+            // Almost always this is the last record with no children
+            if let GroupLabel::Top(_) = gh.label {
                 Ok((i, Self { record, children: None }))
+            } else if let GroupLabel::TopicChildren(_form_id) = gh.label {
+                let (i, children) = RawTopicChildren::parse(i)?;
+
+                Ok((i, Self { record, children: Some(children) }))
+
+
+            } else {
+                if &gh.iden.0 != b"GRUP" {
+                    Ok((i, Self { record, children: None }))
+                } else {
+                    panic!("Encountered unexpected group label after Dialog record: {:?}", gh);
+                }
             }
+
+
+
+        } else {
+            Ok((i, Self { record, children: None }))
         }
+
+        // if record.header.iden.0 != *b"DIAL" {
+        //     panic!("Encounterd non Dialog header: {:?}:", record.header);
+        // }
+        
+        // if i.is_empty() {
+        //     return Ok((i, Self { record, children: None }));
+        // }
+
+        // let (_, next_id) = FourCC::parse(i)?;
+
+        // if next_id.0 != *b"GRUP" {
+        //     return Ok((i, Self { record, children: None }));
+        // }
+
+        // let (_, next_header) = GroupHeader::parse(i)?;
+
+        // match next_header.label {
+        //     GroupLabel::TopicChildren(_) => {
+        //         let (i, children) = RawTopicChildren::parse(i)?;
+        //         Ok((i, Self { record, children: Some(children) }))
+        //     }
+        //     _ => {
+        //         Ok((i, Self { record, children: None }))
+        //     }
+        // }
 
     }
 }

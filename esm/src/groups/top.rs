@@ -315,7 +315,7 @@ impl Parse<&[u8]> for TopGroup {
 #[derive(Debug)]
 pub enum RawTopGroup<'esm> {
     Common(Vec<RawRecord<'esm>>),
-    Quest(Vec<RawQuestRecord<'esm>>),
+    Quest(Vec<RawQuestItem<'esm>>),
     World(Vec<RawWorldRecord<'esm>>),
     Cell(Vec<RawInteriorCellBlock<'esm>>)
 }
@@ -330,7 +330,12 @@ impl<'esm> Parse<&'esm[u8]> for RawTopGroup<'esm> {
             panic!("Encountered non-group while parsing RawTopGroup: {:?}", gh.iden);
         }
 
+        
+
         if let GroupLabel::Top(group_iden) = gh.label {
+
+            // #[cfg(debug_assertions)]
+            // println!("Parsing TopGroup: {:?}", gh.label);
 
             match &group_iden.0 {
                 b"CELL" => {
@@ -349,7 +354,8 @@ impl<'esm> Parse<&'esm[u8]> for RawTopGroup<'esm> {
 
                 b"QUST" => {
                     //let start = std::time::Instant::now();
-                    let (_, quest_group) = many0(RawQuestRecord::parse)(raw)?;
+                    //println!(" Parsing QUST group...");
+                    let (_, quest_group) = many0(RawQuestItem::parse)(raw)?;
                     //println!("Quests parse time: {:?}", start.elapsed());
                     Ok((i, Self::Quest(quest_group)))
                 }

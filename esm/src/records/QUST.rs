@@ -16,43 +16,92 @@ define_record3! {
 // ====================================================================================================
 
 #[derive(Debug)]
+pub enum RawQuestItem<'esm> {
+    Record(RawRecord<'esm>),
+    Children(RawCellVisibleDistantChildren<'esm>)
+}
+
+// ====================================================================================================
+
+impl<'esm> Parse<&'esm[u8]> for RawQuestItem<'esm> {
+    fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
+        
+        let (_, next_id) = FourCC::parse(i)?;
+
+        if &next_id.0 == b"GRUP" {
+
+            let (i, children) = RawCellVisibleDistantChildren::parse(i)?;
+            Ok((i, RawQuestItem::Children(children)))
+
+        } else {
+
+            let (i, record) = RawRecord::parse(i)?;
+            Ok((i, RawQuestItem::Record(record)))
+        }
+    }
+}
+
+// ====================================================================================================
+
+#[derive(Debug)]
 pub struct RawQuestRecord<'esm> {
-    pub quest: RawRecord<'esm>,
-    pub quest_children: Option<RawCellVisibleDistantChildren<'esm>>
+    pub record: RawRecord<'esm>,
+    pub children: Option<RawCellVisibleDistantChildren<'esm>>
 }
 impl RawQuestRecord<'_> {
     pub fn has_children(&self) -> bool {
-        self.quest_children.is_some()
+        self.children.is_some()
     }
 }
 
-impl <'esm> Parse<&'esm[u8]> for RawQuestRecord<'esm>  {
-    fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self> {
-
-
-        // Parse the quest record first
-        let (i, quest) = RawRecord::parse(i)?;
+// impl <'esm> Parse<&'esm[u8]> for RawQuestRecord<'esm>  {
+//     fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self> {
         
-        // If the next thing isn't a group, return immediately
-        let (_, next_id) = FourCC::parse(i)?;
-        if &next_id.0 != b"GRUP" {
-            return Ok((i, Self { quest, quest_children: None }));
-        }
+//         // TODO: NEED TO FIX, NON-ORIGIN groups can appear without their parent (yikes)
 
-        // Treat next as a group and check if it belongs to this quest record
-        let (_, ghead) = GroupHeader::parse(i)?;
-        match ghead.label {
-            GroupLabel::CellVisibleDistantChildren(_) => {
-                let (i, quest_children) = RawCellVisibleDistantChildren::parse(i)?;
-                Ok((i, Self { quest, quest_children: Some(quest_children) }))
-            }
-            _ => {
-                //panic!("Wrong group after quest: {:?}", ghead);
-                Ok((i, Self { quest, quest_children: None }))
-            }
-        }
-    }
-}
+//         let (_, next_id) = FourCC::parse(i)?;
+
+//         // Assume that the group is here by itself
+//         if &next_id.0 == b"GRUP" {
+
+//             let (i, children) = RawCellVisibleDistantChildren::parse(i)?;
+
+//         } else {
+
+//             let (i, record) = RawRecord::parse(i)?;
+
+//         }
 
 
-// ====================================================================================================
+//         if !i.is_empty() {
+//             println!("  Parsing after quest...");
+//             let (_, gh) = GroupHeader::parse(i)?;
+
+//             // Almost always this is the last record with no children
+//             if let GroupLabel::Top(_) = gh.label {
+//                 Ok((i, Self { record, children: None }))
+//             } else if let GroupLabel::CellVisibleDistantChildren(_form_id) = gh.label {
+//                 let (i, children) = RawCellVisibleDistantChildren::parse(i)?;
+
+//                 Ok((i, Self { record, children: Some(children) }))
+
+
+//             } else {
+//                 if &gh.iden.0 != b"GRUP" {
+//                     Ok((i, Self { record, children: None }))
+//                 } else {
+//                     panic!("Encountered unexpected group label after Quest record: {:?}", gh);
+//                 }
+//             }
+
+
+
+//         } else {
+//             println!("Data after quest is empty: {:?}", record.header);
+//             Ok((i, Self { record, children: None }))
+//         }
+//     }
+// }
+
+
+// // ====================================================================================================

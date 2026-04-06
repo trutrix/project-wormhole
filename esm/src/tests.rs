@@ -1,33 +1,13 @@
 #![allow(unused)]
-use std::collections::{HashMap, HashSet};
+use std::{collections::{HashMap, HashSet}, fs::File, path::PathBuf, str::FromStr};
 
-use crate::{esm::{diff::ESMDiff, full::ESMFull, mapped::ESMMapped, raw::{ESMRaw, RawESM}}, records::all::*, structs::chunk::{SmartChunks, get_file_chunks, get_file_chunks2}};
+use crate::{esm::{diff::ESMDiff, full::ESMFull, mapped::ESMMapped, raw::{ESMRaw}}, records::all::*, structs::chunk::{SmartChunks, get_file_chunks, get_file_chunks2}};
 
 
 const ESM_PATH: &str = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Fallout 4\\Data\\Fallout4.esm";
-
-#[test]
-#[ignore = "disabled"]
-fn test1() {
-    use crate::esm::*;
-    use crate::dev::*;
-    use std::io::Read;
+const ESM_DIR: &str = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Fallout 4\\Data";
 
 
-    let start = std::time::Instant::now();
-    let mut file = std::fs::File::open(ESM_PATH).unwrap();
-    let mut buf = Vec::new();
-    file.read_to_end(&mut buf).unwrap();
-
-    println!("File loaded into memory in: {:?}", start.elapsed());
-
-
-    let start = std::time::Instant::now();
-    //let esm = SmartESM::parse_complete(&buf).unwrap();
-    let (_, esm) = RawESM::parse(&buf).unwrap();
-    println!("Parsed esm in: {:?}", start.elapsed());
-
-}
 
 
 #[test]
@@ -119,45 +99,46 @@ fn esm_full_multi() {
     println!("ESMFull (Multi Thread): {:?}", start.elapsed());
 }
 
+// #[test]
+// #[ignore = "obsolete"]
+// fn esm_raw_single() {
+//     use std::io::Read;
+
+//     let start = std::time::Instant::now();
+//     let mut file = std::fs::File::open(ESM_PATH).unwrap();
+//     let mut buf = Vec::new();
+//     file.read_to_end(&mut buf).unwrap();
+
+//     let start = std::time::Instant::now();
+//     let (_, esm) = RawESM::parse(&buf).unwrap();
+//     println!("");
+//     println!("RawESM (Single Thread): {:?}", start.elapsed());
+//     println!("RawESM record count: {}", esm.data_map.len());
+//     println!("RawESM references count: {}", esm.refr_map.len());
+// }
+
+
+// #[test]
+// #[ignore = "obsolete"]
+// fn esm_raw_multi() {
+//     use std::io::Read;
+
+//     let start = std::time::Instant::now();
+//     let mut file = std::fs::File::open(ESM_PATH).unwrap();
+//     let mut buf = Vec::new();
+//     file.read_to_end(&mut buf).unwrap();
+
+//     let start = std::time::Instant::now();
+//     let (_, esm) = RawESM::parse_mt(&buf).unwrap();
+//     println!("");
+//     println!("RawESM (Multi Thread): {:?}", start.elapsed());
+//     println!("RawESM record count: {}", esm.data_map.len());
+//     println!("RawESM references count: {}", esm.refr_map.len());
+// }
+
+
 #[test]
-#[ignore = "obsolete"]
-fn esm_raw_single() {
-    use std::io::Read;
-
-    let start = std::time::Instant::now();
-    let mut file = std::fs::File::open(ESM_PATH).unwrap();
-    let mut buf = Vec::new();
-    file.read_to_end(&mut buf).unwrap();
-
-    let start = std::time::Instant::now();
-    let (_, esm) = RawESM::parse(&buf).unwrap();
-    println!("");
-    println!("RawESM (Single Thread): {:?}", start.elapsed());
-    println!("RawESM record count: {}", esm.data_map.len());
-    println!("RawESM references count: {}", esm.refr_map.len());
-}
-
-
-#[test]
-#[ignore = "obsolete"]
-fn esm_raw_multi() {
-    use std::io::Read;
-
-    let start = std::time::Instant::now();
-    let mut file = std::fs::File::open(ESM_PATH).unwrap();
-    let mut buf = Vec::new();
-    file.read_to_end(&mut buf).unwrap();
-
-    let start = std::time::Instant::now();
-    let (_, esm) = RawESM::parse_mt(&buf).unwrap();
-    println!("");
-    println!("RawESM (Multi Thread): {:?}", start.elapsed());
-    println!("RawESM record count: {}", esm.data_map.len());
-    println!("RawESM references count: {}", esm.refr_map.len());
-}
-
-
-#[test]
+#[ignore = "enable when needed"]
 fn esm_raw_2() {
     use std::io::Read;
 
@@ -167,8 +148,70 @@ fn esm_raw_2() {
     file.read_to_end(&mut buf).unwrap();
 
     let start = std::time::Instant::now();
-    let (_, esm) = ESMRaw::parse(&buf).unwrap();
+    let (_, esm) = ESMRaw::parse_mt(&buf).unwrap();
     println!("");
     println!("RawESM (Multi Thread): {:?}", start.elapsed());
     println!("RawESM record count: {}", esm.data_map.len());
+}
+
+
+#[test]
+fn test_all_esm_in_dir() {
+    use std::io::Read;
+
+    let entries = std::fs::read_dir(ESM_DIR).expect("Could not open directory.");
+
+    for entry in entries {
+
+        if let Ok(de) = entry {
+
+            if de.path().extension().is_some_and(|f| {
+                f == "esm" || f == "esp" || f == "esl"
+            }) {
+
+            if let Ok(mut file) = File::open(de.path()) {
+
+                let mut buf = Vec::new();
+
+                if let Ok(file_size) = file.read_to_end(&mut buf) {
+
+                    let start = std::time::Instant::now();
+
+                    if let Ok(esm) = ESMRaw::parse_st(&buf) {
+                        println!("Parse success: {:?} in {:?}", de.path().file_name(), start.elapsed());
+                        println!(" Map length: {:?}", esm.1.data_map.len());
+                    } else {
+                        println!("Parse failure: {:?}", de.path().file_name());
+                    }
+
+
+                } else {
+                    println!("Could not READ file: {:?}", de.path().file_name());
+                }
+            } else {
+                println!("Could not OPEN file: {:?}", de.path().file_name());
+            }
+
+            } else {
+                // Not needed
+                //println!("Skipping file: {:?}", de.path().file_name());
+            }
+        } else {
+            println!("{:?}", entry);
+        }
+
+        // let start = std::time::Instant::now();
+        // let mut file = std::fs::File::open(ESM_PATH).unwrap();
+        // let mut buf = Vec::new();
+        // file.read_to_end(&mut buf).unwrap();
+
+        // let start = std::time::Instant::now();
+        // let (_, esm) = ESMRaw::parse(&buf).unwrap();
+        // println!("");
+        // println!("RawESM (Multi Thread): {:?}", start.elapsed());
+        // println!("RawESM record count: {}", esm.data_map.len());
+    }
+
+
+    
 }
