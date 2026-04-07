@@ -37,10 +37,10 @@ impl Parse<&[u8]> for RecordHeader {
         //if iden.0 == *b"CELL" { println!("Parsing record: {:?} - {:?}", iden, form_id); }
         let (i, version_control) = VersionControl::parse(i)?;
 
-        #[cfg(debug_assertions)]
-        if !version_control.timestamp.is_null() && version_control.timestamp.month() < 1 {
-            panic!("{:?} - {:?} - {:?} - {:?} - {:?}", iden, size, flags, form_id, version_control);
-        }
+        // #[cfg(debug_assertions)]
+        // if !version_control.timestamp.is_null() && version_control.timestamp.month() < 1 {
+        //     panic!("{:?} - {:?} - {:?} - {:?} - {:?}", iden, size, flags, form_id, version_control);
+        // }
 
         Ok((i, Self { iden, size, flags, form_id, version_control }))
     }
@@ -105,7 +105,7 @@ impl ESMTimestamp {
 
 impl std::fmt::Debug for ESMTimestamp {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:04}/{:02}/{:02}", self.year() + 2000, self.month(), self.day())
+        write!(f, "{:04}/{:02}/{:02}", self.year(), self.month(), self.day())
     }
 }
 
