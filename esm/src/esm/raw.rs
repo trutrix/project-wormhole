@@ -465,7 +465,7 @@ pub fn esm_raw_diff(orig: ESMRaw<'_>, incoming: ESMRaw<'_>) {
         }
     }
 
-    let fresh = incoming.data_map.len() - (unchanged.len() + changed.len());
+    let fresh = incoming.data_map.len().checked_sub((unchanged.len() + changed.len()));
 
     println!("Changed: {:?}", changed.len());
     println!("Same: {:?}", unchanged.len());
