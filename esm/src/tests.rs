@@ -5,8 +5,8 @@ use crate::{esm::{diff::ESMDiff, full::ESMFull, mapped::ESMMapped, raw::{ESMRaw}
 
 
 const ESM_PATH: &str = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Fallout 4\\Data\\Fallout4.esm";
-const ESM_DIR: &str = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Fallout 4\\Data";
-
+const FO4_DATA_DIR: &str = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Fallout 4\\Data";
+const FNV_DATA_DIR: &str = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Fallout New Vegas\\Data";
 
 
 
@@ -156,10 +156,10 @@ fn esm_raw_2() {
 
 
 #[test]
-fn test_all_esm_in_dir() {
+fn test_all_fo4() {
     use std::io::Read;
 
-    let entries = std::fs::read_dir(ESM_DIR).expect("Could not open directory.");
+    let entries = std::fs::read_dir(FO4_DATA_DIR).expect("Could not open directory.");
 
     for entry in entries {
 
@@ -199,19 +199,54 @@ fn test_all_esm_in_dir() {
         } else {
             println!("{:?}", entry);
         }
-
-        // let start = std::time::Instant::now();
-        // let mut file = std::fs::File::open(ESM_PATH).unwrap();
-        // let mut buf = Vec::new();
-        // file.read_to_end(&mut buf).unwrap();
-
-        // let start = std::time::Instant::now();
-        // let (_, esm) = ESMRaw::parse(&buf).unwrap();
-        // println!("");
-        // println!("RawESM (Multi Thread): {:?}", start.elapsed());
-        // println!("RawESM record count: {}", esm.data_map.len());
     }
+}
 
 
-    
+
+#[test]
+fn test_all_fnv() {
+    use std::io::Read;
+
+    let entries = std::fs::read_dir(FNV_DATA_DIR).expect("Could not open directory.");
+
+    for entry in entries {
+
+        if let Ok(de) = entry {
+
+            if de.path().extension().is_some_and(|f| {
+                f == "esm" || f == "esp" || f == "esl"
+            }) {
+
+            if let Ok(mut file) = File::open(de.path()) {
+
+                let mut buf = Vec::new();
+
+                if let Ok(file_size) = file.read_to_end(&mut buf) {
+
+                    let start = std::time::Instant::now();
+
+                    if let Ok(esm) = ESMRaw::parse_st(&buf) {
+                        println!("Parse success: {:?} in {:?}", de.path().file_name(), start.elapsed());
+                        println!(" Map length: {:?}", esm.1.data_map.len());
+                    } else {
+                        println!("Parse failure: {:?}", de.path().file_name());
+                    }
+
+
+                } else {
+                    println!("Could not READ file: {:?}", de.path().file_name());
+                }
+            } else {
+                println!("Could not OPEN file: {:?}", de.path().file_name());
+            }
+
+            } else {
+                // Not needed
+                //println!("Skipping file: {:?}", de.path().file_name());
+            }
+        } else {
+            println!("{:?}", entry);
+        }
+    }
 }
