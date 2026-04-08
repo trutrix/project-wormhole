@@ -1,11 +1,8 @@
 use crate::dev::*;
-use crate::records::all::{RawQuestItem, RawQuestRecord};
 use crate::traits::ValidateData;
 use super::record::VersionControl;
 
-
 // ====================================================================================================
-
 
 #[derive(Debug)]
 pub struct GroupHeader {
@@ -14,6 +11,8 @@ pub struct GroupHeader {
     pub label: GroupLabel, // 8 bytes, reversed process
     pub version_control: VersionControl // TODO: Unsure if records and groups share the same version information
 }
+
+// ====================================================================================================
 
 impl Parse<&[u8]> for GroupHeader {
     fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
@@ -26,15 +25,15 @@ impl Parse<&[u8]> for GroupHeader {
     }
 }
 
+// ====================================================================================================
+
 impl ValidateData for GroupHeader {
     fn is_valid(&self) -> bool {
         &self.iden.0 == b"GRUP"
     }
 }
 
-
 // ====================================================================================================
-
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum GroupLabel {
@@ -51,6 +50,8 @@ pub enum GroupLabel {
     CellVisibleDistantChildren(FormId),
     Unknown(FourCC)
 }
+
+// ====================================================================================================
 
 impl Parse<&[u8]> for GroupLabel {
     fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
@@ -73,7 +74,6 @@ impl Parse<&[u8]> for GroupLabel {
         }
     }
 }
-
 
 // ====================================================================================================
 
@@ -99,32 +99,7 @@ pub fn alloc_group(i: &[u8]) -> IResult<&[u8], (GroupHeader, &[u8])> {
     Ok((i, (header, raw)))
 }
 
-
 // ====================================================================================================
-
-
-// pub struct RawGroup<'esm> {
-//     pub header: GroupHeader,
-//     pub data: Vec<RawRecord<'esm>>
-// }
-
-// impl<'esm> Parse<&'esm[u8]> for RawGroup<'esm> {
-//     fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
-//         let (i, (header, data)) = alloc_group(i)?;
-//         let (_, records) = many0(RawRecord::parse)(data)?;
-//         Ok((i, RawGroup { header, data: records }))
-//     }
-// }
-
-// impl Debug for RawGroup<'_> {
-//     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-//         write!(f, "RawGroup {{ header: {:?}, data: [{} bytes] }}", self.header, self.data.len())
-//     }
-// }
-
-
-// ====================================================================================================
-
 
 #[derive(Debug)]
 pub struct Group<T> {
@@ -132,13 +107,7 @@ pub struct Group<T> {
     pub data: Vec<T>
 }
 
-// impl<T> Parse<&[u8]> for Group<T> where T: for<'nom> Parse<&'nom[u8]> {
-//     fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
-//         let (i, (header, data)) = alloc_group(i)?;
-//         let (_, records) = many0(T::parse)(data)?;
-//         Ok((i, Group { header, data: records }))
-//     }
-// }
+// ====================================================================================================
 
 impl<'esm, T> Parse<&'esm[u8]> for Group<T> where T: for<'nom> Parse<&'esm[u8]> {
     fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
@@ -148,101 +117,11 @@ impl<'esm, T> Parse<&'esm[u8]> for Group<T> where T: for<'nom> Parse<&'esm[u8]> 
     }
 }
 
+// ====================================================================================================
+
 impl<'esm, T> Group<T> where T: for<'nom> Parse<&'esm[u8]> {
     pub fn parse_with_header(i: &'esm[u8], header: GroupHeader) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
         let (i, data) = many0(T::parse)(i)?;
         Ok((i, Group { header, data }))
     }
 }
-
-// ====================================================================================================
-
-#[derive(Debug)]
-pub struct RawCellPersistantChildren<'esm> {
-    pub header: GroupHeader,
-    pub data: &'esm [u8]
-}
-
-impl<'esm> Parse<&'esm[u8]> for RawCellPersistantChildren<'esm> {
-    fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
-        let (i, (header, data)) = alloc_group(i)?;
-        Ok((i, Self { header, data }))
-    }
-}
-
-
-// ====================================================================================================
-
-
-#[derive(Debug)]
-pub struct RawCellTemporaryChildren<'esm> {
-    pub header: GroupHeader,
-    pub data: &'esm [u8]
-}
-
-impl<'esm> Parse<&'esm[u8]> for RawCellTemporaryChildren<'esm> {
-    fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
-        let (i, (header, data)) = alloc_group(i)?;
-        Ok((i, Self { header, data }))
-    }
-}
-
-// ====================================================================================================
-
-pub type RawCellGroup<'esm> = Group<RawCellRecord<'esm>>;
-
-// #[derive(Debug)]
-// pub struct RawCellGroup<'esm> {
-//     pub header: GroupHeader,
-//     pub cells: Vec<RawCellRecord<'esm>>
-// }
-
-// impl<'esm> Parse<&'esm[u8]> for RawCellGroup<'esm> {
-//     fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
-//         let (i, (header, data)) = alloc_group(i)?;
-//         let (_, cells) = many0(RawCellRecord::parse)(data)?;
-//         Ok((i, Self { header, cells }))
-//     }
-// }
-
-// ====================================================================================================
-
-
-pub type RawWorldGroup<'esm> = Group<RawWorldRecord<'esm>>;
-
-
-// #[derive(Debug)]
-// pub struct RawWorldGroup<'esm> {
-//     pub header: GroupHeader,
-//     pub worlds: Vec<RawWorldRecord<'esm>>
-// }
-
-// impl<'esm> Parse<&'esm[u8]> for RawWorldGroup<'esm> {
-//     fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
-//         let (i, (header, data)) = alloc_group(i)?;
-//         let (_, worlds) = many0(RawWorldRecord::parse)(data)?;
-//         Ok((i, Self { header, worlds }))
-//     }
-// }
-
-// ====================================================================================================
-
-pub type RawQuestGroup<'esm> = Group<RawQuestItem<'esm>>;
-
-
-// #[derive(Debug)]
-// pub struct RawQuestGroup<'esm> {
-//     pub header: GroupHeader,
-//     pub quests: Vec<RawQuestRecord<'esm>>
-// }
-
-// impl<'esm> Parse<&'esm[u8]> for RawQuestGroup<'esm> {
-//     fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
-//         let (i, (header, data)) = alloc_group(i)?;
-//         let (_, quests) = many0(RawQuestRecord::parse)(data)?;
-//         Ok((i, Self { header, quests }))
-//     }
-// }
-
-// ====================================================================================================
-
