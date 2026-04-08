@@ -233,6 +233,7 @@ use crate::{dev::*, groups::prelude::*, prelude::MapContents, records::all::{Fil
 /// 
 /// More advanced parsing can be built on top of this.
 
+#[derive(Debug)]
 pub struct ESMRaw<'esm> {
     pub header: FileHeader,
     pub data_map: HashMap<FormId, RawRecord<'esm>>
@@ -279,13 +280,33 @@ impl<'esm> ESMRaw<'esm> {
 
                                 match quest_entry {
                                     RawQuestItem::Record(raw_record) => {
-
+                                        data_map.insert(raw_record.header.form_id, raw_record);
                                     },
                                     RawQuestItem::Children(raw_cell_visible_distant_children) => {
 
+                                        for child in raw_cell_visible_distant_children.items {
+                                            match child {
+                                                RawCellVisibleDistantChild::Dialog(raw_dialog) => {
+                                                    if let Some(topic_children) = raw_dialog.children {
+                                                        for child in topic_children.records {
+                                                            data_map.insert(child.header.form_id, child);
+                                                        }
+                                                    }
+
+                                                    data_map.insert(raw_dialog.record.header.form_id, raw_dialog.record);
+                                                },
+                                                RawCellVisibleDistantChild::DialogBranch(raw_record) => {
+                                                    data_map.insert(raw_record.header.form_id, raw_record);
+                                                }
+                                                RawCellVisibleDistantChild::Scene(raw_record) => {
+                                                    data_map.insert(raw_record.header.form_id, raw_record);
+                                                }
+                                            }
+                                        }
+
+
                                     },
                                 }
-
                                 // if let Some(quest_children) = quest_entry.children {
                                 //     for quest_child in quest_children.items {
                                 //         match quest_child {
@@ -320,13 +341,11 @@ impl<'esm> ESMRaw<'esm> {
                                     data_map.insert(children.cell.cell.header.form_id, children.cell.cell);
 
                                     for block in children.blocks {
-                                        for sub_block in block.sub_blocks {
-                                            for cell in sub_block.cells {
-                                                cell.insert_into_one_map(&mut data_map);
-                                            }
-                                        }
+                                        block.insert_into_one_map(&mut data_map);
                                     }
                                 }
+
+                                data_map.insert(world.world.header.form_id, world.world);
                             }
                         }
                         RawTopGroup::Cell(raw_interior_cell_blocks) => {
@@ -380,6 +399,36 @@ impl<'esm> ESMRaw<'esm> {
                         RawTopGroup::Quest(raw_quest_records) => {
 
                             for quest_entry in raw_quest_records {
+
+                                match quest_entry {
+                                    RawQuestItem::Record(raw_record) => {
+                                        data_map.insert(raw_record.header.form_id, raw_record);
+                                    },
+                                    RawQuestItem::Children(raw_cell_visible_distant_children) => {
+
+                                        for child in raw_cell_visible_distant_children.items {
+                                            match child {
+                                                RawCellVisibleDistantChild::Dialog(raw_dialog) => {
+                                                    if let Some(topic_children) = raw_dialog.children {
+                                                        for child in topic_children.records {
+                                                            data_map.insert(child.header.form_id, child);
+                                                        }
+                                                    }
+
+                                                    data_map.insert(raw_dialog.record.header.form_id, raw_dialog.record);
+                                                },
+                                                RawCellVisibleDistantChild::DialogBranch(raw_record) => {
+                                                    data_map.insert(raw_record.header.form_id, raw_record);
+                                                }
+                                                RawCellVisibleDistantChild::Scene(raw_record) => {
+                                                    data_map.insert(raw_record.header.form_id, raw_record);
+                                                }
+                                            }
+                                        }
+
+
+                                    },
+                                }
                                 // if let Some(quest_children) = quest_entry.children {
                                 //     for quest_child in quest_children.items {
                                 //         match quest_child {
@@ -414,11 +463,7 @@ impl<'esm> ESMRaw<'esm> {
                                     data_map.insert(children.cell.cell.header.form_id, children.cell.cell);
 
                                     for block in children.blocks {
-                                        for sub_block in block.sub_blocks {
-                                            for cell in sub_block.cells {
-                                                cell.insert_into_one_map(&mut data_map);
-                                            }
-                                        }
+                                        block.insert_into_one_map(&mut data_map);
                                     }
                                 }
                             }
