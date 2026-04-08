@@ -13,6 +13,8 @@ define_record3! {
         b"SNAM", TextDescription, ESMString; // TODO: Check if current
         b"ONAM", OverriddenForms, Vec<FormId>;
         b"TNAM", TransientItems, FileHeaderTransientItems;
+        b"MAST", MasterFile, ESMString;
+        b"DATA", MasterFileSize, u64;
     ]
 }
 
@@ -63,3 +65,24 @@ impl PartialEq for FileHeader {
 }
 
 // ====================================================================================================
+
+impl FileHeader {
+    pub fn get_object_count(&self) -> Option<&u32> {
+        
+        for field in &self.data {
+            if let FileHeaderField::Metadata(md) = field {
+                return Some(&md.object_count)
+            }
+        }
+        None
+    }
+
+    pub fn get_master_file(&self) -> Option<&ESMString> {
+        for field in &self.data {
+            if let FileHeaderField::MasterFile(md) = field {
+                return Some(md)
+            }
+        }
+        None
+    }
+}
