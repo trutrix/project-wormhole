@@ -178,10 +178,11 @@ fn test_all_fo4() {
 
                     let start = std::time::Instant::now();
 
-                    if let Ok(esm) = ESMRaw::parse_st(&buf) {
+                    if let Ok(esm) = ESMRaw::parse_v2(&buf, 1) {
                         println!("Parse success: {:?} in {:?}", de.path().file_name().unwrap(), start.elapsed());
                         println!(" Object count: {:?}", esm.1.header.get_object_count().unwrap_or(&0));
                         println!(" Map length: {:?}", esm.1.data_map.len());
+                        println!("  Plus groups: {}", esm.1.data_map.len() + esm.1.group_counter as usize);
                     } else {
                         println!("Parse failure: {:?}", de.path().file_name());
                     }
@@ -229,9 +230,10 @@ fn test_all_fnv() {
 
                     let start = std::time::Instant::now();
 
-                    if let Ok(esm) = ESMRaw::parse_st(&buf) {
+                    if let Ok(esm) = ESMRaw::parse_v2(&buf, 1) {
                         println!("Parse success: {:?} in {:?}", de.path().file_name(), start.elapsed());
                         println!(" Map length: {:?}", esm.1.data_map.len());
+                        println!("  Plus groups: {}", esm.1.data_map.len() + esm.1.group_counter as usize);
                     } else {
                         println!("Parse failure: {:?}", de.path().file_name());
                     }
@@ -255,6 +257,7 @@ fn test_all_fnv() {
 }
 
 #[test]
+#[ignore = "run when needed"]
 fn dump_target() {
 
     
