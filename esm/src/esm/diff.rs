@@ -47,7 +47,7 @@ impl<'esm> Parse<&'esm[u8]> for ESMDiff<'esm> {
 
                                 //println!("{:?}: contains {} sub blocks", block.header.label, block.sub_blocks.len());
 
-                                for sub_block in block.sub_blocks {
+                                for sub_block in block.data {
                                     //println!("  {:?}: Contains {} cell records", sub_block.header.label, sub_block.data.len());
                                     for record in sub_block.data {
                                         cells.insert(record.cell.header.form_id, record);
