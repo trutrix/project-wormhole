@@ -149,7 +149,7 @@ fn esm_raw_2() {
     file.read_to_end(&mut buf).unwrap();
 
     let start = std::time::Instant::now();
-    let (_, esm) = ESMRaw::parse_mt(&buf).unwrap();
+    let (_, esm) = ESMRaw::parse_v2(&buf, 2).unwrap();
     println!("");
     println!("RawESM (Multi Thread): {:?}", start.elapsed());
     println!("RawESM record count: {}", esm.data_map.len());
@@ -265,7 +265,7 @@ fn dump_target() {
     print!("Dumping: {:?}", path);
     let file = std::fs::read(path).unwrap();
 
-    let esm = ESMRaw::parse_st(&file).unwrap().1;
+    let esm = ESMRaw::parse_v2(&file, 1).unwrap().1;
 
     println!("{:#?}", esm);
 
