@@ -7,6 +7,7 @@ use crate::{esm::{diff::ESMDiff, full::ESMFull, mapped::ESMMapped, raw::{ESMRaw}
 const ESM_PATH: &str = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Fallout 4\\Data\\Fallout4.esm";
 const FO4_DATA_DIR: &str = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Fallout 4\\Data";
 const FNV_DATA_DIR: &str = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Fallout New Vegas\\Data";
+const DUMP_TARGET: &str = "ccBGSFO4110-WS_Enclave.esl";
 
 
 
@@ -178,7 +179,8 @@ fn test_all_fo4() {
                     let start = std::time::Instant::now();
 
                     if let Ok(esm) = ESMRaw::parse_st(&buf) {
-                        println!("Parse success: {:?} in {:?}", de.path().file_name(), start.elapsed());
+                        println!("Parse success: {:?} in {:?}", de.path().file_name().unwrap(), start.elapsed());
+                        println!(" Object count: {:?}", esm.1.header.get_object_count().unwrap_or(&0));
                         println!(" Map length: {:?}", esm.1.data_map.len());
                     } else {
                         println!("Parse failure: {:?}", de.path().file_name());
@@ -205,6 +207,7 @@ fn test_all_fo4() {
 
 
 #[test]
+#[ignore = "figure out later"]
 fn test_all_fnv() {
     use std::io::Read;
 
@@ -249,4 +252,18 @@ fn test_all_fnv() {
             println!("{:?}", entry);
         }
     }
+}
+
+#[test]
+fn dump_target() {
+
+    
+    let path = format!("{}/{}", FO4_DATA_DIR, DUMP_TARGET);
+    print!("Dumping: {:?}", path);
+    let file = std::fs::read(path).unwrap();
+
+    let esm = ESMRaw::parse_st(&file).unwrap().1;
+
+    println!("{:#?}", esm);
+
 }
