@@ -182,7 +182,7 @@ fn test_all_fo4() {
                         println!("Parse success: {:?} in {:?}", de.path().file_name().unwrap(), start.elapsed());
                         println!(" Object count: {:?}", esm.1.header.get_object_count().unwrap_or(&0));
                         println!(" Map length: {:?}", esm.1.data_map.len());
-                        println!("  Plus groups: {}", esm.1.data_map.len() + esm.1.group_counter as usize);
+                        //println!("  Plus groups: {}", esm.1.data_map.len() + esm.1.group_counter as usize);
                     } else {
                         println!("Parse failure: {:?}", de.path().file_name());
                     }
@@ -233,7 +233,7 @@ fn test_all_fnv() {
                     if let Ok(esm) = ESMRaw::parse_v2(&buf, 1) {
                         println!("Parse success: {:?} in {:?}", de.path().file_name(), start.elapsed());
                         println!(" Map length: {:?}", esm.1.data_map.len());
-                        println!("  Plus groups: {}", esm.1.data_map.len() + esm.1.group_counter as usize);
+                        //println!("  Plus groups: {}", esm.1.data_map.len() + esm.1.group_counter as usize);
                     } else {
                         println!("Parse failure: {:?}", de.path().file_name());
                     }

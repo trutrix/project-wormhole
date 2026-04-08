@@ -70,7 +70,7 @@ fn main() {
             let file_duration = file_start.elapsed();
 
             let parse_start = std::time::Instant::now();
-            let esm_raw = ESMRaw::parse_mt(&data).unwrap().1;
+            let esm_raw = ESMRaw::parse_v2(&data, 2).unwrap().1;
             let parse_duration = parse_start.elapsed();
 
             // let parse_start = std::time::Instant::now();

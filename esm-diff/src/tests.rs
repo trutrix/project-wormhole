@@ -9,8 +9,8 @@ fn test_same() {
 
     let mut file = std::fs::read(FO4_MASTER).unwrap();
 
-    let esm1 = ESMRaw::parse_mt(&mut file).unwrap().1;
-    let esm2 = ESMRaw::parse_mt(&mut file).unwrap().1;
+    let esm1 = ESMRaw::parse_v2(&mut file, 2).unwrap().1;
+    let esm2 = ESMRaw::parse_v2(&mut file, 2).unwrap().1;
     
 
 
