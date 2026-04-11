@@ -1,7 +1,7 @@
 #![allow(unused)]
 use std::{collections::{HashMap, HashSet}, fs::File, path::PathBuf, str::FromStr};
 
-use crate::{esm::{diff::ESMDiff, full::ESMFull, mapped::ESMMapped, raw::{ESMRaw}}, records::all::*, structs::chunk::get_file_chunks};
+use crate::{esm::{full::ESMFull, mapped::ESMMapped, raw::{ESMRaw}}, records::all::*, structs::chunk::get_file_chunks};
 
 
 const ESM_PATH: &str = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Fallout 4\\Data\\Fallout4.esm";

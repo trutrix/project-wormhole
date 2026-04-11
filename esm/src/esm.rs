@@ -1,6 +1,5 @@
 use crate::dev::*;
 
-pub mod diff;
 pub mod mapped;
 pub mod raw;
 pub mod full;
