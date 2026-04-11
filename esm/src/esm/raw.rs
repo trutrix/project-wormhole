@@ -125,6 +125,10 @@ impl<'esm> ESMRaw<'esm> {
 
         Ok((i, Self { header, data_map /*, group_counter */ }))
     }
+
+    pub fn parse_as_objects(i: &'esm [u8]) -> IResult<&'esm [u8], Self> {
+        todo!()
+    }
 }
 
 // ====================================================================================================

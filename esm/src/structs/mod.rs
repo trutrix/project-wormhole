@@ -12,3 +12,4 @@ pub mod geometry;
 pub mod virtual_machine_adapter;
 pub mod bethesda_game;
 pub mod form_id;
+pub mod esm_object;

@@ -7,7 +7,7 @@ pub struct Field<T> {
 }
 
 impl<T> Parse<&[u8]> for Field<T> where T: for<'esm> Parse<&'esm [u8]> {
-    fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
+    fn parse<'esm>(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
         let (i, (header, raw)) = alloc_field(i)?;
         let (_, data) = T::parse(raw)?;
         Ok((i, Field { header, data }))

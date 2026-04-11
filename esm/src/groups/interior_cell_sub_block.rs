@@ -1,4 +1,4 @@
-use crate::{dev::*, records::all::Cell};
+use crate::{dev::*, records::all::{Cell, RawCellRecord}};
 
 // ====================================================================================================
 

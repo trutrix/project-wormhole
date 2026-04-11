@@ -1,5 +1,8 @@
-use crate::{dev::*, groups::prelude::CellChildren};
+use std::collections::HashMap;
 
+use crate::{dev::*, groups::prelude::{CellChildren, RawCellChildren}, prelude::MapContents};
+
+// ====================================================================================================
 
 define_record3! {
     "iden": b"CELL";
@@ -23,6 +26,7 @@ define_record3! {
     ]
 }
 
+// ====================================================================================================
 
 #[derive(Debug, NomLE, PartialEq, Eq)]
 pub struct CombinedReferenceIndex {
@@ -35,11 +39,15 @@ pub struct CombinedReferenceIndex {
     // todo
 }
 
+// ====================================================================================================
+
 #[derive(Debug, PartialEq)]
 pub enum CellLocalWaterLevel {
     NoWater,
     WaterHeight(f32)
 }
+
+// ====================================================================================================
 
 impl Parse<&[u8]> for CellLocalWaterLevel {
     fn parse(i: &[u8]) -> IResult<&[u8], Self> {
@@ -52,12 +60,15 @@ impl Parse<&[u8]> for CellLocalWaterLevel {
     }
 }
 
+// ====================================================================================================
+
 #[derive(Debug, NomLE)]
 pub struct CombinedReference {
     pub local_id: u32,
     pub ref_id: u32
 }
 
+// ====================================================================================================
 
 #[derive(Debug, NomLE, PartialEq, Eq)]
 pub struct GridLocation {
@@ -66,46 +77,74 @@ pub struct GridLocation {
     pub flags: u32
 }
 
-// #[derive(Debug)]
-// pub struct CellEntry {
-//     pub cell: Cell,
-//     pub children: Option<CellChildren>
-// }
+// ====================================================================================================
 
-// impl Parse<&[u8]> for CellEntry {
-//     fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
+#[derive(Debug)]
+pub struct RawCellRecord<'esm> {
+    pub cell: RawRecord<'esm>,
+    pub cell_children: Option<RawCellChildren<'esm>>
+}
 
-//         // Parse the Cell record
-//         let (i, cell) = Cell::parse(i)?;
+// ====================================================================================================
 
-//         // Check if buffer is consumed (usually at the end of groups)
-//         if i.len() < 4 {
-//             return Ok((i, Self { cell, children: None }) )
-//         }  
+impl<'esm> MapContents<HashMap<FormId, RawRecord<'esm>>> for RawCellRecord<'esm> {
+    
+    fn insert_into_one_map(self, combined_map: &mut HashMap<FormId, RawRecord<'esm>>) {
+        if let Some(children) = self.cell_children {
+            for group in children.data {
+                for block in group.data {
+                    combined_map.insert(block.header.form_id, block);
+                }
+            }
+        }
+        combined_map.insert(self.cell.header.form_id, self.cell);
+    }
 
-//         // Peek at the next FourCC to see if it's a GRUP
-//         let  (_, next_id) = FourCC::parse(i)?;
+    fn insert_into_two_maps(self, data_map: &mut HashMap<FormId, RawRecord<'esm>>, refr_map: &mut HashMap<FormId, RawRecord<'esm>>) {
+        if let Some(children) = self.cell_children {
+            for group in children.data {
+                for block in group.data {
+                    refr_map.insert(block.header.form_id, block);
+                }
+            }
+        }
+        data_map.insert(self.cell.header.form_id, self.cell);
+    }
+}
 
-//         // If next iden is not GRUP, there are no children 
-//         // The groups themselves have pointers to parents, so in theory they could be out of order
-//         // In practice, they always seem to follow the Cell record directly.
+// ====================================================================================================
 
-//         // Check if next item is a group, if not return with no children
-//         if &next_id.0 != GRUP {
-//             return Ok((i, Self { cell, children: None }) )
-//         }
+impl <'esm> Parse<&'esm[u8]> for RawCellRecord<'esm> {
+    fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
 
-//         // Peek at the next group header to see if it's CellChildren
-//         let (_, next_header) = GroupHeader::parse(i)?;
+        // Parse the cell record first
+        let (i, cell) = RawRecord::parse(i)?;
 
-//         match next_header.label {
-//             GroupLabel::CellChildren(_) => {
-//                 let (i, children) = CellChildren::parse(i)?;
-//                 Ok((i, Self { cell, children: Some(children) }) )
-//             }
-//             _ => {
-//                 Ok((i, Self { cell, children: None }) )
-//             }
-//         }
-//     }
-// }
+        // Check if there is any data left after the cell record, if not return immediately
+        if i.is_empty() {
+            return Ok((i, Self { cell, cell_children: None }));
+        }
+
+        // Get the next id
+        let (_, next_id) = FourCC::parse(i)?;
+
+        // If the next id isn't a group, return immediately
+        if &next_id.0 != b"GRUP" {
+            return Ok((i, Self { cell, cell_children: None }));
+        }
+
+        let (_, ghead) = GroupHeader::parse(i)?;
+
+        match ghead.label {
+            GroupLabel::CellChildren(_) => {
+                
+                let (i, cell_children) = RawCellChildren::parse(i)?;
+                Ok((i, Self { cell, cell_children: Some(cell_children) }))
+            }
+            _ => {
+                //println!("Found non-CellChildren group after Cell record: {:?}, skipping", ghead);
+                Ok((i, Self { cell, cell_children: None }))
+            }
+        }
+    }
+}

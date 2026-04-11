@@ -23,24 +23,18 @@ pub struct RecordHeader {
     pub size: u32,
     pub flags: RecordFlags2,
     pub form_id: FormId,
-    pub version_control: VersionControl,
+    pub version_control: VersionControl
 }
 
+// ====================================================================================================
+
 impl Parse<&[u8]> for RecordHeader {
-    fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
+    fn parse<'esm>(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
         let (i, iden) = FourCC::parse(i)?;
-        
         let (i, size) = le_u32(i)?;
         let (i, flags) = RecordFlags2::parse(i)?;
         let (i, form_id) = FormId::parse(i)?;
-
-        //if iden.0 == *b"CELL" { println!("Parsing record: {:?} - {:?}", iden, form_id); }
         let (i, version_control) = VersionControl::parse(i)?;
-
-        // #[cfg(debug_assertions)]
-        // if !version_control.timestamp.is_null() && version_control.timestamp.month() < 1 {
-        //     panic!("{:?} - {:?} - {:?} - {:?} - {:?}", iden, size, flags, form_id, version_control);
-        // }
 
         Ok((i, Self { iden, size, flags, form_id, version_control }))
     }
@@ -432,12 +426,16 @@ bitflags! {
     }
 }
 
+// ====================================================================================================
+
 impl<'esm> Parse<&'esm[u8]> for RecordFlags2 {
     fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
         let (i, raw_flags) = le_u32::<&'esm[u8], nom::error::Error<&'esm[u8]>>(i)?;
         Ok((i, RecordFlags2::from_bits_retain(raw_flags)))
     }
 }
+
+// ====================================================================================================
 
 impl RecordFlags2 {
 
@@ -449,32 +447,22 @@ impl RecordFlags2 {
 
 // ====================================================================================================
 
-
 pub struct RawRecord<'esm> {
     pub header: RecordHeader,
     // pub data: RawRecordData<'esm>,
     pub data: &'esm[u8]
 }
 
+// ====================================================================================================
+
 impl<'esm> Parse<&'esm [u8]> for RawRecord<'esm> {
     fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
         let (i, (header, data)) = alloc_record(i)?;
         Ok((i, Self { header, data }))
-
-        // Old logic
-        // if header.flags.is_compressed() {
-        //     if let Ok(dec) = decompress_record(data) {
-        //         Ok((i, Self{ header, data: RawRecordData::Decompressed(dec) }))
-        //     } else {
-        //         panic!("Could not decompress record: {:?}", header);
-        //     }
-            
-        // } else {
-        //     Ok((i, Self{ header, data: RawRecordData::Pointer(data) }))
-        // }
     }
 }
 
+// ====================================================================================================
 
 impl Debug for RawRecord<'_> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -487,25 +475,16 @@ impl Debug for RawRecord<'_> {
     }
 }
 
-// Old logic
-// impl RawRecord<'_> {
-//     pub fn get_raw_fields(&self) -> IResult<&[u8], Vec<RawField<'_>>, nom::error::Error<&[u8]>> {
-//         match &self.data {
-//             RawRecordData::Pointer(data) => {
-//                 many0(RawField::parse)(data)
-//             }
-//             RawRecordData::Decompressed(data) => {
-//                 many0(RawField::parse)(data)
-//             }
-//         }
-//     }   
-// }
+// ====================================================================================================
 
 #[derive(Debug, PartialEq, Eq, Clone)]
+#[deprecated]
 pub enum RawRecordData<'esm> {
     Pointer(&'esm[u8]),
     Decompressed(Vec<u8>)
 }
+
+// ====================================================================================================
 
 impl RawRecordData<'_> {
     pub fn len(&self) -> usize {
@@ -516,6 +495,7 @@ impl RawRecordData<'_> {
     }
 }
 
+// ====================================================================================================
 
 impl PartialEq for RawRecord<'_> {
     fn eq(&self, other: &Self) -> bool {
@@ -523,29 +503,30 @@ impl PartialEq for RawRecord<'_> {
     }
 }
 
-impl Eq for RawRecord<'_> {
-    
-}
-
-
 // ====================================================================================================
 
 pub fn alloc_record(i: &[u8]) -> IResult<&[u8], (RecordHeader, &[u8]), nom::error::Error<&[u8]>> {
+    // Keep original pointer
     let orig = i;
+
+    // Parse header
     let (i, header) = RecordHeader::parse(i)?;
+
+    // Take size, not including header size
     let (i, raw) = take(header.size)(i)?;
+
+    // Check if header is actually a group, which is an unrecoverable error
     if &header.iden.0 == b"GRUP" {
         let (_, gheader) = GroupHeader::parse(orig)?;
         panic!("alloc_record(): function encountered a group: {:?}", gheader);
-    } else {
+    }
+    // Return the values
+    else {
         Ok((i, (header, raw)))
     }
-    
 }
 
-
 // ====================================================================================================
-
 
 #[derive(Debug)]
 pub struct Record<T> {
@@ -553,6 +534,7 @@ pub struct Record<T> {
     pub data: T
 }
 
+// ====================================================================================================
 
 impl<T: for<'esm> Parse<&'esm[u8]>> Parse<&[u8]> for Record<T> {
     fn parse(i: &[u8]) -> IResult<&[u8], Self, nom_derive::nom::error::Error<&[u8]>> {
@@ -579,12 +561,13 @@ impl<T: for<'esm> Parse<&'esm[u8]>> Parse<&[u8]> for Record<T> {
     }
 }
 
+// ====================================================================================================
+
 impl<T> FormIdTrait for Record<T> {
     fn get_form_id(&self) -> &FormId {
         &self.header.form_id
     }
 }
-
 
 // ====================================================================================================
 
@@ -604,73 +587,7 @@ pub fn decompress_record(i: &[u8]) -> Result<Vec<u8>, std::io::Error> {
 }
 
 
-// ====================================================================================================
 
-#[derive(Debug)]
-pub struct RawCellRecord<'esm> {
-    pub cell: RawRecord<'esm>,
-    pub cell_children: Option<RawCellChildren<'esm>>
-}
-
-impl<'esm> MapContents<HashMap<FormId, RawRecord<'esm>>> for RawCellRecord<'esm> {
-    
-    fn insert_into_one_map(self, combined_map: &mut HashMap<FormId, RawRecord<'esm>>) {
-        if let Some(children) = self.cell_children {
-            for group in children.data {
-                for block in group.data {
-                    combined_map.insert(block.header.form_id, block);
-                }
-            }
-        }
-        combined_map.insert(self.cell.header.form_id, self.cell);
-    }
-
-    fn insert_into_two_maps(self, data_map: &mut HashMap<FormId, RawRecord<'esm>>, refr_map: &mut HashMap<FormId, RawRecord<'esm>>) {
-        if let Some(children) = self.cell_children {
-            for group in children.data {
-                for block in group.data {
-                    refr_map.insert(block.header.form_id, block);
-                }
-            }
-        }
-        data_map.insert(self.cell.header.form_id, self.cell);
-    }
-}
-
-impl <'esm> Parse<&'esm[u8]> for RawCellRecord<'esm> {
-    fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
-
-        // Parse the cell record first
-        let (i, cell) = RawRecord::parse(i)?;
-
-        // Check if there is any data left after the cell record, if not return immediately
-        if i.is_empty() {
-            return Ok((i, Self { cell, cell_children: None }));
-        }
-
-        // Get the next id
-        let (_, next_id) = FourCC::parse(i)?;
-
-        // If the next id isn't a group, return immediately
-        if &next_id.0 != b"GRUP" {
-            return Ok((i, Self { cell, cell_children: None }));
-        }
-
-        let (_, ghead) = GroupHeader::parse(i)?;
-
-        match ghead.label {
-            GroupLabel::CellChildren(_) => {
-                
-                let (i, cell_children) = RawCellChildren::parse(i)?;
-                Ok((i, Self { cell, cell_children: Some(cell_children) }))
-            }
-            _ => {
-                //println!("Found non-CellChildren group after Cell record: {:?}, skipping", ghead);
-                Ok((i, Self { cell, cell_children: None }))
-            }
-        }
-    }
-}
 
 // ====================================================================================================
 
@@ -680,12 +597,15 @@ pub struct RawWorldRecord<'esm> {
     pub world_children: Option<RawWorldChildren<'esm>>
 }
 
+// ====================================================================================================
+
 impl RawWorldRecord<'_> {
     pub fn has_children(&self) -> bool {
         self.world_children.is_some()
     }
 }
 
+// ====================================================================================================
 
 impl <'esm> Parse<&'esm[u8]> for RawWorldRecord<'esm>  {
     fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self> {
@@ -701,28 +621,3 @@ impl <'esm> Parse<&'esm[u8]> for RawWorldRecord<'esm>  {
         }
     }
 }
-
-/*impl EditorId for RawWorldRecord<'_> {
-    fn try_get_editor_id(&self) -> Option<ESMString> {
-        let mut edid = None;
-        let (_, fields) = many0(RawField::parse)(self.world.data).expect("Could not parse fields from world record.");
-        for field in fields {
-            match &field.header.iden().0 {
-                b"EDID" => {
-                    let (_, s) = ESMString::parse(field.data).unwrap();
-                    edid = Some(s);
-                }
-                _ => {}
-            }
-        }
-        edid
-    }
-}*/
-
-// ====================================================================================================
-
-
-
-
-
-// ====================================================================================================
