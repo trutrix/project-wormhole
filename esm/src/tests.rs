@@ -1,7 +1,7 @@
 #![allow(unused)]
 use std::{collections::{HashMap, HashSet}, fs::File, path::PathBuf, str::FromStr};
 
-use crate::{esm::{diff::ESMDiff, full::ESMFull, mapped::ESMMapped, raw::{ESMRaw}}, records::all::*, structs::chunk::{get_file_chunks, get_file_chunks2}};
+use crate::{esm::{diff::ESMDiff, full::ESMFull, mapped::ESMMapped, raw::{ESMRaw}}, records::all::*, structs::chunk::get_file_chunks};
 
 
 const ESM_PATH: &str = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Fallout 4\\Data\\Fallout4.esm";
@@ -27,8 +27,8 @@ pub fn esm_benchmarks() {
     println!("");
 
     let start = std::time::Instant::now();
-    let (_, file_chunks) = get_file_chunks2(&buf).unwrap();
-    println!("get_file_chunks2: {:?}", start.elapsed());
+    let (_, file_chunks) = get_file_chunks(&buf).unwrap();
+    println!("get_file_chunks: {:?}", start.elapsed());
     println!("");
 
     // let start = std::time::Instant::now();
