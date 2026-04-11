@@ -1,9 +1,6 @@
 mod tests;
 
-
 use clap::{Parser, ValueEnum};
-use project_wormhole_esm::esm::diff::ESMDiff;
-use project_wormhole_esm::Parse;
 use project_wormhole_esm::esm::raw::ESMRaw;
 
 #[derive(Parser, Debug)]
