@@ -242,7 +242,7 @@ pub struct ESMRaw<'esm> {
 
 
 impl<'esm> ESMRaw<'esm> {
-
+    /// WIP -  Anything over one for the threads parameter just makes the function auto allocate threads, actual thread control is planned for later
     pub fn parse_v2(i: &'esm [u8], threads: usize) -> IResult<&'esm [u8], Self> {
 
         let mut group_counter = 0;

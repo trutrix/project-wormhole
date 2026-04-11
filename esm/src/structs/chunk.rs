@@ -40,26 +40,6 @@ pub fn get_file_chunks(i: &'_ [u8]) -> IResult<&'_ [u8], Vec<ESMChunk<'_>>> {
     Ok((i, chunks))
 }
 
-
-// ====================================================================================================
-
-
-pub struct SmartChunks<'esm> {
-    pub header: FileHeader,
-    pub chunks: Vec<ESMChunk2<'esm>>
-}
-
-
-impl<'esm> Parse<&'esm[u8]> for SmartChunks<'esm> {
-    fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
-        let (i, header) = FileHeader::parse(i)?;
-        let (i, chunks) = many0(ESMChunk2::parse)(i)?;
-
-        Ok((i, Self { header, chunks }))
-    }
-}
-
-
 // ====================================================================================================
 
 

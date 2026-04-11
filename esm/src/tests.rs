@@ -1,7 +1,7 @@
 #![allow(unused)]
 use std::{collections::{HashMap, HashSet}, fs::File, path::PathBuf, str::FromStr};
 
-use crate::{esm::{diff::ESMDiff, full::ESMFull, mapped::ESMMapped, raw::{ESMRaw}}, records::all::*, structs::chunk::{SmartChunks, get_file_chunks, get_file_chunks2}};
+use crate::{esm::{diff::ESMDiff, full::ESMFull, mapped::ESMMapped, raw::{ESMRaw}}, records::all::*, structs::chunk::{get_file_chunks, get_file_chunks2}};
 
 
 const ESM_PATH: &str = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Fallout 4\\Data\\Fallout4.esm";
@@ -25,10 +25,6 @@ pub fn esm_benchmarks() {
     file.read_to_end(&mut buf).unwrap();
     println!("Read file to memory: {:?} - {} bytes", start.elapsed(), buf.len());
     println!("");
-
-    let start = std::time::Instant::now();
-    let (_, chunks) = SmartChunks::parse(&buf).unwrap();
-    println!("SmartChunks::parse: {:?}", start.elapsed());
 
     let start = std::time::Instant::now();
     let (_, file_chunks) = get_file_chunks2(&buf).unwrap();
@@ -178,11 +174,8 @@ fn test_all_fo4() {
 
                     let start = std::time::Instant::now();
 
-                    if let Ok(esm) = ESMRaw::parse_v2(&buf, 1) {
-                        println!("Parse success: {:?} in {:?}", de.path().file_name().unwrap(), start.elapsed());
-                        println!(" Object count: {:?}", esm.1.header.get_object_count().unwrap_or(&0));
-                        println!(" Map length: {:?}", esm.1.data_map.len());
-                        //println!("  Plus groups: {}", esm.1.data_map.len() + esm.1.group_counter as usize);
+                    if let Ok(esm) = ESMRaw::parse_v2(&buf, 2) {
+                        println!("Parse success: {:?} in {:?} - Object count: {:?} - Map length: {:?}", de.path().file_name().unwrap(), start.elapsed(), esm.1.header.get_object_count().unwrap_or(&0), esm.1.data_map.len());
                     } else {
                         println!("Parse failure: {:?}", de.path().file_name());
                     }
