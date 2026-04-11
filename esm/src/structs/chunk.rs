@@ -42,22 +42,6 @@ pub fn get_file_chunks(i: &'_ [u8]) -> IResult<&'_ [u8], Vec<ESMChunk<'_>>> {
 
 // ====================================================================================================
 
-
-pub struct ESMChunk2<'esm> {
-    pub header: GroupHeader,
-    pub data: &'esm[u8]
-}
-
-impl<'esm> Parse<&'esm[u8]> for ESMChunk2<'esm> {
-    fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
-        let (i, (header, data)) = alloc_group(i)?;
-        Ok((i, Self { header, data }))
-    }
-}
-
-
-// ====================================================================================================
-
 #[derive(Clone)]
 pub struct ESMFileChunk<'esm> {
     pub data: &'esm[u8]
