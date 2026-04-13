@@ -1,6 +1,6 @@
 use std::collections::{HashMap, HashSet};
 use rayon::prelude::*;
-use crate::{dev::*, groups::prelude::*, prelude::MapContents, records::all::{FileHeader, RawQuestItem}, structs::{chunk::get_file_chunks, esm_object::RawESObject}};
+use crate::{dev::*, groups::prelude::*, prelude::MapContents, records::all::{FileHeader, RawQuestItem}, structs::{chunk::get_file_chunks, es_object::RawESObject}};
 
 // ====================================================================================================
 
