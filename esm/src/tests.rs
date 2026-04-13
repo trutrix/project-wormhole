@@ -174,7 +174,7 @@ fn test_all_fo4() {
 
                     let start = std::time::Instant::now();
 
-                    if let Ok(esm) = ESMRaw::parse_v2(&buf, 2) {
+                    if let Ok(esm) = ESMRaw::parse_as_objects(&buf, 2) {
                         println!("Parse success: {:?} in {:?} - Object count: {:?} - Map length: {:?}", de.path().file_name().unwrap(), start.elapsed(), esm.1.header.get_object_count().unwrap_or(&0), esm.1.data_map.len());
                     } else {
                         println!("Parse failure: {:?}", de.path().file_name());

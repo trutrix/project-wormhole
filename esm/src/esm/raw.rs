@@ -1,6 +1,6 @@
 use std::collections::{HashMap, HashSet};
 use rayon::prelude::*;
-use crate::{dev::*, groups::prelude::*, prelude::MapContents, records::all::{FileHeader, RawQuestItem}, structs::chunk::get_file_chunks};
+use crate::{dev::*, groups::prelude::*, prelude::MapContents, records::all::{FileHeader, RawQuestItem}, structs::{chunk::get_file_chunks, esm_object::ESMRawObject}};
 
 // ====================================================================================================
 
@@ -126,8 +126,33 @@ impl<'esm> ESMRaw<'esm> {
         Ok((i, Self { header, data_map /*, group_counter */ }))
     }
 
-    pub fn parse_as_objects(i: &'esm [u8]) -> IResult<&'esm [u8], Self> {
-        todo!()
+    pub fn parse_as_objects(i: &'esm [u8], threads: usize) -> IResult<&'esm [u8], Self> {
+
+        let mut data_map = HashMap::new();
+
+        let (i, chunks) = get_file_chunks(i)?;
+
+        let (_, header) = FileHeader::parse(chunks[0].data)?;
+        //let (i, groups) = many0(ESMRawObject::parse)(i)?;
+
+        // If thread is just one or zero, parse normally without threads
+        let groups: Vec<_> = if threads <= 1 {
+            chunks.iter().skip(1).map(|x| {
+                ESMRawObject::parse(x.data)
+            }).collect()
+        } 
+        // If threads over 1, use par_iter() to multithread the parsing
+        else {
+            chunks.par_iter().skip(1).map(|x| {
+                ESMRawObject::parse(x.data)
+            }).collect()
+        };
+
+        for obj in groups {
+            obj.unwrap().1.insert_into_one_map(&mut data_map);
+        }
+
+        Ok((i, Self { header, data_map }))
     }
 }
 
