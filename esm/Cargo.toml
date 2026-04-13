@@ -8,6 +8,7 @@ keywords = ["esm", "bethesda", "esp", "fallout"]
 
 [dependencies]
 bitflags = "2.10.0"
+comfy-table = "7.2.2"
 flate2 = { version = "1.1.1", features = ["cloudflare_zlib"] }
 glam = { version = "0.30.9", features = ["bytemuck", "zerocopy"] }
 gltf = { version = "1.4.1", features = ["extensions", "KHR_materials_pbrSpecularGlossiness"] }
