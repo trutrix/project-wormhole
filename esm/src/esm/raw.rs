@@ -1,6 +1,6 @@
 use std::collections::{HashMap, HashSet};
 use rayon::prelude::*;
-use crate::{dev::*, groups::prelude::*, prelude::MapContents, records::all::{FileHeader, RawQuestItem}, structs::{chunk::get_file_chunks, esm_object::ESMRawObject}};
+use crate::{dev::*, groups::prelude::*, prelude::MapContents, records::all::{FileHeader, RawQuestItem}, structs::{chunk::get_file_chunks, esm_object::RawESObject}};
 
 // ====================================================================================================
 
@@ -137,13 +137,13 @@ impl<'esm> ESMRaw<'esm> {
         // If thread is just one or zero, parse normally without threads
         let groups: Vec<_> = if threads <= 1 {
             chunks.iter().skip(1).map(|x| {
-                ESMRawObject::parse(x.data)
+                RawESObject::parse(x.data)
             }).collect()
         } 
         // If threads over 1, use par_iter() to multithread the parsing
         else {
             chunks.par_iter().skip(1).map(|x| {
-                ESMRawObject::parse(x.data)
+                RawESObject::parse(x.data)
             }).collect()
         };
 
