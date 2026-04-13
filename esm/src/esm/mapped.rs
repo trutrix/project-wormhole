@@ -1,6 +1,6 @@
 use std::{collections::HashMap, fs::File, io::Read};
 
-use crate::{dev::*, esm::{ESMError, full::ESMFull}, groups::prelude::TopGroup, prelude::FormIdTrait, records::{SingleRecord, all::FileHeader}};
+use crate::{dev::*, esm::{ESMError, full::ESMFull, raw::ESMRaw}, groups::prelude::TopGroup, prelude::{FormIdTrait, MapContents}, records::{SingleRecord, all::FileHeader}};
 
 
 pub struct ESMMapped {
@@ -177,3 +177,30 @@ impl From<ESMFull> for ESMMapped {
         Self { header, indices }
     }
 }
+
+// ====================================================================================================
+
+pub struct MappedESM<T> {
+    pub header: FileHeader,
+    pub map: HashMap<FormId, T>
+}
+
+// ====================================================================================================
+
+impl<'esm> From<ESMRaw<'esm>> for MappedESM<RawRecord<'esm>> {
+    fn from(value: ESMRaw<'esm>) -> Self {
+        let mut map = HashMap::new();
+        for item in value.objects {
+            item.insert_into_one_map(&mut map);
+        }
+        Self { header: value.header, map }
+    }
+}
+
+// ====================================================================================================
+
+// impl From<ESMFull> for MappedESM<HashMap<FormId, SingleRecord>> {
+//     fn from(value: ESMFull) -> Self {
+        
+//     }
+// }

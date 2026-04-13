@@ -134,22 +134,22 @@ fn esm_full_multi() {
 // }
 
 
-#[test]
-#[ignore = "enable when needed"]
-fn esm_raw_2() {
-    use std::io::Read;
+// #[test]
+// #[ignore = "enable when needed"]
+// fn esm_raw_2() {
+//     use std::io::Read;
 
-    let start = std::time::Instant::now();
-    let mut file = std::fs::File::open(ESM_PATH).unwrap();
-    let mut buf = Vec::new();
-    file.read_to_end(&mut buf).unwrap();
+//     let start = std::time::Instant::now();
+//     let mut file = std::fs::File::open(ESM_PATH).unwrap();
+//     let mut buf = Vec::new();
+//     file.read_to_end(&mut buf).unwrap();
 
-    let start = std::time::Instant::now();
-    let (_, esm) = ESMRaw::parse_v2(&buf, 2).unwrap();
-    println!("");
-    println!("RawESM (Multi Thread): {:?}", start.elapsed());
-    println!("RawESM record count: {}", esm.data_map.len());
-}
+//     let start = std::time::Instant::now();
+//     let (_, esm) = ESMRaw::parse_v2(&buf, 2).unwrap();
+//     println!("");
+//     println!("RawESM (Multi Thread): {:?}", start.elapsed());
+//     println!("RawESM record count: {}", esm.data_map.len());
+// }
 
 
 #[test]
@@ -169,7 +169,7 @@ fn test_all_fo4() {
                 let start = std::time::Instant::now();
 
                 if let Ok(esm) = ESMRaw::parse_as_objects(&buf, 1) {
-                    println!("Parse success: {:?} in {:?} - Object count: {:?} - Map length: {:?}", entry.path().file_name().unwrap(), start.elapsed(), esm.1.header.get_object_count().unwrap_or(&0), esm.1.data_map.len());
+                    println!("Parse success: {:?} in {:?} - Object count: {:?} - Map length: {:?}", entry.path().file_name().unwrap(), start.elapsed(), esm.1.header.get_object_count().unwrap_or(&0), esm.1.objects.len());
                 } else {
                     println!("Parse failure: {:?}", entry.path().file_name());
                 }
@@ -203,7 +203,7 @@ fn test_all_fnv() {
                 let start = std::time::Instant::now();
 
                 if let Ok(esm) = ESMRaw::parse_as_objects(&buf, 1) {
-                    println!("Parse success: {:?} in {:?} - Object count: {:?} - Map length: {:?}", entry.path().file_name().unwrap(), start.elapsed(), esm.1.header.get_object_count().unwrap_or(&0), esm.1.data_map.len());
+                    println!("Parse success: {:?} in {:?} - Object count: {:?} - Map length: {:?}", entry.path().file_name().unwrap(), start.elapsed(), esm.1.header.get_object_count().unwrap_or(&0), esm.1.objects.len());
                 } else {
                     println!("Parse failure: {:?}", entry.path().file_name());
                 }
@@ -218,20 +218,20 @@ fn test_all_fnv() {
     }
 }
 
-#[test]
-#[ignore = "run when needed"]
-fn dump_target() {
+// #[test]
+// #[ignore = "run when needed"]
+// fn dump_target() {
 
     
-    let path = format!("{}/{}", FO4_DATA_DIR, DUMP_TARGET);
-    print!("Dumping: {:?}", path);
-    let file = std::fs::read(path).unwrap();
+//     let path = format!("{}/{}", FO4_DATA_DIR, DUMP_TARGET);
+//     print!("Dumping: {:?}", path);
+//     let file = std::fs::read(path).unwrap();
 
-    let esm = ESMRaw::parse_v2(&file, 1).unwrap().1;
+//     let esm = ESMRaw::parse_v2(&file, 1).unwrap().1;
 
-    println!("{:#?}", esm);
+//     println!("{:#?}", esm);
 
-}
+// }
 
 
 fn get_targets_in_dir(path: &str) -> Vec<DirEntry> {

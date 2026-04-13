@@ -34,6 +34,23 @@ pub enum RawESObject<'esm> {
 
 // ====================================================================================================
 
+impl RawESObject<'_> {
+    pub fn get_object_count(&self) -> usize {
+        match self {
+            RawESObject::Record(_) => 1,
+            RawESObject::Group(group) => {
+                let mut count = 1;
+                for item in &group.data {
+                    count += item.get_object_count();
+                }
+                count
+            },
+        }
+    }
+}
+
+// ====================================================================================================
+
 impl<'esm> Parse<&'esm[u8]> for RawESObject<'esm> {
     fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
         let (_, iden) = FourCC::parse(i)?;
