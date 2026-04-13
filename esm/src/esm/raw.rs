@@ -133,7 +133,6 @@ impl<'esm> ESMRaw<'esm> {
         let (i, chunks) = get_file_chunks(i)?;
 
         let (_, header) = FileHeader::parse(chunks[0].data)?;
-        //let (i, groups) = many0(ESMRawObject::parse)(i)?;
 
         // If thread is just one or zero, parse normally without threads
         let groups: Vec<_> = if threads <= 1 {

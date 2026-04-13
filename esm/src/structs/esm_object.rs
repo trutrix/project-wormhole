@@ -40,7 +40,14 @@ impl<'esm> MapContents<HashMap<FormId, RawRecord<'esm>>> for ESMRawObject<'esm> 
     fn insert_into_one_map(self, combined_map: &mut HashMap<FormId, RawRecord<'esm>>) {
         match self {
             ESMRawObject::Record(raw_record) => {
+                
+                #[cfg(not(debug_assertions))]
                 combined_map.insert(raw_record.header.form_id, raw_record);
+
+                #[cfg(debug_assertions)]
+                if let Some(item) = combined_map.insert(raw_record.header.form_id, raw_record) {
+                    println!("Warning: a duplicate overwrote itself in the same file. {:?}", item.header)
+                }
             },
             ESMRawObject::Group(group) => {
                 for obj in group.data {
