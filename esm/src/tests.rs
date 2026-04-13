@@ -1,5 +1,5 @@
 #![allow(unused)]
-use std::{collections::{HashMap, HashSet}, fs::File, path::PathBuf, str::FromStr};
+use std::{collections::{HashMap, HashSet}, fs::{DirEntry, File}, path::PathBuf, str::FromStr};
 
 use crate::{esm::{full::ESMFull, mapped::ESMMapped, raw::{ESMRaw}}, records::all::*, structs::chunk::get_file_chunks};
 
@@ -9,7 +9,7 @@ const FO4_DATA_DIR: &str = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\F
 const FNV_DATA_DIR: &str = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Fallout New Vegas\\Data";
 const DUMP_TARGET: &str = "ccBGSFO4110-WS_Enclave.esl";
 
-
+const TARGET_EXTS: [&str;3] = ["esl", "esp", "esm"];
 
 #[test]
 pub fn esm_benchmarks() {
@@ -156,42 +156,28 @@ fn esm_raw_2() {
 fn test_all_fo4() {
     use std::io::Read;
 
-    let entries = std::fs::read_dir(FO4_DATA_DIR).expect("Could not open directory.");
+    let entries = get_targets_in_dir(FO4_DATA_DIR);
 
     for entry in entries {
 
-        if let Ok(de) = entry {
+        if let Ok(mut file) = File::open(entry.path()) {
 
-            if de.path().extension().is_some_and(|f| {
-                f == "esm" || f == "esp" || f == "esl"
-            }) {
+            let mut buf = Vec::new();
 
-            if let Ok(mut file) = File::open(de.path()) {
+            if let Ok(file_size) = file.read_to_end(&mut buf) {
 
-                let mut buf = Vec::new();
+                let start = std::time::Instant::now();
 
-                if let Ok(file_size) = file.read_to_end(&mut buf) {
-
-                    let start = std::time::Instant::now();
-
-                    if let Ok(esm) = ESMRaw::parse_as_objects(&buf, 2) {
-                        println!("Parse success: {:?} in {:?} - Object count: {:?} - Map length: {:?}", de.path().file_name().unwrap(), start.elapsed(), esm.1.header.get_object_count().unwrap_or(&0), esm.1.data_map.len());
-                    } else {
-                        println!("Parse failure: {:?}", de.path().file_name());
-                    }
-
-
+                if let Ok(esm) = ESMRaw::parse_as_objects(&buf, 2) {
+                    println!("Parse success: {:?} in {:?} - Object count: {:?} - Map length: {:?}", entry.path().file_name().unwrap(), start.elapsed(), esm.1.header.get_object_count().unwrap_or(&0), esm.1.data_map.len());
                 } else {
-                    println!("Could not READ file: {:?}", de.path().file_name());
+                    println!("Parse failure: {:?}", entry.path().file_name());
                 }
-            } else {
-                println!("Could not OPEN file: {:?}", de.path().file_name());
-            }
 
             } else {
-                // Not needed
-                //println!("Skipping file: {:?}", de.path().file_name());
+                println!("Could not READ file: {:?}", entry.path().file_name());
             }
+
         } else {
             println!("{:?}", entry);
         }
@@ -201,48 +187,31 @@ fn test_all_fo4() {
 
 
 #[test]
-#[ignore = "figure out later"]
 fn test_all_fnv() {
     use std::io::Read;
 
-    let entries = std::fs::read_dir(FNV_DATA_DIR).expect("Could not open directory.");
+    let entries = get_targets_in_dir(FNV_DATA_DIR);
 
     for entry in entries {
 
-        if let Ok(de) = entry {
+        if let Ok(mut file) = File::open(entry.path()) {
 
-            if de.path().extension().is_some_and(|f| {
-                f == "esm" || f == "esp" || f == "esl"
-            }) {
+            let mut buf = Vec::new();
 
-            if let Ok(mut file) = File::open(de.path()) {
+            if let Ok(file_size) = file.read_to_end(&mut buf) {
 
-                let mut buf = Vec::new();
+                let start = std::time::Instant::now();
 
-                if let Ok(file_size) = file.read_to_end(&mut buf) {
-
-                    let start = std::time::Instant::now();
-
-                    if let Ok(esm) = ESMRaw::parse_v2(&buf, 1) {
-                        println!("Parse success: {:?} in {:?}", de.path().file_name(), start.elapsed());
-                        println!(" Map length: {:?}", esm.1.data_map.len());
-                        //println!("  Plus groups: {}", esm.1.data_map.len() + esm.1.group_counter as usize);
-                    } else {
-                        println!("Parse failure: {:?}", de.path().file_name());
-                    }
-
-
+                if let Ok(esm) = ESMRaw::parse_as_objects(&buf, 2) {
+                    println!("Parse success: {:?} in {:?} - Object count: {:?} - Map length: {:?}", entry.path().file_name().unwrap(), start.elapsed(), esm.1.header.get_object_count().unwrap_or(&0), esm.1.data_map.len());
                 } else {
-                    println!("Could not READ file: {:?}", de.path().file_name());
+                    println!("Parse failure: {:?}", entry.path().file_name());
                 }
+                
             } else {
-                println!("Could not OPEN file: {:?}", de.path().file_name());
+                println!("Could not READ file: {:?}", entry.path().file_name());
             }
 
-            } else {
-                // Not needed
-                //println!("Skipping file: {:?}", de.path().file_name());
-            }
         } else {
             println!("{:?}", entry);
         }
@@ -262,4 +231,22 @@ fn dump_target() {
 
     println!("{:#?}", esm);
 
+}
+
+
+fn get_targets_in_dir(path: &str) -> Vec<DirEntry> {
+    let mut filtered = Vec::new();
+    let entries = std::fs::read_dir(path).expect(format!("Could not read directory: {}", path).as_str());
+
+    for entry in entries {
+        if let Ok(de) = entry {
+            if de.path().extension().is_some_and(|f| {
+                TARGET_EXTS.contains(&f.to_str().unwrap())
+            }) {
+                filtered.push(de);
+            }
+        }
+    }
+
+    filtered
 }
