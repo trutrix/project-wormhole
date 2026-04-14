@@ -147,7 +147,7 @@ impl<'esm> ESMRaw<'esm> {
         };
 
         for obj in groups {
-            objects.push(obj.unwrap().1);
+            objects.push(obj?.1);
         }
 
         Ok((i, Self { header, objects }))
