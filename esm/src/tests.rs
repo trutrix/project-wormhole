@@ -13,11 +13,11 @@ const DUMP_TARGET: &str = "ccBGSFO4110-WS_Enclave.esl";
 
 const TARGET_EXTS: [&str;3] = ["esl", "esp", "esm"];
 
-#[test]
-fn test_all_fo4() {
+
+fn test_es_dir(path: &str) {
     use std::io::Read;
 
-    let entries = get_targets_in_dir(FO4_DATA_DIR);
+    let entries = get_targets_in_dir(path);
     let mut table = comfy_table::Table::new();
     table.load_preset(UTF8_FULL);
     table.set_header(vec!["File", "Benchmark", "Object Count (Header)", "Object Count (Parsed)"]);
@@ -63,53 +63,11 @@ fn test_all_fo4() {
 }
 
 
-
 #[test]
-fn test_all_fnv() {
-    use std::io::Read;
-
-    let entries = get_targets_in_dir(FNV_DATA_DIR);
-
-    for entry in entries {
-
-        if let Ok(mut file) = File::open(entry.path()) {
-
-            let mut buf = Vec::new();
-
-            if let Ok(file_size) = file.read_to_end(&mut buf) {
-
-                let start = std::time::Instant::now();
-
-                if let Ok(esm) = ESMRaw::parse_as_objects(&buf, 1) {
-                    println!("Parse success: {:?} in {:?} - Object count: {:?} - Map length: {:?}", entry.path().file_name().unwrap(), start.elapsed(), esm.1.header.get_object_count().unwrap_or(&0), esm.1.objects.len());
-                } else {
-                    println!("Parse failure: {:?}", entry.path().file_name());
-                }
-                
-            } else {
-                println!("Could not READ file: {:?}", entry.path().file_name());
-            }
-
-        } else {
-            println!("{:?}", entry);
-        }
-    }
+fn test_all() {
+    test_es_dir(FO4_DATA_DIR);
+    test_es_dir(FNV_DATA_DIR);
 }
-
-// #[test]
-// #[ignore = "run when needed"]
-// fn dump_target() {
-
-    
-//     let path = format!("{}/{}", FO4_DATA_DIR, DUMP_TARGET);
-//     print!("Dumping: {:?}", path);
-//     let file = std::fs::read(path).unwrap();
-
-//     let esm = ESMRaw::parse_v2(&file, 1).unwrap().1;
-
-//     println!("{:#?}", esm);
-
-// }
 
 
 fn get_targets_in_dir(path: &str) -> Vec<DirEntry> {
