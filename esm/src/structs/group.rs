@@ -4,7 +4,7 @@ use super::record::VersionControl;
 
 // ====================================================================================================
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct GroupHeader {
     pub iden: FourCC, // Always 'GRUP'
     pub size: u32, // Size INCLUDING header, unlike RecordHeader,
@@ -111,8 +111,19 @@ pub struct Group<T> {
 
 impl<'esm, T> Parse<&'esm[u8]> for Group<T> where T: for<'nom> Parse<&'esm[u8]> {
     fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
+
         let (i, (header, data)) = alloc_group(i)?;
-        let (_, data) = Self::parse_with_header(data, header)?;
+        
+        #[cfg(debug_assertions)]
+        let hc = header.clone();
+
+        let (lo, data) = Self::parse_with_header(data, header)?;
+
+        #[cfg(debug_assertions)]
+        if !lo.is_empty() {
+            panic!("Group did not consume its data: {:?}", hc);
+        }
+
         Ok((i, data))
     }
 }

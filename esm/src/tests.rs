@@ -3,12 +3,15 @@ use std::{collections::{HashMap, HashSet}, fs::{DirEntry, File}, path::PathBuf, 
 
 use comfy_table::presets::UTF8_FULL;
 
-use crate::{esm::{full::ESMFull, mapped::ESMMapped, raw::{ESMRaw}}, records::all::*, structs::chunk::get_file_chunks};
+use crate::{dev::GroupLabel, esm::{full::ESMFull, mapped::ESMMapped, raw::ESMRaw}, records::all::*, structs::chunk::get_file_chunks};
 
 
-const ESM_PATH: &str = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Fallout 4\\Data\\Fallout4.esm";
+const FO4_ESM_PATH: &str = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Fallout 4\\Data\\Fallout4.esm";
 const FO4_DATA_DIR: &str = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Fallout 4\\Data";
+
+const FNV_ESM_PATH: &str = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Fallout New Vegas\\Data\\FalloutNV.esm";
 const FNV_DATA_DIR: &str = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Fallout New Vegas\\Data";
+
 const DUMP_TARGET: &str = "ccBGSFO4110-WS_Enclave.esl";
 
 const TARGET_EXTS: [&str;3] = ["esl", "esp", "esm"];
@@ -20,7 +23,7 @@ fn test_es_dir(path: &str) {
     let entries = get_targets_in_dir(path);
     let mut table = comfy_table::Table::new();
     table.load_preset(UTF8_FULL);
-    table.set_header(vec!["File", "Benchmark", "Object Count (Header)", "Object Count (Parsed)"]);
+    table.set_header(vec!["File", "Benchmark", "Objects (Header)", "Objects (Parsed)"]);
 
     for entry in entries {
 
@@ -85,4 +88,49 @@ fn get_targets_in_dir(path: &str) -> Vec<DirEntry> {
     }
 
     filtered
+}
+
+#[test]
+#[ignore = "debugging only"]
+fn dump_main() {
+    let file = std::fs::read(FO4_ESM_PATH).unwrap();
+    let esm = ESMRaw::parse_as_objects(&file, 2).unwrap().1;
+
+    let file2 = std::fs::read("C:\\Program Files (x86)\\Steam\\steamapps\\common\\Fallout 4\\Data\\DLCCoast.esm").unwrap();
+    let esm2 = ESMRaw::parse_as_objects(&file, 2).unwrap().1;
+
+    let mut h1 = HashSet::new();
+    let mut h2 = HashSet::new();
+    
+    for o in esm.objects {
+        match o {
+            crate::structs::es_object::RawESObject::Record(raw_record) => {},
+            crate::structs::es_object::RawESObject::Group(group) => {
+                if let GroupLabel::Top(iden) = group.header.label {
+                    
+                    h1.insert(iden);
+                    println!("New len: {} for {}", h1.len(), iden)
+                }
+            },
+        }
+    }
+
+    for o in esm2.objects {
+        match o {
+            crate::structs::es_object::RawESObject::Record(raw_record) => {},
+            crate::structs::es_object::RawESObject::Group(group) => {
+                if let GroupLabel::Top(iden) = group.header.label {
+                    h2.insert(iden);
+                }
+            },
+        }
+    }
+
+    for i in h2 {
+        if h1.remove(&i) {
+            println!("Removed item now: {}", h1.len())
+        }
+    }
+
+    println!("{:#?}", h1);
 }

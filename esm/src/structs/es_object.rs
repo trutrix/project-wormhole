@@ -36,10 +36,12 @@ pub enum RawESObject<'esm> {
 
 impl RawESObject<'_> {
     pub fn get_object_count(&self) -> usize {
+
+        let mut count = 1;
+
         match self {
-            RawESObject::Record(_) => 1,
+            RawESObject::Record(_) => count,
             RawESObject::Group(group) => {
-                let mut count = 1;
                 for item in &group.data {
                     count += item.get_object_count();
                 }
@@ -90,3 +92,12 @@ impl<'esm> MapContents<HashMap<FormId, RawRecord<'esm>>> for RawESObject<'esm> {
 }
 
 // ====================================================================================================
+
+impl std::fmt::Debug for RawESObject<'_> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            RawESObject::Record(record) => write!(f, "Record: {:?}", record.header.iden),
+            RawESObject::Group(group) => write!(f, "Group: {:?}", group.header.label),
+        }
+    }
+}

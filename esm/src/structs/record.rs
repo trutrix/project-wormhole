@@ -458,6 +458,12 @@ pub struct RawRecord<'esm> {
 impl<'esm> Parse<&'esm [u8]> for RawRecord<'esm> {
     fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
         let (i, (header, data)) = alloc_record(i)?;
+
+        // #[cfg(debug_assertions)]
+        // if &header.iden.0 == b"LVLN" {
+        //     println!("{:?}", header)
+        // }
+
         Ok((i, Self { header, data }))
     }
 }
