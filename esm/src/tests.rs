@@ -20,7 +20,7 @@ fn test_all_fo4() {
     let entries = get_targets_in_dir(FO4_DATA_DIR);
     let mut table = comfy_table::Table::new();
     table.load_preset(UTF8_FULL);
-    table.set_header(vec!["File", "Benchmark", "Object Count"]);
+    table.set_header(vec!["File", "Benchmark", "Object Count (Header)", "Object Count (Parsed)"]);
 
     for entry in entries {
 
@@ -32,19 +32,21 @@ fn test_all_fo4() {
 
                 let start = std::time::Instant::now();
 
-                if let Ok(esm) = ESMRaw::parse_as_objects(&buf, 1) {
+                if let Ok((_, esm)) = ESMRaw::parse_as_objects(&buf, 1) {
                     let end = start.elapsed();
 
                     table.add_row(vec![
                         entry.path().file_name().unwrap().to_str().unwrap(),
                         format!("{:?}", end).as_str(),
-                        format!("{:?}", esm.1.header.get_object_count().unwrap_or(&0)).as_str()
+                        format!("{:?}", esm.header.get_object_count().unwrap_or(&0)).as_str(),
+                        format!("{}", esm.get_full_object_count()).as_str()
                     ]);
                 
                 } else {
                     table.add_row(vec![
                         entry.path().file_name().unwrap().to_str().unwrap(),
-                        "",
+                        "Failure",
+                        "Failure",
                         "Failure"
                     ]);
                 }

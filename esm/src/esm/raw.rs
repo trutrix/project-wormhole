@@ -1,6 +1,5 @@
-use std::collections::{HashMap, HashSet};
 use rayon::prelude::*;
-use crate::{dev::*, groups::prelude::*, prelude::MapContents, records::all::{FileHeader, RawQuestItem}, structs::{chunk::get_file_chunks, es_object::RawESObject}};
+use crate::{dev::*, records::all::FileHeader, structs::{chunk::get_file_chunks, es_object::RawESObject}};
 
 // ====================================================================================================
 
@@ -151,6 +150,16 @@ impl<'esm> ESMRaw<'esm> {
         }
 
         Ok((i, Self { header, objects }))
+    }
+
+    pub fn get_full_object_count(&self) -> usize {
+        let mut count = 0;
+
+        for o in &self.objects {
+            count += o.get_object_count();
+        }
+
+        count
     }
 }
 
