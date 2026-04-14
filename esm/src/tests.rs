@@ -1,6 +1,8 @@
 #![allow(unused)]
 use std::{collections::{HashMap, HashSet}, fs::{DirEntry, File}, path::PathBuf, str::FromStr};
 
+use comfy_table::presets::UTF8_FULL;
+
 use crate::{esm::{full::ESMFull, mapped::ESMMapped, raw::{ESMRaw}}, records::all::*, structs::chunk::get_file_chunks};
 
 
@@ -12,151 +14,13 @@ const DUMP_TARGET: &str = "ccBGSFO4110-WS_Enclave.esl";
 const TARGET_EXTS: [&str;3] = ["esl", "esp", "esm"];
 
 #[test]
-pub fn esm_benchmarks() {
-    use crate::esm::*;
-    use crate::dev::*;
-    use std::io::Read;
-
-    println!("");
-
-    let start = std::time::Instant::now();
-    let mut file = std::fs::File::open(ESM_PATH).unwrap();
-    let mut buf = Vec::new();
-    file.read_to_end(&mut buf).unwrap();
-    println!("Read file to memory: {:?} - {} bytes", start.elapsed(), buf.len());
-    println!("");
-
-    let start = std::time::Instant::now();
-    let (_, file_chunks) = get_file_chunks(&buf).unwrap();
-    println!("get_file_chunks: {:?}", start.elapsed());
-    println!("");
-
-    // let start = std::time::Instant::now();
-    // let (_, esm) = RawESM::parse(&buf).unwrap();
-    // println!("RawESM (Single Thread): {:?}", start.elapsed());
-    // println!("RawESM record count: {}", esm.records.len());
-    // println!("RawESM references count: {}", esm.references.len());
-    //println!("Expected records: {:?}", esm.header.fields);
-    //println!("Record count: {}", esm.records.len());
-
-    // println!("");
-    // let start = std::time::Instant::now();
-    // let (_, esm) = ESMFull::parse(&buf).unwrap();
-    // println!("ESMFull (Single Thread): {:?}", start.elapsed());
-
-    // let start = std::time::Instant::now();
-    // let (_, esm) = ESMFull::parse_mt(&buf).unwrap();
-    // println!("ESMFull (Thread Per Group): {:?}", start.elapsed());
-
-    // println!("");
-    // let start = std::time::Instant::now();
-    // let esm = ESMMapped::from(esm);
-    // println!("MappedESM: {:?}", start.elapsed());
-    // println!("Mapped Record count: {}", esm.indices.len());
-
-    // let start = std::time::Instant::now();
-    // let diff = ESMDiff::parse(&buf).unwrap().1;
-    // println!("ESMDiff: {:?}", start.elapsed());
-    // println!("Diff record count: {}", diff.data_records.len());
-    // println!("Diff cell count: {}", diff.cells.len());
-}
-
-
-
-#[test]
-#[ignore]
-fn esm_full_single() {
-    use std::io::Read;
-
-    let start = std::time::Instant::now();
-    let mut file = std::fs::File::open(ESM_PATH).unwrap();
-    let mut buf = Vec::new();
-    file.read_to_end(&mut buf).unwrap();
-
-    println!("");
-    let start = std::time::Instant::now();
-    let (_, esm) = ESMFull::parse(&buf).unwrap();
-    println!("ESMFull (Single Thread): {:?}", start.elapsed());
-}
-
-
-#[test]
-#[ignore = "multiple multi-threaded tests contaminate results"]
-fn esm_full_multi() {
-    use std::io::Read;
-
-    let start = std::time::Instant::now();
-    let mut file = std::fs::File::open(ESM_PATH).unwrap();
-    let mut buf = Vec::new();
-    file.read_to_end(&mut buf).unwrap();
-
-    println!("");
-    let start = std::time::Instant::now();
-    let (_, esm) = ESMFull::parse_mt(&buf).unwrap();
-    println!("ESMFull (Multi Thread): {:?}", start.elapsed());
-}
-
-// #[test]
-// #[ignore = "obsolete"]
-// fn esm_raw_single() {
-//     use std::io::Read;
-
-//     let start = std::time::Instant::now();
-//     let mut file = std::fs::File::open(ESM_PATH).unwrap();
-//     let mut buf = Vec::new();
-//     file.read_to_end(&mut buf).unwrap();
-
-//     let start = std::time::Instant::now();
-//     let (_, esm) = RawESM::parse(&buf).unwrap();
-//     println!("");
-//     println!("RawESM (Single Thread): {:?}", start.elapsed());
-//     println!("RawESM record count: {}", esm.data_map.len());
-//     println!("RawESM references count: {}", esm.refr_map.len());
-// }
-
-
-// #[test]
-// #[ignore = "obsolete"]
-// fn esm_raw_multi() {
-//     use std::io::Read;
-
-//     let start = std::time::Instant::now();
-//     let mut file = std::fs::File::open(ESM_PATH).unwrap();
-//     let mut buf = Vec::new();
-//     file.read_to_end(&mut buf).unwrap();
-
-//     let start = std::time::Instant::now();
-//     let (_, esm) = RawESM::parse_mt(&buf).unwrap();
-//     println!("");
-//     println!("RawESM (Multi Thread): {:?}", start.elapsed());
-//     println!("RawESM record count: {}", esm.data_map.len());
-//     println!("RawESM references count: {}", esm.refr_map.len());
-// }
-
-
-// #[test]
-// #[ignore = "enable when needed"]
-// fn esm_raw_2() {
-//     use std::io::Read;
-
-//     let start = std::time::Instant::now();
-//     let mut file = std::fs::File::open(ESM_PATH).unwrap();
-//     let mut buf = Vec::new();
-//     file.read_to_end(&mut buf).unwrap();
-
-//     let start = std::time::Instant::now();
-//     let (_, esm) = ESMRaw::parse_v2(&buf, 2).unwrap();
-//     println!("");
-//     println!("RawESM (Multi Thread): {:?}", start.elapsed());
-//     println!("RawESM record count: {}", esm.data_map.len());
-// }
-
-
-#[test]
 fn test_all_fo4() {
     use std::io::Read;
 
     let entries = get_targets_in_dir(FO4_DATA_DIR);
+    let mut table = comfy_table::Table::new();
+    table.load_preset(UTF8_FULL);
+    table.set_header(vec!["File", "Benchmark", "Object Count"]);
 
     for entry in entries {
 
@@ -169,9 +33,20 @@ fn test_all_fo4() {
                 let start = std::time::Instant::now();
 
                 if let Ok(esm) = ESMRaw::parse_as_objects(&buf, 1) {
-                    println!("Parse success: {:?} in {:?} - Object count: {:?} - Map length: {:?}", entry.path().file_name().unwrap(), start.elapsed(), esm.1.header.get_object_count().unwrap_or(&0), esm.1.objects.len());
+                    let end = start.elapsed();
+
+                    table.add_row(vec![
+                        entry.path().file_name().unwrap().to_str().unwrap(),
+                        format!("{:?}", end).as_str(),
+                        format!("{:?}", esm.1.header.get_object_count().unwrap_or(&0)).as_str()
+                    ]);
+                
                 } else {
-                    println!("Parse failure: {:?}", entry.path().file_name());
+                    table.add_row(vec![
+                        entry.path().file_name().unwrap().to_str().unwrap(),
+                        "",
+                        "Failure"
+                    ]);
                 }
 
             } else {
@@ -182,6 +57,7 @@ fn test_all_fo4() {
             println!("{:?}", entry);
         }
     }
+    println!("{}", table);
 }
 
 
