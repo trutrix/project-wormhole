@@ -6,10 +6,14 @@ use super::record::VersionControl;
 
 #[derive(Debug, Clone)]
 pub struct GroupHeader {
-    pub iden: FourCC, // Always 'GRUP'
-    pub size: u32, // Size INCLUDING header, unlike RecordHeader,
-    pub label: GroupLabel, // 8 bytes, reversed process
-    pub version_control: VersionControl // TODO: Unsure if records and groups share the same version information
+    /// Should always be ` b"GRUP" `
+    pub iden: FourCC,
+    /// Size INCLUDING header, unlike RecordHeader,
+    pub size: u32,
+    /// The type of group
+    pub label: GroupLabel,
+    /// TODO: Groups appear to have different version control
+    pub version_control: VersionControl
 }
 
 // ====================================================================================================
@@ -35,41 +39,65 @@ impl ValidateData for GroupHeader {
 
 // ====================================================================================================
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum GroupLabel {
     Top(FourCC),
     WorldChildren(FormId),
     InteriorCellBlock(i32),
     InteriorCellSubBlock(i32),
-    ExteriorCellBlock([i16;2]),
-    ExteriorCellSubBlock([i16;2]),
+    ExteriorCellBlock(CellLocation),
+    ExteriorCellSubBlock(CellLocation),
     CellChildren(FormId),
     TopicChildren(FormId),
     CellPersistentChildren(FormId),
     CellTemporaryChildren(FormId),
     CellVisibleDistantChildren(FormId),
-    Unknown(FourCC)
+    Unknown([u8;4])
 }
 
 // ====================================================================================================
 
+
+// TODO: the logic here can be slightly improved as there is far more non-top groups
+// impl Parse<&[u8]> for GroupLabel {
+//     fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
+//         let (i, data) = FourCC::parse(i)?;
+//         let (i, label_type) = le_u32(i)?;
+
+//         match label_type {
+//             0 => { Ok((i, GroupLabel::Top(data))) }
+//             1 => { Ok((i, GroupLabel::WorldChildren(FormId(u32::from_le_bytes(data.0))))) }
+//             2 => { Ok((i, GroupLabel::InteriorCellBlock(i32::from_le_bytes(data.0)))) }
+//             3 => { Ok((i, GroupLabel::InteriorCellSubBlock(i32::from_le_bytes(data.0)))) }
+//             4 => { Ok((i, GroupLabel::ExteriorCellBlock([i16::from_le_bytes(data.0[0..2].try_into().unwrap()), i16::from_le_bytes(data.0[2..4].try_into().unwrap())]))) }
+//             5 => { Ok((i, GroupLabel::ExteriorCellSubBlock([i16::from_le_bytes(data.0[0..2].try_into().unwrap()), i16::from_le_bytes(data.0[2..4].try_into().unwrap())]))) }
+//             6 => { Ok((i, GroupLabel::CellChildren(FormId(u32::from_le_bytes(data.0))))) }
+//             7 => { Ok((i, GroupLabel::TopicChildren(FormId(u32::from_le_bytes(data.0))))) }
+//             8 => { Ok((i, GroupLabel::CellPersistentChildren(FormId(u32::from_le_bytes(data.0))))) }
+//             9 => { Ok((i, GroupLabel::CellTemporaryChildren(FormId(u32::from_le_bytes(data.0))))) }
+//             10 => { Ok((i, GroupLabel::CellVisibleDistantChildren(FormId(u32::from_le_bytes(data.0))))) }
+//             _ => { Ok((i, GroupLabel::Unknown(data))) }
+//         }
+//     }
+// }
+
 impl Parse<&[u8]> for GroupLabel {
     fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
-        let (i, data) = FourCC::parse(i)?;
+        let (i, data) = <[u8;4]>::parse(i)?;
         let (i, label_type) = le_u32(i)?;
 
         match label_type {
-            0 => { Ok((i, GroupLabel::Top(data))) }
-            1 => { Ok((i, GroupLabel::WorldChildren(FormId(u32::from_le_bytes(data.0))))) }
-            2 => { Ok((i, GroupLabel::InteriorCellBlock(i32::from_le_bytes(data.0)))) }
-            3 => { Ok((i, GroupLabel::InteriorCellSubBlock(i32::from_le_bytes(data.0)))) }
-            4 => { Ok((i, GroupLabel::ExteriorCellBlock([i16::from_le_bytes(data.0[0..2].try_into().unwrap()), i16::from_le_bytes(data.0[2..4].try_into().unwrap())]))) }
-            5 => { Ok((i, GroupLabel::ExteriorCellSubBlock([i16::from_le_bytes(data.0[0..2].try_into().unwrap()), i16::from_le_bytes(data.0[2..4].try_into().unwrap())]))) }
-            6 => { Ok((i, GroupLabel::CellChildren(FormId(u32::from_le_bytes(data.0))))) }
-            7 => { Ok((i, GroupLabel::TopicChildren(FormId(u32::from_le_bytes(data.0))))) }
-            8 => { Ok((i, GroupLabel::CellPersistentChildren(FormId(u32::from_le_bytes(data.0))))) }
-            9 => { Ok((i, GroupLabel::CellTemporaryChildren(FormId(u32::from_le_bytes(data.0))))) }
-            10 => { Ok((i, GroupLabel::CellVisibleDistantChildren(FormId(u32::from_le_bytes(data.0))))) }
+            0 => { Ok((i, GroupLabel::Top(FourCC(data)))) }
+            1 => { Ok((i, GroupLabel::WorldChildren(data.into()))) }
+            2 => { Ok((i, GroupLabel::InteriorCellBlock(i32::from_le_bytes(data)))) }
+            3 => { Ok((i, GroupLabel::InteriorCellSubBlock(i32::from_le_bytes(data)))) }
+            4 => { Ok((i, GroupLabel::ExteriorCellBlock(data.into()))) }
+            5 => { Ok((i, GroupLabel::ExteriorCellSubBlock(data.into()))) }
+            6 => { Ok((i, GroupLabel::CellChildren(data.into()))) }
+            7 => { Ok((i, GroupLabel::TopicChildren(data.into()))) }
+            8 => { Ok((i, GroupLabel::CellPersistentChildren(data.into()))) }
+            9 => { Ok((i, GroupLabel::CellTemporaryChildren(data.into()))) }
+            10 => { Ok((i, GroupLabel::CellVisibleDistantChildren(data.into()))) }
             _ => { Ok((i, GroupLabel::Unknown(data))) }
         }
     }
@@ -134,5 +162,20 @@ impl<'esm, T> Group<T> where T: for<'nom> Parse<&'esm[u8]> {
     pub fn parse_with_header(i: &'esm[u8], header: GroupHeader) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
         let (i, data) = many0(T::parse)(i)?;
         Ok((i, Group { header, data }))
+    }
+}
+
+// ====================================================================================================
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct CellLocation(pub [i16;2]);
+
+// ====================================================================================================
+
+impl From<[u8;4]> for CellLocation {
+    fn from(value: [u8;4]) -> Self {
+        let y = [value[0], value[1]];
+        let x = [value[2], value[3]];
+        Self([i16::from_le_bytes(x), i16::from_le_bytes(y)])
     }
 }
