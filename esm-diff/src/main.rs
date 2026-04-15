@@ -50,11 +50,7 @@ fn main() {
     let buf2 = std::fs::read(path2).expect("Failed to read ESM2");
 
 
-    let (_, esm1) = ESMRaw::parse_v2(&buf1, 2).expect("Failed to parse ESM1");
-    let (_, mut esm2) = ESMRaw::parse_v2(&buf2, 2).expect("Failed to parse ESM2");
-
-    let diff = project_wormhole_esm::esm::raw::esm_raw_diff(esm1, esm2);
-
-    
+    let (_, esm1) = ESMRaw::parse_as_objects(&buf1, 2).expect("Failed to parse ESM1");
+    let (_, mut esm2) = ESMRaw::parse_as_objects(&buf2, 2).expect("Failed to parse ESM2");
 }
 
