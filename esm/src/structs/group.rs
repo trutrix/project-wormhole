@@ -1,3 +1,5 @@
+use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
+
 use crate::dev::*;
 use crate::traits::ValidateData;
 use super::record::VersionControl;
@@ -137,7 +139,7 @@ pub struct Group<T> {
 
 // ====================================================================================================
 
-impl<'esm, T> Parse<&'esm[u8]> for Group<T> where T: for<'nom> Parse<&'esm[u8]> {
+impl<'esm, T> Parse<&'esm[u8]> for Group<T> where T: for<'nom> Parse<&'esm[u8]> + Send {
     fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
 
         let (i, (header, data)) = alloc_group(i)?;
@@ -158,10 +160,36 @@ impl<'esm, T> Parse<&'esm[u8]> for Group<T> where T: for<'nom> Parse<&'esm[u8]> 
 
 // ====================================================================================================
 
-impl<'esm, T> Group<T> where T: for<'nom> Parse<&'esm[u8]> {
+impl<'esm, T> Group<T> where T: for<'nom> Parse<&'esm[u8]> + Send{
     pub fn parse_with_header(i: &'esm[u8], header: GroupHeader) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
-        let (i, data) = many0(T::parse)(i)?;
-        Ok((i, Group { header, data }))
+        
+        let mut sub = i;
+        let mut chunks = Vec::new();
+
+        while !sub.is_empty() {
+
+            let (i, next_id) = FourCC::parse(sub)?;
+            let (_, size) = le_u32(i)?;
+
+            if &next_id.0 == b"GRUP" {
+                let (i, chunk) = take(size as usize)(sub)?;
+                chunks.push(chunk);
+                sub = i;
+            } else {
+                let (i, chunk) = take(size as usize + 24)(sub)?;
+                chunks.push(chunk);
+                sub = i;
+            }
+        }
+
+        let data = chunks.par_iter().map(|x| { 
+            T::parse(x).unwrap().1
+        }).collect();
+
+
+        //let (i, data) = many0(T::parse)(i)?;
+
+        Ok((sub, Group { header, data }))
     }
 }
 
