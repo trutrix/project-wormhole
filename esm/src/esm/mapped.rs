@@ -199,8 +199,25 @@ impl<'esm> From<ESMRaw<'esm>> for MappedESM<RawRecord<'esm>> {
 
 // ====================================================================================================
 
-// impl From<ESMFull> for MappedESM<HashMap<FormId, SingleRecord>> {
-//     fn from(value: ESMFull) -> Self {
+impl<'esm> MappedESM<RawRecord<'esm>> {
+    pub fn diff(&'esm self, esm: &'esm Self) -> (Vec<&'esm FormId>, Vec<&'esm FormId>, Vec<&'esm FormId>) {
+        let mut updated = Vec::new();
+        let mut unchanged = Vec::new();
+        let mut addition = Vec::new();
         
-//     }
-// }
+        
+        for (id, item) in &esm.map {
+            if let Some(original) = self.map.get(&id) {
+                if item == original {
+                    unchanged.push(id);
+                } else {
+                    updated.push(id);
+                }
+            } else {
+                addition.push(id);
+            }
+        }
+
+        (updated, unchanged, addition)
+    }
+}
