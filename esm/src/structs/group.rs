@@ -167,7 +167,7 @@ impl<'esm, T> Group<T> where T: for<'nom> Parse<&'esm[u8]> {
 
 // ====================================================================================================
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Clone, PartialEq, Eq)]
 pub struct CellLocation(pub [i16;2]);
 
 // ====================================================================================================
@@ -177,5 +177,13 @@ impl From<[u8;4]> for CellLocation {
         let y = [value[0], value[1]];
         let x = [value[2], value[3]];
         Self([i16::from_le_bytes(x), i16::from_le_bytes(y)])
+    }
+}
+
+// ====================================================================================================
+
+impl std::fmt::Debug for CellLocation {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "CellLocation(x: {}, y: {})", self.0[0], self.0[1])
     }
 }
