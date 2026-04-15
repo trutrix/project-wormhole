@@ -12,7 +12,7 @@ pub struct GroupHeader {
     pub size: u32,
     /// The type of group
     pub label: GroupLabel,
-    /// TODO: Groups appear to have different version control
+    /// TODO: Groups appear to have different version control info
     pub version_control: VersionControl
 }
 
