@@ -591,39 +591,3 @@ pub fn decompress_record(i: &[u8]) -> Result<Vec<u8>, std::io::Error> {
     }
 
 }
-
-
-
-
-// ====================================================================================================
-
-#[derive(Debug)]
-pub struct RawWorldRecord<'esm> {
-    pub world: RawRecord<'esm>,
-    pub world_children: Option<RawWorldChildren<'esm>>
-}
-
-// ====================================================================================================
-
-impl RawWorldRecord<'_> {
-    pub fn has_children(&self) -> bool {
-        self.world_children.is_some()
-    }
-}
-
-// ====================================================================================================
-
-impl <'esm> Parse<&'esm[u8]> for RawWorldRecord<'esm>  {
-    fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self> {
-        let (i, world) = RawRecord::parse(i)?;
-
-        let (_, ghead) = GroupHeader::parse(i)?;
-
-        if let GroupLabel::WorldChildren(_) = ghead.label {
-            let (i, world_children) = RawWorldChildren::parse(i)?;
-            Ok((i, Self { world, world_children: Some(world_children) }))
-        } else {
-            Ok((i, Self { world, world_children: None }))
-        }
-    }
-}
