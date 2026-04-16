@@ -1,6 +1,6 @@
-pub mod parse_versioned;
+pub mod parse;
 
 
 pub mod prelude {
-    pub use crate::traits::parse_versioned::*;
+    pub use crate::traits::parse::*;
 }
