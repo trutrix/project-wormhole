@@ -201,9 +201,9 @@ impl<'esm> From<ESMRaw<'esm>> for MappedESM<RawRecord<'esm>> {
 
 impl<'esm> MappedESM<RawRecord<'esm>> {
     pub fn diff(&'esm self, esm: &'esm Self) -> (Vec<&'esm FormId>, Vec<&'esm FormId>, Vec<&'esm FormId>) {
-        let mut updated = Vec::new();
-        let mut unchanged = Vec::new();
-        let mut addition = Vec::new();
+        let mut updated = Vec::with_capacity(1000000);
+        let mut unchanged = Vec::with_capacity(2000000);
+        let mut addition = Vec::with_capacity(1000000);
         
         
         for (id, item) in &esm.map {
