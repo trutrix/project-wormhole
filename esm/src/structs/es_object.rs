@@ -55,9 +55,9 @@ impl RawESObject<'_> {
 
 impl<'esm> Parse<&'esm[u8]> for RawESObject<'esm> {
     fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
-        let (_, iden) = FourCC::parse(i)?;
+        //let (_, iden) = <[u8;4]>::parse(i)?;
 
-        if &iden.0 == b"GRUP" {
+        if &[i[0], i[1], i[2], i[3]] == b"GRUP" {
             let (i, group) = <Group<RawESObject>>::parse(i)?;
             Ok((i, RawESObject::Group(group)))
         } else {
