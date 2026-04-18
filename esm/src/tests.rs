@@ -1,9 +1,9 @@
 #![allow(unused)]
-use std::{collections::{HashMap, HashSet}, fs::{DirEntry, File}, path::PathBuf, str::FromStr};
+use std::{collections::{HashMap, HashSet}, fs::{DirEntry, File}, os::raw, path::PathBuf, str::FromStr};
 
 use comfy_table::presets::UTF8_FULL;
 
-use crate::{dev::GroupLabel, esm::{full::ESMFull, mapped::ESMMapped, raw::ESMRaw}, records::all::*, structs::chunk::get_file_chunks};
+use crate::{dev::GroupLabel, esm::{full::ESMFull, mapped::ESMMapped, raw::ESMRaw}, records::all::*, structs::{chunk::get_file_chunks, es_object::RawESObject}};
 
 
 const FO4_ESM_PATH: &str = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Fallout 4\\Data\\Fallout4.esm";
@@ -91,46 +91,41 @@ fn get_targets_in_dir(path: &str) -> Vec<DirEntry> {
 }
 
 #[test]
-#[ignore = "debugging only"]
 fn dump_main() {
     let file = std::fs::read(FO4_ESM_PATH).unwrap();
     let esm = ESMRaw::parse_as_objects(&file, 2).unwrap().1;
 
-    let file2 = std::fs::read("C:\\Program Files (x86)\\Steam\\steamapps\\common\\Fallout 4\\Data\\DLCCoast.esm").unwrap();
-    let esm2 = ESMRaw::parse_as_objects(&file, 2).unwrap().1;
-
-    let mut h1 = HashSet::new();
-    let mut h2 = HashSet::new();
-    
-    for o in esm.objects {
+    for o in &esm.objects {
         match o {
-            crate::structs::es_object::RawESObject::Record(raw_record) => {},
-            crate::structs::es_object::RawESObject::Group(group) => {
-                if let GroupLabel::Top(iden) = group.header.label {
-                    
-                    h1.insert(iden);
-                    println!("New len: {} for {}", h1.len(), iden)
-                }
+            RawESObject::Record(raw_record) => {
+                println!("RawRecord: {:?}", raw_record.header)
             },
-        }
-    }
+            RawESObject::Group(group) => {
+                match group.header.label {
+                    GroupLabel::Top(four_cc) => {
+                        match &four_cc.0 {
+                            b"WRLD" => {
 
-    for o in esm2.objects {
-        match o {
-            crate::structs::es_object::RawESObject::Record(raw_record) => {},
-            crate::structs::es_object::RawESObject::Group(group) => {
-                if let GroupLabel::Top(iden) = group.header.label {
-                    h2.insert(iden);
+                            }
+
+                            b"CELL" => {
+
+                            }
+
+                            b"QUST" => {
+
+                            }
+                            _ => {
+                                println!("Top Group: {}", four_cc)
+                            }
+                        }
+                    },
+                    _ => {
+                        panic!("Unexpectec non-top group.")
+                    }
                 }
-            },
+            }
         }
     }
 
-    for i in h2 {
-        if h1.remove(&i) {
-            println!("Removed item now: {}", h1.len())
-        }
-    }
-
-    println!("{:#?}", h1);
 }
