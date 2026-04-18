@@ -93,36 +93,58 @@ fn get_targets_in_dir(path: &str) -> Vec<DirEntry> {
 #[test]
 fn dump_main() {
     let file = std::fs::read(FO4_ESM_PATH).unwrap();
-    let esm = ESMRaw::parse_as_objects(&file, 2).unwrap().1;
+    let esm = ESMRaw::parse_as_objects(&file, 1).unwrap().1;
 
     for o in &esm.objects {
         match o {
             RawESObject::Record(raw_record) => {
-                println!("RawRecord: {:?}", raw_record.header)
+                o.print_header_info(0);
             },
             RawESObject::Group(group) => {
+                o.print_header_info(0);
+                println!("  Objects: {}", o.get_object_count());
                 match group.header.label {
                     GroupLabel::Top(four_cc) => {
                         match &four_cc.0 {
                             b"WRLD" => {
-
+                                for w in &group.data {
+                                    match w {
+                                        RawESObject::Record(raw_record) => {
+                                            w.print_header_info(2);
+                                        },
+                                        RawESObject::Group(group) => {
+                                            w.print_header_info(4);
+                                            for wc in &group.data {
+                                                wc.print_header_info(6);
+                                                match wc {
+                                                    RawESObject::Record(raw_record) => 
+                                                    {
+                                                        
+                                                    },
+                                                    RawESObject::Group(group) => {
+                                                        for ecb in &group.data {
+                                                            ecb.print_header_info(8);
+                                                        }
+                                                    },
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
                             }
 
                             b"CELL" => {
 
                             }
 
-                            b"QUST" => {
 
-                            }
-                            _ => {
-                                println!("Top Group: {}", four_cc)
-                            }
+                            _ => {  }
                         }
-                    },
-                    _ => {
-                        panic!("Unexpectec non-top group.")
+
+
                     }
+
+                    _ => { panic!("Uneexpected group encountered.")}
                 }
             }
         }

@@ -57,6 +57,25 @@ pub enum GroupLabel {
     Unknown([u8;4])
 }
 
+impl std::fmt::Display for GroupLabel {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            GroupLabel::Top(four_cc) => write!(f, "Top({})", four_cc),
+            GroupLabel::WorldChildren(form_id) => write!(f, "WorldChildren({})", form_id),
+            GroupLabel::InteriorCellBlock(i) => write!(f, "InteriorCellBlock({})", i),
+            GroupLabel::InteriorCellSubBlock(i) => write!(f, "InteriorCellSubBlock({})", i),
+            GroupLabel::ExteriorCellBlock(cell_location) => write!(f, "ExteriorCellBlock({:?})", cell_location),
+            GroupLabel::ExteriorCellSubBlock(cell_location) => write!(f, "ExteriorCellSubBlock({:?})", cell_location),
+            GroupLabel::CellChildren(form_id) => write!(f, "CellChildren({})", form_id),
+            GroupLabel::TopicChildren(form_id) => write!(f, "TopicChildren({})", form_id),
+            GroupLabel::CellPersistentChildren(form_id) => write!(f, "CellPersistentChildren({})", form_id),
+            GroupLabel::CellTemporaryChildren(form_id) => write!(f, "CellTemporaryChildren({})", form_id),
+            GroupLabel::CellVisibleDistantChildren(form_id) => write!(f, "CellVisibleDistantChildren({})", form_id),
+            GroupLabel::Unknown(_) => todo!(),
+        }
+    }
+}
+
 // ====================================================================================================
 
 
@@ -100,7 +119,7 @@ impl Parse<&[u8]> for GroupLabel {
             8 => { Ok((i, GroupLabel::CellPersistentChildren(data.into()))) }
             9 => { Ok((i, GroupLabel::CellTemporaryChildren(data.into()))) }
             10 => { Ok((i, GroupLabel::CellVisibleDistantChildren(data.into()))) }
-            _ => { Ok((i, GroupLabel::Unknown(data))) }
+            _ => { panic!("Unknown group encountered"); Ok((i, GroupLabel::Unknown(data))) }
         }
     }
 }

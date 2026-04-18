@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, num::NonZero};
 
 use crate::{dev::*, prelude::MapContents, records::SingleRecord};
 
@@ -49,6 +49,34 @@ impl RawESObject<'_> {
             },
         }
     }
+
+    pub fn print_header_info(&self, indent: usize) {
+        let mut ind = String::new();
+
+        for _ in 0..indent {
+            ind.push(' ');
+        }
+
+        match self {
+            RawESObject::Record(raw_record) => println!("{ind}{} - {}", raw_record.header.iden, raw_record.header.form_id),
+            RawESObject::Group(group) => {
+                match &group.header.label {
+                    GroupLabel::Top(four_cc) => println!("{ind}Top - {}", four_cc),
+                    GroupLabel::WorldChildren(form_id) => println!("{ind}WorldChildren -  for {}", form_id),
+                    GroupLabel::InteriorCellBlock(_) => todo!(),
+                    GroupLabel::InteriorCellSubBlock(_) => todo!(),
+                    GroupLabel::ExteriorCellBlock(cell_location) => println!("{ind}ExteriorCellBlock - {:?}", cell_location),
+                    GroupLabel::ExteriorCellSubBlock(cell_location) => println!("{ind}ExteriorCellSubBlock - {:?}", cell_location),
+                    GroupLabel::CellChildren(form_id) => println!("{ind}CellChildren - for {}", form_id),
+                    GroupLabel::TopicChildren(form_id) => println!("{ind}TopicChildren - for {}", form_id),
+                    GroupLabel::CellPersistentChildren(form_id) => println!("{ind}CellPersistentChildren - for {}", form_id),
+                    GroupLabel::CellTemporaryChildren(form_id) => println!("{ind}CellTemporaryChildren - for {}", form_id),
+                    GroupLabel::CellVisibleDistantChildren(form_id) => println!("{ind}CellVisibleDistantChildren - for {}", form_id),
+                    GroupLabel::Unknown(_) => todo!(),
+                }
+            }
+        }
+    }
 }
 
 // ====================================================================================================
@@ -57,11 +85,12 @@ impl<'esm> Parse<&'esm[u8]> for RawESObject<'esm> {
     fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
         //let (_, iden) = <[u8;4]>::parse(i)?;
 
+
         if &[i[0], i[1], i[2], i[3]] == b"GRUP" {
-            let (i, group) = <Group<RawESObject>>::parse(i)?;
+            let (i, group) = <Group<RawESObject>>::parse_le(i)?;
             Ok((i, RawESObject::Group(group)))
         } else {
-            let (i, record) = RawRecord::parse(i)?;
+            let (i, record) = RawRecord::parse_le(i)?;
             Ok((i, RawESObject::Record(record)))
         }
     }
