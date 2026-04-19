@@ -1,5 +1,7 @@
 mod tests;
 
+use std::io::Write;
+
 use clap::{Parser, ValueEnum};
 use project_wormhole_esm::esm::{mapped::MappedESM, raw::ESMRaw};
 
@@ -15,6 +17,10 @@ pub struct Args {
     #[arg(short, long)]
     /// Turn on extra debug output, which may be useful for comparing specific groups or records
     debug: bool,
+
+    #[arg(long)]
+    /// Dump the results to 3 seperate text files
+    dump: bool,
 
     #[arg(short, long)]
     mode: Option<DiffMode>
@@ -68,19 +74,42 @@ fn main() {
     let map2_end = map2_start.elapsed();
 
     let mut diff_start = std::time::Instant::now();
-    let diff = map1.diff(&mut map2);
+    let (updated, unchanged, addition) = map1.diff(&mut map2);
     let diff_end = diff_start.elapsed();
 
     let all_end = all_start.elapsed();
+
+    if a.dump {
+        println!("Dumping...");
+        let mut out1 = std::fs::File::create("updated.txt").expect("Could not create updated.txt");
+        println!("{:?}", out1);
+        let mut out2 = std::fs::File::create("unchanged.txt").expect("Could not create unchanged.txt");
+        let mut out3 = std::fs::File::create("addition.txt").expect("Could not create addition.txt");
+
+        for i in &updated {
+            let so = format!("{:?}\n", i);
+            out1.write(so.as_bytes()).unwrap();
+        }
+
+        for i in &unchanged {
+            let so = format!("{:?}\n", i);
+            out2.write(so.as_bytes()).unwrap();
+        }
+
+        for i in &addition {
+            let so = format!("{:?}\n", i);
+            out3.write(so.as_bytes()).unwrap();
+        }
+    }
 
     println!("ESM1 Parse: {:?}", esm1_end);
     println!("ESM2 Parse: {:?}", esm2_end);
     println!("MAP1: {:?}", map1_end);
     println!("MAP2: {:?}", map2_end);
     println!("Diff Time: {:?}", diff_end);
-    println!("  Updated: {:?}", diff.0.len());
-    println!("  Unchanged: {:?}", diff.1.len());
-    println!("  Addition: {:?}", diff.2.len());
+    println!("  Updated: {:?}", updated.len());
+    println!("  Unchanged: {:?}", unchanged.len());
+    println!("  Addition: {:?}", addition.len());
     println!("Full Time: {:?}", all_end);
 }
 
