@@ -48,8 +48,11 @@ fn test_archive_dir() {
     let path = PathBuf::from_str("C:\\Program Files (x86)\\Steam\\steamapps\\common\\Fallout 4\\Data").unwrap();
 
     let start = std::time::Instant::now();
-    let _ba2 = BA2ArchiveGroup::open_all(path).unwrap();
+    let ba2 = BA2ArchiveGroup::open_all(path).unwrap();
     println!("Opened all BA2 in {:?}", start.elapsed());
+    for a in ba2.archives {
+        println!("File Count: {}", a.files.len());
+    }
 }
 
 #[test]
