@@ -152,3 +152,9 @@ fn dump_main() {
     }
 
 }
+
+#[test]
+fn test_esm_full() {
+    let data = std::fs::read(FO4_ESM_PATH).unwrap();
+    let esm = ESMFull::parse_mt(&data).unwrap().1;
+}
