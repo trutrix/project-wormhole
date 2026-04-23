@@ -205,9 +205,6 @@ impl<'esm, T> Group<T> where T: for<'nom> Parse<&'esm[u8]> + Send{
             T::parse(x).unwrap().1
         }).collect();
 
-
-        //let (i, data) = many0(T::parse)(i)?;
-
         Ok((sub, Group { header, data }))
     }
 }

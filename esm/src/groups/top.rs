@@ -173,7 +173,7 @@ impl Parse<&[u8]> for TopGroup {
                     b"BPTD" => { Ok((i, TopGroup::BPTD(Group::parse(orig)?.1))) }
                     b"BNDS" => { Ok((i, TopGroup::BNDS(Group::parse(orig)?.1))) }
                     b"CAMS" => { Ok((i, TopGroup::CAMS(Group::parse(orig)?.1))) }
-                    b"CELL" => { Ok((i, TopGroup::CELL(Group::parse(orig)?.1))) }
+                    //b"CELL" => { Ok((i, TopGroup::CELL(Group::parse(orig)?.1))) }
                     b"CLAS" => { Ok((i, TopGroup::CLAS(Group::parse(orig)?.1))) }
                     b"CLFM" => { Ok((i, TopGroup::CLFM(Group::parse(orig)?.1))) }
                     b"CLMT" => { Ok((i, TopGroup::CLMT(Group::parse(orig)?.1))) }
@@ -237,9 +237,7 @@ impl Parse<&[u8]> for TopGroup {
                     b"MSWP" => { Ok((i, TopGroup::MSWP(Group::parse(orig)?.1))) }
                     b"MUSC" => { Ok((i, TopGroup::MUSC(Group::parse(orig)?.1))) }
                     b"MUST" => { Ok((i, TopGroup::MUST(Group::parse(orig)?.1))) }
-                    b"NAVI" => { 
-                        Ok((i, TopGroup::NAVI(Group { header, data: Vec::new()}))) 
-                    }
+                    b"NAVI" => { Ok((i, TopGroup::NAVI(Group { header, data: Vec::new()}))) }
                     b"NOCM" => { Ok((i, TopGroup::NOCM(Group::parse(orig)?.1))) }
                     b"NOTE" => { Ok((i, TopGroup::NOTE(Group::parse(orig)?.1))) }
                     b"NPC_" => { Ok((i, TopGroup::NPC_(Group::parse(orig)?.1))) }
@@ -250,13 +248,7 @@ impl Parse<&[u8]> for TopGroup {
                     b"PERK" => { Ok((i, TopGroup::PERK(Group::parse(orig)?.1))) }
                     b"PKIN" => { Ok((i, TopGroup::PKIN(Group::parse(orig)?.1))) }
                     b"PROJ" => { Ok((i, TopGroup::PROJ(Group::parse(orig)?.1))) }
-                    b"QUST" => {
-                        // let (_, (header, raw)) = alloc_group(orig)?;
-                        // let (q, quests) = many0(RawQuestRecord::parse)(raw)?;
-                        // println!("Quest count: {}", quests.len());
-
-                        Ok((i, TopGroup::QUST(Group::parse(orig)?.1)))
-                    }
+                    //b"QUST" => { Ok((i, TopGroup::QUST(Group::parse(orig)?.1))) }
                     b"RACE" => { Ok((i, TopGroup::RACE(Group::parse(orig)?.1))) }
                     b"REGN" => { Ok((i, TopGroup::REGN(Group::parse(orig)?.1))) }
                     b"RELA" => { Ok((i, TopGroup::RELA(Group::parse(orig)?.1))) }
@@ -285,7 +277,7 @@ impl Parse<&[u8]> for TopGroup {
                     b"VTYP" => { Ok((i, TopGroup::VTYP(Group::parse(orig)?.1))) }
                     b"WATR" => { Ok((i, TopGroup::WATR(Group::parse(orig)?.1))) }
                     b"WEAP" => { Ok((i, TopGroup::WEAP(Group::parse(orig)?.1))) }
-                    b"WRLD" => { Ok((i, TopGroup::WRLD(Group::parse(orig)?.1))) }
+                    //b"WRLD" => { Ok((i, TopGroup::WRLD(Group::parse(orig)?.1))) }
                     b"WTHR" => { Ok((i, TopGroup::WTHR(Group::parse(orig)?.1))) }
                     b"ZOOM" => { Ok((i, TopGroup::ZOOM(Group::parse(orig)?.1))) }
 
