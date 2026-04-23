@@ -231,3 +231,22 @@ impl std::fmt::Debug for CellLocation {
         write!(f, "CellLocation(x: {}, y: {})", self.0[0], self.0[1])
     }
 }
+
+
+// ====================================================================================================
+
+
+pub trait GroupParser<T> where T: for<'esm> Parse<&'esm[u8]> + Send {
+
+    fn parse_header(i: &[u8]) -> IResult<&[u8], GroupHeader, nom::error::Error<&[u8]>> {
+        GroupHeader::parse(i)
+    }
+     
+    fn parse_body(i: &[u8]) -> IResult<&[u8], T, nom::error::Error<&[u8]>> {
+        T::parse(i)
+    }
+
+    fn parse(i: &[u8]) -> IResult<&[u8], Group<T>, nom::error::Error<&[u8]>> {
+        Group::<T>::parse(i)
+    }
+}
