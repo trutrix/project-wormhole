@@ -63,8 +63,8 @@ impl RawESObject<'_> {
                 match &group.header.label {
                     GroupLabel::Top(four_cc) => println!("{ind}Top - {}", four_cc),
                     GroupLabel::WorldChildren(form_id) => println!("{ind}WorldChildren -  for {}", form_id),
-                    GroupLabel::InteriorCellBlock(_) => todo!(),
-                    GroupLabel::InteriorCellSubBlock(_) => todo!(),
+                    GroupLabel::InteriorCellBlock(index) => println!("{ind}InteriorCellBlock - {}", index),
+                    GroupLabel::InteriorCellSubBlock(index) => println!("{ind}InteriorCellSubBlock - {}", index),
                     GroupLabel::ExteriorCellBlock(cell_location) => println!("{ind}ExteriorCellBlock - {:?}", cell_location),
                     GroupLabel::ExteriorCellSubBlock(cell_location) => println!("{ind}ExteriorCellSubBlock - {:?}", cell_location),
                     GroupLabel::CellChildren(form_id) => println!("{ind}CellChildren - for {}", form_id),
@@ -72,7 +72,7 @@ impl RawESObject<'_> {
                     GroupLabel::CellPersistentChildren(form_id) => println!("{ind}CellPersistentChildren - for {}", form_id),
                     GroupLabel::CellTemporaryChildren(form_id) => println!("{ind}CellTemporaryChildren - for {}", form_id),
                     GroupLabel::CellVisibleDistantChildren(form_id) => println!("{ind}CellVisibleDistantChildren - for {}", form_id),
-                    GroupLabel::Unknown(_) => todo!(),
+                    GroupLabel::Unknown(bytes) => println!("{ind}Unknown {:?}", bytes),
                 }
             }
         }
