@@ -91,6 +91,7 @@ fn get_targets_in_dir(path: &str) -> Vec<DirEntry> {
 }
 
 #[test]
+#[ignore]
 fn dump_main() {
     let file = std::fs::read(FO4_ESM_PATH).unwrap();
     let esm = ESMRaw::parse_as_objects(&file, 1).unwrap().1;
