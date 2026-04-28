@@ -18,11 +18,15 @@ impl Parse<&[u8]> for WorldChildren {
         // Parse header and raw data pointer
         let (i, (header, raw)) = alloc_group(i)?;
 
-        // Ensure correct group type - debugging only
+        Ok((i, Self::parse_pre_alloc(raw, header)?.1) )
+    }
+}
+
+impl WorldChildren {
+    pub fn parse_pre_alloc(raw: &[u8], header: GroupHeader) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
         #[cfg(debug_assertions)]
-        match header.label {
-            GroupLabel::WorldChildren(_) => { }
-            _ => { panic!("WorldChildren::parse encountered wrong group type: {:?}", header.label) }
+        if let GroupLabel::WorldChildren(_) = header.label { } else {
+            panic!("WorldChildren::parse encountered wrong group type: {:?}", header.label)
         }
     
         // Parse the Cell record inside the WorldChildren group
@@ -35,7 +39,7 @@ impl Parse<&[u8]> for WorldChildren {
         }
 
 
-        Ok((i, Self { header, cell, blocks }) )
+        Ok((raw, Self { header, cell, blocks }) )
     }
 }
 

@@ -1,28 +1,12 @@
 use std::collections::HashMap;
 
-use crate::{dev::*, prelude::MapContents, records::SingleRecord};
+use crate::{dev::*, prelude::MapContents, records::SingleRecord, structs::es_group::ESGroup};
 
 // TODO: this is wrong, need to make a generic group enum that contains TopGroup
 pub enum ESObject {
     Record(SingleRecord),
-    Group(Group<ESObject>),
+    Group(ESGroup),
 }
-
-// ====================================================================================================
-
-// impl<'esm> Parse<&'esm[u8]> for ESObject {
-//     fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
-//         let (_, iden) = FourCC::parse(i)?;
-
-//         if &iden.0 == b"GRUP" {
-//             let (i, group) = <Group<ESObject>>::parse(i)?;
-//             Ok((i, ESObject::Group(group)))
-//         } else {
-//             let (i, record) = SingleRecord::parse(i)?;
-//             Ok((i, ESObject::Record(record)))
-//         }
-//     }
-// }
 
 // ====================================================================================================
 
@@ -83,8 +67,9 @@ impl RawESObject<'_> {
 
 impl<'esm> Parse<&'esm[u8]> for RawESObject<'esm> {
     fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
-        //let (_, iden) = <[u8;4]>::parse(i)?;
 
+        // If this is failing here, you did not verify length before
+        // Length is not verified here because this runs millions of times
 
         if &[i[0], i[1], i[2], i[3]] == b"GRUP" {
             let (i, group) = <Group<RawESObject>>::parse_le(i)?;
@@ -93,6 +78,7 @@ impl<'esm> Parse<&'esm[u8]> for RawESObject<'esm> {
             let (i, record) = RawRecord::parse_le(i)?;
             Ok((i, RawESObject::Record(record)))
         }
+
     }
 }
 

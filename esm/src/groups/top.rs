@@ -141,165 +141,161 @@ pub enum TopGroup {
 
 impl Parse<&[u8]> for TopGroup {
     fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
-        let orig = i;
-        let (i, (header, _)) = alloc_group(i)?;
-
-        //println!("Parsing TopGroup: {:?}", header.label);
+        let (i, (header, raw)) = alloc_group(i)?;
 
         if header.size == 0 {
             return Ok((i, TopGroup::Empty(Group { header, data: Vec::new() })));
         }
 
-        
-        match header.label {
-            GroupLabel::Top(label) => {
-                match &label.0 {
-                    b"AACT" => { Ok((i, TopGroup::AACT(Group::parse(orig)?.1))) }
-                    b"ACTI" => { Ok((i, TopGroup::ACTI(Group::parse(orig)?.1))) }
-                    b"ADDN" => { Ok((i, TopGroup::ADDN(Group::parse(orig)?.1))) }
-                    b"AECH" => { Ok((i, TopGroup::AECH(Group::parse(orig)?.1))) }
-                    b"ALCH" => { Ok((i, TopGroup::ALCH(Group::parse(orig)?.1))) }
-                    b"AMDL" => { Ok((i, TopGroup::AMDL(Group::parse(orig)?.1))) }
-                    b"AMMO" => { Ok((i, TopGroup::AMMO(Group::parse(orig)?.1))) }
-                    b"ANIO" => { Ok((i, TopGroup::ANIO(Group::parse(orig)?.1))) }
-                    b"AORU" => { Ok((i, TopGroup::AORU(Group::parse(orig)?.1))) }
-                    b"ARMA" => { Ok((i, TopGroup::ARMA(Group::parse(orig)?.1))) }
-                    b"ARMO" => { Ok((i, TopGroup::ARMO(Group::parse(orig)?.1))) }
-                    b"ARTO" => { Ok((i, TopGroup::ARTO(Group::parse(orig)?.1))) }
-                    b"ASPC" => { Ok((i, TopGroup::ASPC(Group::parse(orig)?.1))) }
-                    b"ASTP" => { Ok((i, TopGroup::ASTP(Group::parse(orig)?.1))) }
-                    b"AVIF" => { Ok((i, TopGroup::AVIF(Group::parse(orig)?.1))) }
-                    b"BOOK" => { Ok((i, TopGroup::BOOK(Group::parse(orig)?.1))) }
-                    b"BPTD" => { Ok((i, TopGroup::BPTD(Group::parse(orig)?.1))) }
-                    b"BNDS" => { Ok((i, TopGroup::BNDS(Group::parse(orig)?.1))) }
-                    b"CAMS" => { Ok((i, TopGroup::CAMS(Group::parse(orig)?.1))) }
-                    //b"CELL" => { Ok((i, TopGroup::CELL(Group::parse(orig)?.1))) }
-                    b"CLAS" => { Ok((i, TopGroup::CLAS(Group::parse(orig)?.1))) }
-                    b"CLFM" => { Ok((i, TopGroup::CLFM(Group::parse(orig)?.1))) }
-                    b"CLMT" => { Ok((i, TopGroup::CLMT(Group::parse(orig)?.1))) }
-                    b"CMPO" => { Ok((i, TopGroup::CMPO(Group::parse(orig)?.1))) }
-                    b"COBJ" => { Ok((i, TopGroup::COBJ(Group::parse(orig)?.1))) }
-                    b"COLL" => { Ok((i, TopGroup::COLL(Group::parse(orig)?.1))) }
-                    b"CONT" => { Ok((i, TopGroup::CONT(Group::parse(orig)?.1))) }
-                    b"CPTH" => { Ok((i, TopGroup::CPTH(Group::parse(orig)?.1))) }
-                    b"CSTY" => { Ok((i, TopGroup::CSTY(Group::parse(orig)?.1))) }
-                    b"DEBR" => { Ok((i, TopGroup::DEBR(Group::parse(orig)?.1))) }   
-                    b"DFOB" => { Ok((i, TopGroup::DFOB(Group::parse(orig)?.1))) }
-                    b"DLVW" => { Ok((i, TopGroup::DLVW(Group::parse(orig)?.1))) }
-                    b"DMGT" => { Ok((i, TopGroup::DMGT(Group::parse(orig)?.1))) }
-                    b"DOBJ" => { Ok((i, TopGroup::DOBJ(Group::parse(orig)?.1))) }
-                    b"DOOR" => { Ok((i, TopGroup::DOOR(Group::parse(orig)?.1))) }
-                    b"ECZN" => { Ok((i, TopGroup::ECZN(Group::parse(orig)?.1))) }
-                    b"EFSH" => { Ok((i, TopGroup::EFSH(Group::parse(orig)?.1))) }
-                    b"ENCH" => { Ok((i, TopGroup::ENCH(Group::parse(orig)?.1))) }
-                    b"EQUP" => { Ok((i, TopGroup::EQUP(Group::parse(orig)?.1))) }
-                    b"EXPL" => { Ok((i, TopGroup::EXPL(Group::parse(orig)?.1))) }
-                    b"FACT" => { Ok((i, TopGroup::FACT(Group::parse(orig)?.1))) }
-                    b"FLOR" => { Ok((i, TopGroup::FLOR(Group::parse(orig)?.1))) }
-                    b"FLST" => { Ok((i, TopGroup::FLST(Group::parse(orig)?.1))) }
-                    b"FSTP" => { Ok((i, TopGroup::FSTP(Group::parse(orig)?.1))) }
-                    b"FSTS" => { Ok((i, TopGroup::FSTS(Group::parse(orig)?.1))) }
-                    b"FURN" => { Ok((i, TopGroup::FURN(Group::parse(orig)?.1))) }
-                    b"GMST" => { Ok((i, TopGroup::GMST(Group::parse(orig)?.1))) }
-                    b"GDRY" => { Ok((i, TopGroup::GDRY(Group::parse(orig)?.1))) }
-                    b"GLOB" => { Ok((i, TopGroup::GLOB(Group::parse(orig)?.1))) }
-                    b"GRAS" => { Ok((i, TopGroup::GRAS(Group::parse(orig)?.1))) }
-                    b"HAZD" => { Ok((i, TopGroup::HAZD(Group::parse(orig)?.1))) }
-                    b"HDPT" => { Ok((i, TopGroup::HDPT(Group::parse(orig)?.1))) }
-                    b"IDLE" => { Ok((i, TopGroup::IDLE(Group::parse(orig)?.1))) }
-                    b"IDLM" => { Ok((i, TopGroup::IDLM(Group::parse(orig)?.1))) }
-                    b"IMAD" => { Ok((i, TopGroup::IMAD(Group::parse(orig)?.1))) }
-                    b"IMGS" => { Ok((i, TopGroup::IMGS(Group::parse(orig)?.1))) }
-                    b"INGR" => { Ok((i, TopGroup::INGR(Group::parse(orig)?.1))) }
-                    b"INNR" => { Ok((i, TopGroup::INNR(Group::parse(orig)?.1))) }
-                    b"IPCT" => { Ok((i, TopGroup::IPCT(Group::parse(orig)?.1))) }
-                    b"IPDS" => { Ok((i, TopGroup::IPDS(Group::parse(orig)?.1))) }
-                    b"KEYM" => { Ok((i, TopGroup::KEYM(Group::parse(orig)?.1))) }
-                    b"KYWD" => { Ok((i, TopGroup::KYWD(Group::parse(orig)?.1))) }
-                    b"KSSM" => { Ok((i, TopGroup::KSSM(Group::parse(orig)?.1))) }
-                    b"LAYR" => { Ok((i, TopGroup::LAYR(Group::parse(orig)?.1))) }
-                    b"LCRT" => { Ok((i, TopGroup::LCRT(Group::parse(orig)?.1))) }
-                    b"LCTN" => { Ok((i, TopGroup::LCTN(Group::parse(orig)?.1))) }
-                    b"LENS" => { Ok((i, TopGroup::LENS(Group::parse(orig)?.1))) }
-                    b"LGTM" => { Ok((i, TopGroup::LGTM(Group::parse(orig)?.1))) }
-                    b"LIGH" => { Ok((i, TopGroup::LIGH(Group::parse(orig)?.1))) }
-                    b"LSCR" => { Ok((i, TopGroup::LSCR(Group::parse(orig)?.1))) }
-                    b"LTEX" => { Ok((i, TopGroup::LTEX(Group::parse(orig)?.1))) }
-                    b"LVLI" => { Ok((i, TopGroup::LVLI(Group::parse(orig)?.1))) }
-                    b"LVLN" => { Ok((i, TopGroup::LVLN(Group::parse(orig)?.1))) }
-                    b"MATO" => { Ok((i, TopGroup::MATO(Group::parse(orig)?.1))) }
-                    b"MATT" => { Ok((i, TopGroup::MATT(Group::parse(orig)?.1))) }
-                    b"MESG" => { Ok((i, TopGroup::MESG(Group::parse(orig)?.1))) }
-                    b"MGEF" => { Ok((i, TopGroup::MGEF(Group::parse(orig)?.1))) }
-                    b"MISC" => { Ok((i, TopGroup::MISC(Group::parse(orig)?.1))) }
-                    b"MOVT" => { Ok((i, TopGroup::MOVT(Group::parse(orig)?.1))) }
-                    b"MSTT" => { Ok((i, TopGroup::MSTT(Group::parse(orig)?.1))) }
-                    b"MSWP" => { Ok((i, TopGroup::MSWP(Group::parse(orig)?.1))) }
-                    b"MUSC" => { Ok((i, TopGroup::MUSC(Group::parse(orig)?.1))) }
-                    b"MUST" => { Ok((i, TopGroup::MUST(Group::parse(orig)?.1))) }
-                    b"NAVI" => { Ok((i, TopGroup::NAVI(Group { header, data: Vec::new()}))) }
-                    b"NOCM" => { Ok((i, TopGroup::NOCM(Group::parse(orig)?.1))) }
-                    b"NOTE" => { Ok((i, TopGroup::NOTE(Group::parse(orig)?.1))) }
-                    b"NPC_" => { Ok((i, TopGroup::NPC_(Group::parse(orig)?.1))) }
-                    b"OMOD" => { Ok((i, TopGroup::OMOD(Group::parse(orig)?.1))) }
-                    b"OTFT" => { Ok((i, TopGroup::OTFT(Group::parse(orig)?.1))) }
-                    b"OVIS" => { Ok((i, TopGroup::OVIS(Group::parse(orig)?.1))) }
-                    b"PACK" => { Ok((i, TopGroup::PACK(Group::parse(orig)?.1))) }
-                    b"PERK" => { Ok((i, TopGroup::PERK(Group::parse(orig)?.1))) }
-                    b"PKIN" => { Ok((i, TopGroup::PKIN(Group::parse(orig)?.1))) }
-                    b"PROJ" => { Ok((i, TopGroup::PROJ(Group::parse(orig)?.1))) }
-                    //b"QUST" => { Ok((i, TopGroup::QUST(Group::parse(orig)?.1))) }
-                    b"RACE" => { Ok((i, TopGroup::RACE(Group::parse(orig)?.1))) }
-                    b"REGN" => { Ok((i, TopGroup::REGN(Group::parse(orig)?.1))) }
-                    b"RELA" => { Ok((i, TopGroup::RELA(Group::parse(orig)?.1))) }
-                    b"REVB" => { Ok((i, TopGroup::REVB(Group::parse(orig)?.1))) }
-                    b"RFCT" => { Ok((i, TopGroup::RFCT(Group::parse(orig)?.1))) }
-                    b"RFGP" => { Ok((i, TopGroup::RFGP(Group::parse(orig)?.1))) }
-                    b"SCCO" => { Ok((i, TopGroup::SCCO(Group::parse(orig)?.1))) }
-                    b"SCOL" => { Ok((i, TopGroup::SCOL(Group::parse(orig)?.1))) }
-                    b"SCSN" => { Ok((i, TopGroup::SCSN(Group::parse(orig)?.1))) }
-                    b"SMBN" => { Ok((i, TopGroup::SMBN(Group::parse(orig)?.1))) }
-                    b"SMEN" => { Ok((i, TopGroup::SMEN(Group::parse(orig)?.1))) }
-                    b"SMQN" => { Ok((i, TopGroup::SMQN(Group::parse(orig)?.1))) }
-                    b"SNCT" => { Ok((i, TopGroup::SNCT(Group::parse(orig)?.1))) }
-                    b"SNDR" => { Ok((i, TopGroup::SNDR(Group::parse(orig)?.1))) }
-                    b"SOPM" => { Ok((i, TopGroup::SOPM(Group::parse(orig)?.1))) }
-                    b"SOUN" => { Ok((i, TopGroup::SOUN(Group::parse(orig)?.1))) }
-                    b"SPEL" => { Ok((i, TopGroup::SPEL(Group::parse(orig)?.1))) }
-                    b"SPGD" => { Ok((i, TopGroup::SPGD(Group::parse(orig)?.1))) }
-                    b"STAG" => { Ok((i, TopGroup::STAG(Group::parse(orig)?.1))) }
-                    b"STAT" => { Ok((i, TopGroup::STAT(Group::parse(orig)?.1))) }
-                    b"TACT" => { Ok((i, TopGroup::TACT(Group::parse(orig)?.1))) }
-                    b"TERM" => { Ok((i, TopGroup::TERM(Group::parse(orig)?.1))) }
-                    b"TREE" => { Ok((i, TopGroup::TREE(Group::parse(orig)?.1))) }
-                    b"TRNS" => { Ok((i, TopGroup::TRNS(Group::parse(orig)?.1))) }
-                    b"TXST" => { Ok((i, TopGroup::TXST(Group::parse(orig)?.1))) }
-                    b"VTYP" => { Ok((i, TopGroup::VTYP(Group::parse(orig)?.1))) }
-                    b"WATR" => { Ok((i, TopGroup::WATR(Group::parse(orig)?.1))) }
-                    b"WEAP" => { Ok((i, TopGroup::WEAP(Group::parse(orig)?.1))) }
-                    //b"WRLD" => { Ok((i, TopGroup::WRLD(Group::parse(orig)?.1))) }
-                    b"WTHR" => { Ok((i, TopGroup::WTHR(Group::parse(orig)?.1))) }
-                    b"ZOOM" => { Ok((i, TopGroup::ZOOM(Group::parse(orig)?.1))) }
-
-                    _ => {
-
-                        #[cfg(debug_assertions)]
-                        println!("Top group {} not implemented", label);
-
-                        Ok((i, TopGroup::Unhandled(Group { header, data: Vec::new() })))
-                    }
-                }
-            }
-            _ => {
-                Err(nom::Err::Error(nom::error::Error::new(i, nom::error::ErrorKind::Tag)))
-            }
-        }
-
-
-
+        Self::parse_pre_alloc(raw, header)
     }
 }
 
+// ====================================================================================================
+
+impl TopGroup {
+    pub fn parse_pre_alloc(raw: &[u8], header: GroupHeader) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
+        if let GroupLabel::Top(iden) = header.label {
+            match &iden.0 {
+                b"AACT" => { Ok((&[], TopGroup::AACT(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"ACTI" => { Ok((&[], TopGroup::ACTI(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"ADDN" => { Ok((&[], TopGroup::ADDN(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"AECH" => { Ok((&[], TopGroup::AECH(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"ALCH" => { Ok((&[], TopGroup::ALCH(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"AMDL" => { Ok((&[], TopGroup::AMDL(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"AMMO" => { Ok((&[], TopGroup::AMMO(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"ANIO" => { Ok((&[], TopGroup::ANIO(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"AORU" => { Ok((&[], TopGroup::AORU(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"ARMA" => { Ok((&[], TopGroup::ARMA(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"ARMO" => { Ok((&[], TopGroup::ARMO(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"ARTO" => { Ok((&[], TopGroup::ARTO(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"ASPC" => { Ok((&[], TopGroup::ASPC(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"ASTP" => { Ok((&[], TopGroup::ASTP(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"AVIF" => { Ok((&[], TopGroup::AVIF(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"BOOK" => { Ok((&[], TopGroup::BOOK(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"BPTD" => { Ok((&[], TopGroup::BPTD(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"BNDS" => { Ok((&[], TopGroup::BNDS(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"CAMS" => { Ok((&[], TopGroup::CAMS(Group::parse_pre_alloc(raw, header)?.1))) }
+                //b"CELL" => { Ok((&[], TopGroup::CELL(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"CLAS" => { Ok((&[], TopGroup::CLAS(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"CLFM" => { Ok((&[], TopGroup::CLFM(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"CLMT" => { Ok((&[], TopGroup::CLMT(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"CMPO" => { Ok((&[], TopGroup::CMPO(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"COBJ" => { Ok((&[], TopGroup::COBJ(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"COLL" => { Ok((&[], TopGroup::COLL(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"CONT" => { Ok((&[], TopGroup::CONT(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"CPTH" => { Ok((&[], TopGroup::CPTH(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"CSTY" => { Ok((&[], TopGroup::CSTY(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"DEBR" => { Ok((&[], TopGroup::DEBR(Group::parse_pre_alloc(raw, header)?.1))) }   
+                b"DFOB" => { Ok((&[], TopGroup::DFOB(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"DLVW" => { Ok((&[], TopGroup::DLVW(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"DMGT" => { Ok((&[], TopGroup::DMGT(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"DOBJ" => { Ok((&[], TopGroup::DOBJ(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"DOOR" => { Ok((&[], TopGroup::DOOR(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"ECZN" => { Ok((&[], TopGroup::ECZN(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"EFSH" => { Ok((&[], TopGroup::EFSH(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"ENCH" => { Ok((&[], TopGroup::ENCH(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"EQUP" => { Ok((&[], TopGroup::EQUP(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"EXPL" => { Ok((&[], TopGroup::EXPL(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"FACT" => { Ok((&[], TopGroup::FACT(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"FLOR" => { Ok((&[], TopGroup::FLOR(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"FLST" => { Ok((&[], TopGroup::FLST(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"FSTP" => { Ok((&[], TopGroup::FSTP(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"FSTS" => { Ok((&[], TopGroup::FSTS(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"FURN" => { Ok((&[], TopGroup::FURN(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"GMST" => { Ok((&[], TopGroup::GMST(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"GDRY" => { Ok((&[], TopGroup::GDRY(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"GLOB" => { Ok((&[], TopGroup::GLOB(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"GRAS" => { Ok((&[], TopGroup::GRAS(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"HAZD" => { Ok((&[], TopGroup::HAZD(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"HDPT" => { Ok((&[], TopGroup::HDPT(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"IDLE" => { Ok((&[], TopGroup::IDLE(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"IDLM" => { Ok((&[], TopGroup::IDLM(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"IMAD" => { Ok((&[], TopGroup::IMAD(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"IMGS" => { Ok((&[], TopGroup::IMGS(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"INGR" => { Ok((&[], TopGroup::INGR(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"INNR" => { Ok((&[], TopGroup::INNR(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"IPCT" => { Ok((&[], TopGroup::IPCT(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"IPDS" => { Ok((&[], TopGroup::IPDS(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"KEYM" => { Ok((&[], TopGroup::KEYM(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"KYWD" => { Ok((&[], TopGroup::KYWD(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"KSSM" => { Ok((&[], TopGroup::KSSM(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"LAYR" => { Ok((&[], TopGroup::LAYR(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"LCRT" => { Ok((&[], TopGroup::LCRT(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"LCTN" => { Ok((&[], TopGroup::LCTN(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"LENS" => { Ok((&[], TopGroup::LENS(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"LGTM" => { Ok((&[], TopGroup::LGTM(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"LIGH" => { Ok((&[], TopGroup::LIGH(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"LSCR" => { Ok((&[], TopGroup::LSCR(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"LTEX" => { Ok((&[], TopGroup::LTEX(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"LVLI" => { Ok((&[], TopGroup::LVLI(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"LVLN" => { Ok((&[], TopGroup::LVLN(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"MATO" => { Ok((&[], TopGroup::MATO(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"MATT" => { Ok((&[], TopGroup::MATT(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"MESG" => { Ok((&[], TopGroup::MESG(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"MGEF" => { Ok((&[], TopGroup::MGEF(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"MISC" => { Ok((&[], TopGroup::MISC(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"MOVT" => { Ok((&[], TopGroup::MOVT(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"MSTT" => { Ok((&[], TopGroup::MSTT(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"MSWP" => { Ok((&[], TopGroup::MSWP(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"MUSC" => { Ok((&[], TopGroup::MUSC(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"MUST" => { Ok((&[], TopGroup::MUST(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"NAVI" => { Ok((&[], TopGroup::NAVI(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"NOCM" => { Ok((&[], TopGroup::NOCM(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"NOTE" => { Ok((&[], TopGroup::NOTE(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"NPC_" => { Ok((&[], TopGroup::NPC_(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"OMOD" => { Ok((&[], TopGroup::OMOD(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"OTFT" => { Ok((&[], TopGroup::OTFT(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"OVIS" => { Ok((&[], TopGroup::OVIS(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"PACK" => { Ok((&[], TopGroup::PACK(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"PERK" => { Ok((&[], TopGroup::PERK(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"PKIN" => { Ok((&[], TopGroup::PKIN(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"PROJ" => { Ok((&[], TopGroup::PROJ(Group::parse_pre_alloc(raw, header)?.1))) }
+                //b"QUST" => { Ok((&[], TopGroup::QUST(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"RACE" => { Ok((&[], TopGroup::RACE(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"REGN" => { Ok((&[], TopGroup::REGN(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"RELA" => { Ok((&[], TopGroup::RELA(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"REVB" => { Ok((&[], TopGroup::REVB(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"RFCT" => { Ok((&[], TopGroup::RFCT(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"RFGP" => { Ok((&[], TopGroup::RFGP(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"SCCO" => { Ok((&[], TopGroup::SCCO(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"SCOL" => { Ok((&[], TopGroup::SCOL(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"SCSN" => { Ok((&[], TopGroup::SCSN(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"SMBN" => { Ok((&[], TopGroup::SMBN(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"SMEN" => { Ok((&[], TopGroup::SMEN(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"SMQN" => { Ok((&[], TopGroup::SMQN(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"SNCT" => { Ok((&[], TopGroup::SNCT(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"SNDR" => { Ok((&[], TopGroup::SNDR(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"SOPM" => { Ok((&[], TopGroup::SOPM(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"SOUN" => { Ok((&[], TopGroup::SOUN(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"SPEL" => { Ok((&[], TopGroup::SPEL(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"SPGD" => { Ok((&[], TopGroup::SPGD(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"STAG" => { Ok((&[], TopGroup::STAG(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"STAT" => { Ok((&[], TopGroup::STAT(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"TACT" => { Ok((&[], TopGroup::TACT(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"TERM" => { Ok((&[], TopGroup::TERM(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"TREE" => { Ok((&[], TopGroup::TREE(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"TRNS" => { Ok((&[], TopGroup::TRNS(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"TXST" => { Ok((&[], TopGroup::TXST(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"VTYP" => { Ok((&[], TopGroup::VTYP(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"WATR" => { Ok((&[], TopGroup::WATR(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"WEAP" => { Ok((&[], TopGroup::WEAP(Group::parse_pre_alloc(raw, header)?.1))) }
+                //b"WRLD" => { Ok((&[], TopGroup::WRLD(Group::parse_with_header(raw, header)?.1))) }
+                b"WTHR" => { Ok((&[], TopGroup::WTHR(Group::parse_pre_alloc(raw, header)?.1))) }
+                b"ZOOM" => { Ok((&[], TopGroup::ZOOM(Group::parse_pre_alloc(raw, header)?.1))) }
+                _ => {
+
+                    #[cfg(debug_assertions)]
+                    println!("Top group {} not implemented", header.label);
+
+                    Ok((&[], TopGroup::Unhandled(Group { header, data: Vec::new() })))
+                }
+            }
+        } else {
+            Err(nom::Err::Error(nom::error::Error::new(raw, nom::error::ErrorKind::Tag)))
+        }
+    }
+}
 
 // ====================================================================================================
 

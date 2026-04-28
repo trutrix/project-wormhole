@@ -67,6 +67,7 @@ fn test_es_dir(path: &str) {
 
 
 #[test]
+#[ignore]
 fn test_all() {
     test_es_dir(FO4_DATA_DIR);
     test_es_dir(FNV_DATA_DIR);

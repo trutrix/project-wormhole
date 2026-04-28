@@ -166,7 +166,7 @@ impl<'esm, T> Parse<&'esm[u8]> for Group<T> where T: for<'nom> Parse<&'esm[u8]> 
         #[cfg(debug_assertions)]
         let hc = header.clone();
 
-        let (lo, data) = Self::parse_with_header(data, header)?;
+        let (lo, data) = Self::parse_pre_alloc(data, header)?;
 
         #[cfg(debug_assertions)]
         if !lo.is_empty() {
@@ -179,10 +179,10 @@ impl<'esm, T> Parse<&'esm[u8]> for Group<T> where T: for<'nom> Parse<&'esm[u8]> 
 
 // ====================================================================================================
 
-impl<'esm, T> Group<T> where T: for<'nom> Parse<&'esm[u8]> + Send{
-    pub fn parse_with_header(i: &'esm[u8], header: GroupHeader) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
+impl<'esm, T> Group<T> where T: for<'nom> Parse<&'esm[u8]> + Send {
+    pub fn parse_pre_alloc(raw: &'esm[u8], header: GroupHeader) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
         
-        let mut sub = i;
+        let mut sub = raw;
         let mut chunks = Vec::new();
 
         while !sub.is_empty() {
@@ -236,17 +236,17 @@ impl std::fmt::Debug for CellLocation {
 // ====================================================================================================
 
 
-pub trait GroupParser<T> where T: for<'esm> Parse<&'esm[u8]> + Send {
+// pub trait GroupParser<T> where T: GroupParser<T> + Send {
 
-    fn parse_header(i: &[u8]) -> IResult<&[u8], GroupHeader, nom::error::Error<&[u8]>> {
-        GroupHeader::parse(i)
-    }
+//     fn parse_header(i: &[u8]) -> IResult<&[u8], GroupHeader, nom::error::Error<&[u8]>> {
+//         GroupHeader::parse(i)
+//     }
      
-    fn parse_body(i: &[u8]) -> IResult<&[u8], T, nom::error::Error<&[u8]>> {
-        T::parse(i)
-    }
+//     fn parse_body(i: &[u8]) -> IResult<&[u8], T, nom::error::Error<&[u8]>> {
+//         T::parse(i)
+//     }
 
-    fn parse(i: &[u8]) -> IResult<&[u8], Group<T>, nom::error::Error<&[u8]>> {
-        Group::<T>::parse(i)
-    }
-}
+//     fn parse(i: &[u8]) -> IResult<&[u8], Group<T>, nom::error::Error<&[u8]>> {
+//         Group::<T>::parse(i)
+//     }
+// }

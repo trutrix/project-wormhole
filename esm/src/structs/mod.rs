@@ -13,3 +13,4 @@ pub mod virtual_machine_adapter;
 pub mod bethesda_game;
 pub mod form_id;
 pub mod es_object;
+pub mod es_group;
