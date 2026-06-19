@@ -73,7 +73,7 @@ fn main() {
     let mut map2 = MappedESM::from(esm2);
     let map2_end = map2_start.elapsed();
 
-    let mut diff_start = std::time::Instant::now();
+    let diff_start = std::time::Instant::now();
     let (updated, unchanged, addition) = map1.diff(&mut map2);
     let diff_end = diff_start.elapsed();
 
