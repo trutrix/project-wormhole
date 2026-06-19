@@ -4,7 +4,7 @@ use std::collections::BTreeSet;
 use gltf::json::scene::UnitQuaternion;
 use project_wormhole_ba2::dev::ensure_texture_parent;
 use project_wormhole_ba2::dev::normalize_esm_path;
-use project_wormhole_esm::structs::geometry::Quaternion;
+use project_wormhole_es::structs::geometry::Quaternion;
 use gltf::json::accessor::GenericComponentType;
 use gltf::json::accessor::ComponentType;
 use gltf::json::buffer::View;

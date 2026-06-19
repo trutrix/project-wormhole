@@ -1,5 +1,5 @@
 [package]
-name = "project-wormhole-esm"
+name = "project-wormhole-es"
 version = "0.1.0"
 edition = "2024"
 description = "ESM file format parser for Project Wormhole"

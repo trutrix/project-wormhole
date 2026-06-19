@@ -1,8 +1,8 @@
 use clap::{Parser, Subcommand};
-use project_wormhole_esm::esm::full::ESMFull;
-use project_wormhole_esm::esm::raw::ESMRaw;
-use project_wormhole_esm::esm::{self, mapped::ESMMapped};
-use project_wormhole_esm::prelude::Parse;
+use project_wormhole_es::esm::full::ESMFull;
+use project_wormhole_es::esm::raw::ESMRaw;
+use project_wormhole_es::esm::{self, mapped::ESMMapped};
+use project_wormhole_es::prelude::Parse;
 
 mod benchmark;
 mod diff;
@@ -69,9 +69,9 @@ fn main() {
             let data = std::fs::read(&path).expect("Failed to read file");
             let file_duration = file_start.elapsed();
 
-            let parse_start = std::time::Instant::now();
-            let esm_raw = ESMRaw::parse_v2(&data, 2).unwrap().1;
-            let parse_duration = parse_start.elapsed();
+            // let parse_start = std::time::Instant::now();
+            // let esm_raw = ESMRaw::parse_v2(&data, 2).unwrap().1;
+            // let parse_duration = parse_start.elapsed();
 
             // let parse_start = std::time::Instant::now();
             // let (_, _esm_full_single) = ESMFull::parse(&data).expect("Error parsing ESM file.");
@@ -86,7 +86,7 @@ fn main() {
             // let map_duration = map_start.elapsed();
 
             println!("File read time: {:?}", file_duration);
-            println!("Parse time (multi): {:?}", parse_duration);
+            // println!("Parse time (multi): {:?}", parse_duration);
             // println!("Parse time (single): {:?}", parse_duration_single);
             // println!("Parse time (multi): {:?}", parse_duration_multi);
             // println!("Mapping time: {:?}", map_duration);
@@ -121,18 +121,18 @@ fn main() {
             let esm_file_b = std::fs::read(path_b).expect("Failed to read file B");
             let read_duration_b = read_start_b.elapsed();
 
-            let parse_start_a = std::time::Instant::now();
-            let (_, esm_a) = esm::diff::ESMDiff::parse(&esm_file_a).expect("Error parsing ESM file A.");
-            let parse_duration_a = parse_start_a.elapsed();
+            // let parse_start_a = std::time::Instant::now();
+            // let (_, esm_a) = esm::diff::ESMDiff::parse(&esm_file_a).expect("Error parsing ESM file A.");
+            // let parse_duration_a = parse_start_a.elapsed();
 
-            let parse_start_b = std::time::Instant::now();
-            let (_, mut esm_b) = esm::diff::ESMDiff::parse(&esm_file_b).expect("Error parsing ESM file B.");
-            let parse_duration_b = parse_start_b.elapsed();
+            // let parse_start_b = std::time::Instant::now();
+            // let (_, mut esm_b) = esm::diff::ESMDiff::parse(&esm_file_b).expect("Error parsing ESM file B.");
+            // let parse_duration_b = parse_start_b.elapsed();
 
-            let start = std::time::Instant::now();
-            let result = esm::diff::get_diff_form_ids(&esm_a, &mut esm_b);
-            let duration = start.elapsed();
-            let total_duration = total_start.elapsed();
+            // let start = std::time::Instant::now();
+            // let result = esm::diff::get_diff_form_ids(&esm_a, &mut esm_b);
+            // let duration = start.elapsed();
+            // let total_duration = total_start.elapsed();
 
 
             // println!("File A read time: {:?}", read_duration_a);
@@ -145,12 +145,12 @@ fn main() {
 
             let mut table = comfy_table::Table::new();
             table.set_header(vec!["Change Type", "Count", "", "Benchmark Name", "Benchmark Time"]);
-            table.add_row(vec!["Header Changed", &result.header_modified.to_string(), "", "Parse A", &format!("{:?}", parse_duration_a)]);
-            table.add_row(vec!["Additions", &result.additions.len().to_string(), "", "Parse B", &format!("{:?}", parse_duration_b)]);
-            table.add_row(vec!["Deletions", &result.deletions.len().to_string(), "", "File Read A", &format!("{:?}", read_duration_a)]);
-            table.add_row(vec!["Changed", &result.modified.len().to_string(), "", "File Read B", &format!("{:?}", read_duration_b)]);
-            table.add_row(vec!["Same", &result.unchanged.len().to_string(), "", "Diffing", &format!("{:?}", duration)]);
-            table.add_row(vec!["", "", "", "Total Time", &format!("{:?}", total_duration)]);
+            // table.add_row(vec!["Header Changed", &result.header_modified.to_string(), "", "Parse A", &format!("{:?}", parse_duration_a)]);
+            // table.add_row(vec!["Additions", &result.additions.len().to_string(), "", "Parse B", &format!("{:?}", parse_duration_b)]);
+            // table.add_row(vec!["Deletions", &result.deletions.len().to_string(), "", "File Read A", &format!("{:?}", read_duration_a)]);
+            // table.add_row(vec!["Changed", &result.modified.len().to_string(), "", "File Read B", &format!("{:?}", read_duration_b)]);
+            // table.add_row(vec!["Same", &result.unchanged.len().to_string(), "", "Diffing", &format!("{:?}", duration)]);
+            // table.add_row(vec!["", "", "", "Total Time", &format!("{:?}", total_duration)]);
 
 
             println!("");

@@ -197,7 +197,7 @@ version = "0.1.0"
 dependencies = [
  "clap",
  "comfy-table",
- "project-wormhole-esm",
+ "project-wormhole-es",
  "project-wormhole-shared",
  "serde_json",
 ]
@@ -357,7 +357,7 @@ version = "0.1.0"
 dependencies = [
  "clap",
  "comfy-table",
- "project-wormhole-esm",
+ "project-wormhole-es",
  "project-wormhole-shared",
 ]
 
@@ -875,7 +875,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "project-wormhole-esm"
+name = "project-wormhole-es"
 version = "0.1.0"
 dependencies = [
  "bitflags 2.13.0",
@@ -902,7 +902,7 @@ dependencies = [
  "log",
  "nom-derive",
  "project-wormhole-ba2",
- "project-wormhole-esm",
+ "project-wormhole-es",
  "project-wormhole-shared",
  "serde",
  "serde_json",

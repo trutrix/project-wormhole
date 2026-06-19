@@ -1,4 +1,4 @@
-use project_wormhole_esm::esm::raw::ESMRaw;
+use project_wormhole_es::esm::raw::ESMRaw;
 
 const FO4_MASTER: &str = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Fallout 4\\Data\\Fallout4.esm";
 

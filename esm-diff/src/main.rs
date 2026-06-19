@@ -3,7 +3,7 @@ mod tests;
 use std::io::Write;
 
 use clap::{Parser, ValueEnum};
-use project_wormhole_esm::esm::{mapped::MappedESM, raw::ESMRaw};
+use project_wormhole_es::esm::{mapped::MappedESM, raw::ESMRaw};
 
 #[derive(Parser, Debug)]
 #[command(version, about)]

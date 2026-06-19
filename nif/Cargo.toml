@@ -18,7 +18,7 @@ half = { version = "2.3.1", features = ["serde"] }
 gltf = { version = "1.4.1", features = ["KHR_materials_pbrSpecularGlossiness", "extras", "extensions"] }
 fbxcel = { version = "0.9.0", features = ["writer"] }
 
-project-wormhole-esm = { path = "../esm", version = "0.1.0"  }
+project-wormhole-es = { path = "../es", version = "0.1.0"  }
 project-wormhole-ba2 = { path = "../ba2", version = "0.1.0"  }
 project-wormhole-shared = { path = "../shared", version = "0.1.0"  }
 zerocopy = "0.8.31"

@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["ba2", "bgsm", "cli", "esm", "esm-diff", "nif", "proc", "shared"]
+members = ["ba2", "bgsm", "cli", "es", "esm-diff", "nif", "proc", "shared"]
 
 
 # Enable a small amount of optimization in the dev profile.
