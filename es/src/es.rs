@@ -3,6 +3,9 @@ use crate::dev::*;
 pub mod mapped;
 pub mod raw;
 pub mod full;
+pub mod es_object;
+pub mod es_group;
+pub mod es_record;
 
 // ====================================================================================================
 
