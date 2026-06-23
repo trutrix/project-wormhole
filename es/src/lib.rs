@@ -2,7 +2,7 @@ pub mod types;
 pub mod records;
 pub mod traits;
 pub mod structs;
-pub mod esm;
+pub mod es;
 pub mod consts;
 pub mod groups;
 mod tests;

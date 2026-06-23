@@ -3,7 +3,7 @@ use std::{collections::{HashMap, HashSet}, fs::{DirEntry, File}, os::raw, path::
 
 use comfy_table::presets::UTF8_FULL;
 
-use crate::{dev::GroupLabel, esm::{full::ESMFull, mapped::ESMMapped, raw::ESMRaw}, records::all::*, structs::{chunk::get_file_chunks, es_object::RawESObject}};
+use crate::{dev::GroupLabel, es::{full::ESMFull, mapped::ESMMapped, raw::ESMRaw}, records::all::*, structs::{chunk::get_file_chunks, es_object::RawESObject}};
 
 
 const FO4_ESM_PATH: &str = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Fallout 4\\Data\\Fallout4.esm";

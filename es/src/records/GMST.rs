@@ -1,6 +1,6 @@
 use project_wormhole_proc::define_record3;
 
-use crate::{dev::*, esm::ESMError, prelude::EditorIdTrait};
+use crate::{dev::*, es::ESMError, prelude::EditorIdTrait};
 
 define_record3! {
     "iden": b"GMST";
