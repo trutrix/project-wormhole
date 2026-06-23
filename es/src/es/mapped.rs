@@ -1,33 +1,33 @@
 use std::{collections::HashMap, fs::File, io::Read};
 
-use crate::{dev::*, esm::{ESMError, full::ESMFull, raw::ESMRaw}, groups::prelude::TopGroup, prelude::{FormIdTrait, MapContents}, records::{SingleRecord, all::FileHeader}};
+use crate::{dev::*, es::{ESMError, full::ESFull, raw::ESRaw}, groups::prelude::TopGroup, prelude::{FormIdTrait, MapContents}, records::{SingleRecord, all::FileHeader}};
 
 
-pub struct ESMMapped {
+pub struct ESMapped {
     pub header: FileHeader,
     pub indices: HashMap<FormId, SingleRecord>,
 }
 
 // ================================================================================
 
-impl ESMMapped {
+impl ESMapped {
     pub fn load_file(file_path: &str) -> Result<Self, ESMError> where Self: Sized {
         let mut file = File::open(file_path)?;
         let mut buf = Vec::new();
         file.read_to_end(&mut buf)?;
-        ESMMapped::parse(&buf)
+        ESMapped::parse(&buf)
     }
 
     pub fn parse(i: &[u8]) -> Result<Self, ESMError> where Self: Sized {
-        let (_, esm) = ESMFull::parse_mt(i).map_err(|_| ESMError::InvalidGroup)?;
-        Ok(ESMMapped::from(esm))
+        let (_, esm) = ESFull::parse_mt(i).map_err(|_| ESMError::InvalidGroup)?;
+        Ok(ESMapped::from(esm))
     }
 }
 
 // ================================================================================
 
-impl From<ESMFull> for ESMMapped {
-    fn from(value: ESMFull) -> Self {
+impl From<ESFull> for ESMapped {
+    fn from(value: ESFull) -> Self {
         
         let header = value.header;
         let mut indices = HashMap::new();
@@ -187,8 +187,8 @@ pub struct MappedESM<T> {
 
 // ====================================================================================================
 
-impl<'esm> From<ESMRaw<'esm>> for MappedESM<RawRecord<'esm>> {
-    fn from(value: ESMRaw<'esm>) -> Self {
+impl<'esm> From<ESRaw<'esm>> for MappedESM<RawRecord<'esm>> {
+    fn from(value: ESRaw<'esm>) -> Self {
         let mut map = HashMap::new();
         for item in value.objects {
             item.insert_into_one_map(&mut map);

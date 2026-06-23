@@ -1,6 +1,6 @@
 use std::{collections::{HashMap, HashSet}, io::Read, path::Path};
 
-use project_wormhole_es::esm::raw::ESMRaw;
+use project_wormhole_es::es::raw::ESRaw;
 // use project_wormhole_esm::esm::raw::RawESM;
 use project_wormhole_shared::structs::fourcc::FourCC;
 

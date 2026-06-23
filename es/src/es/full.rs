@@ -4,12 +4,12 @@ use crate::{dev::*, groups::prelude::TopGroup, records::all::FileHeader, structs
 
 
 #[derive(Debug)]
-pub struct ESMFull {
+pub struct ESFull {
     pub header: FileHeader,
     pub groups: Vec<TopGroup>,
 }
 
-impl ESMFull {
+impl ESFull {
     pub fn parse_mt(i: &[u8]) -> IResult<&[u8], Self> {
         
         let (i, chunks) = get_file_chunks(i)?;

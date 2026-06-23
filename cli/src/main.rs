@@ -1,7 +1,7 @@
 use clap::{Parser, Subcommand};
-use project_wormhole_es::esm::full::ESMFull;
-use project_wormhole_es::esm::raw::ESMRaw;
-use project_wormhole_es::esm::{self, mapped::ESMMapped};
+use project_wormhole_es::es::full::ESFull;
+use project_wormhole_es::es::raw::ESRaw;
+use project_wormhole_es::es::{self, mapped::ESMapped};
 use project_wormhole_es::prelude::Parse;
 
 mod benchmark;

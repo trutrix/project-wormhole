@@ -3,7 +3,7 @@ mod tests;
 use std::io::Write;
 
 use clap::{Parser, ValueEnum};
-use project_wormhole_es::esm::{mapped::MappedESM, raw::ESMRaw};
+use project_wormhole_es::es::{mapped::MappedESM, raw::ESRaw};
 
 #[derive(Parser, Debug)]
 #[command(version, about)]
@@ -58,11 +58,11 @@ fn main() {
     let all_start = std::time::Instant::now();
 
     let esm1_start = std::time::Instant::now();
-    let (_, esm1) = ESMRaw::parse_as_objects(&buf1, 2).expect("Failed to parse ESM1");
+    let (_, esm1) = ESRaw::parse_as_objects(&buf1, 2).expect("Failed to parse ESM1");
     let esm1_end = esm1_start.elapsed();
 
     let esm2_start = std::time::Instant::now();
-    let (_, esm2) = ESMRaw::parse_as_objects(&buf2, 2).expect("Failed to parse ESM2");
+    let (_, esm2) = ESRaw::parse_as_objects(&buf2, 2).expect("Failed to parse ESM2");
     let esm2_end = esm2_start.elapsed();
 
     let map1_start = std::time::Instant::now();

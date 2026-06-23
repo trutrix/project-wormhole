@@ -3,7 +3,7 @@ use std::{collections::{HashMap, HashSet}, fs::{DirEntry, File}, os::raw, path::
 
 use comfy_table::presets::UTF8_FULL;
 
-use crate::{dev::GroupLabel, es::{full::ESMFull, mapped::ESMMapped, raw::ESMRaw}, records::all::*, structs::{chunk::get_file_chunks, es_object::RawESObject}};
+use crate::{dev::GroupLabel, es::{full::ESFull, mapped::ESMapped, raw::ESRaw}, records::all::*, structs::{chunk::get_file_chunks, es_object::RawESObject}};
 
 
 const FO4_ESM_PATH: &str = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Fallout 4\\Data\\Fallout4.esm";
@@ -35,7 +35,7 @@ fn test_es_dir(path: &str) {
 
                 let start = std::time::Instant::now();
 
-                if let Ok((_, esm)) = ESMRaw::parse_as_objects(&buf, 1) {
+                if let Ok((_, esm)) = ESRaw::parse_as_objects(&buf, 1) {
                     let end = start.elapsed();
 
                     table.add_row(vec![
@@ -95,7 +95,7 @@ fn get_targets_in_dir(path: &str) -> Vec<DirEntry> {
 #[ignore]
 fn dump_main() {
     let file = std::fs::read(FO4_ESM_PATH).unwrap();
-    let esm = ESMRaw::parse_as_objects(&file, 1).unwrap().1;
+    let esm = ESRaw::parse_as_objects(&file, 1).unwrap().1;
 
     for o in &esm.objects {
         match o {
@@ -157,5 +157,5 @@ fn dump_main() {
 #[test]
 fn test_esm_full() {
     let data = std::fs::read(FO4_ESM_PATH).unwrap();
-    let esm = ESMFull::parse_mt(&data).unwrap().1;
+    let esm = ESFull::parse_mt(&data).unwrap().1;
 }
