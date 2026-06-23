@@ -352,7 +352,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "esm-diff"
+name = "es-diff"
 version = "0.1.0"
 dependencies = [
  "clap",
