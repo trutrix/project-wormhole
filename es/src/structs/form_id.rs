@@ -2,7 +2,7 @@ use crate::dev::*;
 
 // ====================================================================================================
 
-#[derive(PartialEq, Eq, Clone, Copy, PartialOrd, Ord, Hash, NomLE)]
+#[derive(PartialEq, Eq, Clone, Copy, PartialOrd, Ord, Hash, NomLE, Readable, Writable)]
 pub struct FormId(pub u32);
 
 // ====================================================================================================

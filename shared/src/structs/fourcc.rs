@@ -1,6 +1,8 @@
+use speedy::{Readable, Writable};
 
 
-#[derive(Clone, Copy, PartialEq, Eq, Hash)]
+
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Readable, Writable)]
 pub struct FourCC(pub [u8; 4]);
 
 

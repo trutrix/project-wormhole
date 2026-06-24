@@ -14,7 +14,7 @@ const FNV_DATA_DIR: &str = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\F
 
 const DUMP_TARGET: &str = "ccBGSFO4110-WS_Enclave.esl";
 
-const TARGET_EXTS: [&str;3] = ["esl", "esp", "esm"];
+
 
 
 fn test_es_dir(path: &str) {
@@ -81,7 +81,7 @@ fn get_targets_in_dir(path: &str) -> Vec<DirEntry> {
     for entry in entries {
         if let Ok(de) = entry {
             if de.path().extension().is_some_and(|f| {
-                TARGET_EXTS.contains(&f.to_str().unwrap())
+                crate::dev::TARGET_EXTS.contains(&f.to_str().unwrap())
             }) {
                 filtered.push(de);
             }

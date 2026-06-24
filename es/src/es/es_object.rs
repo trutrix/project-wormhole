@@ -1,8 +1,8 @@
-use crate::dev::*;
+use crate::{dev::*, es::{es_group::ESGroup, es_record::ESRecord}};
 
 
-#[derive(Debug)]
+#[derive(Debug, Readable, Writable)]
 pub enum ESObject {
-    Record,
-    Group
+    Record(ESRecord),
+    Group(ESGroup)
 }

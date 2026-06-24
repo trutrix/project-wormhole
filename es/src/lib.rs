@@ -37,6 +37,8 @@ mod dev {
     pub use super::structs::data::*;
     pub use super::structs::model::*;
     pub use super::structs::form_id::FormId;
+
+    pub use speedy::{Readable, Writable};
 }
 
 

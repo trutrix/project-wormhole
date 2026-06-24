@@ -211,7 +211,7 @@ impl<'esm, T> Group<T> where T: for<'nom> Parse<&'esm[u8]> + Send {
 
 // ====================================================================================================
 
-#[derive(Clone, PartialEq, Eq)]
+#[derive(Clone, PartialEq, Eq, Readable, Writable)]
 pub struct CellLocation(pub [i16;2]);
 
 // ====================================================================================================
