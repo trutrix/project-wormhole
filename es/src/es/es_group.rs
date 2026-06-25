@@ -1,9 +1,20 @@
-use crate::{dev::*, es::es_record::ESVersionControl};
+use crate::{dev::*, es::es_record::ESVersionControl, groups::prelude::*};
 
 
-#[derive(Debug, Readable, Writable)]
+#[derive(Debug)]
 pub enum ESGroup {
-
+    Top(TopGroup),
+    WorldChildren(WorldChildren),
+    InteriorCellBlock(InteriorCellBlock),
+    InteriorCellSubBlock(InteriorCellSubBlock),
+    ExteriorCellBlock(ExteriorCellBlock),
+    ExteriorCellSubBlock(ExteriorCellSubBlock),
+    CellChildren(CellChildren),
+    TopicChildren(TopicChildren),
+    CellPersistentChildren(CellPersistentChildren),
+    CellTemporaryChildren(CellTemporaryChildren),
+    CellVisibleDistantChildren(CellVisibleDistantChildren),
+    Unknown([u8;4])
 }
 
 // ====================================================================================================
