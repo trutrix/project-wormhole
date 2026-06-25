@@ -2,8 +2,9 @@
 use std::{collections::{HashMap, HashSet}, fs::{DirEntry, File}, os::raw, path::PathBuf, str::FromStr};
 
 use comfy_table::presets::UTF8_FULL;
+use speedy::Readable;
 
-use crate::{dev::GroupLabel, es::{full::ESFull, mapped::ESMapped, raw::ESRaw}, records::all::*, structs::{chunk::get_file_chunks, es_object::RawESObject}};
+use crate::{dev::GroupLabel, es::{es_object::ESObject, es_record::ESRecord, full::ESFull, mapped::ESMapped, raw::ESRaw}, records::all::*, structs::{chunk::get_file_chunks, es_object::RawESObject}};
 
 
 const FO4_ESM_PATH: &str = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Fallout 4\\Data\\Fallout4.esm";
@@ -155,7 +156,16 @@ fn dump_main() {
 }
 
 #[test]
+#[ignore]
 fn test_esm_full() {
     let data = std::fs::read(FO4_ESM_PATH).unwrap();
     let esm = ESFull::parse_mt(&data).unwrap().1;
+}
+
+#[test]
+fn test_speedy() {
+    // let reader = std::fs::File::open(FO4_ESM_PATH).unwrap();
+    let data = std::fs::read(FO4_ESM_PATH).unwrap();
+
+    let header = ESObject::read_from_buffer(&data).unwrap();
 }

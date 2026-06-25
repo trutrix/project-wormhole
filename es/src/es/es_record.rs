@@ -1,7 +1,7 @@
 use crate::dev::*;
 //use bitflags::bitflags;
 
-#[derive(Debug, Readable, Writable)]
+#[derive(Debug)]
 pub enum ESRecord {
     // AACT(AACT::Action),
     // ACHR(ACHR::ActorReference),
@@ -139,6 +139,18 @@ pub enum ESRecord {
     // WRLD(WRLD::Worldspace),
     // WTHR(WTHR::Weather),
     // ZOOM(ZOOM::Zoom),
+}
+
+impl<'a, C: speedy::Context> Readable<'a, C> for ESRecord {
+    fn read_from< R: speedy::Reader< 'a, C > >( reader: &mut R ) -> Result< Self, <C as speedy::Context>::Error > {
+        let header: ESRecordHeader = reader.read_value()?;
+
+        match header.iden.0 {
+            _ => {
+                panic!("{:?}", header);
+            }
+        }
+    }
 }
 
 /// Size NOT INCLUDING header, unlike [ESGroupHeader]

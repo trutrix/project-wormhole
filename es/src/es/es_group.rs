@@ -1,5 +1,6 @@
 use crate::{dev::*, es::es_record::ESVersionControl, groups::prelude::*};
 
+// ====================================================================================================
 
 #[derive(Debug)]
 pub enum ESGroup {
@@ -15,6 +16,33 @@ pub enum ESGroup {
     CellTemporaryChildren(CellTemporaryChildren),
     CellVisibleDistantChildren(CellVisibleDistantChildren),
     Unknown([u8;4])
+}
+
+// ====================================================================================================
+
+
+
+// ====================================================================================================
+
+impl<'a, C: speedy::Context> Readable<'a, C> for ESGroup {
+    fn read_from< R: speedy::Reader< 'a, C > >( reader: &mut R ) -> Result< Self, <C as speedy::Context>::Error > {
+        let header: ESGroupHeader = reader.read_value()?;
+
+        match header.get_label() {
+            ESGroupLabel::Top(four_cc) => todo!(),
+            ESGroupLabel::WorldChildren(form_id) => todo!(),
+            ESGroupLabel::InteriorCellBlock(_) => todo!(),
+            ESGroupLabel::InteriorCellSubBlock(_) => todo!(),
+            ESGroupLabel::ExteriorCellBlock(cell_location) => todo!(),
+            ESGroupLabel::ExteriorCellSubBlock(cell_location) => todo!(),
+            ESGroupLabel::CellChildren(form_id) => todo!(),
+            ESGroupLabel::TopicChildren(form_id) => todo!(),
+            ESGroupLabel::CellPersistentChildren(form_id) => todo!(),
+            ESGroupLabel::CellTemporaryChildren(form_id) => todo!(),
+            ESGroupLabel::CellVisibleDistantChildren(form_id) => todo!(),
+            ESGroupLabel::Unknown(_) => todo!(),
+        }
+    }
 }
 
 // ====================================================================================================
