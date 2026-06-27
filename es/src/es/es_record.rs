@@ -3,6 +3,7 @@ use crate::dev::*;
 
 #[derive(Debug)]
 pub enum ESRecord {
+    Unhandled(RecordHeader)
     // AACT(AACT::Action),
     // ACHR(ACHR::ActorReference),
     // ACTI(ACTI::Activator),
@@ -141,6 +142,23 @@ pub enum ESRecord {
     // ZOOM(ZOOM::Zoom),
 }
 
+// ===================================================================================================
+
+impl nom_derive::Parse<&[u8]> for ESRecord {
+    fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
+        let (i, (header, raw)) = alloc_record(i)?;
+        match header {
+            
+
+            _ => {
+                Ok((i, ESRecord::Unhandled(header)))
+            }
+        }
+    }
+}
+
+// ===================================================================================================
+
 impl<'a, C: speedy::Context> Readable<'a, C> for ESRecord {
     fn read_from< R: speedy::Reader< 'a, C > >( reader: &mut R ) -> Result< Self, <C as speedy::Context>::Error > {
         let header: ESRecordHeader = reader.read_value()?;
@@ -154,7 +172,7 @@ impl<'a, C: speedy::Context> Readable<'a, C> for ESRecord {
 }
 
 /// Size NOT INCLUDING header, unlike [ESGroupHeader]
-#[derive(Debug, Readable, Writable)]
+#[derive(Debug, Readable, Writable, NomLE)]
 pub struct ESRecordHeader {
     pub iden: FourCC,
     pub size: u32,
@@ -233,7 +251,7 @@ impl std::fmt::Debug for ESTimestamp {
 
 // ====================================================================================================
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Readable, Writable)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Readable, Writable, NomLE)]
 pub struct ESRecordFlags(pub u32);
 
 // ====================================================================================================

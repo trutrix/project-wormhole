@@ -29,3 +29,17 @@ impl<'a, C: speedy::Context> speedy::Readable<'a, C> for ESObject {
         }
     }
 }
+
+// ===================================================================================================
+
+impl nom_derive::Parse<&[u8]> for ESObject {
+    fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
+        if &[i[0], i[1], i[2], i[3]] == b"GRUP" {
+            let (i, group) = ESGroup::parse(i)?;
+            Ok((i, ESObject::Group(group)))
+        } else {
+            let (i, record) = ESRecord::parse(i)?;
+            Ok((i, ESObject::Record(record)))
+        }
+    }
+}

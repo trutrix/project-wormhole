@@ -20,7 +20,25 @@ pub enum ESGroup {
 
 // ====================================================================================================
 
-
+impl nom_derive::Parse<&[u8]> for ESGroup {
+    fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
+        let (i, header) = ESGroupHeader::parse(i)?;
+        match header.get_label() {
+            ESGroupLabel::Top(four_cc) => todo!(),
+            ESGroupLabel::WorldChildren(form_id) => todo!(),
+            ESGroupLabel::InteriorCellBlock(_) => todo!(),
+            ESGroupLabel::InteriorCellSubBlock(_) => todo!(),
+            ESGroupLabel::ExteriorCellBlock(cell_location) => todo!(),
+            ESGroupLabel::ExteriorCellSubBlock(cell_location) => todo!(),
+            ESGroupLabel::CellChildren(form_id) => todo!(),
+            ESGroupLabel::TopicChildren(form_id) => todo!(),
+            ESGroupLabel::CellPersistentChildren(form_id) => todo!(),
+            ESGroupLabel::CellTemporaryChildren(form_id) => todo!(),
+            ESGroupLabel::CellVisibleDistantChildren(form_id) => todo!(),
+            ESGroupLabel::Unknown(_) => todo!(),
+        }
+    }
+}
 
 // ====================================================================================================
 
@@ -47,7 +65,7 @@ impl<'a, C: speedy::Context> Readable<'a, C> for ESGroup {
 
 // ====================================================================================================
 
-#[derive(Debug, Clone, Readable, Writable)]
+#[derive(Debug, Clone, Readable, Writable, NomLE)]
 pub struct ESGroupHeader {
     /// Should always be ` b"GRUP" `
     pub iden: FourCC,
