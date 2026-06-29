@@ -2,10 +2,10 @@
 use std::{collections::{HashMap, HashSet}, fs::{DirEntry, File}, os::raw, path::PathBuf, str::FromStr};
 
 use comfy_table::presets::UTF8_FULL;
-use speedy::Readable;
 
 use crate::{dev::GroupLabel, es::{es_object::ESObject, es_record::ESRecord, full::ESFull, mapped::ESMapped, raw::ESRaw}, records::all::*, structs::{chunk::get_file_chunks, es_object::RawESObject}};
 
+// ===================================================================================================
 
 const FO4_ESM_PATH: &str = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Fallout 4\\Data\\Fallout4.esm";
 const FO4_DATA_DIR: &str = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Fallout 4\\Data";
@@ -15,8 +15,7 @@ const FNV_DATA_DIR: &str = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\F
 
 const DUMP_TARGET: &str = "ccBGSFO4110-WS_Enclave.esl";
 
-
-
+// ===================================================================================================
 
 fn test_es_dir(path: &str) {
     use std::io::Read;
@@ -66,6 +65,7 @@ fn test_es_dir(path: &str) {
     println!("{}", table);
 }
 
+// ===================================================================================================
 
 #[test]
 #[ignore]
@@ -74,6 +74,7 @@ fn test_all() {
     test_es_dir(FNV_DATA_DIR);
 }
 
+// ===================================================================================================
 
 fn get_targets_in_dir(path: &str) -> Vec<DirEntry> {
     let mut filtered = Vec::new();
@@ -91,6 +92,8 @@ fn get_targets_in_dir(path: &str) -> Vec<DirEntry> {
 
     filtered
 }
+
+// ===================================================================================================
 
 #[test]
 #[ignore]
@@ -155,6 +158,8 @@ fn dump_main() {
 
 }
 
+// ===================================================================================================
+
 #[test]
 #[ignore]
 fn test_esm_full() {
@@ -162,10 +167,16 @@ fn test_esm_full() {
     let esm = ESFull::parse_mt(&data).unwrap().1;
 }
 
+// ===================================================================================================
+
+#[cfg(feature = "speedy")]
 #[test]
 fn test_speedy() {
-    // let reader = std::fs::File::open(FO4_ESM_PATH).unwrap();
     let data = std::fs::read(FO4_ESM_PATH).unwrap();
-
     let header = ESObject::read_from_buffer(&data).unwrap();
 }
+
+#[cfg(not(feature = "speedy"))]
+#[test]
+#[ignore = "speedy disabled"]
+fn test_speedy() { }

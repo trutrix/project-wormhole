@@ -38,6 +38,7 @@ mod dev {
     pub use super::structs::model::*;
     pub use super::structs::form_id::FormId;
 
+    #[cfg(feature = "speedy")]
     pub use speedy::{Readable, Writable};
 }
 

@@ -2,7 +2,8 @@ use crate::dev::*;
 
 // ====================================================================================================
 
-#[derive(PartialEq, Eq, Clone, Copy, PartialOrd, Ord, Hash, NomLE, Readable, Writable)]
+#[derive(PartialEq, Eq, Clone, Copy, PartialOrd, Ord, Hash, NomLE)]
+#[cfg_attr(feature = "speedy", derive(Readable, Writable))]
 pub struct FormId(pub u32);
 
 // ====================================================================================================

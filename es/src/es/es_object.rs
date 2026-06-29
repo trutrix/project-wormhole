@@ -10,6 +10,33 @@ pub enum ESObject {
 
 // ===================================================================================================
 
+impl ESObject {
+    fn parse(i: &[u8]) -> IResult<&[u8], Self> {
+        let (_, iden) = FourCC::parse(i)?;
+        if &iden.0 == b"GRUP" {
+            let (i, group) = ESGroup::parse(i)?;
+            Ok((i, ESObject::Group(group)))
+        } else {
+            let (i, record) = ESRecord::parse(i)?;
+            Ok((i, ESObject::Record(record)))
+        }
+    }
+
+    /// This function assumes you have checked if there is more data to parse
+    fn parse_unchecked(i: &[u8]) -> IResult<&[u8], Self> {
+        if &[i[0], i[1], i[2], i[3]] == b"GRUP" {
+            let (i, group) = ESGroup::parse(i)?;
+            Ok((i, ESObject::Group(group)))
+        } else {
+            let (i, record) = ESRecord::parse(i)?;
+            Ok((i, ESObject::Record(record)))
+        }
+    }
+}
+
+// ===================================================================================================
+
+#[cfg(feature = "speedy")]
 impl<'a, C: speedy::Context> speedy::Readable<'a, C> for ESObject {
     #[inline]
     fn read_from<R: speedy::Reader<'a, C>>(reader: &mut R) -> std::result::Result<Self, C::Error> {
@@ -34,12 +61,26 @@ impl<'a, C: speedy::Context> speedy::Readable<'a, C> for ESObject {
 
 impl nom_derive::Parse<&[u8]> for ESObject {
     fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
-        if &[i[0], i[1], i[2], i[3]] == b"GRUP" {
-            let (i, group) = ESGroup::parse(i)?;
-            Ok((i, ESObject::Group(group)))
-        } else {
-            let (i, record) = ESRecord::parse(i)?;
-            Ok((i, ESObject::Record(record)))
+        ESObject::parse(i)
+    }
+}
+
+// ===================================================================================================
+
+
+// ===================================================================================================
+
+impl ESObjectTraits for ESObject {
+    fn object_count(&self) -> usize {
+        match self {
+            ESObject::Group(esgroup) => esgroup.object_count() + 1usize,
+            ESObject::Record(_) => 1usize,
         }
     }
+}
+
+// ===================================================================================================
+
+pub trait ESObjectTraits {
+    fn object_count(&self) -> usize { 1usize }
 }

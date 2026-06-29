@@ -148,7 +148,7 @@ impl nom_derive::Parse<&[u8]> for ESRecord {
     fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
         let (i, (header, raw)) = alloc_record(i)?;
         match header {
-            
+
 
             _ => {
                 Ok((i, ESRecord::Unhandled(header)))
@@ -159,6 +159,7 @@ impl nom_derive::Parse<&[u8]> for ESRecord {
 
 // ===================================================================================================
 
+#[cfg(feature = "speedy")]
 impl<'a, C: speedy::Context> Readable<'a, C> for ESRecord {
     fn read_from< R: speedy::Reader< 'a, C > >( reader: &mut R ) -> Result< Self, <C as speedy::Context>::Error > {
         let header: ESRecordHeader = reader.read_value()?;
@@ -172,7 +173,8 @@ impl<'a, C: speedy::Context> Readable<'a, C> for ESRecord {
 }
 
 /// Size NOT INCLUDING header, unlike [ESGroupHeader]
-#[derive(Debug, Readable, Writable, NomLE)]
+#[derive(Debug, NomLE)]
+#[cfg_attr(feature = "speedy", derive(Readable, Writable))]
 pub struct ESRecordHeader {
     pub iden: FourCC,
     pub size: u32,
@@ -182,7 +184,8 @@ pub struct ESRecordHeader {
 }
 
 
-#[derive(Debug, NomLE, PartialEq, Eq, Clone, Readable, Writable)]
+#[derive(Debug, NomLE, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "speedy", derive(Readable, Writable))]
 pub struct ESVersionControl {
     pub timestamp: ESTimestamp,
     pub users: [u8; 2],
@@ -201,7 +204,8 @@ pub struct ESVersionControl {
 /// 0b 0000000 0000 11111
 /// ```
 /// 
-#[derive(NomLE, PartialEq, Eq, Clone, Readable, Writable)]
+#[derive(NomLE, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "speedy", derive(Readable, Writable))]
 pub struct ESTimestamp(pub u16);
 
 // ====================================================================================================
@@ -251,7 +255,8 @@ impl std::fmt::Debug for ESTimestamp {
 
 // ====================================================================================================
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Readable, Writable, NomLE)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, NomLE)]
+#[cfg_attr(feature = "speedy", derive(Readable, Writable))]
 pub struct ESRecordFlags(pub u32);
 
 // ====================================================================================================

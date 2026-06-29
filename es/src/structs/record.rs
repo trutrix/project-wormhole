@@ -104,7 +104,8 @@ impl std::fmt::Debug for ESMTimestamp {
 
 bitflags! {
     /// Represents a set of flags.
-    #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Readable, Writable)]
+    #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+    #[cfg_attr(feature = "speedy", derive(Readable, Writable))]
     pub struct RecordFlags2: u32 {
         /// The value `A`, at bit position `0`.
         

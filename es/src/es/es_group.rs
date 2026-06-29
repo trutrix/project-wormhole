@@ -1,4 +1,4 @@
-use crate::{dev::*, es::es_record::ESVersionControl, groups::prelude::*};
+use crate::{dev::*, es::{es_object::ESObjectTraits, es_record::ESVersionControl}, groups::prelude::*};
 
 // ====================================================================================================
 
@@ -42,6 +42,7 @@ impl nom_derive::Parse<&[u8]> for ESGroup {
 
 // ====================================================================================================
 
+#[cfg(feature = "speedy")]
 impl<'a, C: speedy::Context> Readable<'a, C> for ESGroup {
     fn read_from< R: speedy::Reader< 'a, C > >( reader: &mut R ) -> Result< Self, <C as speedy::Context>::Error > {
         let header: ESGroupHeader = reader.read_value()?;
@@ -65,7 +66,8 @@ impl<'a, C: speedy::Context> Readable<'a, C> for ESGroup {
 
 // ====================================================================================================
 
-#[derive(Debug, Clone, Readable, Writable, NomLE)]
+#[derive(Debug, Clone, NomLE)]
+#[cfg_attr(feature = "speedy", derive(Readable, Writable))]
 pub struct ESGroupHeader {
     /// Should always be ` b"GRUP" `
     pub iden: FourCC,
@@ -120,3 +122,9 @@ pub enum ESGroupLabel {
 }
 
 // ====================================================================================================
+
+impl ESObjectTraits for ESGroup {
+    fn object_count(&self) -> usize {
+        1usize
+    }
+}
