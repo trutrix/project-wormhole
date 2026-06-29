@@ -1,9 +1,9 @@
-use crate::dev::*;
+use crate::{dev::*, es::es_group::ESGroupHeader};
 //use bitflags::bitflags;
 
 #[derive(Debug)]
 pub enum ESRecord {
-    Unhandled(RecordHeader)
+    Unhandled(ESRecordHeader)
     // AACT(AACT::Action),
     // ACHR(ACHR::ActorReference),
     // ACTI(ACTI::Activator),
@@ -322,3 +322,24 @@ impl ESRecordFlags {
 // }
 
 // ====================================================================================================
+
+pub fn alloc_record(i: &[u8]) -> IResult<&[u8], (ESRecordHeader, &[u8]), nom::error::Error<&[u8]>> {
+    // Keep original pointer
+    let orig = i;
+
+    // Parse header
+    let (i, header) = ESRecordHeader::parse(i)?;
+
+    // Take size, not including header size
+    let (i, raw) = take(header.size)(i)?;
+
+    // Check if header is actually a group, which is an unrecoverable error
+    if &header.iden.0 == b"GRUP" {
+        let (_, gheader) = ESGroupHeader::parse(orig)?;
+        panic!("alloc_record(): function encountered a group: {:?}", gheader);
+    }
+    // Return the values
+    else {
+        Ok((i, (header, raw)))
+    }
+}
