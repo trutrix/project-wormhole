@@ -6,6 +6,8 @@ use comfy_table::presets::UTF8_FULL;
 use crate::{dev::GroupLabel, es::{es_object::ESObject, es_record::ESRecord, full::ESFull, mapped::ESMapped, raw::ESRaw}, records::all::*, structs::{chunk::get_file_chunks, es_object::RawESObject}};
 
 // ===================================================================================================
+// Test Parameters
+// ===================================================================================================
 
 const FO4_ESM_PATH: &str = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Fallout 4\\Data\\Fallout4.esm";
 const FO4_DATA_DIR: &str = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Fallout 4\\Data";
@@ -16,55 +18,7 @@ const FNV_DATA_DIR: &str = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\F
 const DUMP_TARGET: &str = "ccBGSFO4110-WS_Enclave.esl";
 
 // ===================================================================================================
-
-fn test_es_dir(path: &str) {
-    use std::io::Read;
-
-    let entries = get_targets_in_dir(path);
-    let mut table = comfy_table::Table::new();
-    table.load_preset(UTF8_FULL);
-    table.set_header(vec!["File", "Benchmark", "Objects (Header)", "Objects (Parsed)"]);
-
-    for entry in entries {
-
-        if let Ok(mut file) = File::open(entry.path()) {
-
-            let mut buf = Vec::new();
-
-            if let Ok(file_size) = file.read_to_end(&mut buf) {
-
-                let start = std::time::Instant::now();
-
-                if let Ok((_, esm)) = ESRaw::parse_as_objects(&buf, 1) {
-                    let end = start.elapsed();
-
-                    table.add_row(vec![
-                        entry.path().file_name().unwrap().to_str().unwrap(),
-                        format!("{:?}", end).as_str(),
-                        format!("{:?}", esm.header.get_object_count().unwrap_or(&0)).as_str(),
-                        format!("{}", esm.get_full_object_count()).as_str()
-                    ]);
-                
-                } else {
-                    table.add_row(vec![
-                        entry.path().file_name().unwrap().to_str().unwrap(),
-                        "Failure",
-                        "Failure",
-                        "Failure"
-                    ]);
-                }
-
-            } else {
-                println!("Could not READ file: {:?}", entry.path().file_name());
-            }
-
-        } else {
-            println!("{:?}", entry);
-        }
-    }
-    println!("{}", table);
-}
-
+// Tests
 // ===================================================================================================
 
 #[test]
@@ -72,25 +26,6 @@ fn test_es_dir(path: &str) {
 fn test_all() {
     test_es_dir(FO4_DATA_DIR);
     test_es_dir(FNV_DATA_DIR);
-}
-
-// ===================================================================================================
-
-fn get_targets_in_dir(path: &str) -> Vec<DirEntry> {
-    let mut filtered = Vec::new();
-    let entries = std::fs::read_dir(path).expect(format!("Could not read directory: {}", path).as_str());
-
-    for entry in entries {
-        if let Ok(de) = entry {
-            if de.path().extension().is_some_and(|f| {
-                crate::dev::TARGET_EXTS.contains(&f.to_str().unwrap())
-            }) {
-                filtered.push(de);
-            }
-        }
-    }
-
-    filtered
 }
 
 // ===================================================================================================
@@ -176,7 +111,82 @@ fn test_speedy() {
     let header = ESObject::read_from_buffer(&data).unwrap();
 }
 
+// ===================================================================================================
+
 #[cfg(not(feature = "speedy"))]
 #[test]
 #[ignore = "speedy disabled"]
 fn test_speedy() { }
+
+
+
+// ===================================================================================================
+// Test Utility functions
+// ===================================================================================================
+
+fn get_targets_in_dir(path: &str) -> Vec<DirEntry> {
+    let mut filtered = Vec::new();
+    let entries = std::fs::read_dir(path).expect(format!("Could not read directory: {}", path).as_str());
+
+    for entry in entries {
+        if let Ok(de) = entry {
+            if de.path().extension().is_some_and(|f| {
+                crate::dev::TARGET_EXTS.contains(&f.to_str().unwrap())
+            }) {
+                filtered.push(de);
+            }
+        }
+    }
+
+    filtered
+}
+
+// ===================================================================================================
+
+fn test_es_dir(path: &str) {
+    use std::io::Read;
+
+    let entries = get_targets_in_dir(path);
+    let mut table = comfy_table::Table::new();
+    table.load_preset(UTF8_FULL);
+    table.set_header(vec!["File", "Benchmark", "Objects (Header)", "Objects (Parsed)"]);
+
+    for entry in entries {
+
+        if let Ok(mut file) = File::open(entry.path()) {
+
+            let mut buf = Vec::new();
+
+            if let Ok(file_size) = file.read_to_end(&mut buf) {
+
+                let start = std::time::Instant::now();
+
+                if let Ok((_, esm)) = ESRaw::parse_as_objects(&buf, 1) {
+                    let end = start.elapsed();
+
+                    table.add_row(vec![
+                        entry.path().file_name().unwrap().to_str().unwrap(),
+                        format!("{:?}", end).as_str(),
+                        format!("{:?}", esm.header.get_object_count().unwrap_or(&0)).as_str(),
+                        format!("{}", esm.get_full_object_count()).as_str()
+                    ]);
+                
+                } else {
+                    table.add_row(vec![
+                        entry.path().file_name().unwrap().to_str().unwrap(),
+                        "Failure",
+                        "Failure",
+                        "Failure"
+                    ]);
+                }
+
+            } else {
+                println!("Could not READ file: {:?}", entry.path().file_name());
+            }
+
+        } else {
+            println!("{:?}", entry);
+        }
+    }
+    println!("{}", table);
+}
