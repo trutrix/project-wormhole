@@ -1,3 +1,5 @@
+use nom_derive::nom::Parser;
+use nom_derive::nom::bytes::complete::tag;
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 
 use crate::dev::*;
@@ -22,12 +24,12 @@ pub struct GroupHeader {
 
 impl Parse<&[u8]> for GroupHeader {
     fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
-        let (i, iden) = FourCC::parse(i)?;
+        let (i, t) = tag(b"GRUP").parse(i)?;
         let (i, size) = le_u32(i)?;
         let (i, label) = GroupLabel::parse(i)?;
         let (i, version_control) = VersionControl::parse(i)?;
 
-        Ok((i, GroupHeader { iden, size, label, version_control }))
+        Ok((i, GroupHeader { iden: FourCC(t.try_into().unwrap()), size, label, version_control }))
     }
 }
 
