@@ -1,4 +1,4 @@
-use crate::{dev::*, es::{es_group::top::ESTop, es_object::ESObjectTraits, es_record::ESVersionControl}, groups::prelude::*};
+use crate::{dev::*, es::{es_group::top::ESTop, es_object::ESObjectTraits, es_record::ESVersionControl}, groups::prelude::*, traits::ParseAllocated};
 
 // ====================================================================================================
 
@@ -19,17 +19,17 @@ pub mod cell_visible_distant_children;
 #[derive(Debug)]
 pub enum ESGroup {
     Top(ESTop),
-    WorldChildren(WorldChildren),
-    InteriorCellBlock(InteriorCellBlock),
-    InteriorCellSubBlock(InteriorCellSubBlock),
-    ExteriorCellBlock(ExteriorCellBlock),
-    ExteriorCellSubBlock(ExteriorCellSubBlock),
-    CellChildren(CellChildren),
-    TopicChildren(TopicChildren),
-    CellPersistentChildren(CellPersistentChildren),
-    CellTemporaryChildren(CellTemporaryChildren),
-    CellVisibleDistantChildren(CellVisibleDistantChildren),
-    Unknown([u8;4])
+    WorldChildren(world_children::ESWorldChildren),
+    InteriorCellBlock(interior_cell_block::ESInteriorCellBlock),
+    InteriorCellSubBlock(interior_cell_sub_block::ESInteriorCellSubBlock),
+    ExteriorCellBlock(exterior_cell_block::ESExteriorCellBlock),
+    ExteriorCellSubBlock(exterior_cell_sub_block::ESExteriorCellSubBlock),
+    CellChildren(cell_children::ESCellChildren),
+    TopicChildren(topic_children::ESTopicChildren),
+    CellPersistentChildren(cell_persistent_children::ESCellPersistentChildren),
+    CellTemporaryChildren(cell_temporary_children::ESCellTemporaryChildren),
+    CellVisibleDistantChildren(cell_visible_distant_children::ESCellVisibleDistantChildren),
+    Unknown(ESGroupHeader)
 }
 
 // ====================================================================================================
@@ -37,9 +37,14 @@ pub enum ESGroup {
 impl nom_derive::Parse<&[u8]> for ESGroup {
     fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
         let (i, header) = ESGroupHeader::parse(i)?;
+        let (i, raw) = take(header.size as usize - 24)(i)?;
         match header.get_label() {
-            ESGroupLabel::Top(four_cc) => {
-                todo!()
+            ESGroupLabel::Top(_) => { 
+                if let Ok(g) = ESTop::parse_allocated(header, raw) {
+                    Ok((i, ESGroup::Top(g)))
+                } else {
+                    Err(nom::Err::Error(nom::error::Error::new(raw, nom::error::ErrorKind::Fail)))
+                }
             },
             ESGroupLabel::WorldChildren(form_id) => todo!(),
             ESGroupLabel::InteriorCellBlock(_) => todo!(),
