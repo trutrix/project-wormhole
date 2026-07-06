@@ -158,8 +158,8 @@ pub struct Group<T> {
 
 // ====================================================================================================
 
-impl<'esm, T> Parse<&'esm[u8]> for Group<T> where T: for<'nom> Parse<&'esm[u8]> + Send {
-    fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
+impl<'es, T> Parse<&'es[u8]> for Group<T> where T: for<'nom> Parse<&'es[u8]> + Send {
+    fn parse(i: &'es[u8]) -> IResult<&'es[u8], Self, nom::error::Error<&'es[u8]>> {
 
         let (i, (header, data)) = alloc_group(i)?;
         
@@ -179,8 +179,8 @@ impl<'esm, T> Parse<&'esm[u8]> for Group<T> where T: for<'nom> Parse<&'esm[u8]> 
 
 // ====================================================================================================
 
-impl<'esm, T> Group<T> where T: for<'nom> Parse<&'esm[u8]> + Send {
-    pub fn parse_pre_alloc(raw: &'esm[u8], header: GroupHeader) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
+impl<'es, T> Group<T> where T: for<'nom> Parse<&'es[u8]> + Send {
+    pub fn parse_pre_alloc(raw: &'es[u8], header: GroupHeader) -> IResult<&'es[u8], Self, nom::error::Error<&'es[u8]>> {
         
         let mut sub = raw;
         let mut chunks = Vec::new();

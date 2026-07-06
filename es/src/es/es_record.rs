@@ -1,145 +1,147 @@
-use crate::{dev::*, es::es_group::ESGroupHeader};
+use nom_derive::nom::error;
+
+use crate::{dev::*, es::es_group::ESGroupHeader, records::*, traits::{ParseAllocated, record::FormIdTrait}};
 //use bitflags::bitflags;
 
 #[derive(Debug)]
 pub enum ESRecord {
-    Unhandled(ESRecordHeader)
-    // AACT(AACT::Action),
-    // ACHR(ACHR::ActorReference),
-    // ACTI(ACTI::Activator),
-    // ADDN(ADDN::AddonNode),
-    // AECH(AECH::AudioEffectChain),
-    // ALCH(ALCH::Alchemy),
-    // AMDL(AMDL::AimModel),
-    // AMMO(AMMO::Ammo),
-    // ANIO(ANIO::AnimatedObject),
-    // AORU(AORU::AttractionRule),
-    // ARMA(ARMA::ArmorAddon),
-    // ARMO(ARMO::Armor),
-    // ARTO(ARTO::ArtObject),
-    // ASPC(ASPC::AcousticSpace),
-    // ASTP(ASTP::AssociationType),
-    // AVIF(AVIF::ActorValueInformation),
-    // BNDS(BNDS::BendableSpline),
-    // BOOK(BOOK::Book),
-    // BPTD(BPTD::BodyPartData),
-    // CAMS(CAMS::CameraShot),
-    // CELL(CELL::Cell),
-    // CLAS(CLAS::Class),
-    // CLFM(CLFM::Color),
-    // CLMT(CLMT::Climate),
-    // CMPO(CMPO::Component),
-    // COBJ(COBJ::ConstructibleObject),
-    // COLL(COLL::CollisionLayer),
-    // CONT(CONT::Container),
-    // CPTH(CPTH::CameraPath),
-    // CSTY(CSTY::CombatStyle),
-    // DEBR(DEBR::Debris),
-    // DFOB(DFOB::DefaultObject),
-    // DIAL(DIAL::Dialog),
-    // DLBR(DLBR::DialogBranch),
-    // DLVW(DLVW::DialogView),
-    // DMGT(DMGT::DamageType),
-    // DOBJ(DOBJ::DefaultObjects),
-    // DOOR(DOOR::Door),
-    // ECZN(ECZN::EncounterZone),
-    // EFSH(EFSH::EffectShader),
-    // ENCH(ENCH::ObjectEffect),
-    // EQUP(EQUP::EquipType),
-    // EXPL(EXPL::Explosion),
-    // FACT(FACT::Faction),
-    // FLOR(FLOR::Flora),
-    // FLST(FLST::FormIdList),
-    // FSTP(FSTP::Footstep),
-    // FSTS(FSTS::FootstepSet),
-    // FURN(FURN::Furniture),
-    // GDRY(GDRY::Godray),
-    // GLOB(GLOB::Global),
-    // GMST(GMST::GameSetting),
-    // GRAS(GRAS::Grass),
-    // HAZD(HAZD::Hazard),
-    // HDPT(HDPT::HeadPart),
-    // IDLE(IDLE::IdleAnimation),
-    // IDLM(IDLM::IdleMarker),
-    // IMAD(IMAD::ImageSpaceAdapter),
-    // IMGS(IMGS::ImageSpace),
-    // INGR(INGR::Ingredient),
-    // INNR(INNR::InstanceNamingRules),
-    // IPCT(IPCT::Impact),
-    // IPDS(IPDS::ImpactDataSet),
-    // KEYM(KEYM::Key),
-    // KSSM(KSSM::KeywordSoundMapping),
-    // KYWD(KYWD::Keyword),
-    // LAND(LAND::Landscape),
-    // LAYR(LAYR::Layer),
-    // LCRT(LCRT::LocationReferenceType),
-    // LCTN(LCTN::Location),
-    // LENS(LENS::LensFlare),
-    // LGTM(LGTM::LightingTemplate),
-    // LIGH(LIGH::Light),
-    // LSCR(LSCR::LoadingScreen),
-    // LTEX(LTEX::LandscapeTexture),
-    // LVLI(LVLI::LeveledItem),
-    // LVLN(LVLN::LeveledNPC),
-    // MATO(MATO::MaterialObject),
-    // MATT(MATT::MaterialType),
-    // MESG(MESG::Message),
-    // MGEF(MGEF::MagicEffect),
-    // MISC(MISC::MiscItem),
-    // MOVT(MOVT::MovementType),
-    // MSTT(MSTT::MoveableStatic),
-    // MSWP(MSWP::MaterialSwap),
-    // MUSC(MUSC::MusicType),
-    // MUST(MUST::MusicTrack),
-    // NAVI(NAVI::NavigationMeshInfoMap),
-    // NAVM(NAVM::NavigationMesh),
-    // NOCM(NOCM::NavObstacleManager),
-    // NOTE(NOTE::Note),
-    // NPC_(NPC_::NonPlayerCharacter),
-    // OMOD(OMOD::ObjectModification),
-    // OTFT(OTFT::Outfit),
-    // OVIS(OVIS::ObjectVisibility),
-    // PACK(PACK::Package),
-    // PERK(PERK::Perk),
-    // PKIN(PKIN::PackIn),
-    // PGRE(PGRE::PlacedGrenade),
-    // PHZD(PHZD::PlayerHazard),
-    // PMIS(PMIS::PlacedMissle),
-    // PROJ(PROJ::Projectile),
-    // QUST(QUST::Quest),
-    // RACE(RACE::Race),
-    // REFR(REFR::RecordReference),
-    // REGN(REGN::Region),
-    // RELA(RELA::Relationship),
-    // REVB(REVB::Reverb),
-    // RFCT(RFCT::VisualEffect),
-    // RFGP(RFGP::ReferenceGroup),
-    // SCCO(SCCO::SceneCollection),
-    // SCOL(SCOL::StaticCollection),
-    // SCSN(SCSN::AudioCategorySnapshot),
-    // SMBN(SMBN::StoryManagerBranchNode),
-    // SMEN(SMEN::StoryManagerEventNode),
-    // SMQN(SMQN::StoryManagerQuestNode),
-    // SNCT(SNCT::SoundCategory),
-    // SNDR(SNDR::SoundDescriptor),
-    // SOPM(SOPM::SoundOutputModel),
-    // SOUN(SOUN::SoundMarker),
-    // SPEL(SPEL::Spell),
-    // SPGD(SPGD::ShaderParticleGeometry),
-    // STAG(STAG::SoundTag),
-    // STAT(STAT::Static),
-    // TACT(TACT::TalkingActivator),
-    // TERM(TERM::Terminal),
-    // TES4(TES4::FileHeader),
-    // TREE(TREE::Tree),
-    // TRNS(TRNS::Transform),
-    // TXST(TXST::TextureSet),
-    // VTYP(VTYP::VoiceType),
-    // WATR(WATR::Water),
-    // WEAP(WEAP::Weapon),
-    // WRLD(WRLD::Worldspace),
-    // WTHR(WTHR::Weather),
-    // ZOOM(ZOOM::Zoom),
+    Unhandled(ESRecordHeader),
+    AACT(AACT::Action),
+    ACHR(ACHR::ActorReference),
+    ACTI(ACTI::Activator),
+    ADDN(ADDN::AddonNode),
+    AECH(AECH::AudioEffectChain),
+    ALCH(ALCH::Alchemy),
+    AMDL(AMDL::AimModel),
+    AMMO(AMMO::Ammo),
+    ANIO(ANIO::AnimatedObject),
+    AORU(AORU::AttractionRule),
+    ARMA(ARMA::ArmorAddon),
+    ARMO(ARMO::Armor),
+    ARTO(ARTO::ArtObject),
+    ASPC(ASPC::AcousticSpace),
+    ASTP(ASTP::AssociationType),
+    AVIF(AVIF::ActorValueInformation),
+    BNDS(BNDS::BendableSpline),
+    BOOK(BOOK::Book),
+    BPTD(BPTD::BodyPartData),
+    CAMS(CAMS::CameraShot),
+    CELL(CELL::Cell),
+    CLAS(CLAS::Class),
+    CLFM(CLFM::Color),
+    CLMT(CLMT::Climate),
+    CMPO(CMPO::Component),
+    COBJ(COBJ::ConstructibleObject),
+    COLL(COLL::CollisionLayer),
+    CONT(CONT::Container),
+    CPTH(CPTH::CameraPath),
+    CSTY(CSTY::CombatStyle),
+    DEBR(DEBR::Debris),
+    DFOB(DFOB::DefaultObject),
+    DIAL(DIAL::Dialog),
+    DLBR(DLBR::DialogBranch),
+    DLVW(DLVW::DialogView),
+    DMGT(DMGT::DamageType),
+    DOBJ(DOBJ::DefaultObjects),
+    DOOR(DOOR::Door),
+    ECZN(ECZN::EncounterZone),
+    EFSH(EFSH::EffectShader),
+    ENCH(ENCH::ObjectEffect),
+    EQUP(EQUP::EquipType),
+    EXPL(EXPL::Explosion),
+    FACT(FACT::Faction),
+    FLOR(FLOR::Flora),
+    FLST(FLST::FormIdList),
+    FSTP(FSTP::Footstep),
+    FSTS(FSTS::FootstepSet),
+    FURN(FURN::Furniture),
+    GDRY(GDRY::Godray),
+    GLOB(GLOB::Global),
+    GMST(GMST::GameSetting),
+    GRAS(GRAS::Grass),
+    HAZD(HAZD::Hazard),
+    HDPT(HDPT::HeadPart),
+    IDLE(IDLE::IdleAnimation),
+    IDLM(IDLM::IdleMarker),
+    IMAD(IMAD::ImageSpaceAdapter),
+    IMGS(IMGS::ImageSpace),
+    INGR(INGR::Ingredient),
+    INNR(INNR::InstanceNamingRules),
+    IPCT(IPCT::Impact),
+    IPDS(IPDS::ImpactDataSet),
+    KEYM(KEYM::Key),
+    KSSM(KSSM::KeywordSoundMapping),
+    KYWD(KYWD::Keyword),
+    LAND(LAND::Landscape),
+    LAYR(LAYR::Layer),
+    LCRT(LCRT::LocationReferenceType),
+    LCTN(LCTN::Location),
+    LENS(LENS::LensFlare),
+    LGTM(LGTM::LightingTemplate),
+    LIGH(LIGH::Light),
+    LSCR(LSCR::LoadingScreen),
+    LTEX(LTEX::LandscapeTexture),
+    LVLI(LVLI::LeveledItem),
+    LVLN(LVLN::LeveledNPC),
+    MATO(MATO::MaterialObject),
+    MATT(MATT::MaterialType),
+    MESG(MESG::Message),
+    MGEF(MGEF::MagicEffect),
+    MISC(MISC::MiscItem),
+    MOVT(MOVT::MovementType),
+    MSTT(MSTT::MoveableStatic),
+    MSWP(MSWP::MaterialSwap),
+    MUSC(MUSC::MusicType),
+    MUST(MUST::MusicTrack),
+    NAVI(NAVI::NavigationMeshInfoMap),
+    NAVM(NAVM::NavigationMesh),
+    NOCM(NOCM::NavObstacleManager),
+    NOTE(NOTE::Note),
+    NPC_(NPC_::NonPlayerCharacter),
+    OMOD(OMOD::ObjectModification),
+    OTFT(OTFT::Outfit),
+    OVIS(OVIS::ObjectVisibility),
+    PACK(PACK::Package),
+    PERK(PERK::Perk),
+    PKIN(PKIN::PackIn),
+    PGRE(PGRE::PlacedGrenade),
+    PHZD(PHZD::PlayerHazard),
+    PMIS(PMIS::PlacedMissle),
+    PROJ(PROJ::Projectile),
+    QUST(QUST::Quest),
+    RACE(RACE::Race),
+    REFR(REFR::RecordReference),
+    REGN(REGN::Region),
+    RELA(RELA::Relationship),
+    REVB(REVB::Reverb),
+    RFCT(RFCT::VisualEffect),
+    RFGP(RFGP::ReferenceGroup),
+    SCCO(SCCO::SceneCollection),
+    SCOL(SCOL::StaticCollection),
+    SCSN(SCSN::AudioCategorySnapshot),
+    SMBN(SMBN::StoryManagerBranchNode),
+    SMEN(SMEN::StoryManagerEventNode),
+    SMQN(SMQN::StoryManagerQuestNode),
+    SNCT(SNCT::SoundCategory),
+    SNDR(SNDR::SoundDescriptor),
+    SOPM(SOPM::SoundOutputModel),
+    SOUN(SOUN::SoundMarker),
+    SPEL(SPEL::Spell),
+    SPGD(SPGD::ShaderParticleGeometry),
+    STAG(STAG::SoundTag),
+    STAT(STAT::Static),
+    TACT(TACT::TalkingActivator),
+    TERM(TERM::Terminal),
+    TES4(TES4::FileHeader),
+    TREE(TREE::Tree),
+    TRNS(TRNS::Transform),
+    TXST(TXST::TextureSet),
+    VTYP(VTYP::VoiceType),
+    WATR(WATR::Water),
+    WEAP(WEAP::Weapon),
+    WRLD(WRLD::Worldspace),
+    WTHR(WTHR::Weather),
+    ZOOM(ZOOM::Zoom),
 }
 
 // ===================================================================================================
@@ -147,8 +149,16 @@ pub enum ESRecord {
 impl nom_derive::Parse<&[u8]> for ESRecord {
     fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
         let (i, (header, raw)) = alloc_record(i)?;
-        match header {
+        match &header.iden.0 {
+            b"AACT" => { 
+                let (_, value) = Vec::parse(raw)?;
+                Ok((i, ESRecord::AACT(ESGenericRecord { header, data: value }) ))
+            }
 
+            b"ACHR" => {
+                let (_, value) = Vec::parse(raw)?;
+                Ok((i, ESRecord::ACHR(ESGenericRecord { header, data: value }) ))
+            }
 
             _ => {
                 Ok((i, ESRecord::Unhandled(header)))
@@ -173,7 +183,7 @@ impl<'a, C: speedy::Context> Readable<'a, C> for ESRecord {
 }
 
 /// Size NOT INCLUDING header, unlike [ESGroupHeader]
-#[derive(Debug, NomLE)]
+#[derive(Debug, Eq, PartialEq, NomLE)]
 #[cfg_attr(feature = "speedy", derive(Readable, Writable))]
 pub struct ESRecordHeader {
     pub iden: FourCC,
@@ -341,5 +351,33 @@ pub fn alloc_record(i: &[u8]) -> IResult<&[u8], (ESRecordHeader, &[u8]), nom::er
     // Return the values
     else {
         Ok((i, (header, raw)))
+    }
+}
+
+// ====================================================================================================
+
+#[derive(Debug, NomLE)]
+pub struct ESGenericRecord<T> {
+    pub header: ESRecordHeader,
+    pub data: T
+}
+
+// ====================================================================================================
+
+impl<'a, T: Parse<&'a[u8]>> ParseAllocated<ESRecordHeader, &'a[u8]> for ESGenericRecord<T> {
+    fn parse_allocated(header: ESRecordHeader, raw: &'a[u8]) -> Result<Self, error::Error<&'a[u8]>> {
+        if let Ok((_, data)) = T::parse(raw) {
+            Ok(ESGenericRecord { header, data })
+        } else {
+            Err(error::Error::new(raw, error::ErrorKind::Fail))
+        }
+    }
+}
+
+// ====================================================================================================
+
+impl<T> FormIdTrait for ESGenericRecord<T> {
+    fn get_form_id(&self) -> &FormId {
+        &self.header.form_id
     }
 }

@@ -1,12 +1,13 @@
 use crate::dev::*;
 
+// ====================================================================================================
+
 pub mod mapped;
 pub mod raw;
 pub mod full;
 pub mod es_object;
 pub mod es_group;
 pub mod es_record;
-pub mod es_top_group;
 
 // ====================================================================================================
 
@@ -36,11 +37,15 @@ pub enum ESMError {
     GameSetting(String)
 }
 
+// ====================================================================================================
+
 impl From<std::io::Error> for ESMError {
     fn from(err: std::io::Error) -> Self {
         ESMError::IO(err)
     }
 }
+
+// ====================================================================================================
 
 impl From<nom::Err<nom::error::Error<&'static[u8]>>> for ESMError {
     fn from(value: nom::Err<nom::error::Error<&'static[u8]>>) -> Self {

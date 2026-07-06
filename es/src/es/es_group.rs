@@ -1,10 +1,24 @@
-use crate::{dev::*, es::{es_object::ESObjectTraits, es_record::ESVersionControl, es_top_group::ESTopGroup}, groups::prelude::*};
+use crate::{dev::*, es::{es_group::top::ESTop, es_object::ESObjectTraits, es_record::ESVersionControl}, groups::prelude::*};
+
+// ====================================================================================================
+
+pub mod top;
+pub mod world_children;
+pub mod interior_cell_block;
+pub mod interior_cell_sub_block;
+pub mod exterior_cell_block;
+pub mod exterior_cell_sub_block;
+pub mod cell_children;
+pub mod topic_children;
+pub mod cell_persistent_children;
+pub mod cell_temporary_children;
+pub mod cell_visible_distant_children;
 
 // ====================================================================================================
 
 #[derive(Debug)]
 pub enum ESGroup {
-    Top(ESTopGroup),
+    Top(ESTop),
     WorldChildren(WorldChildren),
     InteriorCellBlock(InteriorCellBlock),
     InteriorCellSubBlock(InteriorCellSubBlock),
@@ -131,4 +145,4 @@ impl ESObjectTraits for ESGroup {
     }
 }
 
-
+// ====================================================================================================

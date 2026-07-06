@@ -2,6 +2,7 @@
 use std::{collections::{HashMap, HashSet}, fs::{DirEntry, File}, os::raw, path::PathBuf, str::FromStr};
 
 use comfy_table::presets::UTF8_FULL;
+use nom_derive::Parse;
 
 use crate::{dev::GroupLabel, es::{es_object::ESObject, es_record::ESRecord, full::ESFull, mapped::ESMapped, raw::ESRaw}, records::all::*, structs::{chunk::get_file_chunks, es_object::RawESObject}};
 
@@ -117,6 +118,15 @@ fn test_speedy() {
 #[test]
 #[ignore = "speedy disabled"]
 fn test_speedy() { }
+
+// ===================================================================================================
+
+#[test]
+fn test_es_object() {
+    let data = std::fs::read(FO4_ESM_PATH).unwrap();
+    let (i, header) = ESObject::parse(&data).unwrap();
+    println!("{:?}", header)
+}
 
 
 
