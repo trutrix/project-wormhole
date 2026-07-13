@@ -1,4 +1,4 @@
-use crate::{dev::*, es::{es_group::top::ESTop, es_object::ESObjectTraits, es_record::ESVersionControl}, groups::prelude::*, traits::ParseAllocated};
+use crate::{dev::*, es::{es_group::top::ESTop, es_object::{ESHeader, ESObjectTraits}, es_record::ESVersionControl}, groups::prelude::*, traits::ParseAllocated};
 
 // ====================================================================================================
 
@@ -148,6 +148,51 @@ impl ESObjectTraits for ESGroup {
     fn object_count(&self) -> usize {
         1usize
     }
+
+    fn object_size(&self) -> &u32 {
+        match self {
+            ESGroup::Top(estop) => estop.object_size(),
+            ESGroup::WorldChildren(g) => &g.header.size,
+            ESGroup::InteriorCellBlock(g) => &g.header.size,
+            ESGroup::InteriorCellSubBlock(g) => &g.header.size,
+            ESGroup::ExteriorCellBlock(g) => &g.header.size,
+            ESGroup::ExteriorCellSubBlock(g) => &g.header.size,
+            ESGroup::CellChildren(g) => &g.header.size,
+            ESGroup::TopicChildren(g) => &g.header.size,
+            ESGroup::CellPersistentChildren(g) => &g.header.size,
+            ESGroup::CellTemporaryChildren(g) => &g.header.size,
+            ESGroup::CellVisibleDistantChildren(g) => &g.header.size,
+            ESGroup::Unknown(g) => &g.size,
+        }
+    }
 }
 
 // ====================================================================================================
+
+
+pub fn alloc_group(i: &[u8]) -> IResult<&[u8], (ESGroupHeader, &[u8])> {
+    let (i, header) = ESGroupHeader::parse(i)?;
+    let (i, raw) = take(header.size as usize)(i)?;
+    Ok((i, (header, raw)))
+}
+
+// ====================================================================================================
+
+impl ESHeader<ESGroupHeader> for ESGroup {
+    fn header(&self) -> &ESGroupHeader {
+        match self {
+            ESGroup::Top(estop) => todo!(),
+            ESGroup::WorldChildren(g) => &g.header,
+            ESGroup::InteriorCellBlock(g) => &g.header,
+            ESGroup::InteriorCellSubBlock(g) => &g.header,
+            ESGroup::ExteriorCellBlock(g) => &g.header,
+            ESGroup::ExteriorCellSubBlock(g) => &g.header,
+            ESGroup::CellChildren(g) => &g.header,
+            ESGroup::TopicChildren(g) => &g.header,
+            ESGroup::CellPersistentChildren(g) => &g.header,
+            ESGroup::CellTemporaryChildren(g) => &g.header,
+            ESGroup::CellVisibleDistantChildren(g) => &g.header,
+            ESGroup::Unknown(g) => &g,
+        }
+    }
+}

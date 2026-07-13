@@ -1,4 +1,4 @@
-use crate::{dev::*, es::{es_group::ESGroup, es_record::ESRecord}};
+use crate::{dev::*, es::{self, es_group::{ESGroup, ESGroupHeader}, es_record::{ESRecord, ESRecordHeader}}};
 
 // ===================================================================================================
 
@@ -67,6 +67,23 @@ impl nom_derive::Parse<&[u8]> for ESObject {
 
 // ===================================================================================================
 
+impl ESHeader<ESGroupHeader> for ESObject {
+    fn header(&self) -> &ESGroupHeader {
+        match self {
+            ESObject::Group(g) => todo!(),
+            _ => { panic!("Tried to get wrong header type for group. Not sure how this even happened.") }
+        }
+    }
+}
+
+impl ESHeader<ESRecordHeader> for ESObject {
+    fn header(&self) -> &ESRecordHeader {
+        match self {
+            ESObject::Record(r) => todo!(),
+            _ => { panic!("Tried to get wrong header type for record. Not sure how this even happened.") }
+        }
+    }
+}
 
 // ===================================================================================================
 
@@ -77,10 +94,24 @@ impl ESObjectTraits for ESObject {
             ESObject::Record(_) => 1usize,
         }
     }
+
+    fn object_size(&self) -> &u32 {
+        match self {
+            ESObject::Group(esgroup) => esgroup.object_size(),
+            ESObject::Record(esrecord) => &esrecord.header().size,
+        }
+    }
 }
 
 // ===================================================================================================
 
 pub trait ESObjectTraits {
     fn object_count(&self) -> usize { 1usize }
+    fn object_size(&self) -> &u32;
+}
+
+// ===================================================================================================
+
+pub trait ESHeader<H> {
+    fn header(&self) -> &H;
 }

@@ -4,7 +4,7 @@ use crate::{dev::*, es::es_group::ESGroupHeader, traits::ParseAllocated};
 
 #[derive(Debug)]
 pub struct ESCellChildren {
-
+    pub header: ESGroupHeader
 }
 
 // ====================================================================================================
