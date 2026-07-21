@@ -688,13 +688,10 @@ impl ToTokens for RecordDefinition3 {
                     pub record: ESGenericRecord<Vec<#name_field>>,
                     pub children: Option<#ct>
                 }
-
-                pub type #name_group = Group<#name>;
             }
         } else {
             quote! {
                 pub type #name = #type_token;
-                pub type #name_group = Group<#name>;
             }
         };
 

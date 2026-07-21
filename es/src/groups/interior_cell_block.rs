@@ -4,11 +4,11 @@ use crate::{dev::*, groups::prelude::{InteriorCellSubBlock, RawInteriorCellSubBl
 
 // ====================================================================================================
 
-pub type InteriorCellBlock = Group<InteriorCellSubBlock>;
+pub type InteriorCellBlock = GroupOld<InteriorCellSubBlock>;
 
 // ====================================================================================================
 
-pub type RawInteriorCellBlock<'esm> = Group<RawInteriorCellSubBlock<'esm>>;
+pub type RawInteriorCellBlock<'esm> = GroupOld<RawInteriorCellSubBlock<'esm>>;
 
 // ====================================================================================================
 

@@ -2,11 +2,11 @@ use crate::{dev::*, groups::prelude::{ExteriorCellSubBlock, RawExteriorCellSubBl
 
 // ====================================================================================================
 
-pub type ExteriorCellBlock = Group<ExteriorCellSubBlock>;
+pub type ExteriorCellBlock = GroupOld<ExteriorCellSubBlock>;
 
 // ====================================================================================================
 
-pub type RawExteriorCellBlock<'esm> = Group<RawExteriorCellSubBlock<'esm>>;
+pub type RawExteriorCellBlock<'esm> = GroupOld<RawExteriorCellSubBlock<'esm>>;
 
 // ====================================================================================================
 

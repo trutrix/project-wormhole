@@ -1,4 +1,4 @@
-use crate::{dev::*, es::{es_group::top::ESTop, es_object::{ESHeader, ESObjectTraits}, es_record::ESVersionControl}, groups::prelude::*, traits::ParseAllocated};
+use crate::{dev::*, es::{es_group::top::ESTop, es_object::{ESObjectTraits}, es_record::ESVersionControl}, groups::prelude::*, traits::ParseAllocated};
 
 // ====================================================================================================
 
@@ -17,7 +17,7 @@ pub mod cell_visible_distant_children;
 // ====================================================================================================
 
 #[derive(Debug)]
-pub enum ESGroup {
+pub enum ESGroupTyped {
     Top(ESTop),
     WorldChildren(world_children::ESWorldChildren),
     InteriorCellBlock(interior_cell_block::ESInteriorCellBlock),
@@ -34,14 +34,14 @@ pub enum ESGroup {
 
 // ====================================================================================================
 
-impl nom_derive::Parse<&[u8]> for ESGroup {
+impl nom_derive::Parse<&[u8]> for ESGroupTyped {
     fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
         let (i, header) = ESGroupHeader::parse(i)?;
         let (i, raw) = take(header.size as usize - 24)(i)?;
         match header.get_label() {
             ESGroupLabel::Top(_) => { 
                 if let Ok(g) = ESTop::parse_allocated(header, raw) {
-                    Ok((i, ESGroup::Top(g)))
+                    Ok((i, ESGroupTyped::Top(g)))
                 } else {
                     Err(nom::Err::Error(nom::error::Error::new(raw, nom::error::ErrorKind::Fail)))
                 }
@@ -56,7 +56,7 @@ impl nom_derive::Parse<&[u8]> for ESGroup {
             ESGroupLabel::CellPersistentChildren(form_id) => todo!(),
             ESGroupLabel::CellTemporaryChildren(form_id) => todo!(),
             ESGroupLabel::CellVisibleDistantChildren(form_id) => todo!(),
-            ESGroupLabel::Unknown(_) => todo!(),
+            ESGroupLabel::Unknown(_) => Ok((i, ESGroupTyped::Unknown(header))),
         }
     }
 }
@@ -64,7 +64,7 @@ impl nom_derive::Parse<&[u8]> for ESGroup {
 // ====================================================================================================
 
 #[cfg(feature = "speedy")]
-impl<'a, C: speedy::Context> Readable<'a, C> for ESGroup {
+impl<'a, C: speedy::Context> Readable<'a, C> for ESGroupTyped {
     fn read_from< R: speedy::Reader< 'a, C > >( reader: &mut R ) -> Result< Self, <C as speedy::Context>::Error > {
         let header: ESGroupHeader = reader.read_value()?;
 
@@ -144,25 +144,25 @@ pub enum ESGroupLabel {
 
 // ====================================================================================================
 
-impl ESObjectTraits for ESGroup {
+impl ESObjectTraits for ESGroupTyped {
     fn object_count(&self) -> usize {
         1usize
     }
 
     fn object_size(&self) -> &u32 {
         match self {
-            ESGroup::Top(estop) => estop.object_size(),
-            ESGroup::WorldChildren(g) => &g.header.size,
-            ESGroup::InteriorCellBlock(g) => &g.header.size,
-            ESGroup::InteriorCellSubBlock(g) => &g.header.size,
-            ESGroup::ExteriorCellBlock(g) => &g.header.size,
-            ESGroup::ExteriorCellSubBlock(g) => &g.header.size,
-            ESGroup::CellChildren(g) => &g.header.size,
-            ESGroup::TopicChildren(g) => &g.header.size,
-            ESGroup::CellPersistentChildren(g) => &g.header.size,
-            ESGroup::CellTemporaryChildren(g) => &g.header.size,
-            ESGroup::CellVisibleDistantChildren(g) => &g.header.size,
-            ESGroup::Unknown(g) => &g.size,
+            ESGroupTyped::Top(estop) => estop.object_size(),
+            ESGroupTyped::WorldChildren(g) => &g.header.size,
+            ESGroupTyped::InteriorCellBlock(g) => &g.header.size,
+            ESGroupTyped::InteriorCellSubBlock(g) => &g.header.size,
+            ESGroupTyped::ExteriorCellBlock(g) => &g.header.size,
+            ESGroupTyped::ExteriorCellSubBlock(g) => &g.header.size,
+            ESGroupTyped::CellChildren(g) => &g.header.size,
+            ESGroupTyped::TopicChildren(g) => &g.header.size,
+            ESGroupTyped::CellPersistentChildren(g) => &g.header.size,
+            ESGroupTyped::CellTemporaryChildren(g) => &g.header.size,
+            ESGroupTyped::CellVisibleDistantChildren(g) => &g.header.size,
+            ESGroupTyped::Unknown(g) => &g.size,
         }
     }
 }
@@ -178,21 +178,35 @@ pub fn alloc_group(i: &[u8]) -> IResult<&[u8], (ESGroupHeader, &[u8])> {
 
 // ====================================================================================================
 
-impl ESHeader<ESGroupHeader> for ESGroup {
-    fn header(&self) -> &ESGroupHeader {
+pub trait ESGroupTraits {
+    fn get_header(&self) -> &ESGroupHeader;
+}
+
+// ====================================================================================================
+
+impl ESGroupTraits for ESGroupTyped {
+    fn get_header(&self) -> &ESGroupHeader {
         match self {
-            ESGroup::Top(estop) => todo!(),
-            ESGroup::WorldChildren(g) => &g.header,
-            ESGroup::InteriorCellBlock(g) => &g.header,
-            ESGroup::InteriorCellSubBlock(g) => &g.header,
-            ESGroup::ExteriorCellBlock(g) => &g.header,
-            ESGroup::ExteriorCellSubBlock(g) => &g.header,
-            ESGroup::CellChildren(g) => &g.header,
-            ESGroup::TopicChildren(g) => &g.header,
-            ESGroup::CellPersistentChildren(g) => &g.header,
-            ESGroup::CellTemporaryChildren(g) => &g.header,
-            ESGroup::CellVisibleDistantChildren(g) => &g.header,
-            ESGroup::Unknown(g) => &g,
+            ESGroupTyped::Top(top) => { top.get_header() },
+            ESGroupTyped::WorldChildren(g) => &g.header,
+            ESGroupTyped::InteriorCellBlock(g) => &g.header,
+            ESGroupTyped::InteriorCellSubBlock(g) => &g.header,
+            ESGroupTyped::ExteriorCellBlock(g) => &g.header,
+            ESGroupTyped::ExteriorCellSubBlock(g) => &g.header,
+            ESGroupTyped::CellChildren(g) => &g.header,
+            ESGroupTyped::TopicChildren(g) => &g.header,
+            ESGroupTyped::CellPersistentChildren(g) => &g.header,
+            ESGroupTyped::CellTemporaryChildren(g) => &g.header,
+            ESGroupTyped::CellVisibleDistantChildren(g) => &g.header,
+            ESGroupTyped::Unknown(g) => g,
         }
     }
+}
+
+// ====================================================================================================
+
+
+pub struct ESGroup<T> {
+    pub header: GroupHeader,
+    pub items: Vec<T>
 }

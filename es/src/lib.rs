@@ -38,7 +38,7 @@ mod dev {
     pub use super::structs::model::*;
     pub use super::structs::form_id::FormId;
 
-    pub use super::es::es_record::ESGenericRecord;
+    pub use super::es::es_record::ESRecord;
 
     #[cfg(feature = "speedy")]
     pub use speedy::{Readable, Writable};

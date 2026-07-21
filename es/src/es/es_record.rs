@@ -1,10 +1,10 @@
 use nom_derive::nom::error;
 
-use crate::{dev::*, es::{es_group::ESGroupHeader, es_object::{ESHeader, ESObjectTraits}}, records::*, traits::{ParseAllocated, record::FormIdTrait}};
+use crate::{dev::*, es::{es_group::ESGroupHeader, es_object::{ESObjectTraits}}, records::*, traits::{ParseAllocated, record::FormIdTrait}};
 //use bitflags::bitflags;
 
 #[derive(Debug)]
-pub enum ESRecord {
+pub enum ESRecordTyped {
     Unhandled(ESRecordHeader),
     AACT(AACT::Action),
     ACHR(ACHR::ActorReference),
@@ -146,22 +146,22 @@ pub enum ESRecord {
 
 // ===================================================================================================
 
-impl nom_derive::Parse<&[u8]> for ESRecord {
+impl nom_derive::Parse<&[u8]> for ESRecordTyped {
     fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
         let (i, (header, raw)) = alloc_record(i)?;
         match &header.iden.0 {
             b"AACT" => { 
                 let (_, value) = Vec::parse(raw)?;
-                Ok((i, ESRecord::AACT(ESGenericRecord { header, data: value }) ))
+                Ok((i, ESRecordTyped::AACT(ESRecord { header, data: value }) ))
             }
 
             b"ACHR" => {
                 let (_, value) = Vec::parse(raw)?;
-                Ok((i, ESRecord::ACHR(ESGenericRecord { header, data: value }) ))
+                Ok((i, ESRecordTyped::ACHR(ESRecord { header, data: value }) ))
             }
 
             _ => {
-                Ok((i, ESRecord::Unhandled(header)))
+                Ok((i, ESRecordTyped::Unhandled(header)))
             }
         }
     }
@@ -170,7 +170,7 @@ impl nom_derive::Parse<&[u8]> for ESRecord {
 // ===================================================================================================
 
 #[cfg(feature = "speedy")]
-impl<'a, C: speedy::Context> Readable<'a, C> for ESRecord {
+impl<'a, C: speedy::Context> Readable<'a, C> for ESRecordTyped {
     fn read_from< R: speedy::Reader< 'a, C > >( reader: &mut R ) -> Result< Self, <C as speedy::Context>::Error > {
         let header: ESRecordHeader = reader.read_value()?;
 
@@ -356,18 +356,18 @@ pub fn alloc_record(i: &[u8]) -> IResult<&[u8], (ESRecordHeader, &[u8]), nom::er
 
 // ====================================================================================================
 
-#[derive(Debug, NomLE)]
-pub struct ESGenericRecord<T> {
+#[derive(Debug)]
+pub struct ESRecord<T> {
     pub header: ESRecordHeader,
-    pub data: T
+    pub data: Vec<T>
 }
 
 // ====================================================================================================
 
-impl<'a, T: Parse<&'a[u8]>> ParseAllocated<ESRecordHeader, &'a[u8]> for ESGenericRecord<T> {
+impl<'a, T: Parse<&'a[u8]>> ParseAllocated<ESRecordHeader, &'a[u8]> for ESRecord<T> {
     fn parse_allocated(header: ESRecordHeader, raw: &'a[u8]) -> Result<Self, error::Error<&'a[u8]>> {
-        if let Ok((_, data)) = T::parse(raw) {
-            Ok(ESGenericRecord { header, data })
+        if let Ok((_, data)) = many0(T::parse)(raw) {
+            Ok(ESRecord { header, data })
         } else {
             Err(error::Error::new(raw, error::ErrorKind::Fail))
         }
@@ -376,7 +376,20 @@ impl<'a, T: Parse<&'a[u8]>> ParseAllocated<ESRecordHeader, &'a[u8]> for ESGeneri
 
 // ====================================================================================================
 
-impl<T> FormIdTrait for ESGenericRecord<T> {
+impl<'es, T> Parse<&'es[u8]> for ESRecord<T> where T: ParseAllocated<ESRecordHeader, &'es[u8]> {
+    fn parse(i: &'es[u8]) -> IResult<&'es[u8], Self, error::Error<&'es[u8]>> {
+        let (i, (header, raw)) = alloc_record(i)?;
+        if let Ok(result) = T::parse_allocated(header, raw) {
+
+        } else {
+
+        }
+    }
+}
+
+// ====================================================================================================
+
+impl<T> FormIdTrait for ESRecord<T> {
     fn get_form_id(&self) -> &FormId {
         &self.header.form_id
     }
@@ -384,146 +397,152 @@ impl<T> FormIdTrait for ESGenericRecord<T> {
 
 // ====================================================================================================
 
-impl ESHeader<ESRecordHeader> for ESRecord {
-    fn header(&self) -> &ESRecordHeader {
+pub trait ESRecordTraits {
+    fn get_header(&self) -> &ESRecordHeader;
+}
+
+// ====================================================================================================
+
+impl ESRecordTraits for ESRecordTyped {
+    fn get_header(&self) -> &ESRecordHeader {
         match self {
-            ESRecord::Unhandled(esrecord_header) => esrecord_header,
-            ESRecord::AACT(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::ACHR(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::ACTI(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::ADDN(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::AECH(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::ALCH(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::AMDL(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::AMMO(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::ANIO(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::AORU(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::ARMA(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::ARMO(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::ARTO(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::ASPC(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::ASTP(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::AVIF(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::BNDS(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::BOOK(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::BPTD(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::CAMS(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::CELL(cell) => todo!(),
-            ESRecord::CLAS(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::CLFM(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::CLMT(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::CMPO(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::COBJ(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::COLL(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::CONT(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::CPTH(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::CSTY(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::DEBR(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::DFOB(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::DIAL(dialog) => todo!(),
-            ESRecord::DLBR(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::DLVW(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::DMGT(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::DOBJ(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::DOOR(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::ECZN(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::EFSH(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::ENCH(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::EQUP(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::EXPL(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::FACT(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::FLOR(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::FLST(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::FSTP(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::FSTS(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::FURN(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::GDRY(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::GLOB(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::GMST(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::GRAS(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::HAZD(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::HDPT(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::IDLE(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::IDLM(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::IMAD(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::IMGS(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::INGR(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::INNR(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::IPCT(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::IPDS(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::KEYM(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::KSSM(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::KYWD(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::LAND(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::LAYR(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::LCRT(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::LCTN(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::LENS(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::LGTM(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::LIGH(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::LSCR(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::LTEX(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::LVLI(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::LVLN(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::MATO(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::MATT(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::MESG(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::MGEF(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::MISC(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::MOVT(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::MSTT(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::MSWP(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::MUSC(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::MUST(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::NAVI(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::NAVM(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::NOCM(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::NOTE(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::NPC_(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::OMOD(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::OTFT(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::OVIS(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::PACK(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::PERK(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::PKIN(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::PGRE(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::PHZD(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::PMIS(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::PROJ(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::QUST(quest) => todo!(),
-            ESRecord::RACE(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::REFR(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::REGN(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::RELA(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::REVB(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::RFCT(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::RFGP(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::SCCO(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::SCOL(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::SCSN(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::SMBN(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::SMEN(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::SMQN(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::SNCT(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::SNDR(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::SOPM(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::SOUN(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::SPEL(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::SPGD(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::STAG(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::STAT(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::TACT(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::TERM(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::TES4(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::TREE(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::TRNS(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::TXST(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::VTYP(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::WATR(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::WEAP(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::WRLD(worldspace) => todo!(),
-            ESRecord::WTHR(esgeneric_record) => &esgeneric_record.header,
-            ESRecord::ZOOM(esgeneric_record) => &esgeneric_record.header,
+            ESRecordTyped::Unhandled(r) => r,
+            ESRecordTyped::AACT(r) => &r.header,
+            ESRecordTyped::ACHR(r) => &r.header,
+            ESRecordTyped::ACTI(r) => &r.header,
+            ESRecordTyped::ADDN(r) => &r.header,
+            ESRecordTyped::AECH(r) => &r.header,
+            ESRecordTyped::ALCH(r) => &r.header,
+            ESRecordTyped::AMDL(r) => &r.header,
+            ESRecordTyped::AMMO(r) => &r.header,
+            ESRecordTyped::ANIO(r) => &r.header,
+            ESRecordTyped::AORU(r) => &r.header,
+            ESRecordTyped::ARMA(r) => &r.header,
+            ESRecordTyped::ARMO(r) => &r.header,
+            ESRecordTyped::ARTO(r) => &r.header,
+            ESRecordTyped::ASPC(r) => &r.header,
+            ESRecordTyped::ASTP(r) => &r.header,
+            ESRecordTyped::AVIF(r) => &r.header,
+            ESRecordTyped::BNDS(r) => &r.header,
+            ESRecordTyped::BOOK(r) => &r.header,
+            ESRecordTyped::BPTD(r) => &r.header,
+            ESRecordTyped::CAMS(r) => &r.header,
+            ESRecordTyped::CELL(r) => &r.record.header,
+            ESRecordTyped::CLAS(r) => &r.header,
+            ESRecordTyped::CLFM(r) => &r.header,
+            ESRecordTyped::CLMT(r) => &r.header,
+            ESRecordTyped::CMPO(r) => &r.header,
+            ESRecordTyped::COBJ(r) => &r.header,
+            ESRecordTyped::COLL(r) => &r.header,
+            ESRecordTyped::CONT(r) => &r.header,
+            ESRecordTyped::CPTH(r) => &r.header,
+            ESRecordTyped::CSTY(r) => &r.header,
+            ESRecordTyped::DEBR(r) => &r.header,
+            ESRecordTyped::DFOB(r) => &r.header,
+            ESRecordTyped::DIAL(r) => &r.record.header,
+            ESRecordTyped::DLBR(r) => &r.header,
+            ESRecordTyped::DLVW(r) => &r.header,
+            ESRecordTyped::DMGT(r) => &r.header,
+            ESRecordTyped::DOBJ(r) => &r.header,
+            ESRecordTyped::DOOR(r) => &r.header,
+            ESRecordTyped::ECZN(r) => &r.header,
+            ESRecordTyped::EFSH(r) => &r.header,
+            ESRecordTyped::ENCH(r) => &r.header,
+            ESRecordTyped::EQUP(r) => &r.header,
+            ESRecordTyped::EXPL(r) => &r.header,
+            ESRecordTyped::FACT(r) => &r.header,
+            ESRecordTyped::FLOR(r) => &r.header,
+            ESRecordTyped::FLST(r) => &r.header,
+            ESRecordTyped::FSTP(r) => &r.header,
+            ESRecordTyped::FSTS(r) => &r.header,
+            ESRecordTyped::FURN(r) => &r.header,
+            ESRecordTyped::GDRY(r) => &r.header,
+            ESRecordTyped::GLOB(r) => &r.header,
+            ESRecordTyped::GMST(r) => &r.header,
+            ESRecordTyped::GRAS(r) => &r.header,
+            ESRecordTyped::HAZD(r) => &r.header,
+            ESRecordTyped::HDPT(r) => &r.header,
+            ESRecordTyped::IDLE(r) => &r.header,
+            ESRecordTyped::IDLM(r) => &r.header,
+            ESRecordTyped::IMAD(r) => &r.header,
+            ESRecordTyped::IMGS(r) => &r.header,
+            ESRecordTyped::INGR(r) => &r.header,
+            ESRecordTyped::INNR(r) => &r.header,
+            ESRecordTyped::IPCT(r) => &r.header,
+            ESRecordTyped::IPDS(r) => &r.header,
+            ESRecordTyped::KEYM(r) => &r.header,
+            ESRecordTyped::KSSM(r) => &r.header,
+            ESRecordTyped::KYWD(r) => &r.header,
+            ESRecordTyped::LAND(r) => &r.header,
+            ESRecordTyped::LAYR(r) => &r.header,
+            ESRecordTyped::LCRT(r) => &r.header,
+            ESRecordTyped::LCTN(r) => &r.header,
+            ESRecordTyped::LENS(r) => &r.header,
+            ESRecordTyped::LGTM(r) => &r.header,
+            ESRecordTyped::LIGH(r) => &r.header,
+            ESRecordTyped::LSCR(r) => &r.header,
+            ESRecordTyped::LTEX(r) => &r.header,
+            ESRecordTyped::LVLI(r) => &r.header,
+            ESRecordTyped::LVLN(r) => &r.header,
+            ESRecordTyped::MATO(r) => &r.header,
+            ESRecordTyped::MATT(r) => &r.header,
+            ESRecordTyped::MESG(r) => &r.header,
+            ESRecordTyped::MGEF(r) => &r.header,
+            ESRecordTyped::MISC(r) => &r.header,
+            ESRecordTyped::MOVT(r) => &r.header,
+            ESRecordTyped::MSTT(r) => &r.header,
+            ESRecordTyped::MSWP(r) => &r.header,
+            ESRecordTyped::MUSC(r) => &r.header,
+            ESRecordTyped::MUST(r) => &r.header,
+            ESRecordTyped::NAVI(r) => &r.header,
+            ESRecordTyped::NAVM(r) => &r.header,
+            ESRecordTyped::NOCM(r) => &r.header,
+            ESRecordTyped::NOTE(r) => &r.header,
+            ESRecordTyped::NPC_(r) => &r.header,
+            ESRecordTyped::OMOD(r) => &r.header,
+            ESRecordTyped::OTFT(r) => &r.header,
+            ESRecordTyped::OVIS(r) => &r.header,
+            ESRecordTyped::PACK(r) => &r.header,
+            ESRecordTyped::PERK(r) => &r.header,
+            ESRecordTyped::PKIN(r) => &r.header,
+            ESRecordTyped::PGRE(r) => &r.header,
+            ESRecordTyped::PHZD(r) => &r.header,
+            ESRecordTyped::PMIS(r) => &r.header,
+            ESRecordTyped::PROJ(r) => &r.header,
+            ESRecordTyped::QUST(r) => &r.record.header,
+            ESRecordTyped::RACE(r) => &r.header,
+            ESRecordTyped::REFR(r) => &r.header,
+            ESRecordTyped::REGN(r) => &r.header,
+            ESRecordTyped::RELA(r) => &r.header,
+            ESRecordTyped::REVB(r) => &r.header,
+            ESRecordTyped::RFCT(r) => &r.header,
+            ESRecordTyped::RFGP(r) => &r.header,
+            ESRecordTyped::SCCO(r) => &r.header,
+            ESRecordTyped::SCOL(r) => &r.header,
+            ESRecordTyped::SCSN(r) => &r.header,
+            ESRecordTyped::SMBN(r) => &r.header,
+            ESRecordTyped::SMEN(r) => &r.header,
+            ESRecordTyped::SMQN(r) => &r.header,
+            ESRecordTyped::SNCT(r) => &r.header,
+            ESRecordTyped::SNDR(r) => &r.header,
+            ESRecordTyped::SOPM(r) => &r.header,
+            ESRecordTyped::SOUN(r) => &r.header,
+            ESRecordTyped::SPEL(r) => &r.header,
+            ESRecordTyped::SPGD(r) => &r.header,
+            ESRecordTyped::STAG(r) => &r.header,
+            ESRecordTyped::STAT(r) => &r.header,
+            ESRecordTyped::TACT(r) => &r.header,
+            ESRecordTyped::TERM(r) => &r.header,
+            ESRecordTyped::TES4(r) => &r.header,
+            ESRecordTyped::TREE(r) => &r.header,
+            ESRecordTyped::TRNS(r) => &r.header,
+            ESRecordTyped::TXST(r) => &r.header,
+            ESRecordTyped::VTYP(r) => &r.header,
+            ESRecordTyped::WATR(r) => &r.header,
+            ESRecordTyped::WEAP(r) => &r.header,
+            ESRecordTyped::WRLD(r) => &r.record.header,
+            ESRecordTyped::WTHR(r) => &r.header,
+            ESRecordTyped::ZOOM(r) => &r.header,
         }
     }
 }
