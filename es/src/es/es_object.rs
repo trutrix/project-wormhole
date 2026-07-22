@@ -1,97 +1,28 @@
-use crate::{dev::*, es::{self, es_group::{ESGroupTyped, ESGroupHeader, ESGroupTraits}, es_record::{ESRecordTyped, ESRecordHeader, ESRecordTraits}}};
+use crate::{dev::*, es::{self, es_group::{ESGroupHeader, ESGroupTraits, ESGroupTyped}, es_record::{ESRecordFlags, ESRecordHeader, ESRecordTraits, ESRecordTyped, ESVersionControl}}};
 
 // ====================================================================================================
 
-#[derive(Debug)]
-pub enum ESObject {
-    Group(ESGroupTyped),
-    Record(ESRecordTyped),
-}
-
-// ====================================================================================================
-
-
-// ====================================================================================================
-
-impl ESObject {
-    fn parse(i: &[u8]) -> IResult<&[u8], Self> {
-        let (_, iden) = FourCC::parse(i)?;
-        if &iden.0 == b"GRUP" {
-            let (i, group) = ESGroupTyped::parse(i)?;
-            Ok((i, ESObject::Group(group)))
-        } else {
-            let (i, record) = ESRecordTyped::parse(i)?;
-            Ok((i, ESObject::Record(record)))
-        }
-    }
-
-    /// This function assumes you have checked if there is more data to parse
-    fn parse_unchecked(i: &[u8]) -> IResult<&[u8], Self> {
-        if &[i[0], i[1], i[2], i[3]] == b"GRUP" {
-            let (i, group) = ESGroupTyped::parse(i)?;
-            Ok((i, ESObject::Group(group)))
-        } else {
-            let (i, record) = ESRecordTyped::parse(i)?;
-            Ok((i, ESObject::Record(record)))
-        }
-    }
-}
-
-// ===================================================================================================
-
-#[cfg(feature = "speedy")]
-impl<'a, C: speedy::Context> speedy::Readable<'a, C> for ESObject {
-    #[inline]
-    fn read_from<R: speedy::Reader<'a, C>>(reader: &mut R) -> std::result::Result<Self, C::Error> {
-        let kind = reader.peek_u32()?;
-
-        match kind {
-            // GRUP
-            1196578128 => {
-                let t0: ESGroupTyped = reader.read_value()?;
-                Ok(ESObject::Group(t0))
-            }
-            _ => {
-                let t0: ESRecordTyped = reader.read_value()?;
-                Ok(ESObject::Record(t0))
-            }
-            _ => Err(speedy::private::error_invalid_enum_variant()),
-        }
-    }
-}
-
-// ===================================================================================================
-
-impl nom_derive::Parse<&[u8]> for ESObject {
-    fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
-        ESObject::parse(i)
-    }
-}
-
-// ===================================================================================================
-
-impl ESObjectTraits for ESObject {
-    fn object_count(&self) -> usize {
-        match self {
-            ESObject::Group(esgroup) => 1 + esgroup.object_count(),
-            ESObject::Record(esrecord) => 1usize,
-        }
-    }
-
-    fn object_size(&self) -> &u32 {
-        match self {
-            ESObject::Group(esgroup) => esgroup.object_size(),
-            ESObject::Record(esrecord) => todo!(),
-        }
-    }
-}
-
-// ===================================================================================================
-
-pub trait ESObjectTraits {
-    fn object_count(&self) -> usize;
-    fn object_size(&self) -> &u32;
+pub trait ESObject {
+    fn object_count(&self) -> &usize;
+    fn object_size(&self) -> &u32;    
 }
 
 
-// ====================================================================================================
+pub fn parse_es_object(i: &[u8]) -> IResult<&[u8], dyn ESObject> {
+    let (i, iden) = FourCC::parse(i)?;
+    let (i, size) = le_u32(i)?;
+
+    if &iden.0 == b"GRUP" {
+        let (i, label_value) = <[u8;4]>::parse(i)?;
+        let (i, label_type) = le_u32(i)?;
+        let (i, version_control) = ESVersionControl::parse(i)?;
+        todo!()
+        //Ok((i ))
+    } else {
+        let (i, flags) = ESRecordFlags::parse(i)?;
+        let (i, form_id) = FormId::parse(i)?;
+        let (i, version_control) = ESVersionControl::parse(i)?;
+        todo!()
+        //Ok((i, ))
+    }
+}

@@ -1,4 +1,4 @@
-use crate::{dev::*, es::{es_group::top::ESTop, es_object::{ESObjectTraits}, es_record::ESVersionControl}, groups::prelude::*, traits::ParseAllocated};
+use crate::{dev::*, es::{es_group::top::ESTop, es_object::ESObject, es_record::ESVersionControl}, groups::prelude::*, traits::ParseAllocated};
 
 // ====================================================================================================
 
@@ -104,23 +104,7 @@ pub struct ESGroupHeader {
 
 impl ESGroupHeader {
     pub fn get_label(&self) -> ESGroupLabel {
-        // let (i, data) = <[u8;4]>::parse(i)?;
-        // let (i, label_type) = le_u32(i)?;
-
-        match self.label_type {
-            0 => { ESGroupLabel::Top(FourCC(self.label_value)) }
-            1 => { ESGroupLabel::WorldChildren(self.label_value.into()) }
-            2 => { ESGroupLabel::InteriorCellBlock(i32::from_le_bytes(self.label_value)) }
-            3 => { ESGroupLabel::InteriorCellSubBlock(i32::from_le_bytes(self.label_value)) }
-            4 => { ESGroupLabel::ExteriorCellBlock(self.label_value.into()) }
-            5 => { ESGroupLabel::ExteriorCellSubBlock(self.label_value.into()) }
-            6 => { ESGroupLabel::CellChildren(self.label_value.into()) }
-            7 => { ESGroupLabel::TopicChildren(self.label_value.into()) }
-            8 => { ESGroupLabel::CellPersistentChildren(self.label_value.into()) }
-            9 => { ESGroupLabel::CellTemporaryChildren(self.label_value.into()) }
-            10 => { ESGroupLabel::CellVisibleDistantChildren(self.label_value.into()) }
-            _ => { ESGroupLabel::Unknown(self.label_value) }
-        }
+        ESGroupLabel::from((self.label_value, self.label_type))
     }
 }
 
@@ -144,9 +128,30 @@ pub enum ESGroupLabel {
 
 // ====================================================================================================
 
-impl ESObjectTraits for ESGroupTyped {
-    fn object_count(&self) -> usize {
-        1usize
+impl From<([u8;4], u32)> for ESGroupLabel {
+    fn from(value: ([u8;4], u32)) -> Self {
+        match value.1 {
+            0 => { ESGroupLabel::Top(FourCC(value.0)) }
+            1 => { ESGroupLabel::WorldChildren(value.0.into()) }
+            2 => { ESGroupLabel::InteriorCellBlock(i32::from_le_bytes(value.0)) }
+            3 => { ESGroupLabel::InteriorCellSubBlock(i32::from_le_bytes(value.0)) }
+            4 => { ESGroupLabel::ExteriorCellBlock(value.0.into()) }
+            5 => { ESGroupLabel::ExteriorCellSubBlock(value.0.into()) }
+            6 => { ESGroupLabel::CellChildren(value.0.into()) }
+            7 => { ESGroupLabel::TopicChildren(value.0.into()) }
+            8 => { ESGroupLabel::CellPersistentChildren(value.0.into()) }
+            9 => { ESGroupLabel::CellTemporaryChildren(value.0.into()) }
+            10 => { ESGroupLabel::CellVisibleDistantChildren(value.0.into()) }
+            _ => { ESGroupLabel::Unknown(value.0) }
+        }
+    }
+}
+
+// ====================================================================================================
+
+impl ESObject for ESGroupTyped {
+    fn object_count(&self) -> &usize {
+        &1usize
     }
 
     fn object_size(&self) -> &u32 {

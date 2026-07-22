@@ -379,8 +379,8 @@ impl<'a, T: Parse<&'a[u8]>> ParseAllocated<ESRecordHeader, &'a[u8]> for ESRecord
 impl<'es, T> Parse<&'es[u8]> for ESRecord<T> where T: ParseAllocated<ESRecordHeader, &'es[u8]> {
     fn parse(i: &'es[u8]) -> IResult<&'es[u8], Self, error::Error<&'es[u8]>> {
         let (i, (header, raw)) = alloc_record(i)?;
-        if let Ok(result) = T::parse_allocated(header, raw) {
-
+        if let Ok(data) = T::parse_allocated(header, raw) {
+            Ok((i, ESRecord { header, data }))
         } else {
 
         }
