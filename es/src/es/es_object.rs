@@ -1,4 +1,4 @@
-use crate::{dev::*, es::{self, es_group::{ESGroupHeader, ESGroupTraits, ESGroupTyped}, es_record::{ESRecordFlags, ESRecordHeader, ESRecordTraits, ESRecordTyped, ESVersionControl}}, traits::ParseAllocated};
+use crate::{dev::*, es::{self, es_group::{ESGroupHeader, ESGroupTraits, ESGroupTyped}, es_record::{ESRecordFlags, ESRecordHeader, ESRecordTraits, ESRecord, ESVersionControl}}, traits::ParseAllocated};
 
 // ====================================================================================================
 
@@ -42,10 +42,16 @@ pub fn parse_es_object(i: &[u8]) -> IResult<&[u8], Box<dyn ESObject>> {
         let (i, version_control) = ESVersionControl::parse(i)?;
         let header = ESRecordHeader { iden, size, flags, form_id, version_control };
         let (i, raw) = take(size as usize)(i)?;
-        if let Ok(data) = ESRecordTyped::parse_allocated(header, raw) {
+        if let Ok(data) = ESRecord::parse_allocated(header, raw) {
             Ok((i, Box::new(data)))
         } else {
             todo!()
         }
+    }
+}
+
+impl std::fmt::Debug for dyn ESObject {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "ESObject: {:?} object(s), {:?} bytes", self.object_count(), self.object_size())
     }
 }

@@ -2,8 +2,8 @@ use crate::{dev::*, records::all::{Cell, RawCellRecord}};
 
 // ====================================================================================================
 
-pub type InteriorCellSubBlock = GroupOld<Cell>;
+pub type InteriorCellSubBlock = Group<Cell>;
 
 // ====================================================================================================
 
-pub type RawInteriorCellSubBlock<'esm> = GroupOld<RawCellRecord<'esm>>;
+pub type RawInteriorCellSubBlock<'esm> = Group<RawCellRecord<'esm>>;

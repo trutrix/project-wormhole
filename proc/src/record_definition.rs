@@ -85,7 +85,7 @@ impl ToTokens for RecordDefinition2 {
 
         tokens.extend(quote! {
 
-            pub type #name = ESGenericRecord<Vec<#name_field>>;
+            pub type #name = Record<Vec<#name_field>>;
             pub type #name_group = Group<#name>;
 
             #[derive(Debug)]
@@ -667,16 +667,16 @@ impl ToTokens for RecordDefinition3 {
             }
 
             if let Some(child_type) = &self.child_type {
-                quote! { (ESGenericRecord<#(#field_list),*> ,  Option<#child_type>) }
+                quote! { (Record<#(#field_list),*> ,  Option<#child_type>) }
             } else {
-                quote! { ESGenericRecord<(#(#field_list),*)> }
+                quote! { Record<(#(#field_list),*)> }
             }
         } else {
 
             if let Some(child_type) = &self.child_type {
-                quote! { (ESGenericRecord<Vec<#name_field>>, Option<#child_type>) }
+                quote! { (Record<Vec<#name_field>>, Option<#child_type>) }
             } else {
-                quote! { ESGenericRecord<Vec<#name_field>> }
+                quote! { Record<Vec<#name_field>> }
             }
         };
 
@@ -685,7 +685,7 @@ impl ToTokens for RecordDefinition3 {
             quote! {
                 #[derive(Debug)]
                 pub struct #name {
-                    pub record: ESGenericRecord<Vec<#name_field>>,
+                    pub record: Record<Vec<#name_field>>,
                     pub children: Option<#ct>
                 }
             }
@@ -710,7 +710,7 @@ impl ToTokens for RecordDefinition3 {
 
                         //println!("Begin parsing {}", #debug_name);
 
-                        let (i, record) = <ESGenericRecord<Vec<#name_field>>>::parse_le(i)?;
+                        let (i, record) = <Record<Vec<#name_field>>>::parse_le(i)?;
                         
                         //println!("Finished parsing record for {}", #debug_name);
 

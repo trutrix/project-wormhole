@@ -118,4 +118,4 @@ impl Parse<&[u8]> for CellChildItem {
 
 
 /// This is a type alias because the existence of the CellChildren group implies at least one sub group exists under it
-pub type RawCellChildren<'esm> = GroupOld<GroupOld<RawRecord<'esm>>>;
+pub type RawCellChildren<'esm> = Group<Group<RawRecord<'esm>>>;

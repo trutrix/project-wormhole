@@ -13,7 +13,7 @@ pub enum ESObject {
 // This is slower but far more flexible
 pub enum RawESObject<'esm> {
     Record(RawRecord<'esm>),
-    Group(GroupOld<RawESObject<'esm>>)
+    Group(Group<RawESObject<'esm>>)
 }
 
 // ====================================================================================================
@@ -72,7 +72,7 @@ impl<'esm> Parse<&'esm[u8]> for RawESObject<'esm> {
         // Length is not verified here because this runs millions of times
 
         if &[i[0], i[1], i[2], i[3]] == b"GRUP" {
-            let (i, group) = <GroupOld<RawESObject>>::parse_le(i)?;
+            let (i, group) = <Group<RawESObject>>::parse_le(i)?;
             Ok((i, RawESObject::Group(group)))
         } else {
             let (i, record) = RawRecord::parse_le(i)?;

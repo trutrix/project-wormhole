@@ -153,14 +153,14 @@ pub fn alloc_group(i: &[u8]) -> IResult<&[u8], (GroupHeader, &[u8])> {
 // ====================================================================================================
 
 #[derive(Debug)]
-pub struct GroupOld<T> {
+pub struct Group<T> {
     pub header: GroupHeader,
     pub data: Vec<T>
 }
 
 // ====================================================================================================
 
-impl<'es, T> Parse<&'es[u8]> for GroupOld<T> where T: for<'nom> Parse<&'es[u8]> + Send {
+impl<'es, T> Parse<&'es[u8]> for Group<T> where T: for<'nom> Parse<&'es[u8]> + Send {
     fn parse(i: &'es[u8]) -> IResult<&'es[u8], Self, nom::error::Error<&'es[u8]>> {
 
         let (i, (header, data)) = alloc_group(i)?;
@@ -181,7 +181,7 @@ impl<'es, T> Parse<&'es[u8]> for GroupOld<T> where T: for<'nom> Parse<&'es[u8]> 
 
 // ====================================================================================================
 
-impl<'es, T> GroupOld<T> where T: for<'nom> Parse<&'es[u8]> + Send {
+impl<'es, T> Group<T> where T: for<'nom> Parse<&'es[u8]> + Send {
     pub fn parse_pre_alloc(raw: &'es[u8], header: GroupHeader) -> IResult<&'es[u8], Self, nom::error::Error<&'es[u8]>> {
         
         let mut sub = raw;
@@ -207,7 +207,7 @@ impl<'es, T> GroupOld<T> where T: for<'nom> Parse<&'es[u8]> + Send {
             T::parse(x).unwrap().1
         }).collect();
 
-        Ok((sub, GroupOld { header, data }))
+        Ok((sub, Group { header, data }))
     }
 }
 
