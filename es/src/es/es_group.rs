@@ -1,4 +1,4 @@
-use crate::{dev::*, es::{es_group::top::ESTop, es_object::ESObject, es_record::ESVersionControl}, groups::prelude::*, traits::ParseAllocated};
+use crate::{dev::*, es::{es_group::top::ESTop, es_object::ESObject, es_record::{ESRecordHeader, ESVersionControl}}, groups::prelude::*, traits::ParseAllocated};
 
 // ====================================================================================================
 
@@ -210,8 +210,21 @@ impl ESGroupTraits for ESGroupTyped {
 
 // ====================================================================================================
 
-
-pub struct ESGroup<T> {
-    pub header: GroupHeader,
-    pub items: Vec<T>
+impl ParseAllocated<ESGroupHeader, &[u8]> for ESGroupTyped {
+    fn parse_allocated(header: ESGroupHeader, raw: &[u8]) -> Result<Self, nom::error::Error<&[u8]>> {
+        match header.get_label() {
+            ESGroupLabel::Top(four_cc) => todo!(),
+            ESGroupLabel::WorldChildren(form_id) => todo!(),
+            ESGroupLabel::InteriorCellBlock(_) => todo!(),
+            ESGroupLabel::InteriorCellSubBlock(_) => todo!(),
+            ESGroupLabel::ExteriorCellBlock(cell_location) => todo!(),
+            ESGroupLabel::ExteriorCellSubBlock(cell_location) => todo!(),
+            ESGroupLabel::CellChildren(form_id) => todo!(),
+            ESGroupLabel::TopicChildren(form_id) => todo!(),
+            ESGroupLabel::CellPersistentChildren(form_id) => todo!(),
+            ESGroupLabel::CellTemporaryChildren(form_id) => todo!(),
+            ESGroupLabel::CellVisibleDistantChildren(form_id) => todo!(),
+            ESGroupLabel::Unknown(_) => todo!(),
+        }
+    }
 }

@@ -1,6 +1,6 @@
 use nom_derive::nom::error;
 
-use crate::{dev::*, es::{es_group::ESGroupHeader, es_object::{ESObjectTraits}}, records::*, traits::{ParseAllocated, record::FormIdTrait}};
+use crate::{dev::*, es::{es_group::ESGroupHeader, es_object::{ESObject}}, records::*, traits::{ParseAllocated, record::FormIdTrait}};
 //use bitflags::bitflags;
 
 #[derive(Debug)]
@@ -164,6 +164,28 @@ impl nom_derive::Parse<&[u8]> for ESRecordTyped {
                 Ok((i, ESRecordTyped::Unhandled(header)))
             }
         }
+    }
+}
+
+// ====================================================================================================
+
+impl ParseAllocated<ESRecordHeader, &[u8]> for ESRecordTyped {
+    fn parse_allocated(header: ESRecordHeader, raw: &[u8]) -> Result<Self, nom::error::Error<&[u8]>> {
+        match &header.iden.0 {
+            _ => { todo!() }
+        }
+    }
+}
+
+// ===================================================================================================
+
+impl ESObject for ESRecordTyped {
+    fn object_count(&self) -> &usize {
+        todo!()
+    }
+
+    fn object_size(&self) -> &u32 {
+        todo!()
     }
 }
 
@@ -356,36 +378,36 @@ pub fn alloc_record(i: &[u8]) -> IResult<&[u8], (ESRecordHeader, &[u8]), nom::er
 
 // ====================================================================================================
 
-#[derive(Debug)]
-pub struct ESRecord<T> {
-    pub header: ESRecordHeader,
-    pub data: Vec<T>
-}
+// #[derive(Debug)]
+// pub struct ESRecord<T> {
+//     pub header: ESRecordHeader,
+//     pub data: Vec<T>
+// }
 
 // ====================================================================================================
 
-impl<'a, T: Parse<&'a[u8]>> ParseAllocated<ESRecordHeader, &'a[u8]> for ESRecord<T> {
-    fn parse_allocated(header: ESRecordHeader, raw: &'a[u8]) -> Result<Self, error::Error<&'a[u8]>> {
-        if let Ok((_, data)) = many0(T::parse)(raw) {
-            Ok(ESRecord { header, data })
-        } else {
-            Err(error::Error::new(raw, error::ErrorKind::Fail))
-        }
-    }
-}
+// impl<'a, T: Parse<&'a[u8]>> ParseAllocated<ESRecordHeader, &'a[u8]> for ESRecord<T> {
+//     fn parse_allocated(header: ESRecordHeader, raw: &'a[u8]) -> Result<Self, error::Error<&'a[u8]>> {
+//         if let Ok((_, data)) = many0(T::parse)(raw) {
+//             Ok(ESRecord { header, data })
+//         } else {
+//             Err(error::Error::new(raw, error::ErrorKind::Fail))
+//         }
+//     }
+// }
 
 // ====================================================================================================
 
-impl<'es, T> Parse<&'es[u8]> for ESRecord<T> where T: ParseAllocated<ESRecordHeader, &'es[u8]> {
-    fn parse(i: &'es[u8]) -> IResult<&'es[u8], Self, error::Error<&'es[u8]>> {
-        let (i, (header, raw)) = alloc_record(i)?;
-        if let Ok(data) = T::parse_allocated(header, raw) {
-            Ok((i, ESRecord { header, data }))
-        } else {
+// impl<'es, T> Parse<&'es[u8]> for ESRecord<T> where T: ParseAllocated<ESRecordHeader, &'es[u8]> {
+//     fn parse(i: &'es[u8]) -> IResult<&'es[u8], Self, error::Error<&'es[u8]>> {
+//         let (i, (header, raw)) = alloc_record(i)?;
+//         if let Ok(data) = T::parse_allocated(header, raw) {
+//             Ok((i, ESRecord { header, data }))
+//         } else {
 
-        }
-    }
-}
+//         }
+//     }
+// }
 
 // ====================================================================================================
 

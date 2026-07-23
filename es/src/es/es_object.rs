@@ -1,4 +1,4 @@
-use crate::{dev::*, es::{self, es_group::{ESGroupHeader, ESGroupTraits, ESGroupTyped}, es_record::{ESRecordFlags, ESRecordHeader, ESRecordTraits, ESRecordTyped, ESVersionControl}}};
+use crate::{dev::*, es::{self, es_group::{ESGroupHeader, ESGroupTraits, ESGroupTyped}, es_record::{ESRecordFlags, ESRecordHeader, ESRecordTraits, ESRecordTyped, ESVersionControl}}, traits::ParseAllocated};
 
 // ====================================================================================================
 
@@ -8,21 +8,44 @@ pub trait ESObject {
 }
 
 
-pub fn parse_es_object(i: &[u8]) -> IResult<&[u8], dyn ESObject> {
+pub fn parse_es_object(i: &[u8]) -> IResult<&[u8], Box<dyn ESObject>> {
+    // Get iden and size
     let (i, iden) = FourCC::parse(i)?;
     let (i, size) = le_u32(i)?;
 
+    // Check if object is a group (for header and sizing)
     if &iden.0 == b"GRUP" {
+
+        // Subtract 24 from size if it not zero
+        let size = if size == 0 { size } else { size - 24 };
+        
+        // Get rest of group header data
         let (i, label_value) = <[u8;4]>::parse(i)?;
         let (i, label_type) = le_u32(i)?;
         let (i, version_control) = ESVersionControl::parse(i)?;
-        todo!()
-        //Ok((i ))
+
+        // Put data into group header
+        let header = ESGroupHeader { iden, size, label_value, label_type, version_control };
+
+        // Allocate the raw data
+        let (i, raw) = take(size as usize)(i)?;
+
+        
+        if let Ok(data) = ESGroupTyped::parse_allocated(header, raw) {
+            Ok((i, Box::new(data)))
+        } else {
+            todo!()
+        }
     } else {
         let (i, flags) = ESRecordFlags::parse(i)?;
         let (i, form_id) = FormId::parse(i)?;
         let (i, version_control) = ESVersionControl::parse(i)?;
-        todo!()
-        //Ok((i, ))
+        let header = ESRecordHeader { iden, size, flags, form_id, version_control };
+        let (i, raw) = take(size as usize)(i)?;
+        if let Ok(data) = ESRecordTyped::parse_allocated(header, raw) {
+            Ok((i, Box::new(data)))
+        } else {
+            todo!()
+        }
     }
 }

@@ -692,6 +692,7 @@ impl ToTokens for RecordDefinition3 {
         } else {
             quote! {
                 pub type #name = #type_token;
+                pub type #name_group = Group<#name>;
             }
         };
 
