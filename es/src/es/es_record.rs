@@ -184,6 +184,10 @@ impl ESObject for ESRecord {
             }
         }
     }
+
+    fn try_get_form_id(&self) -> Option<&FormId> {
+        unimplemented!("Need to flesh out records more")
+    }
 }
 
 // ===================================================================================================

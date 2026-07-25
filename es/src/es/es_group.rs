@@ -170,6 +170,10 @@ impl ESObject for ESGroupTyped {
             ESGroupTyped::Unknown(g) => &g.size,
         }
     }
+
+    fn try_get_form_id(&self) -> Option<&FormId> {
+        None
+    }
 }
 
 // ====================================================================================================

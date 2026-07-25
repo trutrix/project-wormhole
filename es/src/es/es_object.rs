@@ -4,9 +4,11 @@ use crate::{dev::*, es::{self, es_group::{ESGroupHeader, ESGroupTraits, ESGroupT
 
 pub trait ESObject {
     fn object_count(&self) -> &usize;
-    fn object_size(&self) -> &u32;    
+    fn object_size(&self) -> &u32;
+    fn try_get_form_id(&self) -> Option<&FormId>;
 }
 
+// ====================================================================================================
 
 pub fn parse_es_object(i: &[u8]) -> IResult<&[u8], Box<dyn ESObject>> {
     // Get iden and size
@@ -55,6 +57,8 @@ pub fn parse_es_object(i: &[u8]) -> IResult<&[u8], Box<dyn ESObject>> {
         }
     }
 }
+
+// ====================================================================================================
 
 impl std::fmt::Debug for dyn ESObject {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
