@@ -192,19 +192,6 @@ impl ESObject for ESRecordTyped {
 
 // ===================================================================================================
 
-#[cfg(feature = "speedy")]
-impl<'a, C: speedy::Context> Readable<'a, C> for ESRecordTyped {
-    fn read_from< R: speedy::Reader< 'a, C > >( reader: &mut R ) -> Result< Self, <C as speedy::Context>::Error > {
-        let header: ESRecordHeader = reader.read_value()?;
-
-        match header.iden.0 {
-            _ => {
-                panic!("{:?}", header);
-            }
-        }
-    }
-}
-
 /// Size NOT INCLUDING header, unlike [ESGroupHeader]
 #[derive(Debug, Eq, PartialEq, NomLE)]
 #[cfg_attr(feature = "speedy", derive(Readable, Writable))]
@@ -568,5 +555,27 @@ impl ESRecordTraits for ESRecordTyped {
             // ESRecordTyped::ZOOM(r) => &r.header,
             _ => todo!()
         }
+    }
+}
+
+
+pub trait ESRecord {
+    fn get_iden(&self) -> &FourCC;
+    fn get_form_id(&self) -> &FormId;
+    fn get_size(&self) -> &u32;
+}
+
+
+impl<T> ESObject for T where T: ESRecord {
+    fn object_count(&self) -> &usize {
+        &1usize
+    }
+
+    fn object_size(&self) -> &u32 {
+        self.get_size()
+    }
+
+    fn try_get_form_id(&self) -> Option<&FormId> {
+        Some(self.get_form_id())
     }
 }
