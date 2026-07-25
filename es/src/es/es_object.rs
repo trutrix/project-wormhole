@@ -30,22 +30,28 @@ pub fn parse_es_object(i: &[u8]) -> IResult<&[u8], Box<dyn ESObject>> {
         // Allocate the raw data
         let (i, raw) = take(size as usize)(i)?;
 
-        
-        if let Ok(data) = ESGroupTyped::parse_allocated(header, raw) {
-            Ok((i, Box::new(data)))
-        } else {
-            todo!()
+        // Parse and handle results
+        match ESGroupTyped::parse_allocated(header, raw) {
+            Ok(data) => Ok((i, Box::new(data))),
+            Err(e) => Err(nom::Err::Error(e)),
         }
     } else {
+
+        // Get rest of record header
         let (i, flags) = ESRecordFlags::parse(i)?;
         let (i, form_id) = FormId::parse(i)?;
         let (i, version_control) = ESVersionControl::parse(i)?;
+
+        // Put data into header
         let header = ESRecordHeader { iden, size, flags, form_id, version_control };
+
+        // Allocate raw data
         let (i, raw) = take(size as usize)(i)?;
-        if let Ok(data) = ESRecord::parse_allocated(header, raw) {
-            Ok((i, Box::new(data)))
-        } else {
-            todo!()
+
+        // Parse and handle results
+        match ESRecord::parse_allocated(header, raw) {
+            Ok(data) => Ok((i, Box::new(data))),
+            Err(e) => Err(nom::Err::Error(e)),
         }
     }
 }
