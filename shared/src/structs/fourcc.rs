@@ -1,13 +1,17 @@
 use speedy::{Readable, Writable};
 
 
-
+/// Four Character Code
+/// 
+/// A generally human readable 4-byte value.
+/// In Creation Engine, it is mostly alphanumeric, but not always
+/// 
+/// `Examples "COOL", "PART", "ABC1"`
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Readable, Writable)]
 pub struct FourCC(pub [u8; 4]);
 
 
-// ================================================================================
-
+// ====================================================================================================
 
 impl std::fmt::Debug for FourCC {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -16,12 +20,16 @@ impl std::fmt::Debug for FourCC {
     }
 }
 
+// ====================================================================================================
+
 impl std::fmt::Display for FourCC {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let s = std::str::from_utf8(&self.0).unwrap_or("????");
         write!(f, "{}", s)
     }
 }
+
+// ====================================================================================================
 
 impl Default for FourCC {
     fn default() -> Self {
@@ -30,8 +38,7 @@ impl Default for FourCC {
 }
 
 
-// ================================================================================
-
+// ====================================================================================================
 
 impl serde::Serialize for FourCC {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
@@ -41,6 +48,7 @@ impl serde::Serialize for FourCC {
     }
 }
 
+// ====================================================================================================
 
 impl<'de> serde::Deserialize<'de> for FourCC {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
@@ -71,7 +79,6 @@ impl<'de> serde::Deserialize<'de> for FourCC {
         deserializer.deserialize_bytes(FourCCVisitor)
     }
 }
-
 
 // ================================================================================
 
