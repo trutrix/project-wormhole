@@ -6,6 +6,7 @@ pub trait ESObject {
     fn object_count(&self) -> &usize;
     fn object_size(&self) -> &u32;
     fn try_get_form_id(&self) -> Option<&FormId>;
+    fn parse(i: &[u8]) -> IResult<&[u8], Box<dyn ESObject>> where Self: Sized { parse_es_object(i) }
 }
 
 // ====================================================================================================
