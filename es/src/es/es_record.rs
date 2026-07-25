@@ -558,7 +558,9 @@ impl ESRecordTraits for ESRecordTyped {
     }
 }
 
+// ====================================================================================================
 
+/// Common functions for all records
 pub trait ESRecord {
     fn get_iden(&self) -> &FourCC;
     fn get_form_id(&self) -> &FormId;
@@ -566,16 +568,11 @@ pub trait ESRecord {
 }
 
 
+// ====================================================================================================
+
+/// Implement [ESObject] for anything that implements [ESRecord]
 impl<T> ESObject for T where T: ESRecord {
-    fn object_count(&self) -> &usize {
-        &1usize
-    }
-
-    fn object_size(&self) -> &u32 {
-        self.get_size()
-    }
-
-    fn try_get_form_id(&self) -> Option<&FormId> {
-        Some(self.get_form_id())
-    }
+    fn object_count(&self) -> &usize { &1usize }
+    fn object_size(&self) -> &u32 { self.get_size() }
+    fn try_get_form_id(&self) -> Option<&FormId> { Some(self.get_form_id()) }
 }
