@@ -160,6 +160,10 @@ impl ESObject for ESTop {
     fn object_count(&self) -> &usize {
         &1usize
     }
+
+    fn try_get_form_id(&self) -> Option<&crate::dev::FormId> {
+        None
+    }
 }
 
 // ====================================================================================================
