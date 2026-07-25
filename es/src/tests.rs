@@ -4,7 +4,7 @@ use std::{collections::{HashMap, HashSet}, fs::{DirEntry, File}, os::raw, path::
 use comfy_table::presets::UTF8_FULL;
 use nom_derive::Parse;
 
-use crate::{dev::GroupLabel, es::{es_object::{ESObject, parse_es_object}, es_record::ESRecord, full::ESFull, mapped::ESMapped, raw::ESRaw}, records::all::*, structs::{chunk::get_file_chunks, es_object::RawESObject}};
+use crate::{dev::GroupLabel, es::{es_object::{ESObject, parse_es_object}, es_record::ESRecordTyped, full::ESFull, mapped::ESMapped, raw::ESRaw}, records::all::*, structs::{chunk::get_file_chunks, es_object::RawESObject}};
 
 // ===================================================================================================
 // Test Parameters

@@ -1,4 +1,4 @@
-use crate::{dev::*, es::{self, es_group::{ESGroupHeader, ESGroupTraits, ESGroupTyped}, es_record::{ESRecordFlags, ESRecordHeader, ESRecordTraits, ESRecord, ESVersionControl}}, traits::ParseAllocated};
+use crate::{dev::*, es::{self, es_group::{ESGroupHeader, ESGroupTraits, ESGroupTyped}, es_record::{ESRecordFlags, ESRecordHeader, ESRecordTraits, ESRecordTyped, ESVersionControl}}, traits::ParseAllocated};
 
 // ====================================================================================================
 
@@ -51,7 +51,7 @@ pub fn parse_es_object(i: &[u8]) -> IResult<&[u8], Box<dyn ESObject>> {
         let (i, raw) = take(size as usize)(i)?;
 
         // Parse and handle results
-        match ESRecord::parse_allocated(header, raw) {
+        match ESRecordTyped::parse_allocated(header, raw) {
             Ok(data) => Ok((i, Box::new(data))),
             Err(e) => Err(nom::Err::Error(e)),
         }

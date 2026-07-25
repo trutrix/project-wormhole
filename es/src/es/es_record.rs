@@ -4,7 +4,7 @@ use crate::{dev::*, es::{es_group::ESGroupHeader, es_object::{ESObject}}, record
 //use bitflags::bitflags;
 
 #[derive(Debug)]
-pub enum ESRecord {
+pub enum ESRecordTyped {
     Unhandled(ESRecordHeader),
     AACT(AACT::Action),
     ACHR(ACHR::ActorReference),
@@ -146,12 +146,12 @@ pub enum ESRecord {
 
 // ===================================================================================================
 
-impl nom_derive::Parse<&[u8]> for ESRecord {
+impl nom_derive::Parse<&[u8]> for ESRecordTyped {
     fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
         let (i, (header, raw)) = alloc_record(i)?;
         match &header.iden.0 {
             _ => {
-                Ok((i, ESRecord::Unhandled(header)))
+                Ok((i, ESRecordTyped::Unhandled(header)))
             }
         }
     }
@@ -159,24 +159,24 @@ impl nom_derive::Parse<&[u8]> for ESRecord {
 
 // ====================================================================================================
 
-impl ParseAllocated<ESRecordHeader, &[u8]> for ESRecord {
+impl ParseAllocated<ESRecordHeader, &[u8]> for ESRecordTyped {
     fn parse_allocated(header: ESRecordHeader, raw: &[u8]) -> Result<Self, nom::error::Error<&[u8]>> {
         match &header.iden.0 {
-            _ => { Ok(ESRecord::Unhandled(header)) }
+            _ => { Ok(ESRecordTyped::Unhandled(header)) }
         }
     }
 }
 
 // ===================================================================================================
 
-impl ESObject for ESRecord {
+impl ESObject for ESRecordTyped {
     fn object_count(&self) -> &usize {
         &1usize
     }
 
     fn object_size(&self) -> &u32 {
         match self {
-            ESRecord::Unhandled(header) => {
+            ESRecordTyped::Unhandled(header) => {
                 &header.size
             }
             _ => {
@@ -193,7 +193,7 @@ impl ESObject for ESRecord {
 // ===================================================================================================
 
 #[cfg(feature = "speedy")]
-impl<'a, C: speedy::Context> Readable<'a, C> for ESRecord {
+impl<'a, C: speedy::Context> Readable<'a, C> for ESRecordTyped {
     fn read_from< R: speedy::Reader< 'a, C > >( reader: &mut R ) -> Result< Self, <C as speedy::Context>::Error > {
         let header: ESRecordHeader = reader.read_value()?;
 
@@ -426,7 +426,7 @@ pub trait ESRecordTraits {
 
 // ====================================================================================================
 
-impl ESRecordTraits for ESRecord {
+impl ESRecordTraits for ESRecordTyped {
     fn get_header(&self) -> &ESRecordHeader {
         match self {
             // ESRecordTyped::Unhandled(r) => r,
