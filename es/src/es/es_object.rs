@@ -5,8 +5,9 @@ use crate::{dev::*, es::{self, es_group::{ESGroupHeader, ESGroupTraits, ESGroupT
 pub trait ESObject {
     fn object_count(&self) -> &usize;
     fn object_size(&self) -> &u32;
+    fn is_group(&self) -> bool;
     fn try_get_form_id(&self) -> Option<&FormId>;
-    fn parse(i: &[u8]) -> IResult<&[u8], Box<dyn ESObject>> where Self: Sized { parse_es_object(i) }
+    fn parse_as_object(i: &[u8]) -> IResult<&[u8], Box<dyn ESObject>> where Self: Sized { parse_es_object(i) }
 }
 
 // ====================================================================================================
@@ -63,6 +64,11 @@ pub fn parse_es_object(i: &[u8]) -> IResult<&[u8], Box<dyn ESObject>> {
 
 impl std::fmt::Debug for dyn ESObject {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "ESObject: {:?} object(s), {:?} bytes", self.object_count(), self.object_size())
+        if self.is_group() {
+            write!(f, "ESObject -> ESGroup {{ bytes: {:?}, object_count: {:?} }}", self.object_size(), self.object_count())
+        } else {
+            write!(f, "ESObject -> ESRecord {{ bytes: {:?} }}", self.object_size())
+        }
+        
     }
 }

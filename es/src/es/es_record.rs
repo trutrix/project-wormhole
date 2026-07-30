@@ -188,6 +188,10 @@ impl ESObject for ESRecordTyped {
     fn try_get_form_id(&self) -> Option<&FormId> {
         unimplemented!("Need to flesh out records more")
     }
+
+    fn is_group(&self) -> bool {
+        false
+    }
 }
 
 // ===================================================================================================
@@ -571,8 +575,11 @@ pub trait ESRecord {
 // ====================================================================================================
 
 /// Implement [ESObject] for anything that implements [ESRecord]
-impl<T> ESObject for T where T: ESRecord {
+impl ESObject for dyn ESRecord {
     fn object_count(&self) -> &usize { &1usize }
     fn object_size(&self) -> &u32 { self.get_size() }
     fn try_get_form_id(&self) -> Option<&FormId> { Some(self.get_form_id()) }
+    fn is_group(&self) -> bool {
+        false
+    }
 }

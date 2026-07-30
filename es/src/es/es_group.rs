@@ -1,4 +1,4 @@
-use crate::{dev::*, es::{es_group::top::ESTop, es_object::ESObject, es_record::{ESRecordHeader, ESVersionControl}}, groups::prelude::*, traits::ParseAllocated};
+use crate::{dev::*, es::{es_group::top::ESTopTyped, es_object::ESObject, es_record::{ESRecordHeader, ESVersionControl}}, groups::prelude::*, traits::ParseAllocated};
 
 // ====================================================================================================
 
@@ -18,7 +18,7 @@ pub mod cell_visible_distant_children;
 
 #[derive(Debug)]
 pub enum ESGroupTyped {
-    Top(ESTop),
+    Top(ESTopTyped),
     WorldChildren(world_children::ESWorldChildren),
     InteriorCellBlock(interior_cell_block::ESInteriorCellBlock),
     InteriorCellSubBlock(interior_cell_sub_block::ESInteriorCellSubBlock),
@@ -40,7 +40,7 @@ impl nom_derive::Parse<&[u8]> for ESGroupTyped {
         let (i, raw) = take(header.size as usize - 24)(i)?;
         match header.get_label() {
             ESGroupLabel::Top(_) => { 
-                if let Ok(g) = ESTop::parse_allocated(header, raw) {
+                if let Ok(g) = ESTopTyped::parse_allocated(header, raw) {
                     Ok((i, ESGroupTyped::Top(g)))
                 } else {
                     Err(nom::Err::Error(nom::error::Error::new(raw, nom::error::ErrorKind::Fail)))
@@ -174,6 +174,10 @@ impl ESObject for ESGroupTyped {
     fn try_get_form_id(&self) -> Option<&FormId> {
         None
     }
+
+    fn is_group(&self) -> bool {
+        true
+    }
 }
 
 // ====================================================================================================
@@ -243,8 +247,9 @@ pub trait ESGroupT {
 
 
 /// Implement [ESObject] for anything that implements [ESGroupT]
-impl<T> ESObject for T where T: ESGroupT {
+impl ESObject for dyn ESGroupT {
     fn object_count(&self) -> &usize { todo!("More logic needs to be fleshed out") }
     fn object_size(&self) -> &u32 { self.group_size() }
     fn try_get_form_id(&self) -> Option<&FormId> { None }
+    fn is_group(&self) -> bool { true }
 }

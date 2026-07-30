@@ -5,7 +5,7 @@ use crate::{es::{es_group::{ESGroupHeader, ESGroupLabel, ESGroupTraits}, es_obje
 // ====================================================================================================
 
 #[derive(Debug)]
-pub enum ESTop {
+pub enum ESTopTyped {
     Unhandled(ESGroupHeader),
     // AACT(ESGroup<ESRecord<AACT::Action>>),
     // ACTI(ActivatorGroup),
@@ -137,12 +137,12 @@ pub enum ESTop {
 
 // ====================================================================================================
 
-impl ParseAllocated<ESGroupHeader, &[u8]> for ESTop {
+impl ParseAllocated<ESGroupHeader, &[u8]> for ESTopTyped {
     fn parse_allocated(header: ESGroupHeader, raw: &[u8]) -> Result<Self, nom_derive::nom::error::Error<&[u8]>> {
         match &header.label_value {
             
             _ => {
-                Ok(ESTop::Unhandled(header))
+                Ok(ESTopTyped::Unhandled(header))
             }
         }
     }
@@ -150,10 +150,10 @@ impl ParseAllocated<ESGroupHeader, &[u8]> for ESTop {
 
 // ====================================================================================================
 
-impl ESObject for ESTop {
+impl ESObject for ESTopTyped {
     fn object_size(&self) -> &u32 {
         match self {
-            ESTop::Unhandled(esgroup_header) => &esgroup_header.size,
+            ESTopTyped::Unhandled(esgroup_header) => &esgroup_header.size,
         }
     }
     
@@ -164,14 +164,18 @@ impl ESObject for ESTop {
     fn try_get_form_id(&self) -> Option<&crate::dev::FormId> {
         None
     }
+
+    fn is_group(&self) -> bool {
+        true
+    }
 }
 
 // ====================================================================================================
 
-impl ESGroupTraits for ESTop {
+impl ESGroupTraits for ESTopTyped {
     fn get_header(&self) -> &ESGroupHeader {
         match self {
-            ESTop::Unhandled(g) => g,
+            ESTopTyped::Unhandled(g) => g,
         }
     }
 }
