@@ -1,6 +1,6 @@
 use nom_derive::nom;
 
-use crate::{es::{es_group::{ESGroupHeader, ESGroupLabel, ESGroupTraits}, es_object::ESObject, es_record::ESRecordHeader}, records::AACT, traits::ParseAllocated};
+use crate::{es::{es_group::{ESGroup, ESGroupHeader, ESGroupLabel, ESGroupTraits}, es_object::ESObject, es_record::ESRecordHeader}, records::AACT, traits::ParseAllocated};
 
 // ====================================================================================================
 
@@ -182,20 +182,27 @@ impl ESGroupTraits for ESTopTyped {
 
 // ====================================================================================================
 
-pub struct ESTopG<T> {
+pub struct ESTop<T> {
     pub header: ESGroupHeader,
-    pub data: T
+    pub data: Vec<T>
 }
 
 // ====================================================================================================
 
-impl<'es, T> ParseAllocated<ESGroupHeader, &'es[u8]> for ESTopG<T> where T: nom_derive::Parse<&'es[u8]> {
+impl<'es, T> ParseAllocated<ESGroupHeader, &'es[u8]> for ESTop<T> where T: nom_derive::Parse<&'es[u8]> {
     fn parse_allocated(header: ESGroupHeader, raw: &'es[u8]) -> Result<Self, nom_derive::nom::error::Error<&'es[u8]>> {
-        if let Ok((_, data)) = T::parse(raw) {
+        if let Ok((_, data)) = nom::multi::many0(T::parse)(raw) {
             Ok(Self { header, data })
         } else {
             Err(nom::error::Error::new(raw, nom::error::ErrorKind::Fail))
         }
         
     }
+}
+
+// ====================================================================================================
+
+impl<T> ESGroup for ESTop<T> {
+    fn group_label(&self) -> ESGroupLabel { self.header.get_label() }
+    fn group_size(&self) -> &u32 { &self.header.size }
 }
