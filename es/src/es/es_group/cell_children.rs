@@ -1,4 +1,4 @@
-use crate::{dev::*, es::{es_group::ESGroupHeader, es_object::ESObject}, traits::ParseAllocated};
+use crate::{dev::*, es::{es_group::{ESGroup, ESGroupHeader}, es_object::ESObject}, traits::ParseAllocated};
 
 // ====================================================================================================
 
@@ -17,11 +17,12 @@ impl ParseAllocated<ESGroupHeader, &[u8]> for ESCellChildren {
 
 // ====================================================================================================
 
-impl ESObject for ESCellChildren {
-    fn object_count(&self) -> &usize {
-        todo!()
+impl ESGroup for ESCellChildren {
+    fn group_label(&self) -> super::ESGroupLabel {
+        self.header.get_label()
     }
-    fn object_size(&self) -> &u32 { &self.header.size }
-    fn is_group(&self) -> bool { true }
-    fn try_get_form_id(&self) -> Option<&FormId> { None }
+
+    fn group_size(&self) -> &u32 {
+        &self.header.size
+    }
 }

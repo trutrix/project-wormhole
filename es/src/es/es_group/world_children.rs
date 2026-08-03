@@ -1,9 +1,25 @@
-use crate::{dev::*, es::es_group::{ESGroupHeader, alloc_group}, traits::ParseAllocated};
+use crate::{dev::*, es::es_group::{ESGroup, ESGroupHeader, alloc_group}, traits::ParseAllocated};
+
+// ====================================================================================================
 
 #[derive(Debug)]
 pub struct ESWorldChildren {
     pub header: ESGroupHeader
 }
+
+// ====================================================================================================
+
+impl ESGroup for ESWorldChildren {
+    fn group_label(&self) -> super::ESGroupLabel {
+        self.header.get_label()
+    }
+
+    fn group_size(&self) -> &u32 {
+        &self.header.size
+    }
+}
+
+// ====================================================================================================
 
 
 impl ParseAllocated<ESGroupHeader, &[u8]> for ESWorldChildren {
@@ -12,6 +28,8 @@ impl ParseAllocated<ESGroupHeader, &[u8]> for ESWorldChildren {
     }
 }
 
+// ====================================================================================================
+
 impl Parse<&[u8]> for ESWorldChildren {
     fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
         let (i, (header, raw)) = alloc_group(i)?;
@@ -19,3 +37,4 @@ impl Parse<&[u8]> for ESWorldChildren {
         Ok((i, result))
     }
 }
+
