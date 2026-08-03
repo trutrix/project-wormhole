@@ -239,15 +239,15 @@ impl ParseAllocated<ESGroupHeader, &[u8]> for ESGroupTyped {
 
 // ====================================================================================================
 
-pub trait ESGroupT {
-    fn group_label(&self) -> &ESGroupLabel;
+pub trait ESGroup {
+    fn group_label(&self) -> ESGroupLabel;
     fn group_size(&self) -> &u32;
-    fn try_get_group_iden(&self) -> Option<&FourCC>;
 }
 
+// ====================================================================================================
 
 /// Implement [ESObject] for anything that implements [ESGroupT]
-impl ESObject for dyn ESGroupT {
+impl ESObject for dyn ESGroup {
     fn object_count(&self) -> &usize { todo!("More logic needs to be fleshed out") }
     fn object_size(&self) -> &u32 { self.group_size() }
     fn try_get_form_id(&self) -> Option<&FormId> { None }
