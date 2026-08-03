@@ -286,8 +286,11 @@ pub struct ESRecordFlags(pub u32);
 // ====================================================================================================
 
 impl ESRecordFlags {
-    pub fn compressed(&self) -> bool { self.0 & 0x00040000 == 1 }
+    // TODO: Clippy is saying this will never equal 1, not familiar enough with bitmasks to know why
+    // Im guessing it works because the compressed records dont use other flags currently
+    pub fn compressed(&self) -> bool { (self.0 & 0x00040000) == 1 }
 }
+
 
 // ====================================================================================================
 
