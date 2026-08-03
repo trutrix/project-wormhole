@@ -1,3 +1,5 @@
+use std::ops::BitAnd;
+
 use nom_derive::nom::error;
 
 use crate::{dev::*, es::{es_group::ESGroupHeader, es_object::{ESObject}}, records::*, traits::{ParseAllocated, record::FormIdTrait}};
@@ -288,7 +290,8 @@ pub struct ESRecordFlags(pub u32);
 impl ESRecordFlags {
     // TODO: Clippy is saying this will never equal 1, not familiar enough with bitmasks to know why
     // Im guessing it works because the compressed records dont use other flags currently
-    pub fn compressed(&self) -> bool { (self.0 & 0x00040000) == 1 }
+    // Upon further review, this appears correct and I am unsure why this is happening
+    pub fn compressed(&self) -> bool { self.0.bitand(0x00040000) == 1 }
 }
 
 
@@ -569,9 +572,9 @@ impl ESRecordTraits for ESRecordTyped {
 
 /// Common functions for all records
 pub trait ESRecord {
-    fn get_iden(&self) -> &FourCC;
-    fn get_form_id(&self) -> &FormId;
-    fn get_size(&self) -> &u32;
+    fn record_iden(&self) -> &FourCC;
+    fn record_form_id(&self) -> &FormId;
+    fn record_size(&self) -> &u32;
 }
 
 
@@ -580,8 +583,8 @@ pub trait ESRecord {
 /// Implement [ESObject] for anything that implements [ESRecord]
 impl ESObject for dyn ESRecord {
     fn object_count(&self) -> &usize { &1usize }
-    fn object_size(&self) -> &u32 { self.get_size() }
-    fn try_get_form_id(&self) -> Option<&FormId> { Some(self.get_form_id()) }
+    fn object_size(&self) -> &u32 { self.record_size() }
+    fn try_get_form_id(&self) -> Option<&FormId> { Some(self.record_form_id()) }
     fn is_group(&self) -> bool {
         false
     }
