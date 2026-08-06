@@ -1,4 +1,4 @@
-use crate::{dev::*, es::es_group::{ESGroup, ESGroupHeader, exterior_cell_sub_block::ESExteriorCellSubBlock}};
+use crate::{dev::*, es::es_group::{ESGroupTrait, ESGroupHeader, exterior_cell_sub_block::ESExteriorCellSubBlock}};
 
 // ====================================================================================================
 
@@ -10,7 +10,7 @@ pub struct ESExteriorCellBlock {
 
 // ====================================================================================================
 
-impl ESGroup for ESExteriorCellBlock {
+impl ESGroupTrait for ESExteriorCellBlock {
     fn group_label(&self) -> super::ESGroupLabel {
         self.header.get_label()
     }

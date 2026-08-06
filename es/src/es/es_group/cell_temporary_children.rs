@@ -1,4 +1,4 @@
-use crate::{dev::*, es::es_group::{ESGroup, ESGroupHeader}};
+use crate::{dev::*, es::es_group::{ESGroupTrait, ESGroupHeader}};
 
 // ====================================================================================================
 
@@ -9,7 +9,7 @@ pub struct ESCellTemporaryChildren {
 
 // ====================================================================================================
 
-impl ESGroup for ESCellTemporaryChildren {
+impl ESGroupTrait for ESCellTemporaryChildren {
     fn group_label(&self) -> super::ESGroupLabel {
         self.header.get_label()
     }

@@ -2,7 +2,7 @@ use std::ops::BitAnd;
 
 use nom_derive::nom::error;
 
-use crate::{dev::*, es::{es_group::ESGroupHeader, es_object::{ESObject}}, records::*, traits::{ParseAllocated, record::FormIdTrait}};
+use crate::{dev::*, es::{es_group::ESGroupHeader, es_object::ESObject}, records::*, traits::{ParseAllocated, ParseAllocated2, record::FormIdTrait}};
 //use bitflags::bitflags;
 
 #[derive(Debug)]
@@ -376,202 +376,47 @@ pub fn alloc_record(i: &[u8]) -> IResult<&[u8], (ESRecordHeader, &[u8]), nom::er
 
 // ====================================================================================================
 
-// #[derive(Debug)]
-// pub struct ESRecord<T> {
-//     pub header: ESRecordHeader,
-//     pub data: Vec<T>
-// }
-
-// ====================================================================================================
-
-// impl<'a, T: Parse<&'a[u8]>> ParseAllocated<ESRecordHeader, &'a[u8]> for ESRecord<T> {
-//     fn parse_allocated(header: ESRecordHeader, raw: &'a[u8]) -> Result<Self, error::Error<&'a[u8]>> {
-//         if let Ok((_, data)) = many0(T::parse)(raw) {
-//             Ok(ESRecord { header, data })
-//         } else {
-//             Err(error::Error::new(raw, error::ErrorKind::Fail))
-//         }
-//     }
-// }
-
-// ====================================================================================================
-
-// impl<'es, T> Parse<&'es[u8]> for ESRecord<T> where T: ParseAllocated<ESRecordHeader, &'es[u8]> {
-//     fn parse(i: &'es[u8]) -> IResult<&'es[u8], Self, error::Error<&'es[u8]>> {
-//         let (i, (header, raw)) = alloc_record(i)?;
-//         if let Ok(data) = T::parse_allocated(header, raw) {
-//             Ok((i, ESRecord { header, data }))
-//         } else {
-
-//         }
-//     }
-// }
-
-// ====================================================================================================
-
-// impl<T> FormIdTrait for ESRecord<T> {
-//     fn get_form_id(&self) -> &FormId {
-//         &self.header.form_id
-//     }
-// }
-
-// ====================================================================================================
-
-pub trait ESRecordTraits {
-    fn get_header(&self) -> &ESRecordHeader;
+#[derive(Debug)]
+pub struct ESRecord<T> {
+    pub header: ESRecordHeader,
+    pub data: Vec<T>
 }
 
 // ====================================================================================================
 
-impl ESRecordTraits for ESRecordTyped {
-    fn get_header(&self) -> &ESRecordHeader {
-        match self {
-            // ESRecordTyped::Unhandled(r) => r,
-            // ESRecordTyped::AACT(r) => &r.header,
-            // ESRecordTyped::ACHR(r) => &r.header,
-            // ESRecordTyped::ACTI(r) => &r.header,
-            // ESRecordTyped::ADDN(r) => &r.header,
-            // ESRecordTyped::AECH(r) => &r.header,
-            // ESRecordTyped::ALCH(r) => &r.header,
-            // ESRecordTyped::AMDL(r) => &r.header,
-            // ESRecordTyped::AMMO(r) => &r.header,
-            // ESRecordTyped::ANIO(r) => &r.header,
-            // ESRecordTyped::AORU(r) => &r.header,
-            // ESRecordTyped::ARMA(r) => &r.header,
-            // ESRecordTyped::ARMO(r) => &r.header,
-            // ESRecordTyped::ARTO(r) => &r.header,
-            // ESRecordTyped::ASPC(r) => &r.header,
-            // ESRecordTyped::ASTP(r) => &r.header,
-            // ESRecordTyped::AVIF(r) => &r.header,
-            // ESRecordTyped::BNDS(r) => &r.header,
-            // ESRecordTyped::BOOK(r) => &r.header,
-            // ESRecordTyped::BPTD(r) => &r.header,
-            // ESRecordTyped::CAMS(r) => &r.header,
-            // ESRecordTyped::CELL(r) => &r.record.header,
-            // ESRecordTyped::CLAS(r) => &r.header,
-            // ESRecordTyped::CLFM(r) => &r.header,
-            // ESRecordTyped::CLMT(r) => &r.header,
-            // ESRecordTyped::CMPO(r) => &r.header,
-            // ESRecordTyped::COBJ(r) => &r.header,
-            // ESRecordTyped::COLL(r) => &r.header,
-            // ESRecordTyped::CONT(r) => &r.header,
-            // ESRecordTyped::CPTH(r) => &r.header,
-            // ESRecordTyped::CSTY(r) => &r.header,
-            // ESRecordTyped::DEBR(r) => &r.header,
-            // ESRecordTyped::DFOB(r) => &r.header,
-            // ESRecordTyped::DIAL(r) => &r.record.header,
-            // ESRecordTyped::DLBR(r) => &r.header,
-            // ESRecordTyped::DLVW(r) => &r.header,
-            // ESRecordTyped::DMGT(r) => &r.header,
-            // ESRecordTyped::DOBJ(r) => &r.header,
-            // ESRecordTyped::DOOR(r) => &r.header,
-            // ESRecordTyped::ECZN(r) => &r.header,
-            // ESRecordTyped::EFSH(r) => &r.header,
-            // ESRecordTyped::ENCH(r) => &r.header,
-            // ESRecordTyped::EQUP(r) => &r.header,
-            // ESRecordTyped::EXPL(r) => &r.header,
-            // ESRecordTyped::FACT(r) => &r.header,
-            // ESRecordTyped::FLOR(r) => &r.header,
-            // ESRecordTyped::FLST(r) => &r.header,
-            // ESRecordTyped::FSTP(r) => &r.header,
-            // ESRecordTyped::FSTS(r) => &r.header,
-            // ESRecordTyped::FURN(r) => &r.header,
-            // ESRecordTyped::GDRY(r) => &r.header,
-            // ESRecordTyped::GLOB(r) => &r.header,
-            // ESRecordTyped::GMST(r) => &r.header,
-            // ESRecordTyped::GRAS(r) => &r.header,
-            // ESRecordTyped::HAZD(r) => &r.header,
-            // ESRecordTyped::HDPT(r) => &r.header,
-            // ESRecordTyped::IDLE(r) => &r.header,
-            // ESRecordTyped::IDLM(r) => &r.header,
-            // ESRecordTyped::IMAD(r) => &r.header,
-            // ESRecordTyped::IMGS(r) => &r.header,
-            // ESRecordTyped::INGR(r) => &r.header,
-            // ESRecordTyped::INNR(r) => &r.header,
-            // ESRecordTyped::IPCT(r) => &r.header,
-            // ESRecordTyped::IPDS(r) => &r.header,
-            // ESRecordTyped::KEYM(r) => &r.header,
-            // ESRecordTyped::KSSM(r) => &r.header,
-            // ESRecordTyped::KYWD(r) => &r.header,
-            // ESRecordTyped::LAND(r) => &r.header,
-            // ESRecordTyped::LAYR(r) => &r.header,
-            // ESRecordTyped::LCRT(r) => &r.header,
-            // ESRecordTyped::LCTN(r) => &r.header,
-            // ESRecordTyped::LENS(r) => &r.header,
-            // ESRecordTyped::LGTM(r) => &r.header,
-            // ESRecordTyped::LIGH(r) => &r.header,
-            // ESRecordTyped::LSCR(r) => &r.header,
-            // ESRecordTyped::LTEX(r) => &r.header,
-            // ESRecordTyped::LVLI(r) => &r.header,
-            // ESRecordTyped::LVLN(r) => &r.header,
-            // ESRecordTyped::MATO(r) => &r.header,
-            // ESRecordTyped::MATT(r) => &r.header,
-            // ESRecordTyped::MESG(r) => &r.header,
-            // ESRecordTyped::MGEF(r) => &r.header,
-            // ESRecordTyped::MISC(r) => &r.header,
-            // ESRecordTyped::MOVT(r) => &r.header,
-            // ESRecordTyped::MSTT(r) => &r.header,
-            // ESRecordTyped::MSWP(r) => &r.header,
-            // ESRecordTyped::MUSC(r) => &r.header,
-            // ESRecordTyped::MUST(r) => &r.header,
-            // ESRecordTyped::NAVI(r) => &r.header,
-            // ESRecordTyped::NAVM(r) => &r.header,
-            // ESRecordTyped::NOCM(r) => &r.header,
-            // ESRecordTyped::NOTE(r) => &r.header,
-            // ESRecordTyped::NPC_(r) => &r.header,
-            // ESRecordTyped::OMOD(r) => &r.header,
-            // ESRecordTyped::OTFT(r) => &r.header,
-            // ESRecordTyped::OVIS(r) => &r.header,
-            // ESRecordTyped::PACK(r) => &r.header,
-            // ESRecordTyped::PERK(r) => &r.header,
-            // ESRecordTyped::PKIN(r) => &r.header,
-            // ESRecordTyped::PGRE(r) => &r.header,
-            // ESRecordTyped::PHZD(r) => &r.header,
-            // ESRecordTyped::PMIS(r) => &r.header,
-            // ESRecordTyped::PROJ(r) => &r.header,
-            // ESRecordTyped::QUST(r) => &r.record.header,
-            // ESRecordTyped::RACE(r) => &r.header,
-            // ESRecordTyped::REFR(r) => &r.header,
-            // ESRecordTyped::REGN(r) => &r.header,
-            // ESRecordTyped::RELA(r) => &r.header,
-            // ESRecordTyped::REVB(r) => &r.header,
-            // ESRecordTyped::RFCT(r) => &r.header,
-            // ESRecordTyped::RFGP(r) => &r.header,
-            // ESRecordTyped::SCCO(r) => &r.header,
-            // ESRecordTyped::SCOL(r) => &r.header,
-            // ESRecordTyped::SCSN(r) => &r.header,
-            // ESRecordTyped::SMBN(r) => &r.header,
-            // ESRecordTyped::SMEN(r) => &r.header,
-            // ESRecordTyped::SMQN(r) => &r.header,
-            // ESRecordTyped::SNCT(r) => &r.header,
-            // ESRecordTyped::SNDR(r) => &r.header,
-            // ESRecordTyped::SOPM(r) => &r.header,
-            // ESRecordTyped::SOUN(r) => &r.header,
-            // ESRecordTyped::SPEL(r) => &r.header,
-            // ESRecordTyped::SPGD(r) => &r.header,
-            // ESRecordTyped::STAG(r) => &r.header,
-            // ESRecordTyped::STAT(r) => &r.header,
-            // ESRecordTyped::TACT(r) => &r.header,
-            // ESRecordTyped::TERM(r) => &r.header,
-            // ESRecordTyped::TES4(r) => &r.header,
-            // ESRecordTyped::TREE(r) => &r.header,
-            // ESRecordTyped::TRNS(r) => &r.header,
-            // ESRecordTyped::TXST(r) => &r.header,
-            // ESRecordTyped::VTYP(r) => &r.header,
-            // ESRecordTyped::WATR(r) => &r.header,
-            // ESRecordTyped::WEAP(r) => &r.header,
-            // ESRecordTyped::WRLD(r) => &r.record.header,
-            // ESRecordTyped::WTHR(r) => &r.header,
-            // ESRecordTyped::ZOOM(r) => &r.header,
-            _ => todo!()
+impl<'a, T: Parse<&'a[u8]>> ParseAllocated<ESRecordHeader, &'a[u8]> for ESRecord<T> {
+    fn parse_allocated(header: ESRecordHeader, raw: &'a[u8]) -> Result<Self, error::Error<&'a[u8]>> {
+        if let Ok((_, data)) = many0(T::parse)(raw) {
+            Ok(ESRecord { header, data })
+        } else {
+            Err(error::Error::new(raw, error::ErrorKind::Fail))
         }
+    }
+}
+
+impl<'a, T: Parse<&'a[u8]>> ParseAllocated2<ESRecordHeader, &'a[u8]> for ESRecord<T> {
+    fn parse_allocated2(header: ESRecordHeader, raw: &'a[u8]) -> IResult<&'a[u8], Self> {
+        let (_, data) = many0(T::parse)(raw)?;
+        Ok((&[], ESRecord { header, data }))
     }
 }
 
 // ====================================================================================================
 
+
+impl<'a, T> Parse<&'a[u8]> for ESRecord<T> where T: Parse<&'a[u8]> {
+    fn parse(i: &'a[u8]) -> IResult<&'a[u8], Self, error::Error<&'a[u8]>> {
+        let (i, (header, raw)) = alloc_record(i)?;
+        let (_, result) = ESRecord::parse_allocated2(header, raw)?;
+        Ok((i, result))
+    }
+}
+
+
+// ====================================================================================================
+
 /// Common functions for all records
-pub trait ESRecord {
+pub trait ESRecordTrait {
     fn record_iden(&self) -> &FourCC;
     fn record_form_id(&self) -> &FormId;
     fn record_size(&self) -> &u32;
@@ -581,7 +426,7 @@ pub trait ESRecord {
 // ====================================================================================================
 
 /// Implement [ESObject] for anything that implements [ESRecord]
-impl ESObject for dyn ESRecord {
+impl ESObject for dyn ESRecordTrait {
     fn object_count(&self) -> &usize { &1usize }
     fn object_size(&self) -> &u32 { self.record_size() }
     fn try_get_form_id(&self) -> Option<&FormId> { Some(self.record_form_id()) }

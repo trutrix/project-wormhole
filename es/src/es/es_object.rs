@@ -1,4 +1,4 @@
-use crate::{dev::*, es::{self, es_group::{ESGroupHeader, ESGroupTraits, ESGroupTyped}, es_record::{ESRecordFlags, ESRecordHeader, ESRecordTraits, ESRecordTyped, ESVersionControl}}, traits::ParseAllocated};
+use crate::{dev::*, es::{self, es_group::{ESGroupHeader, ESGroupTrait, ESGroupTyped}, es_record::{ESRecordFlags, ESRecordHeader, ESRecordTyped, ESVersionControl}}, traits::ParseAllocated};
 
 // ====================================================================================================
 

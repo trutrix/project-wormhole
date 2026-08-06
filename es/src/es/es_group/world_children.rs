@@ -1,4 +1,4 @@
-use crate::{dev::*, es::es_group::{ESGroup, ESGroupHeader, alloc_group}, traits::ParseAllocated};
+use crate::{dev::*, es::es_group::{ESGroupTrait, ESGroupHeader, alloc_group}, traits::ParseAllocated};
 
 // ====================================================================================================
 
@@ -9,7 +9,7 @@ pub struct ESWorldChildren {
 
 // ====================================================================================================
 
-impl ESGroup for ESWorldChildren {
+impl ESGroupTrait for ESWorldChildren {
     fn group_label(&self) -> super::ESGroupLabel {
         self.header.get_label()
     }

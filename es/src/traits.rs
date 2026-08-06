@@ -27,3 +27,8 @@ pub trait ValidateData {
 pub trait ParseAllocated<H, R> where Self: Sized {
     fn parse_allocated(header: H, raw: R) -> Result<Self, nom::error::Error<R>>;
 }
+
+// This simplifies functions but makes a bunch of empty buffers
+pub trait ParseAllocated2<H, R> where Self: Sized {
+    fn parse_allocated2(header: H, raw: R) -> IResult<R, Self>;
+}

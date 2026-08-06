@@ -191,33 +191,6 @@ pub fn alloc_group(i: &[u8]) -> IResult<&[u8], (ESGroupHeader, &[u8])> {
 
 // ====================================================================================================
 
-pub trait ESGroupTraits {
-    fn get_header(&self) -> &ESGroupHeader;
-}
-
-// ====================================================================================================
-
-impl ESGroupTraits for ESGroupTyped {
-    fn get_header(&self) -> &ESGroupHeader {
-        match self {
-            ESGroupTyped::Top(top) => { top.get_header() },
-            ESGroupTyped::WorldChildren(g) => &g.header,
-            ESGroupTyped::InteriorCellBlock(g) => &g.header,
-            ESGroupTyped::InteriorCellSubBlock(g) => &g.header,
-            ESGroupTyped::ExteriorCellBlock(g) => &g.header,
-            ESGroupTyped::ExteriorCellSubBlock(g) => &g.header,
-            ESGroupTyped::CellChildren(g) => &g.header,
-            ESGroupTyped::TopicChildren(g) => &g.header,
-            ESGroupTyped::CellPersistentChildren(g) => &g.header,
-            ESGroupTyped::CellTemporaryChildren(g) => &g.header,
-            ESGroupTyped::CellVisibleDistantChildren(g) => &g.header,
-            ESGroupTyped::Unknown(g) => g,
-        }
-    }
-}
-
-// ====================================================================================================
-
 impl ParseAllocated<ESGroupHeader, &[u8]> for ESGroupTyped {
     fn parse_allocated(header: ESGroupHeader, raw: &[u8]) -> Result<Self, nom::error::Error<&[u8]>> {
         match header.get_label() {
@@ -239,17 +212,37 @@ impl ParseAllocated<ESGroupHeader, &[u8]> for ESGroupTyped {
 
 // ====================================================================================================
 
-pub trait ESGroup {
+pub trait ESGroupTrait {
     fn group_label(&self) -> ESGroupLabel;
     fn group_size(&self) -> &u32;
 }
 
 // ====================================================================================================
 
-/// Implement [ESObject] for anything that implements [ESGroupT]
-impl ESObject for dyn ESGroup {
+/// Implement [ESObject] for anything that implements [ESGroupTrait]
+impl ESObject for dyn ESGroupTrait {
     fn object_count(&self) -> &usize { todo!("More logic needs to be fleshed out") }
     fn object_size(&self) -> &u32 { self.group_size() }
     fn try_get_form_id(&self) -> Option<&FormId> { None }
     fn is_group(&self) -> bool { true }
+}
+
+// ====================================================================================================
+
+#[derive(Debug)]
+pub struct ESGroup<T> {
+    pub header: ESGroupHeader,
+    pub items: Vec<T>
+}
+
+// ====================================================================================================
+
+impl<T> ESGroupTrait for ESGroup<T> {
+    fn group_label(&self) -> ESGroupLabel {
+        self.header.get_label()
+    }
+
+    fn group_size(&self) -> &u32 {
+        &self.header.size
+    }
 }

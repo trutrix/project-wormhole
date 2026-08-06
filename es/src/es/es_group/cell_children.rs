@@ -1,4 +1,4 @@
-use crate::{dev::*, es::{es_group::{ESGroup, ESGroupHeader}, es_object::ESObject}, traits::ParseAllocated};
+use crate::{dev::*, es::{es_group::{ESGroupTrait, ESGroupHeader}, es_object::ESObject}, traits::ParseAllocated};
 
 // ====================================================================================================
 
@@ -17,7 +17,7 @@ impl ParseAllocated<ESGroupHeader, &[u8]> for ESCellChildren {
 
 // ====================================================================================================
 
-impl ESGroup for ESCellChildren {
+impl ESGroupTrait for ESCellChildren {
     fn group_label(&self) -> super::ESGroupLabel {
         self.header.get_label()
     }

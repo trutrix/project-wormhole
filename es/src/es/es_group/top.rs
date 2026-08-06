@@ -1,6 +1,6 @@
 use nom_derive::nom;
 
-use crate::{es::{es_group::{ESGroup, ESGroupHeader, ESGroupLabel, ESGroupTraits}, es_object::ESObject, es_record::ESRecordHeader}, records::AACT, traits::ParseAllocated};
+use crate::{es::{es_group::{ESGroupTrait, ESGroupHeader, ESGroupLabel}, es_object::ESObject, es_record::ESRecordHeader}, records::AACT, traits::ParseAllocated};
 
 // ====================================================================================================
 
@@ -172,16 +172,6 @@ impl ESObject for ESTopTyped {
 
 // ====================================================================================================
 
-impl ESGroupTraits for ESTopTyped {
-    fn get_header(&self) -> &ESGroupHeader {
-        match self {
-            ESTopTyped::Unhandled(g) => g,
-        }
-    }
-}
-
-// ====================================================================================================
-
 pub struct ESTop<T> {
     pub header: ESGroupHeader,
     pub data: Vec<T>
@@ -202,7 +192,7 @@ impl<'es, T> ParseAllocated<ESGroupHeader, &'es[u8]> for ESTop<T> where T: nom_d
 
 // ====================================================================================================
 
-impl<T> ESGroup for ESTop<T> {
+impl<T> ESGroupTrait for ESTop<T> {
     fn group_label(&self) -> ESGroupLabel { self.header.get_label() }
     fn group_size(&self) -> &u32 { &self.header.size }
 }
