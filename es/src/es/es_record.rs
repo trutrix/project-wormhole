@@ -363,6 +363,7 @@ pub fn alloc_record(i: &[u8]) -> IResult<&[u8], (ESRecordHeader, &[u8]), nom::er
     // Take size, not including header size
     let (i, raw) = take(header.size)(i)?;
 
+    #[cfg(debug_assertions)]
     // Check if header is actually a group, which is an unrecoverable error
     if &header.iden.0 == b"GRUP" {
         let (_, gheader) = ESGroupHeader::parse(orig)?;
@@ -372,6 +373,9 @@ pub fn alloc_record(i: &[u8]) -> IResult<&[u8], (ESRecordHeader, &[u8]), nom::er
     else {
         Ok((i, (header, raw)))
     }
+
+    #[cfg(not(debug_assertions))]
+    Ok((i, (header, raw)))
 }
 
 // ====================================================================================================
