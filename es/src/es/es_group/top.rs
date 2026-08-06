@@ -1,6 +1,6 @@
-use nom_derive::nom;
+use nom_derive::nom::{self, IResult};
 
-use crate::{es::{es_group::{ESGroupTrait, ESGroupHeader, ESGroupLabel}, es_object::ESObject, es_record::ESRecordHeader}, records::AACT, traits::ParseAllocated};
+use crate::{es::{es_group::{ESGroupHeader, ESGroupLabel, ESGroupTrait}, es_object::ESObject, es_record::ESRecordHeader}, records::AACT, traits::{ParseAllocated, ParseAllocated2}};
 
 // ====================================================================================================
 
@@ -137,12 +137,12 @@ pub enum ESTopTyped {
 
 // ====================================================================================================
 
-impl ParseAllocated<ESGroupHeader, &[u8]> for ESTopTyped {
-    fn parse_allocated(header: ESGroupHeader, raw: &[u8]) -> Result<Self, nom_derive::nom::error::Error<&[u8]>> {
+impl ParseAllocated2<ESGroupHeader, &[u8]> for ESTopTyped {
+    fn parse_allocated2(header: ESGroupHeader, raw: &[u8]) -> IResult<&[u8], Self> {
         match &header.label_value {
             
             _ => {
-                Ok(ESTopTyped::Unhandled(header))
+                Ok((&[], ESTopTyped::Unhandled(header)))
             }
         }
     }

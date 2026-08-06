@@ -1,4 +1,4 @@
-use crate::{dev::*, es::{es_group::top::ESTopTyped, es_object::ESObject, es_record::{ESRecordHeader, ESVersionControl}}, groups::prelude::*, traits::ParseAllocated};
+use crate::{dev::*, es::{es_group::top::ESTopTyped, es_object::ESObject, es_record::{ESRecordHeader, ESVersionControl}}, groups::prelude::*, traits::{ParseAllocated, ParseAllocated2}};
 
 // ====================================================================================================
 
@@ -40,7 +40,7 @@ impl nom_derive::Parse<&[u8]> for ESGroupTyped {
         let (i, raw) = take(header.size as usize - 24)(i)?;
         match header.get_label() {
             ESGroupLabel::Top(_) => { 
-                if let Ok(g) = ESTopTyped::parse_allocated(header, raw) {
+                if let Ok((_, g)) = ESTopTyped::parse_allocated2(header, raw) {
                     Ok((i, ESGroupTyped::Top(g)))
                 } else {
                     Err(nom::Err::Error(nom::error::Error::new(raw, nom::error::ErrorKind::Fail)))
