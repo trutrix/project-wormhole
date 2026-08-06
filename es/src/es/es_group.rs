@@ -61,6 +61,12 @@ impl nom_derive::Parse<&[u8]> for ESGroupTyped {
     }
 }
 
+impl ParseAllocated2<ESGroupHeader, &[u8]> for ESGroupTyped {
+    fn parse_allocated2(header: ESGroupHeader, raw: &[u8]) -> IResult<&[u8], Self> {
+        todo!()
+    }
+}
+
 // ====================================================================================================
 
 #[cfg(feature = "speedy")]
@@ -184,30 +190,24 @@ impl ESObject for ESGroupTyped {
 
 
 pub fn alloc_group(i: &[u8]) -> IResult<&[u8], (ESGroupHeader, &[u8])> {
+    // Parse the header
     let (i, header) = ESGroupHeader::parse(i)?;
-    let (i, raw) = take(header.size as usize)(i)?;
-    Ok((i, (header, raw)))
-}
 
-// ====================================================================================================
-
-impl ParseAllocated<ESGroupHeader, &[u8]> for ESGroupTyped {
-    fn parse_allocated(header: ESGroupHeader, raw: &[u8]) -> Result<Self, nom::error::Error<&[u8]>> {
-        match header.get_label() {
-            ESGroupLabel::Top(four_cc) => todo!(),
-            ESGroupLabel::WorldChildren(form_id) => todo!(),
-            ESGroupLabel::InteriorCellBlock(_) => todo!(),
-            ESGroupLabel::InteriorCellSubBlock(_) => todo!(),
-            ESGroupLabel::ExteriorCellBlock(cell_location) => todo!(),
-            ESGroupLabel::ExteriorCellSubBlock(cell_location) => todo!(),
-            ESGroupLabel::CellChildren(form_id) => todo!(),
-            ESGroupLabel::TopicChildren(form_id) => todo!(),
-            ESGroupLabel::CellPersistentChildren(form_id) => todo!(),
-            ESGroupLabel::CellTemporaryChildren(form_id) => todo!(),
-            ESGroupLabel::CellVisibleDistantChildren(form_id) => todo!(),
-            ESGroupLabel::Unknown(_) => todo!(),
-        }
+    // Debug only: crash if header is does not start with b"GRUP"
+    #[cfg(debug_assertions)]
+    if &header.iden.0 != b"GRUP" {
+        panic!("Fatal Error: Tried to parse non-group ({:?}) as a group.", header.iden);
     }
+
+    // Check if the group is empty before doing the subtraction
+    // We are subtracting because the group headers include themselves in the size field
+    let take_size = if header.size == 0 { 0 } else { header.size - 24 };
+
+    // Take the bytes
+    let (i, raw) = take(take_size as usize)(i)?;
+
+    // Return it
+    Ok((i, (header, raw)))
 }
 
 // ====================================================================================================

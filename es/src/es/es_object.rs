@@ -1,4 +1,4 @@
-use crate::{dev::*, es::{self, es_group::{ESGroupHeader, ESGroupTrait, ESGroupTyped}, es_record::{ESRecordFlags, ESRecordHeader, ESRecordTyped, ESVersionControl}}, traits::ParseAllocated};
+use crate::{dev::*, es::{self, es_group::{ESGroupHeader, ESGroupTrait, ESGroupTyped}, es_record::{ESRecordFlags, ESRecordHeader, ESRecordTyped, ESVersionControl}}, traits::{ParseAllocated, ParseAllocated2}};
 
 // ====================================================================================================
 
@@ -12,6 +12,7 @@ pub trait ESObject {
 
 // ====================================================================================================
 
+/// Custom parsing function if you do not know what the next object will be
 pub fn parse_es_object(i: &[u8]) -> IResult<&[u8], Box<dyn ESObject>> {
     // Get iden and size
     let (i, iden) = FourCC::parse(i)?;
@@ -35,9 +36,9 @@ pub fn parse_es_object(i: &[u8]) -> IResult<&[u8], Box<dyn ESObject>> {
         let (i, raw) = take(size as usize)(i)?;
 
         // Parse and handle results
-        match ESGroupTyped::parse_allocated(header, raw) {
-            Ok(data) => Ok((i, Box::new(data))),
-            Err(e) => Err(nom::Err::Error(e)),
+        match ESGroupTyped::parse_allocated2(header, raw) {
+            Ok((_, data)) => Ok((i, Box::new(data))),
+            Err(e) => Err(e),
         }
     } else {
 
