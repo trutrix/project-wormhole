@@ -246,3 +246,21 @@ impl<T> ESGroupTrait for ESGroup<T> {
         &self.header.size
     }
 }
+
+// ====================================================================================================
+
+impl<'a, T: Parse<&'a[u8]>> ParseAllocated2<ESGroupHeader, &'a[u8]> for ESGroup<T> {
+    fn parse_allocated2(header: ESGroupHeader, raw: &'a[u8]) -> IResult<&'a[u8], Self> {
+        let (_, items) = many0(T::parse)(raw)?;
+        Ok((&[], ESGroup { header, items }))
+    }
+}
+
+// ====================================================================================================
+
+impl<'a, T: Parse<&'a[u8]>> Parse<&'a[u8]> for ESGroup<T> {
+    fn parse(i: &'a[u8]) -> IResult<&'a[u8], Self> {
+        let (i, (header, raw)) = alloc_group(i)?;
+        Ok((i, ESGroup::parse_allocated2(header, raw)?.1))
+    }
+}
