@@ -1,5 +1,5 @@
-# Project Wormhole - ESM
-Library for parsing ESM / ESP files for Bethesda games  
+# Project Wormhole - ES
+Library for parsing ES (ESM, ESP, ESL) files for Bethesda games  
 Very bare-bones, not fully implemented
 
 ## Titles Currently Supported
