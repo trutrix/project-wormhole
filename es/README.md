@@ -12,9 +12,19 @@ Very bare-bones, not fully implemented
 - The Elder Scrolls V: Skyrim
 - The Elder Scrolls IV: Oblivion
 
+## Specification Overview
 
-# Examples
-```
-TODO
-```
+### Objects
 
+#### Group
+- A list of objects
+- The header will hint at what the contents should be
+- Can be the child of a record
+- Most top level groups are record lists
+
+#### Record
+- A list of fields
+- The header will change how the fields are read
+
+#### Field
+- Contains the actual data
