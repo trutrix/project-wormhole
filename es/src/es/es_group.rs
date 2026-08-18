@@ -1,4 +1,4 @@
-use crate::{dev::*, es::{es_group::top::ESTopTyped, es_object::ESObject, es_record::{ESRecordHeader, ESVersionControl}}, groups::prelude::*, traits::{ParseAllocated, ParseAllocated2}};
+use crate::{dev::*, es::{es_group::top::ESTopTyped, es_object::{ESObject, parse_es_object}, es_record::{ESRecordHeader, ESRecordTyped, ESVersionControl}}, groups::prelude::*, traits::{ParseAllocated, ParseAllocated2}};
 
 // ====================================================================================================
 
@@ -25,10 +25,10 @@ pub enum ESGroupTyped {
     ExteriorCellBlock(exterior_cell_block::ESExteriorCellBlock),
     ExteriorCellSubBlock(exterior_cell_sub_block::ESExteriorCellSubBlock),
     CellChildren(cell_children::ESCellChildren),
-    TopicChildren(topic_children::ESTopicChildren),
-    CellPersistentChildren(cell_persistent_children::ESCellPersistentChildren),
-    CellTemporaryChildren(cell_temporary_children::ESCellTemporaryChildren),
-    CellVisibleDistantChildren(cell_visible_distant_children::ESCellVisibleDistantChildren),
+    TopicChildren(ESGroup),
+    CellPersistentChildren(ESGroup),
+    CellTemporaryChildren(ESGroup),
+    CellVisibleDistantChildren(ESGroup),
     Unknown(ESGroupHeader)
 }
 
@@ -177,10 +177,6 @@ impl ESObject for ESGroupTyped {
         }
     }
 
-    fn try_get_form_id(&self) -> Option<&FormId> {
-        None
-    }
-
     fn is_group(&self) -> bool {
         true
     }
@@ -223,21 +219,20 @@ pub trait ESGroupTrait {
 impl ESObject for dyn ESGroupTrait {
     fn object_count(&self) -> &usize { todo!("More logic needs to be fleshed out") }
     fn object_size(&self) -> &u32 { self.group_size() }
-    fn try_get_form_id(&self) -> Option<&FormId> { None }
     fn is_group(&self) -> bool { true }
 }
 
 // ====================================================================================================
 
 #[derive(Debug)]
-pub struct ESGroup<T> {
+pub struct ESGroup {
     pub header: ESGroupHeader,
-    pub items: Vec<T>
+    pub items: Vec<Box<dyn ESObject>>
 }
 
 // ====================================================================================================
 
-impl<T> ESGroupTrait for ESGroup<T> {
+impl ESGroupTrait for ESGroup {
     fn group_label(&self) -> ESGroupLabel {
         self.header.get_label()
     }
@@ -247,20 +242,11 @@ impl<T> ESGroupTrait for ESGroup<T> {
     }
 }
 
-// ====================================================================================================
 
-impl<'a, T: Parse<&'a[u8]>> ParseAllocated2<ESGroupHeader, &'a[u8]> for ESGroup<T> {
-    fn parse_allocated2(header: ESGroupHeader, raw: &'a[u8]) -> IResult<&'a[u8], Self> {
-        let (_, items) = many0(T::parse)(raw)?;
-        Ok((&[], ESGroup { header, items }))
-    }
-}
-
-// ====================================================================================================
-
-impl<'a, T: Parse<&'a[u8]>> Parse<&'a[u8]> for ESGroup<T> {
-    fn parse(i: &'a[u8]) -> IResult<&'a[u8], Self> {
+impl ESGroup {
+    pub fn parse_objects(i: &[u8]) -> IResult<&[u8], Self> {
         let (i, (header, raw)) = alloc_group(i)?;
-        Ok((i, ESGroup::parse_allocated2(header, raw)?.1))
+        let (_, items) = many0(parse_es_object)(raw)?;
+        Ok((i, ESGroup { header, items }))
     }
 }

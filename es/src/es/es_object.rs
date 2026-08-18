@@ -6,8 +6,11 @@ pub trait ESObject {
     fn object_count(&self) -> &usize;
     fn object_size(&self) -> &u32;
     fn is_group(&self) -> bool;
-    fn try_get_form_id(&self) -> Option<&FormId>;
     fn parse_as_object(i: &[u8]) -> IResult<&[u8], Box<dyn ESObject>> where Self: Sized { parse_es_object(i) }
+
+    // TODO: Removed the unimplemented defaults, they are just here for my sanity
+    fn as_record(&self) -> Result<ESRecordTyped, ESError> { Err(ESError::NotImplemented) }
+    fn as_group(&self) -> Result<ESGroupTyped, ESError> { Err(ESError::NotImplemented) }
 }
 
 // ====================================================================================================
@@ -72,4 +75,14 @@ impl std::fmt::Debug for dyn ESObject {
         }
         
     }
+}
+
+
+// ====================================================================================================
+
+#[derive(Debug)]
+pub enum ESError {
+    NotImplemented,
+    NotRecord,
+    NotGroup
 }

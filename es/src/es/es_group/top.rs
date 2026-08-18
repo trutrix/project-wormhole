@@ -161,38 +161,7 @@ impl ESObject for ESTopTyped {
         &1usize
     }
 
-    fn try_get_form_id(&self) -> Option<&crate::dev::FormId> {
-        None
-    }
-
     fn is_group(&self) -> bool {
         true
     }
-}
-
-// ====================================================================================================
-
-pub struct ESTop<T> {
-    pub header: ESGroupHeader,
-    pub data: Vec<T>
-}
-
-// ====================================================================================================
-
-impl<'es, T> ParseAllocated<ESGroupHeader, &'es[u8]> for ESTop<T> where T: nom_derive::Parse<&'es[u8]> {
-    fn parse_allocated(header: ESGroupHeader, raw: &'es[u8]) -> Result<Self, nom_derive::nom::error::Error<&'es[u8]>> {
-        if let Ok((_, data)) = nom::multi::many0(T::parse)(raw) {
-            Ok(Self { header, data })
-        } else {
-            Err(nom::error::Error::new(raw, nom::error::ErrorKind::Fail))
-        }
-        
-    }
-}
-
-// ====================================================================================================
-
-impl<T> ESGroupTrait for ESTop<T> {
-    fn group_label(&self) -> ESGroupLabel { self.header.get_label() }
-    fn group_size(&self) -> &u32 { &self.header.size }
 }

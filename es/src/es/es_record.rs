@@ -187,10 +187,6 @@ impl ESObject for ESRecordTyped {
         }
     }
 
-    fn try_get_form_id(&self) -> Option<&FormId> {
-        unimplemented!("Need to flesh out records more")
-    }
-
     fn is_group(&self) -> bool {
         false
     }
@@ -433,8 +429,40 @@ pub trait ESRecordTrait {
 impl ESObject for dyn ESRecordTrait {
     fn object_count(&self) -> &usize { &1usize }
     fn object_size(&self) -> &u32 { self.record_size() }
-    fn try_get_form_id(&self) -> Option<&FormId> { Some(self.record_form_id()) }
     fn is_group(&self) -> bool {
         false
     }
+}
+
+impl<T> ESRecordTrait for ESRecord<T> {
+    fn record_iden(&self) -> &FourCC {
+        &self.header.iden
+    }
+
+    fn record_form_id(&self) -> &FormId {
+        &self.header.form_id
+    }
+
+    fn record_size(&self) -> &u32 {
+        &self.header.size
+    }
+}
+
+impl<'a, T> ESRecord<T> where T: Parse<&'a[u8]> + 'static {
+    pub fn parse_as_object(i: &'a[u8]) -> IResult<&'a[u8], Box<dyn ESObject>> {
+        let (i, (header, raw)) = alloc_record(i)?;
+        let (_, result) = Self::parse_allocated(header, raw)?;
+        Ok((i, Box::new(result)))
+    }
+
+    pub fn parse_allocated(header: ESRecordHeader, raw: &'a[u8]) -> IResult<&'a[u8], Self> {
+        let (_, data) = many0(T::parse)(raw)?;
+        Ok((&[], ESRecord { header, data }))
+    }
+}
+
+impl<T> ESObject for ESRecord<T> {
+    fn object_count(&self) -> &usize { &1usize }
+    fn object_size(&self) -> &u32 { &self.header.size }
+    fn is_group(&self) -> bool { false }
 }
