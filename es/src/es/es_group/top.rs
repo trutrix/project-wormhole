@@ -161,7 +161,4 @@ impl ESObjectTrait for ESTopTyped {
         &1usize
     }
 
-    fn is_group(&self) -> bool {
-        true
-    }
 }
