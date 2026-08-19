@@ -70,6 +70,21 @@ pub trait ESObjectTrait {
 
 // ====================================================================================================
 
+impl ESObjectTrait for ESObject {
+    fn object_count(&self) -> &usize {
+        match self {
+            ESObject::Record(_) => &1usize,
+            ESObject::Group(esgroup_typed) => esgroup_typed.object_count()
+        }
+    }
+
+    fn object_size(&self) -> &u32 {
+        match self {
+            ESObject::Record(r) => r.object_size(),
+            ESObject::Group(g) => g.object_size(),
+        }
+    }
+}
 
 // ====================================================================================================
 
