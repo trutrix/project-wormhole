@@ -2,11 +2,11 @@ use crate::{dev::*, es::{self, es_group::{ESGroupHeader, ESGroupTrait, ESGroupTy
 
 // ====================================================================================================
 
-pub trait ESObject {
+pub trait ESObjectTrait {
     fn object_count(&self) -> &usize;
     fn object_size(&self) -> &u32;
     fn is_group(&self) -> bool;
-    fn parse_as_object(i: &[u8]) -> IResult<&[u8], Box<dyn ESObject>> where Self: Sized { parse_es_object(i) }
+    fn parse_as_object(i: &[u8]) -> IResult<&[u8], Box<dyn ESObjectTrait>> where Self: Sized { parse_es_object(i) }
 
     // TODO: Removed the unimplemented defaults, they are just here for my sanity
     fn as_record(&self) -> Result<ESRecordTyped, ESError> { Err(ESError::NotImplemented) }
@@ -16,7 +16,7 @@ pub trait ESObject {
 // ====================================================================================================
 
 /// Custom parsing function if you do not know what the next object will be
-pub fn parse_es_object(i: &[u8]) -> IResult<&[u8], Box<dyn ESObject>> {
+pub fn parse_es_object(i: &[u8]) -> IResult<&[u8], Box<dyn ESObjectTrait>> {
     // Get iden and size
     let (i, iden) = FourCC::parse(i)?;
     let (i, size) = le_u32(i)?;
@@ -66,7 +66,7 @@ pub fn parse_es_object(i: &[u8]) -> IResult<&[u8], Box<dyn ESObject>> {
 
 // ====================================================================================================
 
-impl std::fmt::Debug for dyn ESObject {
+impl std::fmt::Debug for dyn ESObjectTrait {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         if self.is_group() {
             write!(f, "ESObject -> ESGroup {{ bytes: {:?}, object_count: {:?} }}", self.object_size(), self.object_count())

@@ -6,7 +6,7 @@ use nom_derive::Parse;
 
 use std::any::Any;
 
-use crate::{dev::GroupLabel, es::{es_object::{ESObject, parse_es_object}, es_record::{ESRecord, ESRecordTyped}, full::ESFull, mapped::ESMapped, raw::ESRaw}, records::all::*, structs::{chunk::get_file_chunks, es_object::RawESObject}};
+use crate::{dev::GroupLabel, es::{es_object::{ESObjectTrait, parse_es_object}, es_record::{ESRecord, ESRecordTyped}, full::ESFull, mapped::ESMapped, raw::ESRaw}, records::all::*, structs::{chunk::get_file_chunks, es_object::RawESObject}};
 
 // ===================================================================================================
 // Test Parameters
@@ -111,7 +111,7 @@ fn test_esm_full() {
 #[test]
 fn test_speedy() {
     let data = std::fs::read(FO4_ESM_PATH).unwrap();
-    let header = ESObject::read_from_buffer(&data).unwrap();
+    let header = ESObjectTrait::read_from_buffer(&data).unwrap();
 }
 
 // ===================================================================================================
