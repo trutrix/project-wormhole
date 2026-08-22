@@ -186,6 +186,10 @@ impl ESObjectTrait for ESRecordTyped {
             }
         }
     }
+
+    fn is_group(&self) -> bool {
+        false
+    }
 }
 
 // ===================================================================================================
@@ -425,6 +429,9 @@ pub trait ESRecordTrait {
 impl ESObjectTrait for dyn ESRecordTrait {
     fn object_count(&self) -> &usize { &1usize }
     fn object_size(&self) -> &u32 { self.record_size() }
+    fn is_group(&self) -> bool {
+        false
+    }
 }
 
 impl<T> ESRecordTrait for ESRecord<T> {
@@ -457,4 +464,5 @@ impl<'a, T> ESRecord<T> where T: Parse<&'a[u8]> + 'static {
 impl<T> ESObjectTrait for ESRecord<T> {
     fn object_count(&self) -> &usize { &1usize }
     fn object_size(&self) -> &u32 { &self.header.size }
+    fn is_group(&self) -> bool { false }
 }

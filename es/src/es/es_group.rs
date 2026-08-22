@@ -1,4 +1,4 @@
-use crate::{dev::*, es::{es_group::top::ESTopTyped, es_object::{ESObject, ESObjectTrait}, es_record::{ESRecordHeader, ESRecordTyped, ESVersionControl}}, groups::prelude::*, traits::{ParseAllocated, ParseAllocated2}};
+use crate::{dev::*, es::{es_group::top::ESTopTyped, es_object::{ESObjectTrait, parse_es_object}, es_record::{ESRecordHeader, ESRecordTyped, ESVersionControl}}, groups::prelude::*, traits::{ParseAllocated, ParseAllocated2}};
 
 // ====================================================================================================
 
@@ -176,6 +176,10 @@ impl ESObjectTrait for ESGroupTyped {
             ESGroupTyped::Unknown(g) => &g.size,
         }
     }
+
+    fn is_group(&self) -> bool {
+        true
+    }
 }
 
 // ====================================================================================================
@@ -215,6 +219,7 @@ pub trait ESGroupTrait {
 impl ESObjectTrait for dyn ESGroupTrait {
     fn object_count(&self) -> &usize { todo!("More logic needs to be fleshed out") }
     fn object_size(&self) -> &u32 { self.group_size() }
+    fn is_group(&self) -> bool { true }
 }
 
 // ====================================================================================================
@@ -222,7 +227,7 @@ impl ESObjectTrait for dyn ESGroupTrait {
 #[derive(Debug)]
 pub struct ESGroup {
     pub header: ESGroupHeader,
-    pub items: Vec<ESObject>
+    pub items: Vec<Box<dyn ESObjectTrait>>
 }
 
 // ====================================================================================================
@@ -234,5 +239,14 @@ impl ESGroupTrait for ESGroup {
 
     fn group_size(&self) -> &u32 {
         &self.header.size
+    }
+}
+
+
+impl ESGroup {
+    pub fn parse_objects(i: &[u8]) -> IResult<&[u8], Self> {
+        let (i, (header, raw)) = alloc_group(i)?;
+        let (_, items) = many0(parse_es_object)(raw)?;
+        Ok((i, ESGroup { header, items }))
     }
 }
