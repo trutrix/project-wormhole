@@ -2,7 +2,7 @@ use std::ops::BitAnd;
 
 use nom_derive::nom::error;
 
-use crate::{dev::*, es::{es_group::ESGroupHeader, es_object::ESObjectTrait}, records::*, traits::{ParseAllocated, ParseAllocated2, record::FormIdTrait}};
+use crate::{dev::*, es::{es_group::ESGroupHeader, es_object::ESObject}, records::*, traits::{ParseAllocated, ParseAllocated2, record::FormIdTrait}};
 //use bitflags::bitflags;
 
 #[derive(Debug)]
@@ -171,7 +171,7 @@ impl ParseAllocated<ESRecordHeader, &[u8]> for ESRecordTyped {
 
 // ===================================================================================================
 
-impl ESObjectTrait for ESRecordTyped {
+impl ESObject for ESRecordTyped {
     fn object_count(&self) -> &usize {
         &1usize
     }
@@ -426,7 +426,7 @@ pub trait ESRecordTrait {
 // ====================================================================================================
 
 /// Implement [ESObject] for anything that implements [ESRecord]
-impl ESObjectTrait for dyn ESRecordTrait {
+impl ESObject for dyn ESRecordTrait {
     fn object_count(&self) -> &usize { &1usize }
     fn object_size(&self) -> &u32 { self.record_size() }
     fn is_group(&self) -> bool {
@@ -449,7 +449,7 @@ impl<T> ESRecordTrait for ESRecord<T> {
 }
 
 impl<'a, T> ESRecord<T> where T: Parse<&'a[u8]> + 'static {
-    pub fn parse_as_object(i: &'a[u8]) -> IResult<&'a[u8], Box<dyn ESObjectTrait>> {
+    pub fn parse_as_object(i: &'a[u8]) -> IResult<&'a[u8], Box<dyn ESObject>> {
         let (i, (header, raw)) = alloc_record(i)?;
         let (_, result) = Self::parse_allocated(header, raw)?;
         Ok((i, Box::new(result)))
@@ -461,7 +461,7 @@ impl<'a, T> ESRecord<T> where T: Parse<&'a[u8]> + 'static {
     }
 }
 
-impl<T> ESObjectTrait for ESRecord<T> {
+impl<T> ESObject for ESRecord<T> {
     fn object_count(&self) -> &usize { &1usize }
     fn object_size(&self) -> &u32 { &self.header.size }
     fn is_group(&self) -> bool { false }

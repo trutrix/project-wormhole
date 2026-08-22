@@ -1,4 +1,4 @@
-use crate::{dev::*, es::{es_group::{ESGroupTrait, ESGroupHeader}, es_object::ESObjectTrait}, traits::ParseAllocated};
+use crate::{dev::*, es::{es_group::{ESGroupTrait, ESGroupHeader}, es_object::ESObject}, traits::ParseAllocated};
 
 // ====================================================================================================
 
