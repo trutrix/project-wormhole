@@ -127,7 +127,7 @@ fn test_speedy() { }
 fn test_es_object() {
     let data = std::fs::read(FO4_ESM_PATH).unwrap();
     let start = std::time::Instant::now();
-    let (i, header) = ESRecord::<u32>::parse(&data).unwrap();
+    let (i, header) = parse_es_object(&data).unwrap();
     let elapsed = start.elapsed();
     println!("{:?}", header);
     println!("{:?}", elapsed);
