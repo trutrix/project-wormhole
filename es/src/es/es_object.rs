@@ -11,7 +11,6 @@ pub enum ESObject {
 // ====================================================================================================
 
 /// Custom parsing function if you do not know what the next object will be
-/// Saves a little overhead in large operations
 impl Parse<&[u8]> for ESObject {
     fn parse(i: &[u8]) -> IResult<&[u8], Self> {
         // Get iden and size
