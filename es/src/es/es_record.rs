@@ -172,9 +172,7 @@ impl ParseAllocated<ESRecordHeader, &[u8]> for ESRecordTyped {
 // ===================================================================================================
 
 impl ESObject for ESRecordTyped {
-    fn object_count(&self) -> &usize {
-        &1usize
-    }
+    fn object_count(&self) -> &usize { &1usize }
 
     fn object_size(&self) -> &u32 {
         match self {
@@ -187,8 +185,20 @@ impl ESObject for ESRecordTyped {
         }
     }
 
-    fn is_group(&self) -> bool {
-        false
+    fn is_group(&self) -> bool { false }
+}
+
+impl ESRecordTrait for ESRecordTyped {
+    fn record_iden(&self) -> &FourCC {
+        todo!()
+    }
+
+    fn record_size(&self) -> &u32 {
+        todo!()
+    }
+
+    fn record_form_id(&self) -> &FormId {
+        todo!()
     }
 }
 

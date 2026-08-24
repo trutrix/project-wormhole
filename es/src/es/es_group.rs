@@ -156,9 +156,7 @@ impl From<([u8;4], u32)> for ESGroupLabel {
 // ====================================================================================================
 
 impl ESObject for ESGroupTyped {
-    fn object_count(&self) -> &usize {
-        &1usize
-    }
+    fn object_count(&self) -> &usize { &1usize }
 
     fn object_size(&self) -> &u32 {
         match self {
@@ -177,9 +175,7 @@ impl ESObject for ESGroupTyped {
         }
     }
 
-    fn is_group(&self) -> bool {
-        true
-    }
+    fn is_group(&self) -> bool { true }
 }
 
 // ====================================================================================================

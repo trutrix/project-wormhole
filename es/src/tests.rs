@@ -2,11 +2,11 @@
 use std::{collections::{HashMap, HashSet}, fs::{DirEntry, File}, os::raw, path::PathBuf, str::FromStr};
 
 use comfy_table::presets::UTF8_FULL;
-use nom_derive::Parse;
+use nom_derive::{Parse, nom::multi::many0};
 
 use std::any::Any;
 
-use crate::{dev::GroupLabel, es::{es_object::{ESObject, parse_es_object}, es_record::{ESRecord, ESRecordTyped}, full::ESFull, mapped::ESMapped, raw::ESRaw}, records::all::*, structs::{chunk::get_file_chunks, es_object::RawESObject}};
+use crate::{dev::GroupLabel, es::{es_object::{ESObject, ESObjectRaw, parse_es_object}, es_record::{ESRecord, ESRecordTyped}, full::ESFull, mapped::ESMapped, raw::ESRaw}, records::all::*, structs::{chunk::get_file_chunks, es_object::RawESObject}};
 
 // ===================================================================================================
 // Test Parameters
@@ -127,9 +127,9 @@ fn test_speedy() { }
 fn test_es_object() {
     let data = std::fs::read(FO4_ESM_PATH).unwrap();
     let start = std::time::Instant::now();
-    let (i, header) = parse_es_object(&data).unwrap();
+    let (i, header) = many0(ESObjectRaw::parse)(&data).unwrap();
     let elapsed = start.elapsed();
-    println!("{:?}", header);
+    println!("{:#?}", header);
     println!("{:?}", elapsed);
 }
 

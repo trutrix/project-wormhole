@@ -1,4 +1,4 @@
-use crate::{dev::*, es::{self, es_group::{ESGroupHeader, ESGroupTrait, ESGroupTyped}, es_record::{ESRecordFlags, ESRecordHeader, ESRecordTyped, ESVersionControl}}, traits::{ParseAllocated, ParseAllocated2}};
+use crate::{dev::*, es::{self, es_group::{ESGroupHeader, ESGroupTrait, ESGroupTyped}, es_record::{ESRecordFlags, ESRecordHeader, ESRecordTrait, ESRecordTyped, ESVersionControl}}, traits::{ParseAllocated, ParseAllocated2}};
 
 // ====================================================================================================
 
@@ -6,11 +6,6 @@ pub trait ESObject {
     fn object_count(&self) -> &usize;
     fn object_size(&self) -> &u32;
     fn is_group(&self) -> bool;
-    fn parse_as_object(i: &[u8]) -> IResult<&[u8], Box<dyn ESObject>> where Self: Sized { parse_es_object(i) }
-
-    // TODO: Removed the unimplemented defaults, they are just here for my sanity
-    fn as_record(&self) -> Result<ESRecordTyped, ESError> { Err(ESError::NotImplemented) }
-    fn as_group(&self) -> Result<ESGroupTyped, ESError> { Err(ESError::NotImplemented) }
 }
 
 // ====================================================================================================
@@ -85,4 +80,67 @@ pub enum ESError {
     NotImplemented,
     NotRecord,
     NotGroup
+}
+
+// ====================================================================================================
+
+#[derive(Debug, NomLE)]
+pub struct ESObjectHeader {
+    pub chunk_iden: FourCC,
+    pub size: u32,
+    pub chunk_data_1: [u8;4],
+    pub chunk_data_2: [u8;4],
+    pub version_control: ESVersionControl
+}
+
+// ====================================================================================================
+
+pub struct ESObjectRaw<'es> {
+    pub header: ESObjectHeader,
+    pub data: &'es[u8]
+}
+
+// ====================================================================================================
+
+impl std::fmt::Debug for ESObjectRaw<'_> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "ESObjectRaw {{ header: {:?}, data: {:?} bytes }}", self.header, self.header.size)
+    }
+}
+
+// ====================================================================================================
+
+impl ESObject for ESObjectRaw<'_> {
+    fn is_group(&self) -> bool {
+        &self.header.chunk_iden.0 == b"GRUP"
+    }
+
+    fn object_count(&self) -> &usize {
+        todo!()
+    }
+
+    fn object_size(&self) -> &u32 {
+        &self.header.size
+    }
+}
+
+// ==================================================================================================
+
+
+impl<'es> Parse<&'es[u8]> for ESObjectRaw<'es> {
+    fn parse(i: &'es[u8]) -> IResult<&'es[u8], Self, nom::error::Error<&'es[u8]>> {
+        let (i, header) = ESObjectHeader::parse(i)?;
+        let tsize = if &header.chunk_iden.0 == b"GRUP" {
+            if header.size == 0 {
+                0
+            } else {
+                header.size - 24
+            }
+        } else {
+            header.size
+        };
+
+        let (i, data) = take(tsize)(i)?;
+        Ok((i, ESObjectRaw { header, data }))
+    }
 }
