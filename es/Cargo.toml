@@ -19,3 +19,6 @@ rayon = "1.11.0"
 serde = { version = "1.0.228", features = ["derive"] }
 serde_json = "1.0.145"
 speedy = { version = "0.8.7", optional = true }
+
+[features]
+no_unsafe = []

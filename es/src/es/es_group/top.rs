@@ -151,7 +151,7 @@ impl ParseAllocated2<ESGroupHeader, &[u8]> for ESTopTyped {
 // ====================================================================================================
 
 impl ESObject for ESTopTyped {
-    fn object_size(&self) -> &u32 {
+    fn header_size_value(&self) -> &u32 {
         match self {
             ESTopTyped::Unhandled(esgroup_header) => &esgroup_header.size,
         }

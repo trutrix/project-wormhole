@@ -4,7 +4,16 @@ use crate::{dev::*, es::{self, es_group::{ESGroupHeader, ESGroupTrait, ESGroupTy
 
 pub trait ESObject {
     fn object_count(&self) -> &usize;
-    fn object_size(&self) -> &u32;
+    /// The size present in the header
+    fn header_size_value(&self) -> &u32;
+    /// Real size this object would occupy in memory
+    fn header_real_size(&self) -> u32 {
+        if self.is_group() {
+            *self.header_size_value()
+        } else {
+            *self.header_size_value() + 24
+        }
+    }
     fn is_group(&self) -> bool;
 }
 
@@ -64,9 +73,9 @@ pub fn parse_es_object(i: &[u8]) -> IResult<&[u8], Box<dyn ESObject>> {
 impl std::fmt::Debug for dyn ESObject {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         if self.is_group() {
-            write!(f, "ESObject -> ESGroup {{ bytes: {:?}, object_count: {:?} }}", self.object_size(), self.object_count())
+            write!(f, "ESObject -> ESGroup {{ bytes: {:?}, object_count: {:?} }}", self.header_size_value(), self.object_count())
         } else {
-            write!(f, "ESObject -> ESRecord {{ bytes: {:?} }}", self.object_size())
+            write!(f, "ESObject -> ESRecord {{ bytes: {:?} }}", self.header_size_value())
         }
         
     }
@@ -86,10 +95,10 @@ pub enum ESError {
 
 #[derive(Debug, NomLE)]
 pub struct ESObjectHeader {
-    pub chunk_iden: FourCC,
+    pub iden: FourCC,
     pub size: u32,
-    pub chunk_data_1: [u8;4],
-    pub chunk_data_2: [u8;4],
+    pub data_1: [u8;4],
+    pub data_2: [u8;4],
     pub version_control: ESVersionControl
 }
 
@@ -112,14 +121,14 @@ impl std::fmt::Debug for ESObjectRaw<'_> {
 
 impl ESObject for ESObjectRaw<'_> {
     fn is_group(&self) -> bool {
-        &self.header.chunk_iden.0 == b"GRUP"
+        &self.header.iden.0 == b"GRUP"
     }
 
     fn object_count(&self) -> &usize {
         todo!()
     }
 
-    fn object_size(&self) -> &u32 {
+    fn header_size_value(&self) -> &u32 {
         &self.header.size
     }
 }
@@ -130,7 +139,7 @@ impl ESObject for ESObjectRaw<'_> {
 impl<'es> Parse<&'es[u8]> for ESObjectRaw<'es> {
     fn parse(i: &'es[u8]) -> IResult<&'es[u8], Self, nom::error::Error<&'es[u8]>> {
         let (i, header) = ESObjectHeader::parse(i)?;
-        let tsize = if &header.chunk_iden.0 == b"GRUP" {
+        let tsize = if &header.iden.0 == b"GRUP" {
             if header.size == 0 {
                 0
             } else {

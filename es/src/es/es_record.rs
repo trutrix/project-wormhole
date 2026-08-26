@@ -2,7 +2,7 @@ use std::ops::BitAnd;
 
 use nom_derive::nom::error;
 
-use crate::{dev::*, es::{es_group::ESGroupHeader, es_object::ESObject}, records::*, traits::{ParseAllocated, ParseAllocated2, record::FormIdTrait}};
+use crate::{dev::*, es::{es_group::ESGroupHeader, es_object::{ESObject, ESObjectHeader}}, records::*, traits::{ParseAllocated, ParseAllocated2, record::FormIdTrait}};
 //use bitflags::bitflags;
 
 #[derive(Debug)]
@@ -174,7 +174,7 @@ impl ParseAllocated<ESRecordHeader, &[u8]> for ESRecordTyped {
 impl ESObject for ESRecordTyped {
     fn object_count(&self) -> &usize { &1usize }
 
-    fn object_size(&self) -> &u32 {
+    fn header_size_value(&self) -> &u32 {
         match self {
             ESRecordTyped::Unhandled(header) => {
                 &header.size
@@ -215,6 +215,33 @@ pub struct ESRecordHeader {
     pub version_control: ESVersionControl
 }
 
+// ====================================================================================================
+
+#[cfg(not(feature = "no_unsafe"))]
+impl From<ESObjectHeader> for ESRecordHeader {
+    fn from(value: ESObjectHeader) -> Self {
+        unsafe {
+            std::mem::transmute(value)
+        }
+    }
+}
+
+// ====================================================================================================
+
+#[cfg(feature = "no_unsafe")]
+impl From<ESObjectHeader> for ESRecordHeader {
+    fn from(value: ESObjectHeader) -> Self {
+        ESRecordHeader {
+            iden: value.iden,
+            size: value.size,
+            flags: ESRecordFlags(u32::from_le_bytes(value.data_1)),
+            form_id: FormId(u32::from_le_bytes(value.data_2)),
+            version_control: value.version_control,
+        }
+    }
+}
+
+// ====================================================================================================
 
 #[derive(Debug, NomLE, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "speedy", derive(Readable, Writable))]
@@ -438,7 +465,7 @@ pub trait ESRecordTrait {
 /// Implement [ESObject] for anything that implements [ESRecord]
 impl ESObject for dyn ESRecordTrait {
     fn object_count(&self) -> &usize { &1usize }
-    fn object_size(&self) -> &u32 { self.record_size() }
+    fn header_size_value(&self) -> &u32 { self.record_size() }
     fn is_group(&self) -> bool {
         false
     }
@@ -473,6 +500,6 @@ impl<'a, T> ESRecord<T> where T: Parse<&'a[u8]> + 'static {
 
 impl<T> ESObject for ESRecord<T> {
     fn object_count(&self) -> &usize { &1usize }
-    fn object_size(&self) -> &u32 { &self.header.size }
+    fn header_size_value(&self) -> &u32 { &self.header.size }
     fn is_group(&self) -> bool { false }
 }

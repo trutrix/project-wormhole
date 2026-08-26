@@ -1,4 +1,4 @@
-use crate::{dev::*, es::{es_group::top::ESTopTyped, es_object::{ESObject, parse_es_object}, es_record::{ESRecordHeader, ESRecordTyped, ESVersionControl}}, groups::prelude::*, traits::{ParseAllocated, ParseAllocated2}};
+use crate::{dev::*, es::{es_group::top::ESTopTyped, es_object::{ESObject, ESObjectHeader, parse_es_object}, es_record::{ESRecordHeader, ESRecordTyped, ESVersionControl}}, groups::prelude::*, traits::{ParseAllocated, ParseAllocated2}};
 
 // ====================================================================================================
 
@@ -108,6 +108,32 @@ pub struct ESGroupHeader {
 
 // ====================================================================================================
 
+#[cfg(not(feature = "no_unsafe"))]
+impl From<ESObjectHeader> for ESGroupHeader {
+    fn from(value: ESObjectHeader) -> Self {
+        unsafe {
+            std::mem::transmute(value)
+        }
+    }
+}
+
+// ====================================================================================================
+
+#[cfg(feature = "no_unsafe")]
+impl From<ESObjectHeader> for ESGroupHeader {
+    fn from(value: ESObjectHeader) -> Self {
+        ESGroupHeader {
+            iden: value.iden,
+            size: value.size,
+            label_value: value.data_1,
+            label_type: u32::from_le_bytes(value.data_2),
+            version_control: value.version_control,
+        }
+    }
+}
+
+// ====================================================================================================
+
 impl ESGroupHeader {
     pub fn get_label(&self) -> ESGroupLabel {
         ESGroupLabel::from((self.label_value, self.label_type))
@@ -158,9 +184,9 @@ impl From<([u8;4], u32)> for ESGroupLabel {
 impl ESObject for ESGroupTyped {
     fn object_count(&self) -> &usize { &1usize }
 
-    fn object_size(&self) -> &u32 {
+    fn header_size_value(&self) -> &u32 {
         match self {
-            ESGroupTyped::Top(estop) => estop.object_size(),
+            ESGroupTyped::Top(estop) => estop.header_size_value(),
             ESGroupTyped::WorldChildren(g) => &g.header.size,
             ESGroupTyped::InteriorCellBlock(g) => &g.header.size,
             ESGroupTyped::InteriorCellSubBlock(g) => &g.header.size,
@@ -214,7 +240,7 @@ pub trait ESGroupTrait {
 /// Implement [ESObject] for anything that implements [ESGroupTrait]
 impl ESObject for dyn ESGroupTrait {
     fn object_count(&self) -> &usize { todo!("More logic needs to be fleshed out") }
-    fn object_size(&self) -> &u32 { self.group_size() }
+    fn header_size_value(&self) -> &u32 { self.group_size() }
     fn is_group(&self) -> bool { true }
 }
 
