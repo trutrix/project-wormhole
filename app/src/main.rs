@@ -1,42 +1,71 @@
+use std::path::PathBuf;
+
 use egui::*;
+mod consts;
+
+use consts::*;
 
 
 fn main() -> eframe::Result {
-    
-    let options = eframe::NativeOptions {
-        viewport: egui::ViewportBuilder::default()
-            .with_inner_size([1280.0, 720.0]) // wide enough for the drag-drop overlay text
-            .with_drag_and_drop(true),
-        ..Default::default()
-    };
     eframe::run_native(
-        "ProjectWormholeApp",
-        options,
-        Box::new(|_cc| Ok(Box::<PWApp>::default())),
+        "Project Wormhole Utilities",
+        eframe::NativeOptions {
+            viewport: egui::ViewportBuilder::default()
+                .with_inner_size([1280.0, 720.0]),
+            ..Default::default()
+        },
+        Box::new(|_cc| Ok(Box::<PWApp>::default()))
     )
 }
 
 #[derive(Default)]
 struct PWApp {
-    dropped_files: Vec<egui::DroppedFileHandle>,
-    picked_path: Option<String>,
+    game_path: Option<PathBuf>,
+    app_state: PWAppState,
 }
 
 impl eframe::App for PWApp {
     fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
 
-        egui::Panel::top("nav_bar").show(ui, |ui| {
-            ui.label("Top bar");
+
+        Panel::top("navbar")
+        .show_separator_line(false)
+        .frame(NAVBAR_FRAME)
+        .show(ui, |ui| {
+            ui.menu_button("Menu",
+            |ui| {
+                
+                if ui.button(RichText::new("Set Game Directory...").color(COLOR_TEXT_LIGHT)).clicked() {
+                    self.game_path = rfd::FileDialog::new().pick_folder();
+                }
+            });
+
+
+            if let Some(gp) = &self.game_path {
+                ui.label(gp.to_str().unwrap())
+            } else {
+                ui.label("Game not set")
+            };
         });
 
-        egui::Panel::bottom("status_bar").show(ui, |ui| {
+        Panel::bottom("status_bar").show(ui, |ui| {
             ui.label("Bottom bar");
         });
 
-        egui::CentralPanel::default().show(ui, |ui| {
+        CentralPanel::default().show(ui, |ui| {
             ui.label("Holy poopy");
         });
 
         
     }
+}
+
+
+
+#[derive(Debug, Default)]
+pub enum PWAppState {
+    #[default]
+    Startup,
+    Idle,
+    GameDirectoryChanged
 }
