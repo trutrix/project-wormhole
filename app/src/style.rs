@@ -1,9 +1,6 @@
 use egui::*;
 
 
-
-
-
 pub const COLOR_BACKGROUND_DARK: Color32 = Color32::from_rgb(0, 0, 20);
 pub const COLOR_TEXT_LIGHT: Color32 = Color32::from_rgb(200, 200, 200);
 
@@ -24,3 +21,6 @@ pub const NAVBAR_FRAME: Frame = Frame {
     outer_margin: Margin::ZERO,
     shadow: Shadow::NONE,
 };
+
+
+pub const STATUS_BAR_FRAME: Frame = NAVBAR_FRAME;

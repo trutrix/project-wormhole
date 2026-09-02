@@ -2,21 +2,23 @@ use std::path::PathBuf;
 
 use egui::*;
 
-mod consts;
-use consts::*;
+mod style;
+use style::*;
 
 mod strings;
 use strings::*;
 
+// ====================================================================================================
+
 fn main() -> eframe::Result {
     eframe::run_native(
-        APP_TITLE,
+        S_APP_TITLE,
         eframe::NativeOptions {
             viewport: egui::ViewportBuilder::default()
                 .with_inner_size([1280.0, 720.0]),
             ..Default::default()
         },
-        Box::new(|_cc| Ok(Box::<PWApp>::default()))
+        Box::new(|cc| Ok(Box::new(PWApp::new(cc))))
     )
 }
 
@@ -24,6 +26,16 @@ fn main() -> eframe::Result {
 struct PWApp {
     game_path: Option<PathBuf>,
     app_state: PWAppState,
+}
+
+impl PWApp {
+    pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
+        cc.egui_ctx.set_global_style(Style {
+            visuals: Visuals { dark_mode: true, ..Default::default() },
+            ..Default::default()
+        });
+        Self::default()
+    }
 }
 
 impl eframe::App for PWApp {
@@ -34,28 +46,36 @@ impl eframe::App for PWApp {
         .show_separator_line(false)
         .frame(NAVBAR_FRAME)
         .show(ui, |ui| {
-            ui.menu_button("Menu",
-            |ui| {
-                
-                if ui.button(RichText::new("Set Game Directory...").color(COLOR_TEXT_LIGHT)).clicked() {
-                    self.game_path = rfd::FileDialog::new().pick_folder();
-                }
+            ui.with_layout(Layout::left_to_right(Align::Center), |ui| {
+                ui.menu_button(S_MENU,
+                |ui| {
+                    
+                    if ui.button(RichText::new(S_SET_GAME_DIRECTORY).color(COLOR_TEXT_LIGHT)).clicked() {
+                        self.game_path = rfd::FileDialog::new().pick_folder();
+                    }
+                });
+
+                ui.button("Huh")
             });
+    
+            
 
 
+            
+        });
+
+        Panel::bottom("status_bar")
+        .frame(STATUS_BAR_FRAME)
+        .show(ui, |ui| {
             if let Some(gp) = &self.game_path {
                 ui.label(gp.to_str().unwrap())
             } else {
-                ui.label("Game not set")
+                ui.label("Please set the game directory")
             };
         });
 
-        Panel::bottom("status_bar").show(ui, |ui| {
-            ui.label("Bottom bar");
-        });
-
         CentralPanel::default().show(ui, |ui| {
-            ui.label("Holy poopy");
+            ui.label("Waiting")
         });
 
         
