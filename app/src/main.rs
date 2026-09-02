@@ -1,14 +1,16 @@
 use std::path::PathBuf;
 
 use egui::*;
-mod consts;
 
+mod consts;
 use consts::*;
 
+mod strings;
+use strings::*;
 
 fn main() -> eframe::Result {
     eframe::run_native(
-        "Project Wormhole Utilities",
+        APP_TITLE,
         eframe::NativeOptions {
             viewport: egui::ViewportBuilder::default()
                 .with_inner_size([1280.0, 720.0]),
