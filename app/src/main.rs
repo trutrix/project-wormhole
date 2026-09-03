@@ -8,6 +8,8 @@ use style::*;
 mod strings;
 use strings::*;
 
+mod pages;
+
 // ====================================================================================================
 
 fn main() -> eframe::Result {
@@ -22,11 +24,15 @@ fn main() -> eframe::Result {
     )
 }
 
+// ====================================================================================================
+
 #[derive(Default)]
-struct PWApp {
+pub struct PWApp {
     game_path: Option<PathBuf>,
     app_state: PWAppState,
 }
+
+// ====================================================================================================
 
 impl PWApp {
     pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
@@ -37,6 +43,8 @@ impl PWApp {
         Self::default()
     }
 }
+
+// ====================================================================================================
 
 impl eframe::App for PWApp {
     fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
@@ -57,32 +65,32 @@ impl eframe::App for PWApp {
 
                 ui.button("Huh")
             });
-    
-            
-
-
-            
         });
 
         Panel::bottom("status_bar")
+        .show_separator_line(false)
         .frame(STATUS_BAR_FRAME)
         .show(ui, |ui| {
             if let Some(gp) = &self.game_path {
                 ui.label(gp.to_str().unwrap())
             } else {
-                ui.label("Please set the game directory")
+                ui.label(S_GAME_DIRECTORY_NOT_SET)
             };
         });
 
         CentralPanel::default().show(ui, |ui| {
-            ui.label("Waiting")
+            if let Some(path) = &self.game_path {
+                ui.label("All Good")
+            } else {
+                pages::SetGameDirectory::add_content(self, ui)
+            }
         });
 
         
     }
 }
 
-
+// ====================================================================================================
 
 #[derive(Debug, Default)]
 pub enum PWAppState {
@@ -90,4 +98,13 @@ pub enum PWAppState {
     Startup,
     Idle,
     GameDirectoryChanged
+}
+
+// ====================================================================================================
+
+
+pub trait Page {
+    fn add_content(app: &mut PWApp, ui: &mut egui::Ui) -> Response {
+        ui.label("Page contents not set")
+    }
 }
