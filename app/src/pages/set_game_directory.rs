@@ -1,12 +1,14 @@
+use egui::{Layout, panel};
 
 
-pub struct SetGameDirectory {
 
-}
+pub struct SetGameDirectory;
 
 
 impl crate::Page for SetGameDirectory {
-    fn add_content(app: &mut crate::PWApp, ui: &mut egui::Ui) -> egui::Response {
-        ui.label("Set Game Directory")
+    fn add_page_contents(_app: &mut crate::PWApp, ui: &mut egui::Ui) {
+        ui.centered_and_justified(|ui| {
+            ui.label("Game directory not set.");
+        });
     }
 }

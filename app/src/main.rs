@@ -49,7 +49,6 @@ impl PWApp {
 impl eframe::App for PWApp {
     fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
 
-
         Panel::top("navbar")
         .show_separator_line(false)
         .frame(NAVBAR_FRAME)
@@ -71,18 +70,26 @@ impl eframe::App for PWApp {
         .show_separator_line(false)
         .frame(STATUS_BAR_FRAME)
         .show(ui, |ui| {
-            if let Some(gp) = &self.game_path {
-                ui.label(gp.to_str().unwrap())
-            } else {
-                ui.label(S_GAME_DIRECTORY_NOT_SET)
-            };
+            // if let Some(gp) = &self.game_path {
+            //     ui.label(gp.to_str().unwrap())
+            // } else {
+            //     ui.label(S_GAME_DIRECTORY_NOT_SET)
+            // };
+
+            ui.label(format!("AppState: {:?}", self.app_state));
         });
 
         CentralPanel::default().show(ui, |ui| {
-            if let Some(path) = &self.game_path {
-                ui.label("All Good")
-            } else {
-                pages::SetGameDirectory::add_content(self, ui)
+            match self.app_state {
+                PWAppState::Startup => {
+
+                }
+                PWAppState::Idle => {
+
+                }
+                PWAppState::GameDirectoryChanged => {
+
+                }
             }
         });
 
@@ -104,7 +111,7 @@ pub enum PWAppState {
 
 
 pub trait Page {
-    fn add_content(app: &mut PWApp, ui: &mut egui::Ui) -> Response {
-        ui.label("Page contents not set")
+    fn add_page_contents(app: &mut PWApp, ui: &mut egui::Ui) {
+        ui.label("Page contents not set");
     }
 }
