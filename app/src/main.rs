@@ -1,5 +1,6 @@
 use std::path::PathBuf;
 
+use eframe::App;
 use egui::*;
 
 mod style;
@@ -41,6 +42,22 @@ impl PWApp {
             ..Default::default()
         });
         Self::default()
+    }
+
+    pub fn init(&mut self) {
+        if self.app_state == PWAppState::Startup {
+
+            if let Some(path) = self.game_path {
+                unimplemented!("Possible to define, but not needed now.")
+            } else {
+                
+            }
+
+
+
+        } else {
+            panic!("Undefined behavior: app init called when app is not in the startup state.")
+        }
     }
 }
 
@@ -99,7 +116,7 @@ impl eframe::App for PWApp {
 
 // ====================================================================================================
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, PartialEq, Eq)]
 pub enum PWAppState {
     #[default]
     Startup,
