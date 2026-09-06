@@ -47,7 +47,7 @@ impl PWApp {
     pub fn init(&mut self) {
         if self.app_state == PWAppState::Startup {
 
-            if let Some(path) = self.game_path {
+            if let Some(path) = &self.game_path {
                 unimplemented!("Possible to define, but not needed now.")
             } else {
                 
