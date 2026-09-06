@@ -77,21 +77,30 @@ impl eframe::App for PWApp {
         .frame(NAVBAR_FRAME)
         .show(ui, |ui| {
             ui.with_layout(Layout::left_to_right(Align::Center), |ui| {
-                ui.menu_button(S_MENU,
+                ui.menu_button(RichText::new("☰"),
                 |ui| {
                     
                     if ui.button(RichText::new(S_SET_GAME_DIRECTORY).color(COLOR_TEXT_LIGHT)).clicked() {
                         self.game_path = rfd::FileDialog::new().pick_folder();
                     }
+
+                    if ui.button("Exit").clicked() {
+                        ui.send_viewport_cmd(ViewportCommand::Close);
+                    }
                 });
 
-                if ui.button("Overview").clicked() {
-                    self.set_page(PWAppPage::Overview);
-                }
+                ui.menu_button(format!("👁 {:?}", self.page), |ui| {
+                    if ui.button("Overview").clicked() {
+                        self.set_page(PWAppPage::Overview);
+                    }
 
-                if ui.button("Files").clicked() {
-                    self.set_page(PWAppPage::Files);
-                }
+                    if ui.button("Files").clicked() {
+                        self.set_page(PWAppPage::Files);
+                    }
+
+                });
+
+                
             });
         });
 
