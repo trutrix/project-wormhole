@@ -31,6 +31,7 @@ fn main() -> eframe::Result {
 pub struct PWApp {
     game_path: Option<PathBuf>,
     app_state: PWAppState,
+    page: PWAppPage
 }
 
 // ====================================================================================================
@@ -59,6 +60,11 @@ impl PWApp {
             panic!("Undefined behavior: app init called when app is not in the startup state.")
         }
     }
+
+    pub fn set_page(&mut self, page: PWAppPage) {
+        // Extra page switching logic would go here
+        self.page = page
+    }
 }
 
 // ====================================================================================================
@@ -79,7 +85,13 @@ impl eframe::App for PWApp {
                     }
                 });
 
-                ui.button("Huh")
+                if ui.button("Overview").clicked() {
+                    self.set_page(PWAppPage::Overview);
+                }
+
+                if ui.button("Files").clicked() {
+                    self.set_page(PWAppPage::Files);
+                }
             });
         });
 
@@ -93,7 +105,7 @@ impl eframe::App for PWApp {
             //     ui.label(S_GAME_DIRECTORY_NOT_SET)
             // };
 
-            ui.label(format!("AppState: {:?}", self.app_state));
+            ui.label(format!("AppState: {:?} | Page: {:?}", self.app_state, self.page));
         });
 
         CentralPanel::default().show(ui, |ui| {
@@ -123,6 +135,16 @@ pub enum PWAppState {
     Idle,
     GameDirectoryChanged
 }
+
+// ====================================================================================================
+
+#[derive(Debug, Default, PartialEq, Eq)]
+pub enum PWAppPage {
+    #[default]
+    Overview,
+    Files
+}
+
 
 // ====================================================================================================
 
