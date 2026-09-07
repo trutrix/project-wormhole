@@ -31,7 +31,8 @@ fn main() -> eframe::Result {
 pub struct PWApp {
     game_path: Option<PathBuf>,
     app_state: PWAppState,
-    page: PWAppPage
+    page: PWAppPage,
+    game_files: Vec<PWGameFile>
 }
 
 // ====================================================================================================
@@ -64,6 +65,11 @@ impl PWApp {
     pub fn set_page(&mut self, page: PWAppPage) {
         // Extra page switching logic would go here
         self.page = page
+    }
+
+    pub fn set_game_path(&mut self, path: PathBuf) {
+        self.game_path = Some(path);
+        self.app_state = PWAppState::GameDirectoryChanged;
     }
 }
 
@@ -118,15 +124,10 @@ impl eframe::App for PWApp {
         });
 
         CentralPanel::default().show(ui, |ui| {
-            match self.app_state {
-                PWAppState::Startup => {
-
-                }
-                PWAppState::Idle => {
-
-                }
-                PWAppState::GameDirectoryChanged => {
-
+            if self.game_path.is_some() {
+                match self.page {
+                    PWAppPage::Overview => { pages::Overview::add_page_contents(self, ui); },
+                    PWAppPage::Files => { pages::Files::add_page_contents(self, ui); },
                 }
             }
         });
@@ -157,6 +158,13 @@ pub enum PWAppPage {
 
 // ====================================================================================================
 
+#[derive(Debug)]
+pub struct PWGameFile {
+    pub enabled: bool,
+    pub path: PathBuf
+}
+
+// ====================================================================================================
 
 pub trait Page {
     fn add_page_contents(app: &mut PWApp, ui: &mut egui::Ui) {
