@@ -152,6 +152,8 @@ impl eframe::App for PWApp {
                     PWAppPage::Overview => { pages::Overview::add_page_contents(self, ui); },
                     PWAppPage::Files => { pages::Files::add_page_contents(self, ui); },
                 }
+            } else {
+                pages::SetGameDirectory::add_page_contents(self, ui);
             }
         });
 
