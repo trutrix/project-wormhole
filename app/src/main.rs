@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::{fmt::Display, path::PathBuf};
 
 use eframe::App;
 use egui::*;
@@ -9,7 +9,11 @@ use style::*;
 mod strings;
 use strings::*;
 
+use crate::games::ESGame;
+
 mod pages;
+
+mod games;
 
 // ====================================================================================================
 
@@ -32,7 +36,8 @@ pub struct PWApp {
     game_path: Option<PathBuf>,
     app_state: PWAppState,
     page: PWAppPage,
-    game_files: Vec<PWGameFile>
+    game_files: Vec<PWGameFile>,
+    interperator: ESGame
 }
 
 // ====================================================================================================
@@ -95,15 +100,33 @@ impl eframe::App for PWApp {
                     }
                 });
 
-                ui.menu_button(format!("👁 {:?}", self.page), |ui| {
-                    if ui.button("Overview").clicked() {
-                        self.set_page(PWAppPage::Overview);
-                    }
+                // ui.menu_button(format!("👁 {:?}", self.page), |ui| {
+                //     if ui.button("Overview").clicked() {
+                //         self.set_page(PWAppPage::Overview);
+                //     }
 
-                    if ui.button("Files").clicked() {
-                        self.set_page(PWAppPage::Files);
-                    }
+                //     if ui.button("Files").clicked() {
+                //         self.set_page(PWAppPage::Files);
+                //     }
 
+                // });
+
+                ComboBox::from_id_salt("page")
+                .selected_text(format!("{:?}", self.page))
+                .show_ui(ui, |ui| {
+                    ui.selectable_value(&mut self.page, PWAppPage::Overview, format!("{:?}", PWAppPage::Overview));
+                    ui.selectable_value(&mut self.page, PWAppPage::Files, format!("{:?}", PWAppPage::Files));
+                });
+
+                ComboBox::from_id_salt("interperator")
+                .selected_text(format!("{}", self.interperator.get_short_title()))
+                .show_ui(ui, |ui| {
+                    ui.selectable_value(&mut self.interperator, ESGame::FO4, ESGame::FO4.get_short_title());
+                    ui.selectable_value(&mut self.interperator, ESGame::FO3, ESGame::FO3.get_short_title());
+                    ui.selectable_value(&mut self.interperator, ESGame::FNV, ESGame::FNV.get_short_title());
+                    ui.selectable_value(&mut self.interperator, ESGame::ES4, ESGame::ES4.get_short_title());
+                    ui.selectable_value(&mut self.interperator, ESGame::ES5, ESGame::ES5.get_short_title());
+                    ui.selectable_value(&mut self.interperator, ESGame::SFD, ESGame::SFD.get_short_title());
                 });
 
                 
@@ -153,6 +176,15 @@ pub enum PWAppPage {
     #[default]
     Overview,
     Files
+}
+
+impl Display for PWAppPage {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            PWAppPage::Overview => write!(f, "{:?}", PWAppPage::Overview),
+            PWAppPage::Files => write!(f, "{:?}", PWAppPage::Files),
+        }
+    }
 }
 
 
