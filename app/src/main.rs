@@ -90,9 +90,10 @@ impl eframe::App for PWApp {
             ui.with_layout(Layout::left_to_right(Align::Center), |ui| {
                 ui.menu_button(RichText::new("☰"),
                 |ui| {
-                    
                     if ui.button(RichText::new(S_SET_GAME_DIRECTORY).color(COLOR_TEXT_LIGHT)).clicked() {
-                        self.game_path = rfd::FileDialog::new().pick_folder();
+                        if let Some(gp) = rfd::FileDialog::new().pick_folder() {
+                            self.set_game_path(gp);
+                        }
                     }
 
                     if ui.button("Exit").clicked() {
@@ -112,14 +113,14 @@ impl eframe::App for PWApp {
                 // });
 
                 ComboBox::from_id_salt("page")
-                .selected_text(format!("{:?}", self.page))
+                .selected_text(format!("View: {:?}", self.page))
                 .show_ui(ui, |ui| {
                     ui.selectable_value(&mut self.page, PWAppPage::Overview, format!("{:?}", PWAppPage::Overview));
                     ui.selectable_value(&mut self.page, PWAppPage::Files, format!("{:?}", PWAppPage::Files));
                 });
 
                 ComboBox::from_id_salt("interperator")
-                .selected_text(format!("{}", self.interperator.get_short_title()))
+                .selected_text(format!("Game: {}", self.interperator.get_short_title()))
                 .show_ui(ui, |ui| {
                     ui.selectable_value(&mut self.interperator, ESGame::FO4, ESGame::FO4.get_short_title());
                     ui.selectable_value(&mut self.interperator, ESGame::FO3, ESGame::FO3.get_short_title());
@@ -179,6 +180,8 @@ pub enum PWAppPage {
     Overview,
     Files
 }
+
+// ====================================================================================================
 
 impl Display for PWAppPage {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
