@@ -262,6 +262,7 @@ dependencies = [
  "confy",
  "eframe",
  "egui",
+ "project-wormhole-es",
  "regex",
  "rfd",
 ]

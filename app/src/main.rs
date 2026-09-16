@@ -4,6 +4,7 @@ use eframe::App;
 use egui::*;
 
 mod style;
+use project_wormhole_es::utils::get_es_files;
 use style::*;
 
 mod strings;
@@ -73,8 +74,19 @@ impl PWApp {
     }
 
     pub fn set_game_path(&mut self, path: PathBuf) {
-        self.game_path = Some(path);
+        
         self.app_state = PWAppState::GameDirectoryChanged;
+
+        if let Ok(files) = get_es_files(&path) {
+            let mut pfiles = Vec::new();
+            for file in files {
+                pfiles.push(PWGameFile { enabled: true, path: file });
+            }
+            self.game_files = pfiles;
+        }
+
+        self.game_path = Some(path);
+        self.app_state = PWAppState::Idle;
     }
 }
 
