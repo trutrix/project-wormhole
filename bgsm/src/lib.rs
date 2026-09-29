@@ -550,7 +550,7 @@ pub struct Wetness {
 }
 
 
-impl<'esm> ParseVersioned<'esm, u32, nom::error::Error<&'esm[u8]>> for Wetness {
+impl<'a> ParseVersioned<'a, u32, nom::error::Error<&'a[u8]>> for Wetness {
     fn parse_versioned(i: &[u8], version: u32) -> nom::IResult<&[u8], Self> {
         let (i, spec_scale) = le_f32(i)?;
         let (i, spec_power_scale) = le_f32(i)?;

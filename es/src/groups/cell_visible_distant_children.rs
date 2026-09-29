@@ -34,13 +34,13 @@ impl Parse<&[u8]> for CellVisibleDistantChildren {
 
 
 #[derive(Debug)]
-pub struct RawCellVisibleDistantChildren<'esm> {
+pub struct RawCellVisibleDistantChildren<'es> {
     pub header: GroupHeader,
-    pub items: Vec<RawCellVisibleDistantChild<'esm>>
+    pub items: Vec<RawCellVisibleDistantChild<'es>>
 }
 
-impl<'esm> Parse<&'esm[u8]> for RawCellVisibleDistantChildren<'esm> {
-    fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
+impl<'es> Parse<&'es[u8]> for RawCellVisibleDistantChildren<'es> {
+    fn parse(i: &'es[u8]) -> IResult<&'es[u8], Self, nom::error::Error<&'es[u8]>> {
         let (i, (header, data)) = alloc_group(i)?;
 
         #[cfg(debug_assertions)]
@@ -60,15 +60,15 @@ impl<'esm> Parse<&'esm[u8]> for RawCellVisibleDistantChildren<'esm> {
 // ====================================================================================================
 
 #[derive(Debug)]
-pub enum RawCellVisibleDistantChild<'esm> {
-    Dialog(RawDialog<'esm>),
-    DialogBranch(RawRecord<'esm>),
-    Scene(RawRecord<'esm>)
+pub enum RawCellVisibleDistantChild<'es> {
+    Dialog(RawDialog<'es>),
+    DialogBranch(RawRecord<'es>),
+    Scene(RawRecord<'es>)
 }
 
 
-impl<'esm> Parse<&'esm[u8]> for RawCellVisibleDistantChild<'esm> {
-    fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
+impl<'es> Parse<&'es[u8]> for RawCellVisibleDistantChild<'es> {
+    fn parse(i: &'es[u8]) -> IResult<&'es[u8], Self, nom::error::Error<&'es[u8]>> {
         let (_, next_id) = FourCC::parse(i)?;
 
         match &next_id.0 {

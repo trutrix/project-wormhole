@@ -117,9 +117,9 @@ pub struct MapData {
 // ====================================================================================================
 
 #[derive(Debug)]
-pub struct RawWorldRecord<'esm> {
-    pub world: RawRecord<'esm>,
-    pub world_children: Option<RawWorldChildren<'esm>>
+pub struct RawWorldRecord<'es> {
+    pub world: RawRecord<'es>,
+    pub world_children: Option<RawWorldChildren<'es>>
 }
 
 // ====================================================================================================
@@ -132,8 +132,8 @@ impl RawWorldRecord<'_> {
 
 // ====================================================================================================
 
-impl <'esm> Parse<&'esm[u8]> for RawWorldRecord<'esm>  {
-    fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self> {
+impl <'es> Parse<&'es[u8]> for RawWorldRecord<'es>  {
+    fn parse(i: &'es[u8]) -> IResult<&'es[u8], Self> {
         let (i, world) = RawRecord::parse(i)?;
 
         let (_, ghead) = GroupHeader::parse(i)?;

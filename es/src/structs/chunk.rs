@@ -4,14 +4,14 @@ use crate::dev::*;
 
 /// Top level data pointer
 #[derive(Debug)]
-pub struct ESMChunk<'esm> {
-    pub data: &'esm[u8]
+pub struct ESMChunk<'es> {
+    pub data: &'es[u8]
 }
 
 // ====================================================================================================
 
-impl<'esm> Parse<&'esm[u8]> for ESMChunk<'esm> {
-    fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
+impl<'es> Parse<&'es[u8]> for ESMChunk<'es> {
+    fn parse(i: &'es[u8]) -> IResult<&'es[u8], Self, nom::error::Error<&'es[u8]>> {
         let (i, chunk) = alloc_chunk(i)?;
         Ok((i, chunk))
     }
@@ -19,7 +19,7 @@ impl<'esm> Parse<&'esm[u8]> for ESMChunk<'esm> {
 
 // ====================================================================================================
 
-pub fn alloc_chunk<'esm>(i: &'esm [u8]) -> IResult<&'esm [u8], ESMChunk<'esm>> {
+pub fn alloc_chunk<'es>(i: &'es [u8]) -> IResult<&'es [u8], ESMChunk<'es>> {
     // Keep original pointer
     let orig = i;
 
@@ -55,7 +55,7 @@ pub fn alloc_chunk<'esm>(i: &'esm [u8]) -> IResult<&'esm [u8], ESMChunk<'esm>> {
 
 // ====================================================================================================
 
-pub fn get_file_chunks<'esm>(i: &'esm [u8]) -> IResult<&'esm [u8], Vec<ESMChunk<'esm>>> {
+pub fn get_file_chunks<'es>(i: &'es [u8]) -> IResult<&'es [u8], Vec<ESMChunk<'es>>> {
     let (i, chunks) = many0(ESMChunk::parse)(i)?;
     Ok((i, chunks))
 }

@@ -45,14 +45,14 @@ impl WorldChildren {
 
 // ====================================================================================================
 
-pub struct RawWorldChildren<'esm> {
+pub struct RawWorldChildren<'es> {
     pub header: GroupHeader,
-    pub cell: RawCellRecord<'esm>,
-    pub blocks: Vec<RawExteriorCellBlock<'esm>>
+    pub cell: RawCellRecord<'es>,
+    pub blocks: Vec<RawExteriorCellBlock<'es>>
 }
 
-impl<'esm> Parse<&'esm[u8]> for RawWorldChildren<'esm> {
-    fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
+impl<'es> Parse<&'es[u8]> for RawWorldChildren<'es> {
+    fn parse(i: &'es[u8]) -> IResult<&'es[u8], Self, nom::error::Error<&'es[u8]>> {
         let (i, (header, raw)) = alloc_group(i)?;
 
         #[cfg(debug_assertions)]

@@ -16,15 +16,15 @@ define_record3! {
 // ====================================================================================================
 
 #[derive(Debug)]
-pub enum RawQuestItem<'esm> {
-    Record(RawRecord<'esm>),
-    Children(RawCellVisibleDistantChildren<'esm>)
+pub enum RawQuestItem<'es> {
+    Record(RawRecord<'es>),
+    Children(RawCellVisibleDistantChildren<'es>)
 }
 
 // ====================================================================================================
 
-impl<'esm> Parse<&'esm[u8]> for RawQuestItem<'esm> {
-    fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
+impl<'es> Parse<&'es[u8]> for RawQuestItem<'es> {
+    fn parse(i: &'es[u8]) -> IResult<&'es[u8], Self, nom::error::Error<&'es[u8]>> {
         
         let (_, next_id) = FourCC::parse(i)?;
 
@@ -44,9 +44,9 @@ impl<'esm> Parse<&'esm[u8]> for RawQuestItem<'esm> {
 // ====================================================================================================
 
 #[derive(Debug)]
-pub struct RawQuestRecord<'esm> {
-    pub record: RawRecord<'esm>,
-    pub children: Option<RawCellVisibleDistantChildren<'esm>>
+pub struct RawQuestRecord<'es> {
+    pub record: RawRecord<'es>,
+    pub children: Option<RawCellVisibleDistantChildren<'es>>
 }
 impl RawQuestRecord<'_> {
     pub fn has_children(&self) -> bool {
@@ -54,8 +54,8 @@ impl RawQuestRecord<'_> {
     }
 }
 
-// impl <'esm> Parse<&'esm[u8]> for RawQuestRecord<'esm>  {
-//     fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self> {
+// impl <'es> Parse<&'es[u8]> for RawQuestRecord<'es>  {
+//     fn parse(i: &'es[u8]) -> IResult<&'es[u8], Self> {
         
 //         // TODO: NEED TO FIX, NON-ORIGIN groups can appear without their parent (yikes)
 

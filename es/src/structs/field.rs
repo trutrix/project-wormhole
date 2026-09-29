@@ -6,8 +6,8 @@ pub struct Field<T> {
     pub data: T,
 }
 
-impl<T> Parse<&[u8]> for Field<T> where T: for<'esm> Parse<&'esm [u8]> {
-    fn parse<'esm>(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
+impl<T> Parse<&[u8]> for Field<T> where T: for<'es> Parse<&'es [u8]> {
+    fn parse<'es>(i: &'es[u8]) -> IResult<&'es[u8], Self, nom::error::Error<&'es[u8]>> {
         let (i, (header, raw)) = alloc_field(i)?;
         let (_, data) = T::parse(raw)?;
         Ok((i, Field { header, data }))
@@ -90,14 +90,14 @@ impl Parse<&[u8]> for FieldHeader {
 // ================================================================================================
 
 // For quick debugging, this is a raw field with no parsing
-pub struct RawField<'esm> {
+pub struct RawField<'es> {
     pub header: FieldHeader,
-    pub data: &'esm [u8],
+    pub data: &'es [u8],
 }
 
 // Implement nom_derive::Parse for FieldHeader
-impl<'esm> Parse<&'esm [u8]> for RawField<'esm> {
-    fn parse(i: &'esm [u8]) -> IResult<&'esm [u8], Self, nom::error::Error<&'esm [u8]>> {
+impl<'es> Parse<&'es [u8]> for RawField<'es> {
+    fn parse(i: &'es [u8]) -> IResult<&'es [u8], Self, nom::error::Error<&'es [u8]>> {
         let (i, (header, data)) = alloc_field(i)?;
         Ok((i, RawField { header, data }))
     }

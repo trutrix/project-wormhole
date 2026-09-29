@@ -11,9 +11,9 @@ pub enum ESObject {
 // ====================================================================================================
 
 // This is slower but far more flexible
-pub enum RawESObject<'esm> {
-    Record(RawRecord<'esm>),
-    Group(Group<RawESObject<'esm>>)
+pub enum RawESObject<'es> {
+    Record(RawRecord<'es>),
+    Group(Group<RawESObject<'es>>)
 }
 
 // ====================================================================================================
@@ -65,8 +65,8 @@ impl RawESObject<'_> {
 
 // ====================================================================================================
 
-impl<'esm> Parse<&'esm[u8]> for RawESObject<'esm> {
-    fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
+impl<'es> Parse<&'es[u8]> for RawESObject<'es> {
+    fn parse(i: &'es[u8]) -> IResult<&'es[u8], Self, nom::error::Error<&'es[u8]>> {
 
         // If this is failing here, you did not verify length before
         // Length is not verified here because this runs millions of times
@@ -84,8 +84,8 @@ impl<'esm> Parse<&'esm[u8]> for RawESObject<'esm> {
 
 // ====================================================================================================
 
-impl<'esm> MapContents<HashMap<FormId, RawRecord<'esm>>> for RawESObject<'esm> {
-    fn insert_into_one_map(self, combined_map: &mut HashMap<FormId, RawRecord<'esm>>) {
+impl<'es> MapContents<HashMap<FormId, RawRecord<'es>>> for RawESObject<'es> {
+    fn insert_into_one_map(self, combined_map: &mut HashMap<FormId, RawRecord<'es>>) {
         match self {
             RawESObject::Record(raw_record) => {
                 

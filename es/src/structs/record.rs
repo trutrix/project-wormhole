@@ -20,7 +20,7 @@ pub struct RecordHeader {
 // ====================================================================================================
 
 impl Parse<&[u8]> for RecordHeader {
-    fn parse<'esm>(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
+    fn parse<'es>(i: &'es[u8]) -> IResult<&'es[u8], Self, nom::error::Error<&'es[u8]>> {
         let (i, iden) = FourCC::parse(i)?;
         let (i, size) = le_u32(i)?;
         let (i, flags) = RecordFlags2::parse(i)?;
@@ -156,9 +156,9 @@ bitflags! {
 
 // ====================================================================================================
 
-impl<'esm> Parse<&'esm[u8]> for RecordFlags2 {
-    fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
-        let (i, raw_flags) = le_u32::<&'esm[u8], nom::error::Error<&'esm[u8]>>(i)?;
+impl<'es> Parse<&'es[u8]> for RecordFlags2 {
+    fn parse(i: &'es[u8]) -> IResult<&'es[u8], Self, nom::error::Error<&'es[u8]>> {
+        let (i, raw_flags) = le_u32::<&'es[u8], nom::error::Error<&'es[u8]>>(i)?;
         Ok((i, RecordFlags2::from_bits_retain(raw_flags)))
     }
 }
@@ -175,16 +175,16 @@ impl RecordFlags2 {
 
 // ====================================================================================================
 
-pub struct RawRecord<'esm> {
+pub struct RawRecord<'es> {
     pub header: RecordHeader,
-    // pub data: RawRecordData<'esm>,
-    pub data: &'esm[u8]
+    // pub data: RawRecordData<'es>,
+    pub data: &'es[u8]
 }
 
 // ====================================================================================================
 
-impl<'esm> Parse<&'esm [u8]> for RawRecord<'esm> {
-    fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
+impl<'es> Parse<&'es [u8]> for RawRecord<'es> {
+    fn parse(i: &'es[u8]) -> IResult<&'es[u8], Self, nom::error::Error<&'es[u8]>> {
         let (i, (header, data)) = alloc_record(i)?;
 
         // #[cfg(debug_assertions)]
@@ -250,7 +250,7 @@ pub struct Record<T> {
 
 // ====================================================================================================
 
-impl<T: for<'esm> Parse<&'esm[u8]>> Parse<&[u8]> for Record<T> {
+impl<T: for<'es> Parse<&'es[u8]>> Parse<&[u8]> for Record<T> {
     fn parse(i: &[u8]) -> IResult<&[u8], Self, nom_derive::nom::error::Error<&[u8]>> {
         let (i, (header, raw)) = alloc_record(i)?;
 

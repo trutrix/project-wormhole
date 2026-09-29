@@ -6,4 +6,4 @@ pub type ExteriorCellSubBlock = Group<Cell>;
 
 // ====================================================================================================
 
-pub type RawExteriorCellSubBlock<'esm> = Group<RawCellRecord<'esm>>;
+pub type RawExteriorCellSubBlock<'es> = Group<RawCellRecord<'es>>;

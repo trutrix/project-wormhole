@@ -187,8 +187,8 @@ pub struct MappedESM<T> {
 
 // ====================================================================================================
 
-impl<'esm> From<ESRaw<'esm>> for MappedESM<RawRecord<'esm>> {
-    fn from(value: ESRaw<'esm>) -> Self {
+impl<'es> From<ESRaw<'es>> for MappedESM<RawRecord<'es>> {
+    fn from(value: ESRaw<'es>) -> Self {
         let mut map = HashMap::new();
         for item in value.objects {
             item.insert_into_one_map(&mut map);
@@ -199,8 +199,8 @@ impl<'esm> From<ESRaw<'esm>> for MappedESM<RawRecord<'esm>> {
 
 // ====================================================================================================
 
-impl<'esm> MappedESM<RawRecord<'esm>> {
-    pub fn diff(&'esm self, esm: &'esm Self) -> (Vec<&'esm FormId>, Vec<&'esm FormId>, Vec<&'esm FormId>) {
+impl<'es> MappedESM<RawRecord<'es>> {
+    pub fn diff(&'es self, esm: &'es Self) -> (Vec<&'es FormId>, Vec<&'es FormId>, Vec<&'es FormId>) {
         let mut updated = Vec::with_capacity(1000000);
         let mut unchanged = Vec::with_capacity(2000000);
         let mut addition = Vec::with_capacity(1000000);

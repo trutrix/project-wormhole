@@ -80,16 +80,16 @@ pub struct GridLocation {
 // ====================================================================================================
 
 #[derive(Debug)]
-pub struct RawCellRecord<'esm> {
-    pub cell: RawRecord<'esm>,
-    pub cell_children: Option<RawCellChildren<'esm>>
+pub struct RawCellRecord<'es> {
+    pub cell: RawRecord<'es>,
+    pub cell_children: Option<RawCellChildren<'es>>
 }
 
 // ====================================================================================================
 
-impl<'esm> MapContents<HashMap<FormId, RawRecord<'esm>>> for RawCellRecord<'esm> {
+impl<'es> MapContents<HashMap<FormId, RawRecord<'es>>> for RawCellRecord<'es> {
     
-    fn insert_into_one_map(self, combined_map: &mut HashMap<FormId, RawRecord<'esm>>) {
+    fn insert_into_one_map(self, combined_map: &mut HashMap<FormId, RawRecord<'es>>) {
         if let Some(children) = self.cell_children {
             for group in children.data {
                 for block in group.data {
@@ -100,7 +100,7 @@ impl<'esm> MapContents<HashMap<FormId, RawRecord<'esm>>> for RawCellRecord<'esm>
         combined_map.insert(self.cell.header.form_id, self.cell);
     }
 
-    fn insert_into_two_maps(self, data_map: &mut HashMap<FormId, RawRecord<'esm>>, refr_map: &mut HashMap<FormId, RawRecord<'esm>>) {
+    fn insert_into_two_maps(self, data_map: &mut HashMap<FormId, RawRecord<'es>>, refr_map: &mut HashMap<FormId, RawRecord<'es>>) {
         if let Some(children) = self.cell_children {
             for group in children.data {
                 for block in group.data {
@@ -114,8 +114,8 @@ impl<'esm> MapContents<HashMap<FormId, RawRecord<'esm>>> for RawCellRecord<'esm>
 
 // ====================================================================================================
 
-impl <'esm> Parse<&'esm[u8]> for RawCellRecord<'esm> {
-    fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
+impl <'es> Parse<&'es[u8]> for RawCellRecord<'es> {
+    fn parse(i: &'es[u8]) -> IResult<&'es[u8], Self, nom::error::Error<&'es[u8]>> {
 
         // Parse the cell record first
         let (i, cell) = RawRecord::parse(i)?;

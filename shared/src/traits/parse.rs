@@ -13,6 +13,6 @@ pub trait ParseV<I, V> where Self: Sized {
 
 #[allow(unused)]
 pub trait ParseES where Self: Sized {
-    fn parse<'esm>(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom_derive::nom::error::Error<&'esm[u8]>> { unimplemented!("Called but not implemented."); }
-    fn parsei<'esm, I>(i: &'esm[u8], input: &'esm I) -> IResult<&'esm[u8], Self, nom_derive::nom::error::Error<&'esm[u8]>> { unimplemented!("Called but not implemented."); }
+    fn parse<'es>(i: &'es[u8]) -> IResult<&'es[u8], Self, nom_derive::nom::error::Error<&'es[u8]>> { unimplemented!("Called but not implemented."); }
+    fn parsei<'es, I>(i: &'es[u8], input: &'es I) -> IResult<&'es[u8], Self, nom_derive::nom::error::Error<&'es[u8]>> { unimplemented!("Called but not implemented."); }
 }

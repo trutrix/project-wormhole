@@ -31,13 +31,13 @@ pub struct DialogData {
 // ====================================================================================================
 
 #[derive(Debug)]
-pub struct RawDialog<'esm> {
-    pub record: RawRecord<'esm>,
-    pub children: Option<RawTopicChildren<'esm>>
+pub struct RawDialog<'es> {
+    pub record: RawRecord<'es>,
+    pub children: Option<RawTopicChildren<'es>>
 }
 
-impl<'esm> Parse<&'esm[u8]> for RawDialog<'esm> {
-    fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
+impl<'es> Parse<&'es[u8]> for RawDialog<'es> {
+    fn parse(i: &'es[u8]) -> IResult<&'es[u8], Self, nom::error::Error<&'es[u8]>> {
         let (i, record) = RawRecord::parse(i)?;
 
         if !i.is_empty() {

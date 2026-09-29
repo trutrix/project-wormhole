@@ -301,17 +301,17 @@ impl TopGroup {
 
 
 #[derive(Debug)]
-pub enum RawTopGroup<'esm> {
-    Common(Vec<RawRecord<'esm>>),
-    Quest(Vec<RawQuestItem<'esm>>),
-    World(Vec<RawWorldRecord<'esm>>),
-    Cell(Vec<RawInteriorCellBlock<'esm>>)
+pub enum RawTopGroup<'es> {
+    Common(Vec<RawRecord<'es>>),
+    Quest(Vec<RawQuestItem<'es>>),
+    World(Vec<RawWorldRecord<'es>>),
+    Cell(Vec<RawInteriorCellBlock<'es>>)
 }
 
 // ====================================================================================================
 
-impl<'esm> Parse<&'esm[u8]> for RawTopGroup<'esm> {
-    fn parse(i: &'esm[u8]) -> IResult<&'esm[u8], Self, nom::error::Error<&'esm[u8]>> {
+impl<'es> Parse<&'es[u8]> for RawTopGroup<'es> {
+    fn parse(i: &'es[u8]) -> IResult<&'es[u8], Self, nom::error::Error<&'es[u8]>> {
         let (i, (gh, raw)) = alloc_group(i)?;
 
         if &gh.iden.0 != b"GRUP" {
