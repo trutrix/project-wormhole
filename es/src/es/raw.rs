@@ -13,14 +13,14 @@ use crate::{dev::*, records::all::FileHeader, structs::{chunk::get_file_chunks, 
 /// 
 /// More advanced parsing can be built on top of this.
 
-pub struct ESRaw<'esm> {
+pub struct ESRaw<'es> {
     pub header: FileHeader,
-    pub objects: Vec<RawESObject<'esm>>
+    pub objects: Vec<RawESObject<'es>>
     // pub group_counter: u32,
 }
 
 
-impl<'esm> ESRaw<'esm> {
+impl<'es> ESRaw<'es> {
     /// WIP -  Anything over one for the threads parameter just makes the function auto allocate threads, actual thread control is planned for later
     // pub fn parse_v2(i: &'esm [u8], threads: usize) -> IResult<&'esm [u8], Self> {
 
@@ -124,7 +124,7 @@ impl<'esm> ESRaw<'esm> {
     //     Ok((i, Self { header, data_map /*, group_counter */ }))
     // }
 
-    pub fn parse_as_objects(i: &'esm [u8], threads: usize) -> IResult<&'esm [u8], Self> {
+    pub fn parse_as_objects(i: &'es [u8], threads: usize) -> IResult<&'es [u8], Self> {
 
         let mut objects = Vec::new();
 
