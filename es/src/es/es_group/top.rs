@@ -1,6 +1,6 @@
 use nom_derive::nom::{self, IResult};
 
-use crate::{es::{es_group::{ESGroupHeader, ESGroupLabel, ESGroupTrait}, es_object::ESObject, es_record::ESRecordHeader}, records::AACT, traits::{ParseAllocated, ParseAllocated2}};
+use crate::{es::{es_group::{ESGroupHeader, ESGroupLabel, ESGroupTrait}, es_object::ESObjectT, es_record::ESRecordHeader}, records::AACT, traits::{ParseAllocated, ParseAllocated2}};
 
 // ====================================================================================================
 
@@ -150,7 +150,7 @@ impl ParseAllocated2<ESGroupHeader, &[u8]> for ESTopTyped {
 
 // ====================================================================================================
 
-impl ESObject for ESTopTyped {
+impl ESObjectT for ESTopTyped {
     fn header_size_value(&self) -> &u32 {
         match self {
             ESTopTyped::Unhandled(esgroup_header) => &esgroup_header.size,

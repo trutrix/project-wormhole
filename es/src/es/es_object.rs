@@ -2,7 +2,7 @@ use crate::{dev::*, es::{self, es_group::{ESGroupHeader, ESGroupTrait, ESGroupTy
 
 // ====================================================================================================
 
-pub trait ESObject {
+pub trait ESObjectT {
     fn object_count(&self) -> &usize;
     /// The size present in the header
     fn header_size_value(&self) -> &u32;
@@ -20,7 +20,7 @@ pub trait ESObject {
 // ====================================================================================================
 
 /// Custom parsing function if you do not know what the next object will be
-pub fn parse_es_object(i: &[u8]) -> IResult<&[u8], Box<dyn ESObject>> {
+pub fn parse_es_object(i: &[u8]) -> IResult<&[u8], Box<dyn ESObjectT>> {
     // Get iden and size
     let (i, iden) = FourCC::parse(i)?;
     let (i, size) = le_u32(i)?;
@@ -70,7 +70,7 @@ pub fn parse_es_object(i: &[u8]) -> IResult<&[u8], Box<dyn ESObject>> {
 
 // ====================================================================================================
 
-impl std::fmt::Debug for dyn ESObject {
+impl std::fmt::Debug for dyn ESObjectT {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         if self.is_group() {
             write!(f, "ESObject -> ESGroup {{ bytes: {:?}, object_count: {:?} }}", self.header_size_value(), self.object_count())
@@ -104,14 +104,15 @@ pub struct ESObjectHeader {
 
 // ====================================================================================================
 
-pub struct ESObjectRaw<'es> {
+pub struct ESObject<'es> {
     pub header: ESObjectHeader,
+    /// Pointer to data
     pub data: &'es[u8]
 }
 
 // ====================================================================================================
 
-impl std::fmt::Debug for ESObjectRaw<'_> {
+impl std::fmt::Debug for ESObject<'_> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "ESObjectRaw {{ header: {:?}, data: {:?} bytes }}", self.header, self.header.size)
     }
@@ -119,13 +120,17 @@ impl std::fmt::Debug for ESObjectRaw<'_> {
 
 // ====================================================================================================
 
-impl ESObject for ESObjectRaw<'_> {
+impl ESObjectT for ESObject<'_> {
     fn is_group(&self) -> bool {
         &self.header.iden.0 == b"GRUP"
     }
 
     fn object_count(&self) -> &usize {
-        todo!()
+        if self.is_group() {
+            todo!("Needs group logic.")
+        } else {
+            &1usize
+        }
     }
 
     fn header_size_value(&self) -> &u32 {
@@ -136,7 +141,7 @@ impl ESObject for ESObjectRaw<'_> {
 // ==================================================================================================
 
 
-impl<'es> Parse<&'es[u8]> for ESObjectRaw<'es> {
+impl<'es> Parse<&'es[u8]> for ESObject<'es> {
     fn parse(i: &'es[u8]) -> IResult<&'es[u8], Self, nom::error::Error<&'es[u8]>> {
         let (i, header) = ESObjectHeader::parse(i)?;
         let tsize = if &header.iden.0 == b"GRUP" {
@@ -150,6 +155,6 @@ impl<'es> Parse<&'es[u8]> for ESObjectRaw<'es> {
         };
 
         let (i, data) = take(tsize)(i)?;
-        Ok((i, ESObjectRaw { header, data }))
+        Ok((i, ESObject { header, data }))
     }
 }
