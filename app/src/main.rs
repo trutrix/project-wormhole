@@ -139,6 +139,7 @@ impl eframe::App for PWApp {
                     ui.selectable_value(&mut self.interperator, ESGame::FNV, ESGame::FNV.get_short_title());
                     ui.selectable_value(&mut self.interperator, ESGame::ES4, ESGame::ES4.get_short_title());
                     ui.selectable_value(&mut self.interperator, ESGame::ES5, ESGame::ES5.get_short_title());
+                    ui.selectable_value(&mut self.interperator, ESGame::ES6, ESGame::ES6.get_short_title());
                     ui.selectable_value(&mut self.interperator, ESGame::SFD, ESGame::SFD.get_short_title());
                 });
 

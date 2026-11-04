@@ -4,6 +4,7 @@ use crate::strings::*;
 pub enum ESGame {
     ES4,
     ES5,
+    ES6,
     FNV,
     FO3,
     #[default]
@@ -23,6 +24,7 @@ impl ESGame {
                     match s.to_str().unwrap_or("None") {
                         S_ES4_TITLE => Some(ESGame::ES4), 
                         S_ES5_TITLE => Some(ESGame::ES5),
+                        S_ES6_TITLE => Some(ESGame::ES6),
                         S_FNV_TITLE => Some(ESGame::FNV), 
                         S_FO3_TITLE => Some(ESGame::FO3),
                         S_FO4_TITLE => Some(ESGame::FO4),
@@ -41,6 +43,7 @@ impl ESGame {
         match self {
             ESGame::ES4 => S_ES4_TITLE,
             ESGame::ES5 => S_ES5_TITLE,
+            ESGame::ES6 => S_ES6_TITLE,
             ESGame::FNV => S_FNV_TITLE,
             ESGame::FO3 => S_FO3_TITLE,
             ESGame::FO4 => S_FO4_TITLE,
@@ -52,6 +55,7 @@ impl ESGame {
         match self {
             ESGame::ES4 => S_ES4_SHORT_TITLE,
             ESGame::ES5 => S_ES5_SHORT_TITLE,
+            ESGame::ES6 => S_ES6_SHORT_TITLE,
             ESGame::FNV => S_FNV_SHORT_TITLE,
             ESGame::FO3 => S_FO3_SHORT_TITLE,
             ESGame::FO4 => S_FO4_SHORT_TITLE,
