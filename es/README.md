@@ -1,14 +1,12 @@
 # Project Wormhole - ES
 Library for parsing ES (ESM, ESP, ESL) files for Bethesda games  
-Very bare-bones, not fully implemented
 
-## Titles Currently Supported
-- Fallout 4
-
-## Future Supported Titles (in order)
+## Supported Titles
 - Starfield
-- Fallout: New Vegas
+- Fallout 4
 - Fallout 3
+- Fallout: New Vegas
+- The Elder Scrolls V: Sentinel (hopefully)
 - The Elder Scrolls V: Skyrim
 - The Elder Scrolls IV: Oblivion
 
