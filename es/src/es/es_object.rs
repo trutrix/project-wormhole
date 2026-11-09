@@ -84,7 +84,7 @@ impl std::fmt::Debug for dyn ESObjectT {
 
 // ====================================================================================================
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum ESError {
     NotImplemented,
     NotRecord,
