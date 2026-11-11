@@ -6,7 +6,7 @@ Library for parsing ES (ESM, ESP, ESL) files for Bethesda games
 - Fallout 4
 - Fallout 3
 - Fallout: New Vegas
-- The Elder Scrolls V: Sentinel (hopefully)
+- The Elder Scrolls VI: Sentinel (hopefully)
 - The Elder Scrolls V: Skyrim
 - The Elder Scrolls IV: Oblivion
 
