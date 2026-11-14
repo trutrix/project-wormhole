@@ -1,5 +1,3 @@
-
-
 pub const CELL_WIDTH_UNIT: f32 = 4096.0;
 pub const CELL_WIDTH_M: f32 = 58.5;
 pub const CELL_WIDTH_CM: f32 = CELL_WIDTH_M * 100.0;
@@ -12,8 +10,8 @@ pub const GRUP: &[u8; 4] = b"GRUP";
 
 // ====================================================================================================
 
-pub const REFERENCE_GROUPS: [&[u8;4];3] = [b"WRLD", b"CELL", b"QUST"];
+pub const REFERENCE_GROUPS: [&[u8; 4]; 3] = [b"WRLD", b"CELL", b"QUST"];
 
 // ====================================================================================================
 
-pub const TARGET_EXTS: [&str;3] = ["esl", "esp", "esm"];
+pub const TARGET_EXTS: [&str; 3] = ["esl", "esp", "esm"];
