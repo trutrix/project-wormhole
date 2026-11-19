@@ -2,7 +2,12 @@ use std::ops::BitAnd;
 
 use nom_derive::nom::error;
 
-use crate::{dev::*, es::{es_group::ESGroupHeader, es_object::{ESObjectT, ESObjectHeader}}, records::*, traits::{ParseAllocated, ParseAllocated2, record::FormIdTrait}};
+use crate::{
+    dev::*,
+    es::{es_group::ESGroupHeader, es_object::ESObject},
+    records::*,
+    traits::{ParseAllocated, ParseAllocated2, record::FormIdTrait},
+};
 //use bitflags::bitflags;
 
 #[derive(Debug)]
@@ -152,9 +157,7 @@ impl nom_derive::Parse<&[u8]> for ESRecordTyped {
     fn parse(i: &[u8]) -> IResult<&[u8], Self, nom::error::Error<&[u8]>> {
         let (i, (header, raw)) = alloc_record(i)?;
         match &header.iden.0 {
-            _ => {
-                Ok((i, ESRecordTyped::Unhandled(header)))
-            }
+            _ => Ok((i, ESRecordTyped::Unhandled(header))),
         }
     }
 }
@@ -162,30 +165,35 @@ impl nom_derive::Parse<&[u8]> for ESRecordTyped {
 // ====================================================================================================
 
 impl ParseAllocated<ESRecordHeader, &[u8]> for ESRecordTyped {
-    fn parse_allocated(header: ESRecordHeader, raw: &[u8]) -> Result<Self, nom::error::Error<&[u8]>> {
+    fn parse_allocated(
+        header: ESRecordHeader,
+        raw: &[u8],
+    ) -> Result<Self, nom::error::Error<&[u8]>> {
         match &header.iden.0 {
-            _ => { Ok(ESRecordTyped::Unhandled(header)) }
+            _ => Ok(ESRecordTyped::Unhandled(header)),
         }
     }
 }
 
 // ===================================================================================================
 
-impl ESObjectT for ESRecordTyped {
-    fn object_count(&self) -> &usize { &1usize }
+impl ESObject for ESRecordTyped {
+    fn object_count(&self) -> &usize {
+        &1usize
+    }
 
     fn header_size_value(&self) -> &u32 {
         match self {
-            ESRecordTyped::Unhandled(header) => {
-                &header.size
-            }
+            ESRecordTyped::Unhandled(header) => &header.size,
             _ => {
                 todo!("Cannot get type on unsupported record types yet")
             }
         }
     }
 
-    fn is_group(&self) -> bool { false }
+    fn is_group(&self) -> bool {
+        false
+    }
 }
 
 impl ESRecordTrait for ESRecordTyped {
@@ -212,18 +220,7 @@ pub struct ESRecordHeader {
     pub size: u32,
     pub flags: ESRecordFlags,
     pub form_id: FormId,
-    pub version_control: ESVersionControl
-}
-
-// ====================================================================================================
-
-#[cfg(not(feature = "no_unsafe"))]
-impl From<ESObjectHeader> for ESRecordHeader {
-    fn from(value: ESObjectHeader) -> Self {
-        unsafe {
-            std::mem::transmute(value)
-        }
-    }
+    pub version_control: ESVersionControl,
 }
 
 // ====================================================================================================
@@ -252,17 +249,16 @@ pub struct ESVersionControl {
     pub revision: u16,
 }
 
-
 // ====================================================================================================
 
 /// Assuming the timestamp is the same in Fallout 4 as SkyrimSE. Add 2000 to get full year
-/// 
-/// Binary format:  
+///
+/// Binary format:
 /// ```text
 ///    YYYYYYY MMMM DDDDD
 /// 0b 0000000 0000 11111
 /// ```
-/// 
+///
 #[derive(NomLE, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "speedy", derive(Readable, Writable))]
 pub struct ESTimestamp(pub u16);
@@ -270,26 +266,24 @@ pub struct ESTimestamp(pub u16);
 // ====================================================================================================
 
 impl ESTimestamp {
-    
     /// Mask out first 11 bits so only day is remaining
-    /// 
+    ///
     /// `self.0 & 0b0000000000011111`
     pub fn day(&self) -> u16 {
         self.0 & 0b0000000000011111
     }
 
     /// Shift right 5 (to erase day), then mask out first 7 (to erase year)
-    /// 
+    ///
     /// `self.0 >> 5 & 0b00000001111`
     pub fn month(&self) -> u16 {
         self.0 >> 5 & 0b00000001111
     }
 
-
     /// Bitshift right 9 to keep only the year.
-    /// 
+    ///
     /// `self.0 >> 9`
-    /// 
+    ///
     /// Add 2000 to this to display the correct millenia
     pub fn year(&self) -> u16 {
         self.0 >> 9
@@ -308,7 +302,13 @@ impl ESTimestamp {
 
 impl std::fmt::Debug for ESTimestamp {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:04}/{:02}/{:02}", self.year(), self.month(), self.day())
+        write!(
+            f,
+            "{:04}/{:02}/{:02}",
+            self.year(),
+            self.month(),
+            self.day()
+        )
     }
 }
 
@@ -324,9 +324,10 @@ impl ESRecordFlags {
     // TODO: Clippy is saying this will never equal 1, not familiar enough with bitmasks to know why
     // Im guessing it works because the compressed records dont use other flags currently
     // Upon further review, this appears correct and I am unsure why this is happening
-    pub fn compressed(&self) -> bool { self.0.bitand(0x00040000) == 1 }
+    pub fn compressed(&self) -> bool {
+        self.0.bitand(0x00040000) == 1
+    }
 }
-
 
 // ====================================================================================================
 
@@ -338,7 +339,7 @@ impl ESRecordFlags {
 //     #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 //     pub struct ESRecordFlags: u32 {
 //         /// The value `A`, at bit position `0`.
-        
+
 //         /// The data is compressed.
 //         const COMPRESSED = 0x00040000;
 
@@ -400,7 +401,10 @@ pub fn alloc_record(i: &[u8]) -> IResult<&[u8], (ESRecordHeader, &[u8]), nom::er
     // Check if header is actually a group, which is an unrecoverable error
     if &header.iden.0 == b"GRUP" {
         let (_, gheader) = ESGroupHeader::parse(orig)?;
-        panic!("alloc_record(): function encountered a group: {:?}", gheader);
+        panic!(
+            "alloc_record(): function encountered a group: {:?}",
+            gheader
+        );
     }
     // Return the values
     else {
@@ -416,13 +420,16 @@ pub fn alloc_record(i: &[u8]) -> IResult<&[u8], (ESRecordHeader, &[u8]), nom::er
 #[derive(Debug)]
 pub struct ESRecord<T> {
     pub header: ESRecordHeader,
-    pub data: Vec<T>
+    pub data: Vec<T>,
 }
 
 // ====================================================================================================
 
-impl<'a, T: Parse<&'a[u8]>> ParseAllocated<ESRecordHeader, &'a[u8]> for ESRecord<T> {
-    fn parse_allocated(header: ESRecordHeader, raw: &'a[u8]) -> Result<Self, error::Error<&'a[u8]>> {
+impl<'a, T: Parse<&'a [u8]>> ParseAllocated<ESRecordHeader, &'a [u8]> for ESRecord<T> {
+    fn parse_allocated(
+        header: ESRecordHeader,
+        raw: &'a [u8],
+    ) -> Result<Self, error::Error<&'a [u8]>> {
         if let Ok((_, data)) = many0(T::parse)(raw) {
             Ok(ESRecord { header, data })
         } else {
@@ -431,8 +438,8 @@ impl<'a, T: Parse<&'a[u8]>> ParseAllocated<ESRecordHeader, &'a[u8]> for ESRecord
     }
 }
 
-impl<'a, T: Parse<&'a[u8]>> ParseAllocated2<ESRecordHeader, &'a[u8]> for ESRecord<T> {
-    fn parse_allocated2(header: ESRecordHeader, raw: &'a[u8]) -> IResult<&'a[u8], Self> {
+impl<'a, T: Parse<&'a [u8]>> ParseAllocated2<ESRecordHeader, &'a [u8]> for ESRecord<T> {
+    fn parse_allocated2(header: ESRecordHeader, raw: &'a [u8]) -> IResult<&'a [u8], Self> {
         let (_, data) = many0(T::parse)(raw)?;
         Ok((&[], ESRecord { header, data }))
     }
@@ -440,15 +447,16 @@ impl<'a, T: Parse<&'a[u8]>> ParseAllocated2<ESRecordHeader, &'a[u8]> for ESRecor
 
 // ====================================================================================================
 
-
-impl<'a, T> Parse<&'a[u8]> for ESRecord<T> where T: Parse<&'a[u8]> {
-    fn parse(i: &'a[u8]) -> IResult<&'a[u8], Self, error::Error<&'a[u8]>> {
+impl<'a, T> Parse<&'a [u8]> for ESRecord<T>
+where
+    T: Parse<&'a [u8]>,
+{
+    fn parse(i: &'a [u8]) -> IResult<&'a [u8], Self, error::Error<&'a [u8]>> {
         let (i, (header, raw)) = alloc_record(i)?;
         let (_, result) = ESRecord::parse_allocated2(header, raw)?;
         Ok((i, result))
     }
 }
-
 
 // ====================================================================================================
 
@@ -459,13 +467,16 @@ pub trait ESRecordTrait {
     fn record_size(&self) -> &u32;
 }
 
-
 // ====================================================================================================
 
 /// Implement [ESObject] for anything that implements [ESRecord]
-impl ESObjectT for dyn ESRecordTrait {
-    fn object_count(&self) -> &usize { &1usize }
-    fn header_size_value(&self) -> &u32 { self.record_size() }
+impl ESObject for dyn ESRecordTrait {
+    fn object_count(&self) -> &usize {
+        &1usize
+    }
+    fn header_size_value(&self) -> &u32 {
+        self.record_size()
+    }
     fn is_group(&self) -> bool {
         false
     }
@@ -485,21 +496,30 @@ impl<T> ESRecordTrait for ESRecord<T> {
     }
 }
 
-impl<'a, T> ESRecord<T> where T: Parse<&'a[u8]> + 'static {
-    pub fn parse_as_object(i: &'a[u8]) -> IResult<&'a[u8], Box<dyn ESObjectT>> {
+impl<'a, T> ESRecord<T>
+where
+    T: Parse<&'a [u8]> + 'static,
+{
+    pub fn parse_as_object(i: &'a [u8]) -> IResult<&'a [u8], Box<dyn ESObject>> {
         let (i, (header, raw)) = alloc_record(i)?;
         let (_, result) = Self::parse_allocated(header, raw)?;
         Ok((i, Box::new(result)))
     }
 
-    pub fn parse_allocated(header: ESRecordHeader, raw: &'a[u8]) -> IResult<&'a[u8], Self> {
+    pub fn parse_allocated(header: ESRecordHeader, raw: &'a [u8]) -> IResult<&'a [u8], Self> {
         let (_, data) = many0(T::parse)(raw)?;
         Ok((&[], ESRecord { header, data }))
     }
 }
 
-impl<T> ESObjectT for ESRecord<T> {
-    fn object_count(&self) -> &usize { &1usize }
-    fn header_size_value(&self) -> &u32 { &self.header.size }
-    fn is_group(&self) -> bool { false }
+impl<T> ESObject for ESRecord<T> {
+    fn object_count(&self) -> &usize {
+        &1usize
+    }
+    fn header_size_value(&self) -> &u32 {
+        &self.header.size
+    }
+    fn is_group(&self) -> bool {
+        false
+    }
 }
