@@ -290,3 +290,10 @@ impl ESGroup {
         Ok((i, ESGroup { header, items }))
     }
 }
+
+// ====================================================================================================
+
+pub struct ESGroupRaw<'es> {
+    pub header: ESGroupHeader,
+    pub data: &'es [u8],
+}

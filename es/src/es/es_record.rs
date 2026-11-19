@@ -523,3 +523,10 @@ impl<T> ESObject for ESRecord<T> {
         false
     }
 }
+
+// ====================================================================================================
+
+pub struct ESRecordRaw<'es> {
+    pub header: RecordHeader,
+    pub raw: &'es [u8],
+}
