@@ -75,7 +75,29 @@ impl nom_derive::Parse<&[u8]> for ESGroupTyped {
 
 impl ParseAllocated2<ESGroupHeader, &[u8]> for ESGroupTyped {
     fn parse_allocated2(header: ESGroupHeader, raw: &[u8]) -> IResult<&[u8], Self> {
-        todo!()
+        match header.get_label() {
+            ESGroupLabel::Top(_) => {
+                if let Ok((_, g)) = ESTopTyped::parse_allocated2(header, raw) {
+                    Ok((&[], ESGroupTyped::Top(g)))
+                } else {
+                    Err(nom::Err::Error(nom::error::Error::new(
+                        raw,
+                        nom::error::ErrorKind::Fail,
+                    )))
+                }
+            }
+            ESGroupLabel::WorldChildren(form_id) => todo!(),
+            ESGroupLabel::InteriorCellBlock(_) => todo!(),
+            ESGroupLabel::InteriorCellSubBlock(_) => todo!(),
+            ESGroupLabel::ExteriorCellBlock(cell_location) => todo!(),
+            ESGroupLabel::ExteriorCellSubBlock(cell_location) => todo!(),
+            ESGroupLabel::CellChildren(form_id) => todo!(),
+            ESGroupLabel::TopicChildren(form_id) => todo!(),
+            ESGroupLabel::CellPersistentChildren(form_id) => todo!(),
+            ESGroupLabel::CellTemporaryChildren(form_id) => todo!(),
+            ESGroupLabel::CellVisibleDistantChildren(form_id) => todo!(),
+            ESGroupLabel::Unknown(_) => Ok((&[], ESGroupTyped::Unknown(header))),
+        }
     }
 }
 

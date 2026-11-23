@@ -138,9 +138,9 @@ fn test_speedy() {}
 fn test_es_object() {
     let data = std::fs::read(FO4_ESM_PATH).unwrap();
     let start = std::time::Instant::now();
-    //let (i, header) = many0(ESObject::parse)(&data).unwrap();
+    let (i, header) = many0(parse_es_object)(&data).unwrap();
     let elapsed = start.elapsed();
-    //println!("{:#?}", header);
+    println!("{:#?}", header);
     println!("{:?}", elapsed);
 }
 
