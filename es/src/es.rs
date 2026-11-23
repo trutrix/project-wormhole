@@ -2,21 +2,26 @@ use crate::dev::*;
 
 // ====================================================================================================
 
+pub mod es_group;
+pub mod es_object;
+pub mod es_record;
+pub mod full;
 pub mod mapped;
 pub mod raw;
-pub mod full;
-pub mod es_object;
-pub mod es_group;
-pub mod es_record;
 
 // ====================================================================================================
 
-
 pub trait ESMUtils {
-    fn load_file(file_path: &str) -> Result<Self, ESMError> where Self: Sized;
-    fn load_dir(dir_path: &str) -> Result<Self, ESMError> where Self: Sized;
+    fn load_file(file_path: &str) -> Result<Self, ESMError>
+    where
+        Self: Sized;
+    fn load_dir(dir_path: &str) -> Result<Self, ESMError>
+    where
+        Self: Sized;
     fn append<T>(&mut self, other: &T);
-    fn parse(i: &[u8]) -> Result<Self, ESMError> where Self: Sized;
+    fn parse(i: &[u8]) -> Result<Self, ESMError>
+    where
+        Self: Sized;
 }
 
 // ====================================================================================================
@@ -34,7 +39,7 @@ pub enum ESMError {
     InvalidData,
     NotEnoughBytes(String),
     StringConversionError(String),
-    GameSetting(String)
+    GameSetting(String),
 }
 
 // ====================================================================================================
@@ -47,8 +52,8 @@ impl From<std::io::Error> for ESMError {
 
 // ====================================================================================================
 
-impl From<nom::Err<nom::error::Error<&'static[u8]>>> for ESMError {
-    fn from(value: nom::Err<nom::error::Error<&'static[u8]>>) -> Self {
+impl From<nom::Err<nom::error::Error<&'static [u8]>>> for ESMError {
+    fn from(value: nom::Err<nom::error::Error<&'static [u8]>>) -> Self {
         ESMError::Nom(value)
     }
 }
