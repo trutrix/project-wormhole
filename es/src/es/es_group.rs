@@ -319,3 +319,11 @@ pub struct ESGroupRaw<'es> {
     pub header: ESGroupHeader,
     pub data: &'es [u8],
 }
+
+impl<'es> Parse<&'es [u8]> for ESGroupRaw<'es> {
+    fn parse(i: &'es [u8]) -> IResult<&'es [u8], Self, nom::error::Error<&'es [u8]>> {
+        let (i, header) = ESGroupHeader::parse(i)?;
+        let (i, raw) = take(header.size - 24)(i)?;
+        Ok((i, ESGroupRaw { header, data: raw }))
+    }
+}
