@@ -7,14 +7,6 @@ use crate::{
     traits::{ParseAllocated, ParseAllocated2},
 };
 
-/*
- * New structure notes:
- * - A Record is an list of fields
- * - A Group is a list of Records and or Groups
- * - Records and Groups are considered objects
- * - WRLD, CELL, QUST contain sub groups
- */
-
 // ====================================================================================================
 
 pub trait ESObject {
